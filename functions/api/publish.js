@@ -47,8 +47,12 @@ export async function onRequest(context) {
       }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
     }
     
-    // Salva o site completo no KV
-    await env.PAINELBIO_KV.put(`site:${cleanSlug}`, JSON.stringify(data));
+    const cleanSlugWithAt = cleanSlug.startsWith('@') ? cleanSlug : '@' + cleanSlug;
+    const cleanSlugWithoutAt = cleanSlug.replace('@', '');
+    
+    // Salva o site completo no KV (tanto com @ quanto sem @)
+    await env.PAINELBIO_KV.put(`site:${cleanSlugWithAt}`, JSON.stringify(data));
+    await env.PAINELBIO_KV.put(`site:${cleanSlugWithoutAt}`, JSON.stringify(data));
     
     // Atualiza a lista da galeria para ser mais rápido na leitura
     const galleryStr = await env.PAINELBIO_KV.get('gallery_list');
