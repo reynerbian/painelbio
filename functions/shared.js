@@ -15,6 +15,10 @@ export function generateStaticSite(data) {
   };
   const theme = presetMap[data.preset] || presetMap['gray'];
 
+  const cleanArroba = (data.arroba || '').replace('@', '').trim();
+  const instaUrl = cleanArroba ? `https://instagram.com/${cleanArroba}` : '#';
+  const bioAlign = data.bioAlign || 'center';
+
   const avatarHtml = data.avatar ? `
             <div class="preview-avatar-glow">
                 <div class="preview-avatar-inner">
@@ -24,9 +28,9 @@ export function generateStaticSite(data) {
 
   const bioHtml = data.bio ? `<p class="preview-bio">${data.bio}</p>` : '';
   
-  const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank">${data.btn1Title}</a>` : '';
-  const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank">${data.btn2Title}</a>` : '';
-  const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank">${data.btn3Title}</a>` : '';
+  const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn1Title}</a>` : '';
+  const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn2Title}</a>` : '';
+  const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn3Title}</a>` : '';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -79,8 +83,8 @@ export function generateStaticSite(data) {
 
         .bg-glow {
             position: absolute;
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
             filter: blur(60px);
             opacity: 0.58;
@@ -105,13 +109,13 @@ export function generateStaticSite(data) {
             background: rgba(18, 15, 27, 0.75);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--theme-b);
             border-radius: 28px;
-            padding: 24px 16px;
+            padding: 28px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px var(--theme-g);
             position: relative;
             z-index: 10;
             box-sizing: border-box;
@@ -126,7 +130,7 @@ export function generateStaticSite(data) {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px var(--theme-g);
+            box-shadow: 0 0 25px var(--theme-g);
             margin-bottom: 16px;
         }
 
@@ -148,29 +152,36 @@ export function generateStaticSite(data) {
         }
 
         .preview-name {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin: 0 0 2px 0;
+            margin: 0 0 4px 0;
             color: #ffffff;
             text-align: center;
         }
 
         .preview-arroba {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            color: var(--theme-c1);
             text-decoration: none;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             text-align: center;
-            display: block;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .preview-arroba:hover {
+            opacity: 0.8;
+            text-decoration: underline;
         }
 
         .preview-bio {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.75);
-            text-align: center;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: ${bioAlign};
             line-height: 1.5;
             margin-bottom: 24px;
-            width: 90%;
+            width: 95%;
+            word-break: break-word;
         }
 
         .preview-links {
@@ -181,26 +192,28 @@ export function generateStaticSite(data) {
         }
 
         .preview-link-btn {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
+            border: 1px solid var(--theme-b);
+            color: #ffffff;
             padding: 16px 20px;
-            border-radius: 12px;
+            border-radius: 14px;
             text-decoration: none;
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             width: 100%;
             box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .preview-link-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--theme-c1);
+            box-shadow: 0 0 15px var(--theme-g);
             transform: translateY(-2px);
         }
         
@@ -218,7 +231,7 @@ export function generateStaticSite(data) {
             ${avatarHtml}
             
             <h2 class="preview-name">${data.name || ''}</h2>
-            <a href="#" class="preview-arroba">${data.arroba || ''}</a>
+            <a href="${instaUrl}" target="_blank" rel="noopener noreferrer" class="preview-arroba">${data.arroba || ''}</a>
             
             ${bioHtml}
             
