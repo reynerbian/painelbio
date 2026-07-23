@@ -15,18 +15,31 @@ export function generateStaticSite(data) {
   };
   const theme = presetMap[data.preset] || presetMap['gray'];
 
+  const avatarHtml = data.avatar ? `
+            <div class="preview-avatar-glow">
+                <div class="preview-avatar-inner">
+                    <img src="${data.avatar}" alt="${data.name || ''}">
+                </div>
+            </div>` : '';
+
+  const bioHtml = data.bio ? `<p class="preview-bio">${data.bio}</p>` : '';
+  
+  const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank">${data.btn1Title}</a>` : '';
+  const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank">${data.btn2Title}</a>` : '';
+  const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank">${data.btn3Title}</a>` : '';
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>\${data.name || data.arroba || 'Bio'}</title>
+    <title>${data.name || data.arroba || 'Bio'}</title>
     <style>
         :root {
-            --theme-c1: \${theme.c1};
-            --theme-c2: \${theme.c2};
-            --theme-b: \${theme.b};
-            --theme-g: \${theme.g};
+            --theme-c1: ${theme.c1};
+            --theme-c2: ${theme.c2};
+            --theme-b: ${theme.b};
+            --theme-g: ${theme.g};
         }
         
         html, body {
@@ -194,22 +207,17 @@ export function generateStaticSite(data) {
         <div class="bg-glow bg-glow-bottom"></div>
         
         <div class="preview-card">
-            \${data.avatar ? \`
-            <div class="preview-avatar-glow">
-                <div class="preview-avatar-inner">
-                    <img src="\${data.avatar}" alt="\${data.name}">
-                </div>
-            </div>\` : ''}
+            ${avatarHtml}
             
-            <h2 class="preview-name">\${data.name || ''}</h2>
-            <a href="#" class="preview-arroba">\${data.arroba || ''}</a>
+            <h2 class="preview-name">${data.name || ''}</h2>
+            <a href="#" class="preview-arroba">${data.arroba || ''}</a>
             
-            \${data.bio ? \`<p class="preview-bio">\${data.bio}</p>\` : ''}
+            ${bioHtml}
             
             <div class="preview-links">
-                \${data.btn1Title ? \`<a href="\${data.btn1Url}" class="preview-link-btn" target="_blank">\${data.btn1Title}</a>\` : ''}
-                \${data.btn2Title ? \`<a href="\${data.btn2Url}" class="preview-link-btn" target="_blank">\${data.btn2Title}</a>\` : ''}
-                \${data.btn3Title ? \`<a href="\${data.btn3Url}" class="preview-link-btn" target="_blank">\${data.btn3Title}</a>\` : ''}
+                ${btn1Html}
+                ${btn2Html}
+                ${btn3Html}
             </div>
             
             <div class="footer">
@@ -219,5 +227,5 @@ export function generateStaticSite(data) {
         </div>
     </div>
 </body>
-</html>\`;
+</html>`;
 }
