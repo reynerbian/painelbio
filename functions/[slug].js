@@ -10,18 +10,23 @@ export async function onRequest(context) {
 
   const pathname = new URL(request.url).pathname;
 
-  // Se a requisição for para um arquivo estático do app (css, js, imagens, manifest, etc), ignora a rota do slug
+  // Verifica se é um arquivo estático real (ex: style.css, app.js, icon.png)
+  const isAssetFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|json|html|webmanifest|txt|cjs|map)$/i.test(pathname);
+  
   if (
-    pathname.includes('.') || 
-    pathname.startsWith('/css') || 
-    pathname.startsWith('/js') || 
-    pathname.startsWith('/api') || 
-    pathname.startsWith('/models')
+    isAssetFile || 
+    pathname.startsWith('/css/') || 
+    pathname.startsWith('/js/') || 
+    pathname.startsWith('/api/') || 
+    pathname.startsWith('/models/') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js'
   ) {
     return next();
   }
 
-  // Prepara o slug com e sem @
+  // Prepara o slug com e sem @ (suporta pontos no nome do usuário como @anacarolina.semijoias)
   const cleanSlug = slug.toLowerCase();
   const slugWithAt = cleanSlug.startsWith('@') ? cleanSlug : '@' + cleanSlug;
   const slugWithoutAt = cleanSlug.replace('@', '');
@@ -31,14 +36,14 @@ export async function onRequest(context) {
       return next();
     }
 
-    // Tenta buscar no KV com @ e sem @
+    // Tenta buscar no KV com e sem @
     let dataStr = await env.PAINELBIO_KV.get(`site:${slugWithAt}`);
     if (!dataStr) {
       dataStr = await env.PAINELBIO_KV.get(`site:${slugWithoutAt}`);
     }
     
     if (!dataStr) {
-      // Se NÃO encontrou no KV, exibe uma página bonita de "Perfil não encontrado" em vez de abrir o App de Edição!
+      // Se NÃO encontrou no KV, exibe uma página bonita de "Perfil não encontrado" em vez de abrir o App!
       return new Response(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -56,7 +61,7 @@ export async function onRequest(context) {
 <body>
     <div class="card">
         <h2>Perfil @${slugWithoutAt} não encontrado</h2>
-        <p>Este link ainda não foi publicado ou não está ativo no PainelBio.</p>
+        <p>Este link ainda não foi publicado no ar. Abra a galeria e clique no botão de Upload.</p>
         <a href="/">Criar meu Link na Bio</a>
     </div>
 </body>
