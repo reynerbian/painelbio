@@ -142,7 +142,7 @@ const leftIcon = document.querySelector('.left-icon');
                                 </div>
                                 
                                 <!-- Botoes embaixo -->
-                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <div style="display: flex; gap: 6px; margin-top: 12px;">
                                     <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
@@ -150,6 +150,12 @@ const leftIcon = document.querySelector('.left-icon');
                                     <button onclick="window.startUploadSite('${site.arroba}')" style="flex: 1; ${btnStyle} padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="${btnTitle}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                                     </button>
+
+                                    ${(status === 'published' || status === 'modified') ? `
+                                    <button onclick="window.copySiteUrl('${site.arroba}', this)" style="flex: 1; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Copiar URL para o Cliente">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    </button>
+                                    ` : ''}
                                     
                                     <button onclick="deleteSite('${site.arroba}')" style="flex: 1; background: rgba(255, 0, 0, 0.1); color: #ff4444; border: 1px solid rgba(255, 0, 0, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Deletar">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
@@ -163,6 +169,31 @@ const leftIcon = document.querySelector('.left-icon');
                 galleryContent.innerHTML = html;
             } else {
                 galleryContent.innerHTML = '<p style="text-align: center; width: 100%;">Nenhum site salvo ainda.</p>';
+            }
+        };
+
+        // Função global para copiar URL do site postado para a área de transferência
+        window.copySiteUrl = function(arroba, btnEl) {
+            const cleanSlug = arroba.replace('@', '').toLowerCase();
+            const fullUrl = `${window.location.origin}/${cleanSlug}`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(fullUrl).then(() => {
+                    if (typeof showCustomAlert === 'function') {
+                        showCustomAlert(`URL copiada: ${fullUrl}`, 'success');
+                    }
+                    if (btnEl) {
+                        const originalHtml = btnEl.innerHTML;
+                        btnEl.innerHTML = '<span style="font-size: 0.7rem; font-weight: 700;">✓ Copiado</span>';
+                        setTimeout(() => {
+                            btnEl.innerHTML = originalHtml;
+                        }, 1800);
+                    }
+                }).catch(() => {
+                    prompt("Copie a URL do cliente abaixo:", fullUrl);
+                });
+            } else {
+                prompt("Copie a URL do cliente abaixo:", fullUrl);
             }
         };
 
