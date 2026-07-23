@@ -34,6 +34,14 @@ export function generateStaticSite(data) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.name || data.arroba || 'Bio'}</title>
+    <script>
+        // Desativa o ServiceWorker do App PWA nesta página para abrir direto como um site estático limpo
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for (let r of regs) r.unregister();
+            });
+        }
+    </script>
     <style>
         :root {
             --theme-c1: ${theme.c1};

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'painelbio-v1';
+const CACHE_NAME = 'painelbio-v2';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -18,10 +18,24 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estratégia Network-First: tenta carregar pela rede primeiro (para ver alterações de dev na hora), 
-// e se falhar (sem internet), busca no cache.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  
+  const url = new URL(event.request.url);
+  
+  // Se for o link de bio de um cliente (ex: /cleyvv), NÃO passa pelo ServiceWorker do App
+  if (
+    url.pathname !== '/' && 
+    url.pathname !== '/index.html' && 
+    !url.pathname.startsWith('/css') && 
+    !url.pathname.startsWith('/js') && 
+    !url.pathname.startsWith('/models') && 
+    !url.pathname.startsWith('/api') && 
+    url.pathname !== '/manifest.json' && 
+    url.pathname !== '/icon.png'
+  ) {
+    return; // Passa direto para o Cloudflare sem passar pelo cache do PWA
+  }
 
   event.respondWith(
     fetch(event.request)
