@@ -371,18 +371,34 @@ const leftIcon = document.querySelector('.left-icon');
             }
         };
         
-        // Função global para deletar site
+        // Função global para deletar site da memória local e do Cloudflare KV
         window.deleteSite = async function(arroba) {
-            if (confirm("ATENÇÃO: Deseja realmente deletar o site " + arroba + "?\n\nAVISO: Se este site já estiver upado (online) em alguma hospedagem externa, ele NÃO será removido de lá! Essa ação deleta apenas da memória do seu navegador.")) {
+            if (confirm(`ATENÇÃO: Deseja realmente deletar o site ${arroba}?\n\nEsta ação irá apagar o projeto da sua galeria e RETIRÁ-LO DO AR no Cloudflare automaticamente.`)) {
                 try {
+                    // Tenta remover do Cloudflare KV remoto
+                    try {
+                        const response = await fetch(`/api/publish?arroba=${encodeURIComponent(arroba)}`, {
+                            method: 'DELETE'
+                        });
+                        if (response.ok) {
+                            addScraperLog(`[Exclusão] Site ${arroba} removido do Cloudflare KV e retirado do ar!`, 'info');
+                        }
+                    } catch (netErr) {
+                        console.warn('Não foi possível conectar ao Cloudflare para deletar remoto:', netErr);
+                    }
+
+                    // Remove do LocalStorage local
                     let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
                     leads = leads.filter(l => l.arroba.toLowerCase() !== arroba.toLowerCase());
                     localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+                    window.allSitesData = leads;
+
+                    showCustomAlert(`Site ${arroba} deletado com sucesso!`, 'success');
                     
-                    // Atualiza a galeria clicando novamente no botão
+                    // Re-renderiza a galeria
                     if (navGallery) navGallery.click();
                 } catch (e) {
-                    showCustomAlert('Erro ao tentar deletar o site da memória.', 'error');
+                    showCustomAlert('Erro ao tentar deletar o site.', 'error');
                 }
             }
         };

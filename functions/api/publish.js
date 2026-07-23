@@ -8,14 +8,56 @@ export async function onRequest(context) {
     return new Response(null, {
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       }
     });
   }
 
+  // TRATAMENTO DO METODO DELETE (Deleta o site do Cloudflare KV)
+  if (request.method === 'DELETE') {
+    try {
+      const url = new URL(request.url);
+      const arrobaParam = url.searchParams.get('arroba');
+      
+      if (!arrobaParam) {
+        return new Response(JSON.stringify({ error: 'Arroba é obrigatório para exclusão' }), { 
+          status: 400, 
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+        });
+      }
+
+      const cleanSlug = arrobaParam.toLowerCase();
+      const slugWithAt = cleanSlug.startsWith('@') ? cleanSlug : '@' + cleanSlug;
+      const slugWithoutAt = cleanSlug.replace('@', '');
+
+      if (env && env.PAINELBIO_KV) {
+        // Deleta as chaves com e sem @ do KV
+        await env.PAINELBIO_KV.delete(`site:${slugWithAt}`);
+        await env.PAINELBIO_KV.delete(`site:${slugWithoutAt}`);
+
+        // Atualiza a galeria remota no KV
+        const galleryStr = await env.PAINELBIO_KV.get('gallery_list');
+        if (galleryStr) {
+          let gallery = JSON.parse(galleryStr);
+          gallery = gallery.filter(item => item.arroba.toLowerCase() !== slugWithAt && item.arroba.toLowerCase() !== slugWithoutAt);
+          await env.PAINELBIO_KV.put('gallery_list', JSON.stringify(gallery));
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, message: 'Site deletado do Cloudflare KV com sucesso!' }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: 'Erro ao deletar do Cloudflare', details: err.message }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+      });
+    }
+  }
+
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Método não permitido (Apenas POST)' }), {
+    return new Response(JSON.stringify({ error: 'Método não permitido' }), {
       status: 405,
       headers: { 
         'Content-Type': 'application/json',
@@ -59,7 +101,7 @@ export async function onRequest(context) {
     let gallery = galleryStr ? JSON.parse(galleryStr) : [];
     
     // Remove se já existe para não duplicar
-    gallery = gallery.filter(item => item.arroba.toLowerCase() !== cleanSlug);
+    gallery = gallery.filter(item => item.arroba.toLowerCase() !== cleanSlugWithAt && item.arroba.toLowerCase() !== cleanSlugWithoutAt);
     
     // Adiciona no topo
     gallery.unshift({
