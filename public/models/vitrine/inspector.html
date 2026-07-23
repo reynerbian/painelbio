@@ -1,0 +1,106 @@
+<form id="inspector-form" class="inspector-form">
+    <!-- Seção de Destaque de Produtos (Grid de 3 Imagens) -->
+    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+        <label style="font-size: 0.85rem; font-weight: 700; color: #60a5fa; display: block; margin-bottom: 8px;">🛍️ Vitrine de Destaques (3 Fotos no Topo):</label>
+        
+        <!-- Destaque 1 (Principal) -->
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label for="input-highlight1-img" style="font-size: 0.75rem; color: #93c5fd;">Foto 1 (Principal Grande):</label>
+            <input type="text" id="input-highlight1-img" placeholder="URL da foto principal (ex: https://...)" style="font-size: 0.8rem; margin-bottom: 4px;">
+            <input type="text" id="input-highlight1-title" placeholder="Legenda/Título 1 (ex: Coleção de Verão)" style="font-size: 0.8rem;">
+        </div>
+
+        <!-- Destaque 2 -->
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label for="input-highlight2-img" style="font-size: 0.75rem; color: #93c5fd;">Foto 2 (Secundária A):</label>
+            <input type="text" id="input-highlight2-img" placeholder="URL da foto 2 (ex: https://...)" style="font-size: 0.8rem; margin-bottom: 4px;">
+            <input type="text" id="input-highlight2-title" placeholder="Legenda/Título 2 (ex: Novidade da Semana)" style="font-size: 0.8rem;">
+        </div>
+
+        <!-- Destaque 3 -->
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="input-highlight3-img" style="font-size: 0.75rem; color: #93c5fd;">Foto 3 (Secundária B):</label>
+            <input type="text" id="input-highlight3-img" placeholder="URL da foto 3 (ex: https://...)" style="font-size: 0.8rem; margin-bottom: 4px;">
+            <input type="text" id="input-highlight3-title" placeholder="Legenda/Título 3 (ex: Mais Vendido)" style="font-size: 0.8rem;">
+        </div>
+    </div>
+
+    <!-- Imagem de Perfil / Logo -->
+    <div class="form-group">
+        <label for="input-avatar">Imagem de Perfil / Logo da Loja:</label>
+        <div class="input-with-button">
+            <input type="text" id="input-avatar" placeholder="URL da imagem (ex: https://...)">
+            <button type="button" id="btn-search-avatar" class="form-button">Buscar</button>
+        </div>
+    </div>
+
+    <!-- Nome do Cliente -->
+    <div class="form-group">
+        <label for="input-name">Nome da Loja / Marca:</label>
+        <input type="text" id="input-name" placeholder="Ex: Boutique Elegance | Moda Feminina">
+    </div>
+
+    <!-- @ do Instagram -->
+    <div class="form-group">
+        <label for="input-arroba">@ do Instagram:</label>
+        <input type="text" id="input-arroba" placeholder="Ex: boutique.elegance">
+    </div>
+
+    <!-- Texto da Bio -->
+    <div class="form-group">
+        <label for="input-bio">Texto da Bio / Apresentação:</label>
+        <textarea id="input-bio" placeholder="Ex: Envia para todo o Brasil. Peças exclusivas banhadas a ouro..."></textarea>
+        
+        <div class="align-buttons-container" style="display: flex; gap: 8px; margin-top: 8px;">
+            <button type="button" class="align-btn" data-align="left" aria-label="Alinhar à Esquerda">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+            <button type="button" class="align-btn active" data-align="center" aria-label="Alinhar ao Centro">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="17" y1="12" x2="7" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+            <button type="button" class="align-btn" data-align="right" aria-label="Alinhar à Direita">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="12" x2="9" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Botões da Bio (4 Botões) -->
+    <div class="form-group">
+        <label for="input-btn1-title">Título do Botão 1 (Principal):</label>
+        <input type="text" id="input-btn1-title" placeholder="Ex: 💬 Falar no WhatsApp">
+    </div>
+    <div class="form-group">
+        <label for="input-btn1-url">URL do Botão 1:</label>
+        <input type="text" id="input-btn1-url" placeholder="Ex: https://wa.me/5511999999999">
+    </div>
+
+    <div class="form-group">
+        <label for="input-btn2-title">Título do Botão 2:</label>
+        <input type="text" id="input-btn2-title" placeholder="Ex: 🛍️ Ver Coleção Completa">
+    </div>
+    <div class="form-group">
+        <label for="input-btn2-url">URL do Botão 2:</label>
+        <input type="text" id="input-btn2-url" placeholder="Ex: https://instagram.com/...">
+    </div>
+
+    <div class="form-group">
+        <label for="input-btn3-title">Título do Botão 3:</label>
+        <input type="text" id="input-btn3-title" placeholder="Ex: 📍 Endereço da Loja Física">
+    </div>
+    <div class="form-group">
+        <label for="input-btn3-url">URL do Botão 3:</label>
+        <input type="text" id="input-btn3-url" placeholder="Ex: https://maps.google.com/...">
+    </div>
+
+    <div class="form-group">
+        <label for="input-btn4-title">Título do Botão 4:</label>
+        <input type="text" id="input-btn4-title" placeholder="Ex: 💳 Pagamentos / Chave PIX">
+    </div>
+    <div class="form-group">
+        <label for="input-btn4-url">URL do Botão 4:</label>
+        <input type="text" id="input-btn4-url" placeholder="Ex: https://...">
+    </div>
+
+    <!-- Botão de Salvar -->
+    <button type="submit" id="btn-save-inspector" class="save-button">Salvar Site Vitrine</button>
+</form>

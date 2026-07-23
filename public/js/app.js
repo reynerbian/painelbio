@@ -1309,129 +1309,135 @@ async function loadClassicModel() {
 loadClassicModel();
 
 
-        function loadTemplatePreview(templateId) {
+        async function loadTemplatePreview(templateId) {
             const previewScreen = document.getElementById('phone-preview-screen');
             const inspectorContent = document.getElementById('inspector-content');
             const inspectorActions = document.getElementById('inspector-actions');
             const fakeDataToggle = document.getElementById('fake-data-toggle');
             
-            if (templateId === 'classic') {
-                // Altera o background do celular para o gradiente da foto
-                previewScreen.style.background = 'radial-gradient(circle at center, #1b162b 0%, #050409 100%)';
-                
-                // Injeta a estrutura de visualização vazia no celular
-                previewScreen.innerHTML = `
-                    <div class="preview-bio-page">
-                        <!-- Luzes de fundo dinâmicas -->
-                        <div class="bg-glow bg-glow-top"></div>
-                        <div class="bg-glow bg-glow-bottom"></div>
+            const activeModel = templateId || 'classic';
+            window.currentActiveModel = activeModel;
+            
+            // Altera o background do celular para o gradiente da foto
+            previewScreen.style.background = 'radial-gradient(circle at center, #1b162b 0%, #050409 100%)';
+            
+            // Injeta a estrutura de visualização vazia no celular (suporta Classic e Vitrine)
+            previewScreen.innerHTML = `
+                <div class="preview-bio-page">
+                    <div class="bg-glow bg-glow-top"></div>
+                    <div class="bg-glow bg-glow-bottom"></div>
 
-                        <div class="preview-card" id="view-card" style="display: none;">
-                            <div class="preview-avatar-glow" id="view-avatar-container" style="display: none;">
-                                <div class="preview-avatar-inner" id="view-avatar-inner">
-                                    <!-- Imagem do avatar carregada dinamicamente -->
+                    <div class="preview-card" id="view-card" style="display: none;">
+                        
+                        <!-- Grid de Destaques da Vitrine -->
+                        <div id="view-vitrine-grid" style="display: none; width: 100%; grid-template-columns: 1.2fr 0.8fr; gap: 6px; margin-bottom: 16px; border-radius: 14px; overflow: hidden;">
+                            <div style="height: 140px; position: relative; border-radius: 10px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
+                                <img id="view-h1-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'" />
+                                <span id="view-h1-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <div style="height: 67px; position: relative; border-radius: 8px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
+                                    <img id="view-h2-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'" />
+                                    <span id="view-h2-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
+                                </div>
+                                <div style="height: 67px; position: relative; border-radius: 8px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
+                                    <img id="view-h3-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
+                                    <span id="view-h3-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
                                 </div>
                             </div>
-                            
-                            <h2 class="preview-name" id="view-name"></h2>
-                            <a href="#" target="_blank" class="preview-arroba" id="view-arroba"></a>
-                            
-                            <p class="preview-bio" id="view-bio"></p>
-                            
-                            <div class="preview-links" id="view-links">
-                                <!-- Botões dinâmicos aparecerão aqui -->
-                            </div>
-                            
-                            <div class="preview-footer" id="view-footer" style="display: none;">
-                                <span>🔗 Criado com</span>
-                                <a href="#">PainelBio</a>
+                        </div>
+
+                        <div class="preview-avatar-glow" id="view-avatar-container" style="display: none;">
+                            <div class="preview-avatar-inner" id="view-avatar-inner">
+                                <!-- Avatar -->
                             </div>
                         </div>
+                        
+                        <h2 class="preview-name" id="view-name"></h2>
+                        <a href="#" target="_blank" class="preview-arroba" id="view-arroba"></a>
+                        
+                        <p class="preview-bio" id="view-bio"></p>
+                        
+                        <div class="preview-links" id="view-links">
+                            <!-- Botões dinâmicos -->
+                        </div>
+                        
+                        <div class="preview-footer" id="view-footer" style="display: none;">
+                            <span>🔗 Criado com</span>
+                            <a href="#">PainelBio</a>
+                        </div>
                     </div>
-                `;
+                </div>
+            `;
 
-                // Injeta o formulário do Classic no Inspector
-                inspectorContent.innerHTML = CLASSIC_FORM_HTML;
-                
-                // Mostra as ações da IA do cabeçalho
-                inspectorActions.style.display = 'flex';
-                
-                // Reseta o switch para desligado
-                fakeDataToggle.checked = false;
-
-                // Vincula os listeners de input do novo formulário
-                bindInspectorFormEvents();
-
-                // Habilita o lápis de cores na notificação do topo
-                const topBtn = document.querySelector('.top-action-btn');
-                if (topBtn) {
-                    topBtn.classList.remove('disabled');
-                }
-
-                // Restaura dados do backup temporário (se houver, ao trocar template sem salvar)
-                if (window.tempFormBackup && window.tempFormBackup.arroba) {
-                    const backup = window.tempFormBackup;
-                    const fieldsToRestore = {
-                        'input-avatar': backup.avatar || '',
-                        'input-name': backup.name || '',
-                        'input-arroba': backup.arroba || '',
-                        'input-bio': backup.bio || '',
-                        'input-btn1-title': backup.btn1Title || '',
-                        'input-btn1-url': backup.btn1Url || '',
-                        'input-btn2-title': backup.btn2Title || '',
-                        'input-btn2-url': backup.btn2Url || '',
-                        'input-btn3-title': backup.btn3Title || '',
-                        'input-btn3-url': backup.btn3Url || ''
-                    };
-                    for (const [id, val] of Object.entries(fieldsToRestore)) {
-                        const el = document.getElementById(id);
-                        if (el) el.value = val;
-                    }
-                    
-                    if (backup.bioAlign) {
-                        const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
-                        if (alignBtn) alignBtn.click();
-                    }
-                    
-                    if (backup.preset) {
-                        const colorOption = document.querySelector(`.color-option[data-preset="${backup.preset}"]`);
-                        if (colorOption) colorOption.click();
-                    }
-                    
-                    if (typeof updatePreviewFromForm === 'function') {
-                        updatePreviewFromForm();
-                    }
-                    window.tempFormBackup = null; // Clear it
+            // Injeta o formulário do modelo dinamicamente no Inspector (/models/<activeModel>/inspector.html)
+            try {
+                const res = await fetch(`/models/${activeModel}/inspector.html`);
+                if (res.ok) {
+                    inspectorContent.innerHTML = await res.text();
                 } else {
-                    // Restaura dados do lead já pesquisado (se houver) para não precisar pesquisar de novo
-                    const currentArroba = document.getElementById('search-insta')?.value?.trim()?.toLowerCase();
-                    if (currentArroba) {
-                        const leads = getLeads();
-                        const cleanSearch = currentArroba.startsWith('@') ? currentArroba : '@' + currentArroba;
-                        const savedLead = leads.find(l => l.arroba?.toLowerCase() === cleanSearch.toLowerCase());
-                        if (savedLead) {
-                            const fieldsToRestore = {
-                                'input-avatar': savedLead.avatar || '',
-                                'input-name': savedLead.name || '',
-                                'input-arroba': savedLead.arroba || '',
-                                'input-bio': savedLead.bio || '',
-                                'input-btn1-title': savedLead.btn1Title || '',
-                                'input-btn1-url': savedLead.btn1Url || '',
-                                'input-btn2-title': savedLead.btn2Title || '',
-                                'input-btn2-url': savedLead.btn2Url || '',
-                                'input-btn3-title': savedLead.btn3Title || '',
-                                'input-btn3-url': savedLead.btn3Url || ''
-                            };
-                            for (const [id, val] of Object.entries(fieldsToRestore)) {
-                                const el = document.getElementById(id);
-                                if (el) el.value = val;
-                            }
-                        }
-                    }
-                    
-                    // Aplica dados do formulário na pré-visualização
-                    updatePreviewFromForm();
+                    const fallbackRes = await fetch('/models/classic/inspector.html');
+                    inspectorContent.innerHTML = await fallbackRes.text();
                 }
+            } catch (e) {
+                console.error("Erro ao carregar modelo:", e);
+            }
+            
+            // Mostra as ações da IA do cabeçalho
+            inspectorActions.style.display = 'flex';
+            
+            // Reseta o switch de dados fake
+            if (fakeDataToggle) fakeDataToggle.checked = false;
+
+            // Vincula os listeners de input do novo formulário
+            bindInspectorFormEvents();
+
+            // Habilita o lápis de cores na notificação do topo
+            const topBtn = document.querySelector('.top-action-btn');
+            if (topBtn) topBtn.classList.remove('disabled');
+
+            // Restaura dados do backup temporário se houver
+            if (window.tempFormBackup && window.tempFormBackup.arroba) {
+                const backup = window.tempFormBackup;
+                const fieldsToRestore = {
+                    'input-avatar': backup.avatar || '',
+                    'input-name': backup.name || '',
+                    'input-arroba': backup.arroba || '',
+                    'input-bio': backup.bio || '',
+                    'input-btn1-title': backup.btn1Title || '',
+                    'input-btn1-url': backup.btn1Url || '',
+                    'input-btn2-title': backup.btn2Title || '',
+                    'input-btn2-url': backup.btn2Url || '',
+                    'input-btn3-title': backup.btn3Title || '',
+                    'input-btn3-url': backup.btn3Url || '',
+                    'input-btn4-title': backup.btn4Title || '',
+                    'input-btn4-url': backup.btn4Url || '',
+                    'input-highlight1-img': backup.highlight1Img || '',
+                    'input-highlight1-title': backup.highlight1Title || '',
+                    'input-highlight2-img': backup.highlight2Img || '',
+                    'input-highlight2-title': backup.highlight2Title || '',
+                    'input-highlight3-img': backup.highlight3Img || '',
+                    'input-highlight3-title': backup.highlight3Title || ''
+                };
+                for (const [id, val] of Object.entries(fieldsToRestore)) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                }
+                
+                if (backup.bioAlign) {
+                    const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
+                    if (alignBtn) alignBtn.click();
+                }
+                
+                if (backup.preset) {
+                    const colorOption = document.querySelector(`.color-option[data-preset="${backup.preset}"]`);
+                    if (colorOption) colorOption.click();
+                }
+                
+                updatePreviewFromForm();
+                window.tempFormBackup = null;
+            } else {
+                updatePreviewFromForm();
             }
         }
 
@@ -1439,28 +1445,52 @@ loadClassicModel();
         const fakeDataToggle = document.getElementById('fake-data-toggle');
 
         fakeDataToggle.addEventListener('change', () => {
-            const selectedTemplate = document.querySelector('.template-card.is-selected');
+            const activeModel = window.currentActiveModel || 'classic';
             
-            // Se nenhum modelo estiver selecionado ainda, escolhe o Classic automaticamente
-            if (!selectedTemplate) {
-                const classicCard = document.querySelector('.template-card[data-template="classic"]');
-                if (classicCard) {
-                    classicCard.click();
-                }
-            } else {
-                if (fakeDataToggle.checked) {
-                    // Preenche os campos do formulário com dados de teste
-                    const avatarInput = document.getElementById('input-avatar');
-                    const nameInput = document.getElementById('input-name');
-                    const arrobaInput = document.getElementById('input-arroba');
-                    const bioInput = document.getElementById('input-bio');
-                    const btn1TitleInput = document.getElementById('input-btn1-title');
-                    const btn1UrlInput = document.getElementById('input-btn1-url');
-                    const btn2TitleInput = document.getElementById('input-btn2-title');
-                    const btn2UrlInput = document.getElementById('input-btn2-url');
-                    const btn3TitleInput = document.getElementById('input-btn3-title');
-                    const btn3UrlInput = document.getElementById('input-btn3-url');
+            if (fakeDataToggle.checked) {
+                const avatarInput = document.getElementById('input-avatar');
+                const nameInput = document.getElementById('input-name');
+                const arrobaInput = document.getElementById('input-arroba');
+                const bioInput = document.getElementById('input-bio');
+                
+                const btn1TitleInput = document.getElementById('input-btn1-title');
+                const btn1UrlInput = document.getElementById('input-btn1-url');
+                const btn2TitleInput = document.getElementById('input-btn2-title');
+                const btn2UrlInput = document.getElementById('input-btn2-url');
+                const btn3TitleInput = document.getElementById('input-btn3-title');
+                const btn3UrlInput = document.getElementById('input-btn3-url');
+                const btn4TitleInput = document.getElementById('input-btn4-title');
+                const btn4UrlInput = document.getElementById('input-btn4-url');
 
+                const h1ImgInput = document.getElementById('input-highlight1-img');
+                const h1TitleInput = document.getElementById('input-highlight1-title');
+                const h2ImgInput = document.getElementById('input-highlight2-img');
+                const h2TitleInput = document.getElementById('input-highlight2-title');
+                const h3ImgInput = document.getElementById('input-highlight3-img');
+                const h3TitleInput = document.getElementById('input-highlight3-title');
+
+                if (activeModel === 'vitrine') {
+                    if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
+                    if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
+                    if (h2ImgInput) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
+                    if (h2TitleInput) h2TitleInput.value = "✨ Novidades";
+                    if (h3ImgInput) h3ImgInput.value = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
+                    if (h3TitleInput) h3TitleInput.value = "💥 Mais Vendido";
+                    
+                    if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200";
+                    if (nameInput) nameInput.value = "Boutique Elegance | Moda Feminina";
+                    if (arrobaInput) arrobaInput.value = "boutique.elegance";
+                    if (bioInput) bioInput.value = `Moda feminina premium & peças exclusivas.\nEnviamos para todo o Brasil com Frete Grátis! 🛍️`;
+                    
+                    if (btn1TitleInput) btn1TitleInput.value = "💬 Atendimento no WhatsApp";
+                    if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+                    if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Coleção Completa";
+                    if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/boutique.elegance";
+                    if (btn3TitleInput) btn3TitleInput.value = "📍 Endereço da Loja Física";
+                    if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+                    if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
+                    if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+                } else {
                     if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
                     if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
                     if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
@@ -1471,14 +1501,12 @@ loadClassicModel();
                     if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
                     if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
                     if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
-                } else {
-                    // Limpa todos os campos do formulário
-                    const form = document.getElementById('inspector-form');
-                    if (form) form.reset();
                 }
+            } else {
+                const form = document.getElementById('inspector-form');
+                if (form) form.reset();
             }
 
-            // Atualiza o preview na tela do celular
             updatePreviewFromForm();
         });
 
@@ -1492,8 +1520,8 @@ loadClassicModel();
             const viewBio = document.getElementById('view-bio');
             const viewLinks = document.getElementById('view-links');
             const viewFooter = document.getElementById('view-footer');
+            const viewVitrineGrid = document.getElementById('view-vitrine-grid');
 
-            // Se o modelo classic não estiver renderizado no celular, não faz nada
             if (!viewCard) return;
 
             const avatarUrlInput = document.getElementById('input-avatar');
@@ -1507,6 +1535,15 @@ loadClassicModel();
             const btn2UrlInput = document.getElementById('input-btn2-url');
             const btn3TitleInput = document.getElementById('input-btn3-title');
             const btn3UrlInput = document.getElementById('input-btn3-url');
+            const btn4TitleInput = document.getElementById('input-btn4-title');
+            const btn4UrlInput = document.getElementById('input-btn4-url');
+
+            const h1ImgInput = document.getElementById('input-highlight1-img');
+            const h1TitleInput = document.getElementById('input-highlight1-title');
+            const h2ImgInput = document.getElementById('input-highlight2-img');
+            const h2TitleInput = document.getElementById('input-highlight2-title');
+            const h3ImgInput = document.getElementById('input-highlight3-img');
+            const h3TitleInput = document.getElementById('input-highlight3-title');
 
             const avatarUrl = avatarUrlInput ? avatarUrlInput.value.trim() : '';
             const name = nameInput ? nameInput.value.trim() : '';
@@ -1519,20 +1556,59 @@ loadClassicModel();
             const btn2Url = btn2UrlInput ? btn2UrlInput.value.trim() : '';
             const btn3Title = btn3TitleInput ? btn3TitleInput.value.trim() : '';
             const btn3Url = btn3UrlInput ? btn3UrlInput.value.trim() : '';
+            const btn4Title = btn4TitleInput ? btn4TitleInput.value.trim() : '';
+            const btn4Url = btn4UrlInput ? btn4UrlInput.value.trim() : '';
 
-            const hasAnyContent = avatarUrl || name || arroba || bio || btn1Title || btn2Title || btn3Title;
+            const h1Img = h1ImgInput ? h1ImgInput.value.trim() : '';
+            const h1Title = h1TitleInput ? h1TitleInput.value.trim() : '';
+            const h2Img = h2ImgInput ? h2ImgInput.value.trim() : '';
+            const h2Title = h2TitleInput ? h2TitleInput.value.trim() : '';
+            const h3Img = h3ImgInput ? h3ImgInput.value.trim() : '';
+            const h3Title = h3TitleInput ? h3TitleInput.value.trim() : '';
+
+            const hasVitrine = window.currentActiveModel === 'vitrine' || h1Img || h2Img || h3Img;
+
+            if (viewVitrineGrid) {
+                if (hasVitrine) {
+                    viewVitrineGrid.style.display = 'grid';
+                    const img1 = document.getElementById('view-h1-img');
+                    const tag1 = document.getElementById('view-h1-tag');
+                    if (img1) img1.src = h1Img || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+                    if (tag1) {
+                        if (h1Title) { tag1.textContent = h1Title; tag1.style.display = 'block'; }
+                        else { tag1.style.display = 'none'; }
+                    }
+
+                    const img2 = document.getElementById('view-h2-img');
+                    const tag2 = document.getElementById('view-h2-tag');
+                    if (img2) img2.src = h2Img || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
+                    if (tag2) {
+                        if (h2Title) { tag2.textContent = h2Title; tag2.style.display = 'block'; }
+                        else { tag2.style.display = 'none'; }
+                    }
+
+                    const img3 = document.getElementById('view-h3-img');
+                    const tag3 = document.getElementById('view-h3-tag');
+                    if (img3) img3.src = h3Img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
+                    if (tag3) {
+                        if (h3Title) { tag3.textContent = h3Title; tag3.style.display = 'block'; }
+                        else { tag3.style.display = 'none'; }
+                    }
+                } else {
+                    viewVitrineGrid.style.display = 'none';
+                }
+            }
+
+            const hasAnyContent = avatarUrl || name || arroba || bio || btn1Title || btn2Title || btn3Title || btn4Title || hasVitrine;
 
             if (!hasAnyContent) {
-                // Esconde o card e o rodapé se não tiver nada digitado
                 viewCard.style.display = "none";
                 viewFooter.style.display = "none";
                 return;
             }
 
-            // Mostra o card
             viewCard.style.display = "flex";
 
-            // Avatar
             if (avatarUrl) {
                 viewAvatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                 viewAvatarContainer.style.display = "flex";
@@ -1541,7 +1617,6 @@ loadClassicModel();
                 viewAvatarContainer.style.display = "none";
             }
 
-            // Nome do Cliente
             if (name) {
                 viewName.textContent = name;
                 viewName.style.display = "block";
@@ -1550,7 +1625,6 @@ loadClassicModel();
                 viewName.style.display = "none";
             }
 
-            // @ do Instagram (Clicável que leva para o perfil)
             if (arroba) {
                 const displayArroba = arroba.startsWith('@') ? arroba : `@${arroba}`;
                 const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
@@ -1563,7 +1637,6 @@ loadClassicModel();
                 viewArroba.style.display = "none";
             }
 
-            // Texto da Bio
             if (bio) {
                 viewBio.textContent = bio;
                 viewBio.style.display = "block";
@@ -1574,7 +1647,6 @@ loadClassicModel();
                 viewBio.style.display = "none";
             }
 
-            // Botões do Link
             let buttonsHtml = "";
             if (btn1Title) {
                 buttonsHtml += `<div class="preview-btn" onclick="${btn1Url ? `window.open('${btn1Url}', '_blank')` : ''}">${btn1Title}</div>`;
@@ -1585,9 +1657,11 @@ loadClassicModel();
             if (btn3Title) {
                 buttonsHtml += `<div class="preview-btn" onclick="${btn3Url ? `window.open('${btn3Url}', '_blank')` : ''}">${btn3Title}</div>`;
             }
+            if (btn4Title) {
+                buttonsHtml += `<div class="preview-btn" onclick="${btn4Url ? `window.open('${btn4Url}', '_blank')` : ''}">${btn4Title}</div>`;
+            }
             viewLinks.innerHTML = buttonsHtml;
 
-            // Mostra o rodapé PainelBio
             viewFooter.style.display = "flex";
         }
 
@@ -1637,16 +1711,25 @@ loadClassicModel();
 
                     // Lê todas as informações do form
                     const updatedData = {
+                        model: window.currentActiveModel || 'classic',
                         arroba: cleanArroba,
-                        name: document.getElementById('input-name').value.trim(),
-                        avatar: document.getElementById('input-avatar').value.trim(),
-                        bio: document.getElementById('input-bio').value.trim(),
-                        btn1Title: document.getElementById('input-btn1-title').value.trim(),
-                        btn1Url: document.getElementById('input-btn1-url').value.trim(),
-                        btn2Title: document.getElementById('input-btn2-title').value.trim(),
-                        btn2Url: document.getElementById('input-btn2-url').value.trim(),
-                        btn3Title: document.getElementById('input-btn3-title').value.trim(),
-                        btn3Url: document.getElementById('input-btn3-url').value.trim(),
+                        name: document.getElementById('input-name')?.value.trim() || '',
+                        avatar: document.getElementById('input-avatar')?.value.trim() || '',
+                        bio: document.getElementById('input-bio')?.value.trim() || '',
+                        highlight1Img: document.getElementById('input-highlight1-img')?.value.trim() || '',
+                        highlight1Title: document.getElementById('input-highlight1-title')?.value.trim() || '',
+                        highlight2Img: document.getElementById('input-highlight2-img')?.value.trim() || '',
+                        highlight2Title: document.getElementById('input-highlight2-title')?.value.trim() || '',
+                        highlight3Img: document.getElementById('input-highlight3-img')?.value.trim() || '',
+                        highlight3Title: document.getElementById('input-highlight3-title')?.value.trim() || '',
+                        btn1Title: document.getElementById('input-btn1-title')?.value.trim() || '',
+                        btn1Url: document.getElementById('input-btn1-url')?.value.trim() || '',
+                        btn2Title: document.getElementById('input-btn2-title')?.value.trim() || '',
+                        btn2Url: document.getElementById('input-btn2-url')?.value.trim() || '',
+                        btn3Title: document.getElementById('input-btn3-title')?.value.trim() || '',
+                        btn3Url: document.getElementById('input-btn3-url')?.value.trim() || '',
+                        btn4Title: document.getElementById('input-btn4-title')?.value.trim() || '',
+                        btn4Url: document.getElementById('input-btn4-url')?.value.trim() || '',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };

@@ -31,6 +31,27 @@ export function generateStaticSite(data) {
   const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
   const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
   const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn3Title}</a>` : '';
+  const btn4Html = data.btn4Title ? `<a href="${data.btn4Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn4Title}</a>` : '';
+
+  const hasVitrineGrid = data.model === 'vitrine' || data.highlight1Img || data.highlight2Img || data.highlight3Img;
+  const vitrineGridHtml = hasVitrineGrid ? `
+        <div class="vitrine-grid">
+            <div class="vitrine-img-container vitrine-main-img">
+                <img src="${data.highlight1Img || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'}" alt="Destaque 1" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'" />
+                ${data.highlight1Title ? `<span class="vitrine-tag">${data.highlight1Title}</span>` : ''}
+            </div>
+            <div class="vitrine-sub-column">
+                <div class="vitrine-img-container vitrine-sub-img">
+                    <img src="${data.highlight2Img || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'}" alt="Destaque 2" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'" />
+                    ${data.highlight2Title ? `<span class="vitrine-tag">${data.highlight2Title}</span>` : ''}
+                </div>
+                <div class="vitrine-img-container vitrine-sub-img">
+                    <img src="${data.highlight3Img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'}" alt="Destaque 3" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
+                    ${data.highlight3Title ? `<span class="vitrine-tag">${data.highlight3Title}</span>` : ''}
+                </div>
+            </div>
+        </div>
+  ` : '';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -39,14 +60,12 @@ export function generateStaticSite(data) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.name || data.arroba || 'Bio'}</title>
     <script>
-        // Desativa o ServiceWorker do App PWA nesta página para abrir direto como um site estático limpo
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(regs => {
                 for (let r of regs) r.unregister();
             });
         }
 
-        // Rastreamento de métricas em segundo plano
         function trackAction(type) {
             try {
                 var cleanSlug = "${cleanArroba}";
@@ -123,7 +142,7 @@ export function generateStaticSite(data) {
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--theme-b);
             border-radius: 28px;
-            padding: 28px 20px;
+            padding: 24px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -133,9 +152,59 @@ export function generateStaticSite(data) {
             box-sizing: border-box;
         }
 
+        /* Styles da Vitrine */
+        .vitrine-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .vitrine-main-img {
+            height: 160px;
+        }
+
+        .vitrine-sub-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vitrine-sub-img {
+            height: 76px;
+        }
+
+        .vitrine-img-container {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--theme-b);
+        }
+
+        .vitrine-tag {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 6px;
+            border-radius: 4px;
+            max-width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .preview-avatar-glow {
-            width: 90px;
-            height: 90px;
+            width: 85px;
+            height: 85px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--theme-c1), var(--theme-c2));
             padding: 3px;
@@ -143,7 +212,7 @@ export function generateStaticSite(data) {
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 25px var(--theme-g);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .preview-avatar-inner {
@@ -240,6 +309,7 @@ export function generateStaticSite(data) {
         <div class="bg-glow bg-glow-bottom"></div>
         
         <div class="preview-card">
+            ${vitrineGridHtml}
             ${avatarHtml}
             
             <h2 class="preview-name">${data.name || ''}</h2>
@@ -251,6 +321,7 @@ export function generateStaticSite(data) {
                 ${btn1Html}
                 ${btn2Html}
                 ${btn3Html}
+                ${btn4Html}
             </div>
             
             <div class="footer">
