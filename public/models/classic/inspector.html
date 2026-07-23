@@ -1,0 +1,73 @@
+<form id="inspector-form" class="inspector-form">
+                <!-- Imagem de Perfil -->
+                <div class="form-group">
+                    <label for="input-avatar">Imagem de Perfil:</label>
+                    <div class="input-with-button">
+                        <input type="text" id="input-avatar" placeholder="URL da imagem (ex: https://...)">
+                        <button type="button" id="btn-search-avatar" class="form-button">Buscar</button>
+                    </div>
+                </div>
+
+                <!-- Nome do Cliente -->
+                <div class="form-group">
+                    <label for="input-name">Nome do Cliente:</label>
+                    <input type="text" id="input-name" placeholder="Ex: Ana Carolina | Semijoias de Luxo">
+                </div>
+
+                <!-- @ do Instagram -->
+                <div class="form-group">
+                    <label for="input-arroba">@ do Instagram:</label>
+                    <input type="text" id="input-arroba" placeholder="Ex: anacarolina.semijoias">
+                </div>
+
+                <!-- Texto da Bio -->
+                <div class="form-group">
+                    <label for="input-bio">Texto da Bio:</label>
+                    <textarea id="input-bio" placeholder="Ex: Peças exclusivas banhadas a ouro 18k..."></textarea>
+                    
+                    <div class="align-buttons-container" style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button type="button" class="align-btn" data-align="left" aria-label="Alinhar à Esquerda">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                        </button>
+                        <button type="button" class="align-btn active" data-align="center" aria-label="Alinhar ao Centro">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="17" y1="12" x2="7" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                        </button>
+                        <button type="button" class="align-btn" data-align="right" aria-label="Alinhar à Direita">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="12" x2="9" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botão 1 -->
+                <div class="form-group">
+                    <label for="input-btn1-title">Título do Botão 1:</label>
+                    <input type="text" id="input-btn1-title" placeholder="Ex: 🛍️ Ver Catálogo no WhatsApp">
+                </div>
+                <div class="form-group">
+                    <label for="input-btn1-url">URL do Botão 1:</label>
+                    <input type="text" id="input-btn1-url" placeholder="Ex: https://wa.me/5511999999999">
+                </div>
+
+                <!-- Botão 2 -->
+                <div class="form-group">
+                    <label for="input-btn2-title">Título do Botão 2 (Opcional):</label>
+                    <input type="text" id="input-btn2-title" placeholder="Ex: ✨ Seguir no Instagram">
+                </div>
+                <div class="form-group">
+                    <label for="input-btn2-url">URL do Botão 2:</label>
+                    <input type="text" id="input-btn2-url" placeholder="Ex: https://instagram.com/suapagina">
+                </div>
+
+                <!-- Botão 3 -->
+                <div class="form-group">
+                    <label for="input-btn3-title">Título do Botão 3 (Opcional):</label>
+                    <input type="text" id="input-btn3-title" placeholder="Ex: 📍 Como Chegar (Localização)">
+                </div>
+                <div class="form-group">
+                    <label for="input-btn3-url">URL do Botão 3:</label>
+                    <input type="text" id="input-btn3-url" placeholder="Ex: https://maps.google.com/...">
+                </div>
+
+                <!-- Botão de Salvar -->
+                <button type="submit" id="btn-save-inspector" class="save-button">Salvar Site</button>
+            </form>
