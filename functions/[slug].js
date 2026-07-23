@@ -71,6 +71,16 @@ export async function onRequest(context) {
       });
     }
 
+    // Incrementa a métrica de visualizações do mês sem travar a resposta
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    const statsKey = `stats:${slugWithoutAt}:${currentMonth}`;
+    try {
+      const statsStr = await env.PAINELBIO_KV.get(statsKey);
+      let stats = statsStr ? JSON.parse(statsStr) : { views: 0, clicks: 0, referrals: 0 };
+      stats.views = (stats.views || 0) + 1;
+      context.waitUntil(env.PAINELBIO_KV.put(statsKey, JSON.stringify(stats)));
+    } catch(e) {}
+
     const data = JSON.parse(dataStr);
     const html = generateStaticSite(data);
     

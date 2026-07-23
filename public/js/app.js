@@ -143,6 +143,10 @@ const leftIcon = document.querySelector('.left-icon');
                                 
                                 <!-- Botoes embaixo -->
                                 <div style="display: flex; gap: 6px; margin-top: 12px;">
+                                    <button onclick="window.openSiteInfoModal('${site.arroba}')" style="flex: 1; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ficha do Cliente & Relatório (i)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    </button>
+                                    
                                     <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
@@ -415,6 +419,275 @@ const leftIcon = document.querySelector('.left-icon');
                 window.open(url, '_blank');
             } else {
                 showCustomAlert('Site não encontrado na memória.', 'error');
+            }
+        };
+
+        // =========================================================================
+        // MODAL (i) - FICHA COMPLETA DO CLIENTE, RELATÓRIO MENSAL E CRM DE PAGAMENTO
+        // =========================================================================
+        window.openSiteInfoModal = async function(arroba) {
+            let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+            const site = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+
+            if (!site) {
+                showCustomAlert('Dados do site não encontrados!', 'error');
+                return;
+            }
+
+            // Remove modal antigo se existir
+            const oldModal = document.getElementById('site-info-modal');
+            if (oldModal) oldModal.remove();
+
+            const cleanSlug = site.arroba.replace('@', '').toLowerCase();
+            const currentMonthKey = new Date().toISOString().substring(0, 7);
+            const createdDateFormatted = site.createdAt ? new Date(site.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recente';
+
+            const modalHtml = `
+                <div id="site-info-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; box-sizing: border-box; overflow-y: auto;">
+                    <div style="background: #161b22; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); color: #fff; font-family: -apple-system, sans-serif; position: relative;">
+                        
+                        <!-- Header do Modal -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: #000; border: 1px solid #30363d; flex-shrink: 0;">
+                                    <img src="${site.avatar || ''}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'" />
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.05rem; color: #f0f6fc; font-weight: 700;">${site.name || site.arroba}</h3>
+                                    <span style="font-size: 0.8rem; color: #3b82f6; font-weight: 600;">${site.arroba}</span>
+                                </div>
+                            </div>
+                            <button id="close-info-modal-btn" style="background: rgba(255,255,255,0.08); border: none; color: #c9d1d9; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+                        </div>
+
+                        <!-- Botões Rápidos de Contato com o Cliente -->
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <a href="https://instagram.com/${cleanSlug}" target="_blank" style="flex: 1; background: rgba(225, 48, 108, 0.15); color: #e1306c; border: 1px solid rgba(225, 48, 108, 0.35); text-decoration: none; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                📸 Instagram
+                            </a>
+                            <a id="info-whatsapp-direct-btn" href="#" target="_blank" style="flex: 1; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); text-decoration: none; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                💬 WhatsApp
+                            </a>
+                        </div>
+
+                        <!-- Seção 1: Analytics & Desempenho -->
+                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
+                                    📊 Desempenho do Site
+                                </span>
+                                <select id="info-month-select" style="background: #161b22; color: #58a6ff; border: 1px solid #30363d; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                                    <option value="${currentMonthKey}">Este Mês (${currentMonthKey})</option>
+                                    <option value="2026-06">Junho/2026</option>
+                                    <option value="2026-05">Maio/2026</option>
+                                </select>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
+                                <div style="background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #21262d;">
+                                    <div style="font-size: 0.7rem; color: #8b949e; margin-bottom: 4px;">👁️ Visitas</div>
+                                    <div id="stat-views-val" style="font-size: 1.1rem; font-weight: 700; color: #3b82f6;">--</div>
+                                </div>
+                                <div style="background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #21262d;">
+                                    <div style="font-size: 0.7rem; color: #8b949e; margin-bottom: 4px;">🖱️ Cliques</div>
+                                    <div id="stat-clicks-val" style="font-size: 1.1rem; font-weight: 700; color: #10b981;">--</div>
+                                </div>
+                                <div style="background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #21262d;">
+                                    <div style="font-size: 0.7rem; color: #8b949e; margin-bottom: 4px;">🚀 Indicações</div>
+                                    <div id="stat-ref-val" style="font-size: 1.1rem; font-weight: 700; color: #a855f7;">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção 2: Controle de Pagamento & Cobrança (CRM) -->
+                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; margin-bottom: 10px;">💳 Controle de Pagamento (CRM)</div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 4px;">Status da Assinatura:</label>
+                                    <select id="crm-payment-status" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px; font-size: 0.8rem;">
+                                        <option value="paid" ${site.paymentStatus === 'paid' ? 'selected' : ''}>🟢 Pago / Em Dia</option>
+                                        <option value="pending" ${site.paymentStatus === 'pending' ? 'selected' : ''}>🟡 Pendente de Pagamento</option>
+                                        <option value="trial" ${site.paymentStatus === 'trial' ? 'selected' : ''}>🔵 Degustação / Cortesia</option>
+                                    </select>
+                                </div>
+                                <div style="width: 110px;">
+                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 4px;">Vencimento:</label>
+                                    <input type="text" id="crm-payment-day" value="${site.paymentDay || 'Dia 10'}" placeholder="Dia 10" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px; font-size: 0.8rem; box-sizing: border-box;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção 3: Ficha Técnica -->
+                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
+                            <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
+                            <div><strong>Modelo Atual:</strong> Classic (${site.preset || 'gray'})</div>
+                            <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
+                        </div>
+
+                        <!-- Ações Rápidas -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button id="info-btn-edit" style="flex: 1; background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.35); padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer;">
+                                    ✏️ Editar no Inspector
+                                </button>
+                                <button id="info-btn-qrcode" style="flex: 1; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer;">
+                                    🔲 Ver QR Code
+                                </button>
+                            </div>
+
+                            <button id="info-btn-send-report" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); text-decoration: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+                                📲 Enviar Relatório no WhatsApp do Cliente
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Tenta obter número de WhatsApp do cliente para o botão direto
+            const whatsappBtn = document.getElementById('info-whatsapp-direct-btn');
+            let foundPhone = '';
+            if (site.btn1Url && site.btn1Url.includes('wa.me')) foundPhone = site.btn1Url;
+            else if (site.btn2Url && site.btn2Url.includes('wa.me')) foundPhone = site.btn2Url;
+            else if (site.btn3Url && site.btn3Url.includes('wa.me')) foundPhone = site.btn3Url;
+            
+            if (foundPhone && whatsappBtn) {
+                whatsappBtn.href = foundPhone;
+            } else if (whatsappBtn) {
+                whatsappBtn.style.opacity = '0.5';
+                whatsappBtn.title = 'Nenhum WhatsApp cadastrado nos botões';
+            }
+
+            // Função para carregar estatísticas do mês selecionado
+            const loadStats = async (month) => {
+                const viewsEl = document.getElementById('stat-views-val');
+                const clicksEl = document.getElementById('stat-clicks-val');
+                const refEl = document.getElementById('stat-ref-val');
+
+                if (viewsEl) viewsEl.textContent = '...';
+                if (clicksEl) clicksEl.textContent = '...';
+                if (refEl) refEl.textContent = '...';
+
+                try {
+                    const res = await fetch(`/api/track?slug=${encodeURIComponent(cleanSlug)}&month=${month}`);
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json.stats) {
+                            if (viewsEl) viewsEl.textContent = json.stats.views || 0;
+                            if (clicksEl) clicksEl.textContent = json.stats.clicks || 0;
+                            if (refEl) refEl.textContent = json.stats.referrals || 0;
+                            return;
+                        }
+                    }
+                } catch(e) {}
+                
+                if (viewsEl) viewsEl.textContent = '0';
+                if (clicksEl) clicksEl.textContent = '0';
+                if (refEl) refEl.textContent = '0';
+            };
+
+            // Carrega mês atual inicialmente
+            loadStats(currentMonthKey);
+
+            // Listener de troca de mês no select
+            const monthSelect = document.getElementById('info-month-select');
+            if (monthSelect) {
+                monthSelect.addEventListener('change', (e) => {
+                    loadStats(e.target.value);
+                });
+            }
+
+            // Salva alterações de CRM (Pagamento/Vencimento) automaticamente ao mudar
+            const statusSelect = document.getElementById('crm-payment-status');
+            const dayInput = document.getElementById('crm-payment-day');
+            
+            const saveCrmData = () => {
+                let allLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+                const itemIdx = allLeads.findIndex(l => l.arroba.toLowerCase() === site.arroba.toLowerCase());
+                if (itemIdx !== -1) {
+                    allLeads[itemIdx].paymentStatus = statusSelect.value;
+                    allLeads[itemIdx].paymentDay = dayInput.value;
+                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(allLeads));
+                    window.allSitesData = allLeads;
+                }
+            };
+
+            if (statusSelect) statusSelect.addEventListener('change', saveCrmData);
+            if (dayInput) dayInput.addEventListener('blur', saveCrmData);
+
+            // Botão Fechar Modal
+            const closeBtn = document.getElementById('close-info-modal-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    document.getElementById('site-info-modal').remove();
+                });
+            }
+
+            // Botão Editar no Inspector
+            const btnEdit = document.getElementById('info-btn-edit');
+            if (btnEdit) {
+                btnEdit.addEventListener('click', () => {
+                    document.getElementById('site-info-modal').remove();
+                    // Carrega no editor
+                    if (typeof loadLeadData === 'function') {
+                        loadLeadData(site);
+                    }
+                    if (typeof openDrawer === 'function') {
+                        openDrawer(document.getElementById('right-drawer'));
+                    }
+                });
+            }
+
+            // Botão Ver QR Code
+            const btnQr = document.getElementById('info-btn-qrcode');
+            if (btnQr) {
+                btnQr.addEventListener('click', () => {
+                    const fullSiteUrl = `${window.location.origin}/${cleanSlug}`;
+                    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(fullSiteUrl)}`;
+                    
+                    const qrModalHtml = `
+                        <div id="qr-sub-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;">
+                            <div style="background: #161b22; border: 1px solid #30363d; border-radius: 16px; width: 100%; max-width: 320px; padding: 24px; text-align: center; color: #fff;">
+                                <h3 style="margin: 0 0 8px 0; font-size: 1.1rem; color: #fff;">QR Code da Bio</h3>
+                                <p style="font-size: 0.8rem; color: #8b949e; margin-bottom: 16px;">${site.arroba}</p>
+                                
+                                <div style="background: #fff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 16px;">
+                                    <img src="${qrApiUrl}" style="width: 200px; height: 200px; display: block;" alt="QR Code" />
+                                </div>
+                                
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="${qrApiUrl}" target="_blank" download="qrcode-${cleanSlug}.png" style="flex: 1; background: #238636; color: #fff; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; display: inline-block;">
+                                        Baixar QR Code
+                                    </a>
+                                    <button onclick="document.getElementById('qr-sub-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer;">
+                                        Fechar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', qrModalHtml);
+                });
+            }
+
+            // Botão Enviar Relatório no WhatsApp
+            const btnSendReport = document.getElementById('info-btn-send-report');
+            if (btnSendReport) {
+                btnSendReport.addEventListener('click', () => {
+                    const views = document.getElementById('stat-views-val')?.textContent || '0';
+                    const clicks = document.getElementById('stat-clicks-val')?.textContent || '0';
+                    const selectedMonthText = monthSelect.options[monthSelect.selectedIndex].text;
+
+                    const reportMsg = `Olá ${site.name || site.arroba}! 👋\n\nSegue o resumo de acessos do seu *PainelBio* em *${selectedMonthText}*:\n\n👁️ *${views}* visitas na sua Bio\n💬 *${clicks}* contatos iniciados!\n\nSeu Link em destaque no ar: ${window.location.origin}/${cleanSlug}`;
+
+                    const targetPhone = foundPhone ? foundPhone.replace(/[^0-9]/g, '') : '';
+                    const waUrl = targetPhone ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(reportMsg)}` : `https://wa.me/?text=${encodeURIComponent(reportMsg)}`;
+                    
+                    window.open(waUrl, '_blank');
+                });
             }
         };
 

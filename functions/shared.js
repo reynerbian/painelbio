@@ -28,9 +28,9 @@ export function generateStaticSite(data) {
 
   const bioHtml = data.bio ? `<p class="preview-bio">${data.bio}</p>` : '';
   
-  const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn1Title}</a>` : '';
-  const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn2Title}</a>` : '';
-  const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener">${data.btn3Title}</a>` : '';
+  const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
+  const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
+  const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn3Title}</a>` : '';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -44,6 +44,18 @@ export function generateStaticSite(data) {
             navigator.serviceWorker.getRegistrations().then(regs => {
                 for (let r of regs) r.unregister();
             });
+        }
+
+        // Rastreamento de métricas em segundo plano
+        function trackAction(type) {
+            try {
+                var cleanSlug = "${cleanArroba}";
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type);
+                } else {
+                    fetch('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type, { method: 'POST', keepalive: true });
+                }
+            } catch(e){}
         }
     </script>
     <style>
@@ -243,7 +255,7 @@ export function generateStaticSite(data) {
             
             <div class="footer">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                CRIADO COM <a href="/">PAINELBIO</a>
+                CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
             </div>
         </div>
     </div>
