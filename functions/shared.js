@@ -1,24 +1,290 @@
 export function generateStaticSite(data) {
   const presetMap = {
-    'gray': { c1: '#e2e8f0', c2: '#475569', b: 'rgba(226, 232, 240, 0.28)', g: 'rgba(71, 85, 105, 0.45)' },
-    'sunset': { c1: '#ff0844', c2: '#ffb199', b: 'rgba(255, 8, 68, 0.35)', g: 'rgba(255, 177, 153, 0.55)' },
-    'neon-blue': { c1: '#00c6ff', c2: '#0072ff', b: 'rgba(0, 198, 255, 0.35)', g: 'rgba(0, 114, 255, 0.55)' },
-    'synthwave': { c1: '#f107a3', c2: '#7b2ff7', b: 'rgba(241, 7, 163, 0.35)', g: 'rgba(123, 47, 247, 0.55)' },
-    'fire': { c1: '#f857a6', c2: '#ff5858', b: 'rgba(248, 87, 166, 0.35)', g: 'rgba(255, 88, 88, 0.55)' },
-    'aurora': { c1: '#00ff87', c2: '#60e3fa', b: 'rgba(0, 255, 135, 0.35)', g: 'rgba(96, 227, 250, 0.55)' },
-    'indigo': { c1: '#4f46e5', c2: '#06b6d4', b: 'rgba(79, 70, 229, 0.35)', g: 'rgba(6, 182, 212, 0.55)' },
-    'cyber-lime': { c1: '#a8ff78', c2: '#78ffd6', b: 'rgba(168, 255, 120, 0.35)', g: 'rgba(120, 255, 214, 0.55)' },
-    'rose-gold': { c1: '#f6d365', c2: '#fda085', b: 'rgba(246, 211, 101, 0.35)', g: 'rgba(253, 160, 133, 0.55)' },
-    'golden': { c1: '#f5af19', c2: '#f12711', b: 'rgba(245, 175, 25, 0.35)', g: 'rgba(241, 39, 17, 0.55)' },
-    'deep-purple': { c1: '#8a2387', c2: '#e94057', b: 'rgba(138, 35, 135, 0.35)', g: 'rgba(233, 64, 87, 0.55)' },
-    'platinum': { c1: '#ffffff', c2: '#616161', b: 'rgba(255, 255, 255, 0.35)', g: 'rgba(255, 255, 255, 0.55)' }
+    'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
+    'sunset': { c1: '#ff0844', c2: '#ffb199', text: '#ffffff', bg: '#120508', cardBg: '#1c080d' },
+    'neon-blue': { c1: '#00c6ff', c2: '#0072ff', text: '#000000', bg: '#050c17', cardBg: '#0a1628' },
+    'synthwave': { c1: '#f107a3', c2: '#7b2ff7', text: '#ffffff', bg: '#130419', cardBg: '#1d0726' },
+    'fire': { c1: '#ff5858', c2: '#f857a6', text: '#ffffff', bg: '#170606', cardBg: '#240a0a' },
+    'aurora': { c1: '#00ff87', c2: '#60e3fa', text: '#000000', bg: '#041710', cardBg: '#09241a' },
+    'indigo': { c1: '#06b6d4', c2: '#4f46e5', text: '#ffffff', bg: '#060a17', cardBg: '#0d1326' },
+    'cyber-lime': { c1: '#a8ff78', c2: '#78ffd6', text: '#000000', bg: '#091409', cardBg: '#102110' },
+    'rose-gold': { c1: '#fda085', c2: '#f6d365', text: '#000000', bg: '#170e0a', cardBg: '#241711' },
+    'golden': { c1: '#f5af19', c2: '#f12711', text: '#000000', bg: '#171104', cardBg: '#241a07' },
+    'deep-purple': { c1: '#e94057', c2: '#8a2387', text: '#ffffff', bg: '#120512', cardBg: '#1e091e' },
+    'platinum': { c1: '#ffffff', c2: '#9e9e9e', text: '#000000', bg: '#111111', cardBg: '#1c1c1c' }
   };
-  const theme = presetMap[data.preset] || presetMap['gray'];
 
+  const theme = presetMap[data.preset] || presetMap['gray'];
   const cleanArroba = (data.arroba || '').replace('@', '').trim();
   const instaUrl = cleanArroba ? `https://instagram.com/${cleanArroba}` : '#';
   const bioAlign = data.bioAlign || 'center';
+  const isVitrine = data.model === 'vitrine' || Boolean(data.highlight1Img || data.highlight2Img || data.highlight3Img);
 
+  // SE FOR O MODELO 2: VITRINE (Sem card embutido, fotos no topo soltas, avatar sobreposto, botões maciços)
+  if (isVitrine) {
+    const h1 = data.highlight1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600';
+    const h2 = data.highlight2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
+    const h3 = data.highlight3Img || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400';
+
+    const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
+    const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
+    const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn3Title}</a>` : '';
+    const btn4Html = data.btn4Title ? `<a href="${data.btn4Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn4Title}</a>` : '';
+
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${data.name || data.arroba || 'Vitrine'}</title>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for (let r of regs) r.unregister();
+            });
+        }
+        function trackAction(type) {
+            try {
+                var cleanSlug = "${cleanArroba}";
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type);
+                } else {
+                    fetch('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type, { method: 'POST', keepalive: true });
+                }
+            } catch(e){}
+        }
+    </script>
+    <style>
+        :root {
+            --v-accent: ${theme.c1};
+            --v-text: ${theme.text};
+            --v-bg: ${theme.bg};
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            background-color: var(--v-bg);
+            color: #ffffff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
+            display: flex;
+            justify-content: center;
+        }
+
+        .v-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 16px 14px 40px 14px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Grid Superior de 3 Fotos Sem Moldura */
+        .v-grid-hero {
+            width: 100%;
+            position: relative;
+            margin-bottom: 50px;
+        }
+
+        .v-main-pic {
+            width: 100%;
+            height: 320px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .v-main-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .v-sub-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .v-sub-pic {
+            flex: 1;
+            height: 155px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .v-sub-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Avatar Sobreposto Centralizado */
+        .v-avatar-overlap {
+            position: absolute;
+            bottom: -42px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 94px;
+            height: 94px;
+            border-radius: 50%;
+            background: #fdf6df;
+            border: 4px solid var(--v-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .v-avatar-overlap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Conteúdo e Informações */
+        .v-info {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .v-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 6px 0;
+            line-height: 1.25;
+            text-align: center;
+        }
+
+        .v-arroba {
+            font-size: 0.95rem;
+            color: var(--v-accent);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .v-bio {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin: 0 0 28px 0;
+            text-align: ${bioAlign};
+            white-space: pre-wrap;
+            width: 90%;
+        }
+
+        /* Botões Maciços Arredondados */
+        .v-buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .v-btn {
+            width: 100%;
+            background-color: var(--v-accent);
+            color: var(--v-text);
+            padding: 16px 20px;
+            border-radius: 18px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .v-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .v-footer {
+            margin-top: 35px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .v-footer a {
+            color: rgba(255, 255, 255, 0.55);
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="v-container">
+        
+        <!-- Grid Superior -->
+        <div class="v-grid-hero">
+            <div class="v-main-pic">
+                <img src="${h1}" alt="Destaque 1">
+            </div>
+            <div class="v-sub-row">
+                <div class="v-sub-pic">
+                    <img src="${h2}" alt="Destaque 2">
+                </div>
+                <div class="v-sub-pic">
+                    <img src="${h3}" alt="Destaque 3">
+                </div>
+            </div>
+            
+            ${data.avatar ? `
+            <div class="v-avatar-overlap">
+                <img src="${data.avatar}" alt="${data.name || ''}">
+            </div>` : ''}
+        </div>
+
+        <!-- Informações da Loja -->
+        <div class="v-info">
+            <h1 class="v-title">${data.name || ''}</h1>
+            <a href="${instaUrl}" target="_blank" rel="noopener" class="v-arroba">${data.arroba || ''}</a>
+            ${data.bio ? `<p class="v-bio">${data.bio}</p>` : ''}
+
+            <!-- Botões Maciços -->
+            <div class="v-buttons">
+                ${btn1Html}
+                ${btn2Html}
+                ${btn3Html}
+                ${btn4Html}
+            </div>
+
+            <div class="v-footer">
+                CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>`;
+  }
+
+  // MODELO 1: CLASSIC (Card com vidro, brilhos e botões finos)
   const avatarHtml = data.avatar ? `
             <div class="preview-avatar-glow">
                 <div class="preview-avatar-inner">
@@ -27,31 +293,9 @@ export function generateStaticSite(data) {
             </div>` : '';
 
   const bioHtml = data.bio ? `<p class="preview-bio">${data.bio}</p>` : '';
-  
   const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
   const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
   const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn3Title}</a>` : '';
-  const btn4Html = data.btn4Title ? `<a href="${data.btn4Url || '#'}" class="preview-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn4Title}</a>` : '';
-
-  const hasVitrineGrid = data.model === 'vitrine' || data.highlight1Img || data.highlight2Img || data.highlight3Img;
-  const vitrineGridHtml = hasVitrineGrid ? `
-        <div class="vitrine-grid">
-            <div class="vitrine-img-container vitrine-main-img">
-                <img src="${data.highlight1Img || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'}" alt="Destaque 1" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'" />
-                ${data.highlight1Title ? `<span class="vitrine-tag">${data.highlight1Title}</span>` : ''}
-            </div>
-            <div class="vitrine-sub-column">
-                <div class="vitrine-img-container vitrine-sub-img">
-                    <img src="${data.highlight2Img || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'}" alt="Destaque 2" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'" />
-                    ${data.highlight2Title ? `<span class="vitrine-tag">${data.highlight2Title}</span>` : ''}
-                </div>
-                <div class="vitrine-img-container vitrine-sub-img">
-                    <img src="${data.highlight3Img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'}" alt="Destaque 3" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
-                    ${data.highlight3Title ? `<span class="vitrine-tag">${data.highlight3Title}</span>` : ''}
-                </div>
-            </div>
-        </div>
-  ` : '';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -65,7 +309,6 @@ export function generateStaticSite(data) {
                 for (let r of regs) r.unregister();
             });
         }
-
         function trackAction(type) {
             try {
                 var cleanSlug = "${cleanArroba}";
@@ -81,8 +324,8 @@ export function generateStaticSite(data) {
         :root {
             --theme-c1: ${theme.c1};
             --theme-c2: ${theme.c2};
-            --theme-b: ${theme.b};
-            --theme-g: ${theme.g};
+            --theme-b: rgba(255, 255, 255, 0.08);
+            --theme-g: rgba(255, 255, 255, 0.15);
         }
         
         html, body {
@@ -146,60 +389,10 @@ export function generateStaticSite(data) {
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px var(--theme-g);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
             position: relative;
             z-index: 10;
             box-sizing: border-box;
-        }
-
-        /* Styles da Vitrine */
-        .vitrine-grid {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 8px;
-            margin-bottom: 20px;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .vitrine-main-img {
-            height: 160px;
-        }
-
-        .vitrine-sub-column {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .vitrine-sub-img {
-            height: 76px;
-        }
-
-        .vitrine-img-container {
-            position: relative;
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--theme-b);
-        }
-
-        .vitrine-tag {
-            position: absolute;
-            bottom: 6px;
-            left: 6px;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            color: #fff;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 3px 6px;
-            border-radius: 4px;
-            max-width: 90%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .preview-avatar-glow {
@@ -211,7 +404,6 @@ export function generateStaticSite(data) {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 25px var(--theme-g);
             margin-bottom: 14px;
         }
 
@@ -248,11 +440,6 @@ export function generateStaticSite(data) {
             text-align: center;
             display: inline-block;
             font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        .preview-arroba:hover {
-            opacity: 0.8;
-            text-decoration: underline;
         }
 
         .preview-bio {
@@ -274,7 +461,6 @@ export function generateStaticSite(data) {
 
         .preview-link-btn {
             background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(10px);
             border: 1px solid var(--theme-b);
             color: #ffffff;
             padding: 16px 20px;
@@ -285,22 +471,12 @@ export function generateStaticSite(data) {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.25s ease;
             width: 100%;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .preview-link-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--theme-c1);
-            box-shadow: 0 0 15px var(--theme-g);
-            transform: translateY(-2px);
         }
         
         .footer { margin-top: 25px; font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
-        .footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .footer svg { width: 14px; height: 14px; opacity: 0.7; }
+        .footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -309,23 +485,16 @@ export function generateStaticSite(data) {
         <div class="bg-glow bg-glow-bottom"></div>
         
         <div class="preview-card">
-            ${vitrineGridHtml}
             ${avatarHtml}
-            
             <h2 class="preview-name">${data.name || ''}</h2>
-            <a href="${instaUrl}" target="_blank" rel="noopener noreferrer" class="preview-arroba">${data.arroba || ''}</a>
-            
+            <a href="${instaUrl}" target="_blank" rel="noopener" class="preview-arroba">${data.arroba || ''}</a>
             ${bioHtml}
-            
             <div class="preview-links">
                 ${btn1Html}
                 ${btn2Html}
                 ${btn3Html}
-                ${btn4Html}
             </div>
-            
             <div class="footer">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                 CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
             </div>
         </div>

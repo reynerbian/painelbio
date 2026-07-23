@@ -1317,58 +1317,78 @@ loadClassicModel();
             
             const activeModel = templateId || 'classic';
             window.currentActiveModel = activeModel;
-            
-            // Altera o background do celular para o gradiente da foto
-            previewScreen.style.background = 'radial-gradient(circle at center, #1b162b 0%, #050409 100%)';
-            
-            // Injeta a estrutura de visualização vazia no celular (suporta Classic e Vitrine)
-            previewScreen.innerHTML = `
-                <div class="preview-bio-page">
-                    <div class="bg-glow bg-glow-top"></div>
-                    <div class="bg-glow bg-glow-bottom"></div>
 
-                    <div class="preview-card" id="view-card" style="display: none;">
+            if (activeModel === 'vitrine') {
+                // Fundo limpo fosco sem luzes borradas
+                previewScreen.style.background = '#0e110d';
+                
+                previewScreen.innerHTML = `
+                    <div class="v-live-page" style="width: 100%; min-height: 100%; padding: 14px 12px 30px 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;">
                         
-                        <!-- Grid de Destaques da Vitrine -->
-                        <div id="view-vitrine-grid" style="display: none; width: 100%; grid-template-columns: 1.2fr 0.8fr; gap: 6px; margin-bottom: 16px; border-radius: 14px; overflow: hidden;">
-                            <div style="height: 140px; position: relative; border-radius: 10px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
-                                <img id="view-h1-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'" />
-                                <span id="view-h1-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
+                        <!-- Grid Superior de Fotos Soltas com Avatar Sobreposto -->
+                        <div id="v-view-hero-grid" style="width: 100%; position: relative; margin-bottom: 45px; display: none;">
+                            <div style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px;">
+                                <img id="v-view-h1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600'" />
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <div style="height: 67px; position: relative; border-radius: 8px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
-                                    <img id="view-h2-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'" />
-                                    <span id="view-h2-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <div style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                                    <img id="v-view-h2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400'" />
                                 </div>
-                                <div style="height: 67px; position: relative; border-radius: 8px; overflow: hidden; background: #161b22; border: 1px solid rgba(255,255,255,0.1);">
-                                    <img id="view-h3-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
-                                    <span id="view-h3-tag" style="position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #fff; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: none;"></span>
+                                <div style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                                    <img id="v-view-h3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400'" />
                                 </div>
+                            </div>
+                            
+                            <!-- Avatar Sobreposto na Junção -->
+                            <div id="v-view-avatar-wrapper" style="position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%); width: 84px; height: 84px; border-radius: 50%; background: #fdf6df; border: 4px solid #0e110d; display: none; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 10;">
+                                <div id="v-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
                             </div>
                         </div>
 
-                        <div class="preview-avatar-glow" id="view-avatar-container" style="display: none;">
-                            <div class="preview-avatar-inner" id="view-avatar-inner">
-                                <!-- Avatar -->
+                        <!-- Informações da Loja -->
+                        <div id="v-view-info" style="width: 100%; display: none; flex-direction: column; align-items: center; text-align: center;">
+                            <h1 id="v-view-name" style="font-family: Georgia, serif; font-size: 1.45rem; font-weight: 700; color: #ffffff; margin: 0 0 6px 0; text-align: center;"></h1>
+                            <a id="v-view-arroba" href="#" target="_blank" style="font-size: 0.9rem; color: var(--theme-color-1, #a3d959); text-decoration: none; font-weight: 600; margin-bottom: 12px; display: inline-block;"></a>
+                            <p id="v-view-bio" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.5; margin: 0 0 24px 0; text-align: center; white-space: pre-wrap; width: 90%;"></p>
+
+                            <!-- Botões Maciços -->
+                            <div id="v-view-buttons" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
+
+                            <div id="v-view-footer" style="margin-top: 30px; font-size: 0.72rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
+                                CRIADO COM <a href="#" style="color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700;">PAINELBIO</a>
                             </div>
                         </div>
-                        
-                        <h2 class="preview-name" id="view-name"></h2>
-                        <a href="#" target="_blank" class="preview-arroba" id="view-arroba"></a>
-                        
-                        <p class="preview-bio" id="view-bio"></p>
-                        
-                        <div class="preview-links" id="view-links">
-                            <!-- Botões dinâmicos -->
-                        </div>
-                        
-                        <div class="preview-footer" id="view-footer" style="display: none;">
-                            <span>🔗 Criado com</span>
-                            <a href="#">PainelBio</a>
+
+                    </div>
+                `;
+            } else {
+                // Modelo Classic (Com vidro, luzes de fundo e card)
+                previewScreen.style.background = 'radial-gradient(circle at center, #1b162b 0%, #050409 100%)';
+                previewScreen.innerHTML = `
+                    <div class="preview-bio-page">
+                        <div class="bg-glow bg-glow-top"></div>
+                        <div class="bg-glow bg-glow-bottom"></div>
+
+                        <div class="preview-card" id="view-card" style="display: none;">
+                            <div class="preview-avatar-glow" id="view-avatar-container" style="display: none;">
+                                <div class="preview-avatar-inner" id="view-avatar-inner"></div>
+                            </div>
+                            
+                            <h2 class="preview-name" id="view-name"></h2>
+                            <a href="#" target="_blank" class="preview-arroba" id="view-arroba"></a>
+                            
+                            <p class="preview-bio" id="view-bio"></p>
+                            
+                            <div class="preview-links" id="view-links"></div>
+                            
+                            <div class="preview-footer" id="view-footer" style="display: none;">
+                                <span>🔗 Criado com</span>
+                                <a href="#">PainelBio</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
 
             // Injeta o formulário do modelo dinamicamente no Inspector (/models/<activeModel>/inspector.html)
             try {
@@ -1383,20 +1403,15 @@ loadClassicModel();
                 console.error("Erro ao carregar modelo:", e);
             }
             
-            // Mostra as ações da IA do cabeçalho
             inspectorActions.style.display = 'flex';
-            
-            // Reseta o switch de dados fake
             if (fakeDataToggle) fakeDataToggle.checked = false;
 
-            // Vincula os listeners de input do novo formulário
             bindInspectorFormEvents();
 
-            // Habilita o lápis de cores na notificação do topo
             const topBtn = document.querySelector('.top-action-btn');
             if (topBtn) topBtn.classList.remove('disabled');
 
-            // Restaura dados do backup temporário se houver
+            // Restaura dados se houver
             if (window.tempFormBackup && window.tempFormBackup.arroba) {
                 const backup = window.tempFormBackup;
                 const fieldsToRestore = {
@@ -1428,12 +1443,10 @@ loadClassicModel();
                     const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
                     if (alignBtn) alignBtn.click();
                 }
-                
                 if (backup.preset) {
                     const colorOption = document.querySelector(`.color-option[data-preset="${backup.preset}"]`);
                     if (colorOption) colorOption.click();
                 }
-                
                 updatePreviewFromForm();
                 window.tempFormBackup = null;
             } else {
@@ -1512,6 +1525,106 @@ loadClassicModel();
 
         // Função para ler o formulário e atualizar a pré-visualização em tempo real
         function updatePreviewFromForm() {
+            const activeModel = window.currentActiveModel || 'classic';
+
+            // =========================================================================
+            // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
+            // =========================================================================
+            if (activeModel === 'vitrine') {
+                const heroGrid = document.getElementById('v-view-hero-grid');
+                const infoSection = document.getElementById('v-view-info');
+                const img1 = document.getElementById('v-view-h1');
+                const img2 = document.getElementById('v-view-h2');
+                const img3 = document.getElementById('v-view-h3');
+                const avatarWrapper = document.getElementById('v-view-avatar-wrapper');
+                const avatarInner = document.getElementById('v-view-avatar-inner');
+                const viewName = document.getElementById('v-view-name');
+                const viewArroba = document.getElementById('v-view-arroba');
+                const viewBio = document.getElementById('v-view-bio');
+                const viewButtons = document.getElementById('v-view-buttons');
+
+                if (!heroGrid || !infoSection) return;
+
+                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
+                const name = document.getElementById('input-name')?.value.trim() || '';
+                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
+                const bio = document.getElementById('input-bio')?.value.trim() || '';
+                
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
+                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
+                const btn3Title = document.getElementById('input-btn3-title')?.value.trim() || '';
+                const btn3Url = document.getElementById('input-btn3-url')?.value.trim() || '';
+                const btn4Title = document.getElementById('input-btn4-title')?.value.trim() || '';
+                const btn4Url = document.getElementById('input-btn4-url')?.value.trim() || '';
+
+                const h1Img = document.getElementById('input-highlight1-img')?.value.trim() || '';
+                const h2Img = document.getElementById('input-highlight2-img')?.value.trim() || '';
+                const h3Img = document.getElementById('input-highlight3-img')?.value.trim() || '';
+
+                // Mostra o Grid de Fotos
+                heroGrid.style.display = 'block';
+                if (img1) img1.src = h1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600';
+                if (img2) img2.src = h2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
+                if (img3) img3.src = h3Img || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400';
+
+                // Avatar Sobreposto
+                if (avatarUrl) {
+                    if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    if (avatarWrapper) avatarWrapper.style.display = 'flex';
+                } else {
+                    if (avatarInner) avatarInner.innerHTML = '';
+                    if (avatarWrapper) avatarWrapper.style.display = 'none';
+                }
+
+                // Informações da Loja
+                infoSection.style.display = 'flex';
+                if (viewName) viewName.textContent = name || '';
+                
+                if (viewArroba) {
+                    if (arroba) {
+                        const displayArroba = arroba.startsWith('@') ? arroba : `@${arroba}`;
+                        const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
+                        viewArroba.textContent = displayArroba;
+                        viewArroba.href = `https://instagram.com/${cleanUser}`;
+                        viewArroba.style.display = 'inline-block';
+                    } else {
+                        viewArroba.style.display = 'none';
+                    }
+                }
+
+                if (viewBio) {
+                    viewBio.textContent = bio || '';
+                    viewBio.style.display = bio ? 'block' : 'none';
+                    const activeAlignBtn = document.querySelector('.align-btn.active');
+                    viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'center';
+                }
+
+                // Botões Maciços Arredondados Cheios
+                let btnsHtml = '';
+                const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';
+                const buttonBgColor = activePreset === 'gray' ? '#a3d959' : 'var(--theme-color-1)';
+                const buttonTextColor = activePreset === 'gray' ? '#000000' : '#ffffff';
+
+                const createVBtn = (title, url) => `
+                    <div style="width: 100%; background: ${buttonBgColor}; color: ${buttonTextColor}; padding: 14px 18px; border-radius: 16px; font-weight: 800; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.3); cursor: pointer;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                        ${title}
+                    </div>
+                `;
+
+                if (btn1Title) btnsHtml += createVBtn(btn1Title, btn1Url);
+                if (btn2Title) btnsHtml += createVBtn(btn2Title, btn2Url);
+                if (btn3Title) btnsHtml += createVBtn(btn3Title, btn3Url);
+                if (btn4Title) btnsHtml += createVBtn(btn4Title, btn4Url);
+
+                if (viewButtons) viewButtons.innerHTML = btnsHtml;
+                return;
+            }
+
+            // =========================================================================
+            // MODELO 1: CLASSIC (Card com vidro, luzes de fundo e botões finos)
+            // =========================================================================
             const viewCard = document.getElementById('view-card');
             const viewAvatarContainer = document.getElementById('view-avatar-container');
             const viewAvatarInner = document.getElementById('view-avatar-inner');
@@ -1520,7 +1633,6 @@ loadClassicModel();
             const viewBio = document.getElementById('view-bio');
             const viewLinks = document.getElementById('view-links');
             const viewFooter = document.getElementById('view-footer');
-            const viewVitrineGrid = document.getElementById('view-vitrine-grid');
 
             if (!viewCard) return;
 
