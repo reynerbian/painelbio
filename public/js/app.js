@@ -1738,6 +1738,10 @@ loadClassicModel();
             }
         }
 
+        function getLeads() {
+            return JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        }
+
         // Listeners da Barra de Busca e Dropdown
         if (searchInsta) {
             searchInsta.addEventListener('focus', () => {
@@ -1762,15 +1766,15 @@ loadClassicModel();
                         cleanQuery = '@' + cleanQuery;
                     }
 
-                    // Verifica se já temos salvo no histórico
+                    // Verifica se já temos este site salvo na galeria local
                     const leads = getLeads();
                     const foundLead = leads.find(l => l.arroba.toLowerCase() === cleanQuery);
                     
                     if (foundLead) {
-                        // Carrega na hora (0 delay)
+                        // Carrega os dados do site salvo
                         loadLeadData(foundLead);
                     } else {
-                        // Roda a geração dinâmica (IA / Scraper simulado)
+                        // Busca dados reais do Instagram via RapidAPI
                         generateInstagramBio(val);
                     }
                 }
@@ -1783,11 +1787,15 @@ loadClassicModel();
                 const item = e.target.closest('.dropdown-item');
                 if (item) {
                     const arroba = item.getAttribute('data-arroba');
-                    const leads = getLeads();
-                    const foundLead = leads.find(l => l.arroba === arroba);
-                    if (foundLead) {
-                        searchInsta.value = foundLead.arroba;
-                        loadLeadData(foundLead);
+                    if (arroba) {
+                        searchInsta.value = arroba;
+                        const leads = getLeads();
+                        const foundLead = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+                        if (foundLead) {
+                            loadLeadData(foundLead);
+                        } else {
+                            generateInstagramBio(arroba);
+                        }
                     }
                     searchDropdown.style.display = 'none';
                 }
