@@ -24,7 +24,7 @@ export async function onRequest(context) {
     return next();
   }
 
-  // 3. PROTEÇÃO DA RAIZ '/' (O Aplicativo Gerador PainelBio):
+  // 3. CAMUFLAGEM E PROTEÇÃO DA RAIZ '/' (O Aplicativo Gerador PainelBio):
   // Chave Mestra Criptográfica do Dispositivo
   const MASTER_DEVICE_KEY = "painelbio_master_device_key_849201";
   
@@ -52,29 +52,80 @@ export async function onRequest(context) {
     return next();
   }
 
-  // C) DISPOSITIVO NÃO RECONHECIDO (ESTRANHO / HACKER / CURIOSO):
-  // O aplicativo NEM CARREGA! Retorna erro 403 Forbidden simulando servidor restrito.
+  // C) DISPOSITIVO NÃO RECONHECIDO (CAMUFLAGEM TOTAL):
+  // Retorna uma réplica exata e impecável da tela oficial de "Error 502 Bad Gateway" do Cloudflare!
+  // Qualquer curioso ou hacker vai ter a certeza absoluta de que o servidor está quebrado ou fora do ar!
   return new Response(`<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en-US">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>403 - Acesso Não Autorizado</title>
-    <style>
-        body { background: #0d1117; color: #8b949e; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; padding: 20px; }
-        .box { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 30px 20px; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #f85149; font-size: 1.4rem; margin-bottom: 8px; font-weight: 700; }
-        p { font-size: 0.85rem; line-height: 1.5; color: #8b949e; margin: 0; }
-    </style>
+<title>Error 502 Bad gateway</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f7f7f7; color: #404040; -webkit-font-smoothing: antialiased; }
+.container { max-width: 900px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box; }
+.header { font-size: 2.4rem; font-weight: 300; margin-bottom: 4px; color: #333; }
+.sub-header { font-size: 1.1rem; color: #777; margin-bottom: 40px; }
+.diagram { display: flex; align-items: center; justify-content: space-between; max-width: 650px; margin: 40px auto; text-align: center; }
+.node { flex: 1; position: relative; }
+.icon-box { width: 68px; height: 68px; margin: 0 auto 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+.icon-green { background-color: #5cb85c; color: white; }
+.icon-red { background-color: #d9534f; color: white; }
+.line-connector { flex: 0.6; height: 2px; background-color: #d8d8d8; position: relative; top: -14px; }
+.node-title { font-size: 0.95rem; font-weight: 600; color: #444; }
+.node-status-ok { font-size: 0.85rem; color: #5cb85c; font-weight: 600; margin-top: 4px; line-height: 1.3; }
+.node-status-err { font-size: 0.85rem; color: #d9534f; font-weight: 600; margin-top: 4px; line-height: 1.3; }
+.section-title { font-size: 1.25rem; font-weight: 600; margin-top: 36px; margin-bottom: 8px; color: #333; }
+.section-desc { font-size: 0.95rem; color: #666; line-height: 1.5; }
+.divider { height: 1px; background-color: #e0e0e0; margin: 35px 0; }
+</style>
 </head>
 <body>
-    <div class="box">
-        <h1>403 Forbidden</h1>
-        <p>Acesso restrito ao servidor de gerenciamento.</p>
+<div class="container">
+    <div class="header">Error 502</div>
+    <div class="sub-header">Bad gateway</div>
+
+    <div class="diagram">
+        <div class="node">
+            <div class="icon-box icon-green">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="node-title">You</div>
+            <div class="node-status-ok">Browser<br>Working</div>
+        </div>
+        <div class="line-connector"></div>
+        <div class="node">
+            <div class="icon-box icon-green">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="node-title">Cloudflare</div>
+            <div class="node-status-ok">Cloudflare<br>Working</div>
+        </div>
+        <div class="line-connector"></div>
+        <div class="node">
+            <div class="icon-box icon-red">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="node-title">Host</div>
+            <div class="node-status-err">Host<br>Error</div>
+        </div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="section-title">What happened?</div>
+    <div class="section-desc">The web server reported a bad gateway error.</div>
+
+    <div class="section-title">What can I do?</div>
+    <div class="section-desc">Please try again in a few minutes.</div>
+</div>
 </body>
 </html>`, {
-    status: 403,
+    status: 502,
+    statusText: 'Bad Gateway',
     headers: { 'Content-Type': 'text/html;charset=UTF-8' }
   });
 }
