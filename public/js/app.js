@@ -508,7 +508,25 @@ const leftIcon = document.querySelector('.left-icon');
                             </div>
                         </div>
 
-                        <!-- Seção 2: Ficha Técnica -->
+                        <!-- Seção 2: Dados de Contato Direto do Cliente -->
+                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>👤 Contato do Cliente / Responsável</span>
+                                <span id="info-contact-saved-badge" style="font-size: 0.7rem; color: #10b981; font-weight: 600; opacity: 0; transition: opacity 0.3s;">✓ Salvo</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div>
+                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 3px;">Nome do Responsável / Dono:</label>
+                                    <input type="text" id="info-owner-name" value="${site.ownerName || ''}" placeholder="Ex: Ana Carolina" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px 10px; font-size: 0.8rem; box-sizing: border-box;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 3px;">WhatsApp Direto (com DDD):</label>
+                                    <input type="text" id="info-owner-phone" value="${site.ownerPhone || ''}" placeholder="Ex: 11999998888" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px 10px; font-size: 0.8rem; box-sizing: border-box;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção 3: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
                             <div><strong>Modelo Atual:</strong> Classic (${site.preset || 'gray'})</div>
@@ -537,19 +555,63 @@ const leftIcon = document.querySelector('.left-icon');
 
             document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-            // Tenta obter número de WhatsApp do cliente para o botão direto
+            // Gerenciamento dos dados de contato do cliente (Nome do Responsável e WhatsApp Direto)
             const whatsappBtn = document.getElementById('info-whatsapp-direct-btn');
-            let foundPhone = '';
-            if (site.btn1Url && site.btn1Url.includes('wa.me')) foundPhone = site.btn1Url;
-            else if (site.btn2Url && site.btn2Url.includes('wa.me')) foundPhone = site.btn2Url;
-            else if (site.btn3Url && site.btn3Url.includes('wa.me')) foundPhone = site.btn3Url;
-            
-            if (foundPhone && whatsappBtn) {
-                whatsappBtn.href = foundPhone;
-            } else if (whatsappBtn) {
-                whatsappBtn.style.opacity = '0.5';
-                whatsappBtn.title = 'Nenhum WhatsApp cadastrado nos botões';
+            const ownerNameInput = document.getElementById('info-owner-name');
+            const ownerPhoneInput = document.getElementById('info-owner-phone');
+
+            // Auto-detecta WhatsApp dos botões se não houver um salvo manualmente
+            let activePhone = site.ownerPhone || '';
+            if (!activePhone) {
+                let foundBtnPhone = '';
+                if (site.btn1Url && site.btn1Url.includes('wa.me')) foundBtnPhone = site.btn1Url.replace(/[^0-9]/g, '');
+                else if (site.btn2Url && site.btn2Url.includes('wa.me')) foundBtnPhone = site.btn2Url.replace(/[^0-9]/g, '');
+                else if (site.btn3Url && site.btn3Url.includes('wa.me')) foundBtnPhone = site.btn3Url.replace(/[^0-9]/g, '');
+                
+                if (foundBtnPhone) {
+                    activePhone = foundBtnPhone;
+                    if (ownerPhoneInput) ownerPhoneInput.value = activePhone;
+                }
             }
+
+            const refreshWhatsappLink = () => {
+                const currentPhone = ownerPhoneInput ? ownerPhoneInput.value.replace(/[^0-9]/g, '') : activePhone;
+                if (whatsappBtn) {
+                    if (currentPhone) {
+                        whatsappBtn.href = `https://wa.me/${currentPhone}`;
+                        whatsappBtn.style.opacity = '1';
+                        whatsappBtn.title = `Chamar ${ownerNameInput?.value || 'Lojista'} no WhatsApp`;
+                    } else {
+                        whatsappBtn.href = '#';
+                        whatsappBtn.style.opacity = '0.5';
+                        whatsappBtn.title = 'Preencha o WhatsApp no campo abaixo';
+                    }
+                }
+            };
+            refreshWhatsappLink();
+
+            // Salva nome e telefone no LocalStorage ao digitar
+            const saveContactInfo = () => {
+                let allLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+                const itemIdx = allLeads.findIndex(l => l.arroba.toLowerCase() === site.arroba.toLowerCase());
+                if (itemIdx !== -1) {
+                    allLeads[itemIdx].ownerName = ownerNameInput ? ownerNameInput.value.trim() : '';
+                    allLeads[itemIdx].ownerPhone = ownerPhoneInput ? ownerPhoneInput.value.replace(/[^0-9]/g, '') : '';
+                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(allLeads));
+                    window.allSitesData = allLeads;
+
+                    refreshWhatsappLink();
+
+                    const badge = document.getElementById('info-contact-saved-badge');
+                    if (badge) {
+                        badge.style.opacity = '1';
+                        setTimeout(() => { badge.style.opacity = '0'; }, 1500);
+                    }
+                }
+            };
+
+            if (ownerNameInput) ownerNameInput.addEventListener('input', saveContactInfo);
+            if (ownerPhoneInput) ownerPhoneInput.addEventListener('input', saveContactInfo);
 
             // Função para carregar estatísticas do mês selecionado
             const loadStats = async (month) => {
