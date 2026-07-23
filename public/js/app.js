@@ -1410,24 +1410,37 @@ loadClassicModel();
         const searchInsta = document.getElementById('search-insta');
         const searchDropdown = document.getElementById('search-dropdown');
 
-        function getLeads() {
-            return JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        function getSearchHistory() {
+            return JSON.parse(localStorage.getItem('painelbio-search-history')) || [];
         }
 
-        // Renderiza o dropdown flutuante com base nas buscas anteriores
+        function saveSearchHistory(searchItem) {
+            if (!searchItem || !searchItem.arroba) return;
+            let history = getSearchHistory();
+            history = history.filter(h => h.arroba.toLowerCase() !== searchItem.arroba.toLowerCase());
+            history.unshift({
+                arroba: searchItem.arroba,
+                name: searchItem.name || searchItem.arroba,
+                avatar: searchItem.avatar || ''
+            });
+            history = history.slice(0, 5); // Guarda apenas as 5 buscas mais recentes
+            localStorage.setItem('painelbio-search-history', JSON.stringify(history));
+        }
+
+        // Renderiza o dropdown flutuante com base no HISTÓRICO DE BUSCAS
         function renderDropdown(filterText = '') {
-            const leads = getLeads();
+            const history = getSearchHistory();
             let items = [];
 
             if (!filterText.trim()) {
-                // Se o input estiver vazio, exibe os 3 mais recentes do histórico
-                items = leads.slice(0, 3);
+                // Se o input estiver vazio, exibe o histórico de buscas
+                items = history;
             } else {
-                // Se tiver digitando, filtra os correspondentes (limite de 3)
+                // Se tiver digitando, filtra no histórico (limite de 3)
                 const query = filterText.trim().toLowerCase().replace(/^@/, '');
-                items = leads.filter(lead => {
-                    const cleanArroba = lead.arroba.toLowerCase().replace(/^@/, '');
-                    const cleanName = lead.name.toLowerCase();
+                items = history.filter(item => {
+                    const cleanArroba = (item.arroba || '').toLowerCase().replace(/^@/, '');
+                    const cleanName = (item.name || '').toLowerCase();
                     return cleanArroba.includes(query) || cleanName.includes(query);
                 }).slice(0, 3);
             }
@@ -1442,16 +1455,16 @@ loadClassicModel();
                     <img src="${item.avatar || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23888888\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'}" class="dropdown-item-avatar" alt="Avatar">
                     <div class="dropdown-item-info">
                         <span class="dropdown-item-arroba">${item.arroba}</span>
-                        <span class="dropdown-item-name">${item.name || 'Sem nome'}</span>
+                        <span class="dropdown-item-name">${item.name || 'Pesquisado recentemente'}</span>
                     </div>
                 </div>
             `).join('');
 
             // Se for exibição de histórico (input vazio), adiciona botão de limpar no final
-            if (!filterText.trim() && leads.length > 0) {
+            if (!filterText.trim() && history.length > 0) {
                 dropdownHtml += `
                     <div class="dropdown-clear-btn" id="clear-search-history">
-                        Limpar Histórico
+                        Limpar Histórico de Pesquisa
                     </div>
                 `;
             }
@@ -1459,12 +1472,12 @@ loadClassicModel();
             searchDropdown.innerHTML = dropdownHtml;
             searchDropdown.style.display = 'flex';
 
-            // Evento para limpar o histórico
+            // Evento para limpar o histórico de buscas (NÃO MEXE NA GALERIA DE SITES!)
             const clearBtn = document.getElementById('clear-search-history');
             if (clearBtn) {
                 clearBtn.addEventListener('click', (e) => {
                     e.stopPropagation(); // Evita que feche e reabra
-                    localStorage.removeItem('painelbio-insta-leads');
+                    localStorage.removeItem('painelbio-search-history');
                     searchDropdown.style.display = 'none';
                 });
             }
@@ -1648,13 +1661,14 @@ loadClassicModel();
 
             // Pequeno delay de 800ms para suavizar a transição do loader para o novo site na tela
             setTimeout(() => {
-                // Salva a loja gerada no banco de leads local
-                let leads = getLeads();
-                leads = leads.filter(l => l.arroba.toLowerCase() !== fullArroba.toLowerCase());
-                leads.unshift(generatedData);
-                localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+                // Salva apenas no HISTÓRICO DE BUSCAS da barra superior
+                saveSearchHistory({
+                    arroba: generatedData.arroba,
+                    name: generatedData.name,
+                    avatar: generatedData.avatar
+                });
 
-                // Carrega a loja gerada na visualização
+                // Carrega a loja gerada na visualização do editor
                 loadLeadData(generatedData);
             }, 800);
         }
