@@ -116,7 +116,7 @@ const leftIcon = document.querySelector('.left-icon');
                     }
 
                     html += `
-                        <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: stretch; transition: all 0.2s;">
+                        <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: stretch; transition: all 0.2s; min-width: 0; box-sizing: border-box; overflow: hidden;">
                             
                             <!-- Coluna da Esquerda (Imagem menor) -->
                             <div style="width: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid #222;">
@@ -124,15 +124,28 @@ const leftIcon = document.querySelector('.left-icon');
                             </div>
                             
                             <!-- Coluna da Direita (Textos e Botoes) -->
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between;">
                                 <!-- Textos em cima -->
                                 <div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                        <div style="font-size: 1rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${site.arroba}</div>
-                                        <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; ${btnStyle}">${btnBadgeText}</span>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; min-width: 0;">
+                                        
+                                        <!-- Arroba com truncamento ellipsis seguro -->
+                                        <div style="font-size: 0.95rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">
+                                            ${site.arroba}
+                                        </div>
+                                        
+                                        <!-- Status Badge + Ícone SVG (i) no topo à direita -->
+                                        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                                            <button onclick="window.openSiteInfoModal('${site.arroba}')" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); width: 22px; height: 22px; border-radius: 50%; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Ficha do Cliente & Relatório (i)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            </button>
+                                            
+                                            <span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; ${btnStyle}">${btnBadgeText}</span>
+                                        </div>
+
                                     </div>
                                     
-                                    <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px;">
+                                    <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         <strong>Modelo:</strong> Classic / ${themeName}
                                     </div>
                                     
@@ -142,26 +155,22 @@ const leftIcon = document.querySelector('.left-icon');
                                 </div>
                                 
                                 <!-- Botoes embaixo -->
-                                <div style="display: flex; gap: 6px; margin-top: 12px;">
-                                    <button onclick="window.openSiteInfoModal('${site.arroba}')" style="flex: 1; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ficha do Cliente & Relatório (i)">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                    </button>
-                                    
-                                    <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia">
+                                <div style="display: flex; gap: 6px; margin-top: 12px; width: 100%; box-sizing: border-box;">
+                                    <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; min-width: 0; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
                                     
-                                    <button onclick="window.startUploadSite('${site.arroba}')" style="flex: 1; ${btnStyle} padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="${btnTitle}">
+                                    <button onclick="window.startUploadSite('${site.arroba}')" style="flex: 1; min-width: 0; ${btnStyle} padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="${btnTitle}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                                     </button>
 
                                     ${(status === 'published' || status === 'modified') ? `
-                                    <button onclick="window.copySiteUrl('${site.arroba}', this)" style="flex: 1; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Copiar URL para o Cliente">
+                                    <button onclick="window.copySiteUrl('${site.arroba}', this)" style="flex: 1; min-width: 0; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Copiar URL para o Cliente">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                                     </button>
                                     ` : ''}
                                     
-                                    <button onclick="deleteSite('${site.arroba}')" style="flex: 1; background: rgba(255, 0, 0, 0.1); color: #ff4444; border: 1px solid rgba(255, 0, 0, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Deletar">
+                                    <button onclick="deleteSite('${site.arroba}')" style="flex: 1; min-width: 0; background: rgba(255, 0, 0, 0.1); color: #ff4444; border: 1px solid rgba(255, 0, 0, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Deletar">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                                     </button>
                                 </div>
@@ -499,26 +508,7 @@ const leftIcon = document.querySelector('.left-icon');
                             </div>
                         </div>
 
-                        <!-- Seção 2: Controle de Pagamento & Cobrança (CRM) -->
-                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
-                            <div style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; margin-bottom: 10px;">💳 Controle de Pagamento (CRM)</div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <div style="flex: 1;">
-                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 4px;">Status da Assinatura:</label>
-                                    <select id="crm-payment-status" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px; font-size: 0.8rem;">
-                                        <option value="paid" ${site.paymentStatus === 'paid' ? 'selected' : ''}>🟢 Pago / Em Dia</option>
-                                        <option value="pending" ${site.paymentStatus === 'pending' ? 'selected' : ''}>🟡 Pendente de Pagamento</option>
-                                        <option value="trial" ${site.paymentStatus === 'trial' ? 'selected' : ''}>🔵 Degustação / Cortesia</option>
-                                    </select>
-                                </div>
-                                <div style="width: 110px;">
-                                    <label style="font-size: 0.7rem; color: #8b949e; display: block; margin-bottom: 4px;">Vencimento:</label>
-                                    <input type="text" id="crm-payment-day" value="${site.paymentDay || 'Dia 10'}" placeholder="Dia 10" style="width: 100%; background: #161b22; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 6px; font-size: 0.8rem; box-sizing: border-box;" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Seção 3: Ficha Técnica -->
+                        <!-- Seção 2: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
                             <div><strong>Modelo Atual:</strong> Classic (${site.preset || 'gray'})</div>
@@ -600,23 +590,7 @@ const leftIcon = document.querySelector('.left-icon');
                 });
             }
 
-            // Salva alterações de CRM (Pagamento/Vencimento) automaticamente ao mudar
-            const statusSelect = document.getElementById('crm-payment-status');
-            const dayInput = document.getElementById('crm-payment-day');
-            
-            const saveCrmData = () => {
-                let allLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-                const itemIdx = allLeads.findIndex(l => l.arroba.toLowerCase() === site.arroba.toLowerCase());
-                if (itemIdx !== -1) {
-                    allLeads[itemIdx].paymentStatus = statusSelect.value;
-                    allLeads[itemIdx].paymentDay = dayInput.value;
-                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(allLeads));
-                    window.allSitesData = allLeads;
-                }
-            };
 
-            if (statusSelect) statusSelect.addEventListener('change', saveCrmData);
-            if (dayInput) dayInput.addEventListener('blur', saveCrmData);
 
             // Botão Fechar Modal
             const closeBtn = document.getElementById('close-info-modal-btn');
