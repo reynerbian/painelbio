@@ -3041,8 +3041,9 @@ loadClassicModel();
                               if (posts && Array.isArray(posts)) {
                                   for (const post of posts) {
                                       const node = post.node || post;
-                                      const candidates = node?.image_versions2?.candidates;
-                                      const imgUrl = candidates?.[0]?.url || node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
+                                      const mediaDict = node.media_dict || node;
+                                      const candidates = mediaDict?.image_versions2?.candidates || node?.image_versions2?.candidates;
+                                      const imgUrl = candidates?.[0]?.url || mediaDict?.display_url || node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
                                       if (imgUrl && typeof imgUrl === 'string') {
                                           scrapedImages.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
                                       }
