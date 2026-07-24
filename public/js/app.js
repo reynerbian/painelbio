@@ -3129,13 +3129,20 @@ loadClassicModel();
                             renderApiKeysModal();
                         }
 
-                        scrapedRealData = parseAndLoadScrapedData(result);
+                         scrapedRealData = parseAndLoadScrapedData(result);
                         console.log('[PainelBio Search] 🌟 Dados extraídos prontos para o preview:', scrapedRealData);
                     } else {
                         const errorText = await response.text();
-                        console.error(`[PainelBio Search] ❌ Erro HTTP ${response.status} da RapidAPI:`, errorText);
-                        addScraperLog(`RapidAPI retornou erro HTTP ${response.status}: ${errorText}`, 'error');
-                        if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+                        console.error(`[PainelBio Search] ❌ Erro HTTP ${response.status} da RapidAPI primária:`, errorText);
+                        addScraperLog(`API principal retornou erro ${response.status}. Tentando API alternativa...`, 'warning');
+                        
+                        // Tenta a API alternativa (Instagram Public Bulk Scraper)
+                        scrapedRealData = await fetchFromBulkScraper(cleanArroba, RAPIDAPI_KEY, addScraperLog, scraperBadge);
+                        
+                        if (!scrapedRealData) {
+                            addScraperLog(`Ambas as APIs falharam para @${cleanArroba}.`, 'error');
+                            if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+                        }
                     }
                 }
             } catch (err) {
@@ -3575,6 +3582,109 @@ function getActiveKeyIndex() {
 
 function setActiveKeyIndex(index) {
     localStorage.setItem('painelbio-active-key-index', index.toString());
+}
+
+// ==========================================
+// API ALTERNATIVA: Instagram Public Bulk Scraper
+// Host: instagram-public-bulk-scraper.p.rapidapi.com
+// Usada automaticamente como fallback quando a API principal falha
+// ==========================================
+async function fetchFromBulkScraper(username, rapidApiKey, addScraperLog, scraperBadge) {
+    const BULK_HOST = 'instagram-public-bulk-scraper.p.rapidapi.com';
+    const headers = {
+        'x-rapidapi-key': rapidApiKey,
+        'x-rapidapi-host': BULK_HOST,
+        'Content-Type': 'application/json'
+    };
+
+    try {
+        console.log(`[BulkScraper] 🔄 Tentando API alternativa para @${username}...`);
+        addScraperLog('Tentando API alternativa (Instagram Bulk Scraper)...', 'info');
+
+        // Chamada 1: User Info (nome, bio, foto)
+        const infoController = new AbortController();
+        const infoTimeout = setTimeout(() => infoController.abort(), 12000);
+        const infoUrl = `https://${BULK_HOST}/v1/user_info?username_or_id=${encodeURIComponent(username)}`;
+        console.log(`[BulkScraper] 🌐 URL User Info: ${infoUrl}`);
+
+        const infoResponse = await fetch(infoUrl, { method: 'GET', headers, signal: infoController.signal });
+        clearTimeout(infoTimeout);
+
+        console.log(`[BulkScraper] 📡 Status User Info: ${infoResponse.status}`);
+
+        if (!infoResponse.ok) {
+            const errText = await infoResponse.text();
+            console.error(`[BulkScraper] ❌ Erro na API alternativa (user_info): ${infoResponse.status}`, errText);
+            addScraperLog(`API alternativa também falhou: ${infoResponse.status}`, 'error');
+            return null;
+        }
+
+        const infoResult = await infoResponse.json();
+        console.log('[BulkScraper] ✅ User Info recebido:', infoResult);
+
+        const userData = infoResult?.data;
+        if (!userData) {
+            console.error('[BulkScraper] ❌ Estrutura de dados inválida na resposta de user_info.');
+            addScraperLog('API alternativa: resposta inesperada.', 'error');
+            return null;
+        }
+
+        // Chamada 2: User Posts (3 imagens do feed)
+        const postsController = new AbortController();
+        const postsTimeout = setTimeout(() => postsController.abort(), 12000);
+        const postsUrl = `https://${BULK_HOST}/v2/user_posts?username_or_id=${encodeURIComponent(username)}&count=3`;
+        console.log(`[BulkScraper] 🌐 URL Posts: ${postsUrl}`);
+
+        const postsResponse = await fetch(postsUrl, { method: 'GET', headers, signal: postsController.signal });
+        clearTimeout(postsTimeout);
+
+        console.log(`[BulkScraper] 📡 Status Posts: ${postsResponse.status}`);
+
+        let highlight1 = '', highlight2 = '', highlight3 = '';
+        if (postsResponse.ok) {
+            const postsResult = await postsResponse.json();
+            const items = postsResult?.data?.items || [];
+            console.log(`[BulkScraper] 📸 Posts recebidos: ${items.length}`);
+
+            const getPostImg = (item) => {
+                // Tenta a melhor resolução disponível
+                return item?.image_versions2?.candidates?.[0]?.url
+                    || item?.display_uri
+                    || '';
+            };
+
+            if (items[0]) highlight1 = getPostImg(items[0]) ? `https://wsrv.nl/?url=${encodeURIComponent(getPostImg(items[0]))}` : '';
+            if (items[1]) highlight2 = getPostImg(items[1]) ? `https://wsrv.nl/?url=${encodeURIComponent(getPostImg(items[1]))}` : '';
+            if (items[2]) highlight3 = getPostImg(items[2]) ? `https://wsrv.nl/?url=${encodeURIComponent(getPostImg(items[2]))}` : '';
+        } else {
+            console.warn(`[BulkScraper] ⚠️ Falha ao buscar posts (${postsResponse.status}). Continuando sem imagens.`);
+        }
+
+        // Monta o resultado no mesmo formato da API principal
+        const avatar = userData.hd_profile_pic_url_info?.url
+            ? `https://wsrv.nl/?url=${encodeURIComponent(userData.hd_profile_pic_url_info.url)}`
+            : (userData.profile_pic_url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.profile_pic_url)}` : '');
+
+        const parsedData = {
+            name: userData.full_name || userData.username || username,
+            bio: (userData.biography || '').trim(),
+            avatar,
+            highlight1Img: highlight1,
+            highlight2Img: highlight2,
+            highlight3Img: highlight3
+        };
+
+        console.log('[BulkScraper] 🌟 Dados da API alternativa prontos:', parsedData);
+        addScraperLog(`✅ API alternativa funcionou! Nome: ${parsedData.name}`, 'success');
+        if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
+
+        return parsedData;
+
+    } catch (err) {
+        console.error('[BulkScraper] 💥 Exceção na API alternativa:', err);
+        addScraperLog(`Erro na API alternativa: ${err.message}`, 'error');
+        return null;
+    }
 }
 
 function parseAndLoadScrapedData(result) {
