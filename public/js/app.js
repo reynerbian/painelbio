@@ -1807,12 +1807,32 @@ loadClassicModel();
             // Injeta o formulário do modelo dinamicamente no Inspector (/models/<activeModel>/inspector.html)
             try {
                 const res = await fetch(`/models/${activeModel}/inspector.html?v=${Date.now()}`);
+                let modelHtml = '';
                 if (res.ok) {
-                    inspectorContent.innerHTML = await res.text();
+                    modelHtml = await res.text();
                 } else {
                     const fallbackRes = await fetch('/models/classic/inspector.html?v=' + Date.now());
-                    inspectorContent.innerHTML = await fallbackRes.text();
+                    modelHtml = await fallbackRes.text();
                 }
+                
+                // Fetch Add-ons Partials
+                let addonsActiveHtml = '';
+                let addonsCatalogHtml = '';
+                try {
+                    const activeRes = await fetch('/partials/addons-active.html?v=' + Date.now());
+                    const catalogRes = await fetch('/partials/addons-catalog.html?v=' + Date.now());
+                    if (activeRes.ok) addonsActiveHtml = await activeRes.text();
+                    if (catalogRes.ok) addonsCatalogHtml = await catalogRes.text();
+                } catch(e) { console.error("Erro ao carregar add-ons", e); }
+                
+                inspectorContent.innerHTML = modelHtml;
+                
+                // Injetar Add-ons
+                const activeContainer = inspectorContent.querySelector('#active-addons-list');
+                const catalogContainer = inspectorContent.querySelector('#panel-addons');
+                if (activeContainer && addonsActiveHtml) activeContainer.innerHTML = addonsActiveHtml;
+                if (catalogContainer && addonsCatalogHtml) catalogContainer.innerHTML = addonsCatalogHtml;
+                
             } catch (e) {
                 console.error("Erro ao carregar modelo:", e);
             }
