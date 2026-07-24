@@ -3645,33 +3645,49 @@ function renderApiKeysModal() {
     }).join('');
 }
 
-// Configura Listeners do Modal de Chaves
-function initApiKeysModal() {
-    const btnSettings = document.getElementById('btn-api-settings');
+// Funções para abrir/fechar o modal de chaves API
+function openApiKeysModal() {
     const overlay = document.getElementById('api-keys-overlay');
     const modal = document.getElementById('api-keys-modal');
-    const btnClose = document.getElementById('close-api-keys');
-    const btnAdd = document.getElementById('btn-add-api-key');
-    const inputNew = document.getElementById('input-new-api-key');
-    const container = document.getElementById('api-keys-list-container');
+    if (overlay && modal) {
+        overlay.classList.add('active');
+        modal.classList.add('active');
+        renderApiKeysModal();
+    }
+}
 
-    if (btnSettings && overlay && modal && btnClose) {
-        btnSettings.addEventListener('click', (e) => {
-            e.stopPropagation();
-            overlay.style.display = 'block';
-            modal.style.display = 'block';
-            renderApiKeysModal();
-        });
+function closeApiKeysModal() {
+    const overlay = document.getElementById('api-keys-overlay');
+    const modal = document.getElementById('api-keys-modal');
+    if (overlay && modal) {
+        overlay.classList.remove('active');
+        modal.classList.remove('active');
+    }
+}
 
-        const closeModal = () => {
-            overlay.style.display = 'none';
-            modal.style.display = 'none';
-        };
+// Configura Listeners do Modal de Chaves (Usando Delegação de Eventos para evitar falhas de carregamento)
+document.addEventListener('click', (e) => {
+    // 1. Abrir Modal
+    const btnSettings = e.target.closest('#btn-api-settings');
+    if (btnSettings) {
+        e.stopPropagation();
+        openApiKeysModal();
+        return;
+    }
 
-        btnClose.addEventListener('click', closeModal);
-        overlay.addEventListener('click', closeModal);
+    // 2. Fechar Modal
+    const btnClose = e.target.closest('#close-api-keys');
+    const overlayClick = e.target.id === 'api-keys-overlay' ? e.target : null;
+    if (btnClose || overlayClick) {
+        closeApiKeysModal();
+        return;
+    }
 
-        btnAdd.addEventListener('click', () => {
+    // 3. Adicionar Nova Chave
+    const btnAdd = e.target.closest('#btn-add-api-key');
+    if (btnAdd) {
+        const inputNew = document.getElementById('input-new-api-key');
+        if (inputNew) {
             const keyVal = inputNew.value.trim();
             if (!keyVal) return;
             
@@ -3694,44 +3710,37 @@ function initApiKeysModal() {
             inputNew.value = '';
             renderApiKeysModal();
             showCustomAlert('Chave cadastrada com sucesso!', 'success');
-        });
-
-        if (container) {
-            container.addEventListener('click', (e) => {
-                const targetSetActive = e.target.closest('.btn-set-active-key');
-                const targetDelete = e.target.closest('.btn-delete-api-key');
-                
-                if (targetSetActive) {
-                    const idx = parseInt(targetSetActive.getAttribute('data-index'), 10);
-                    setActiveKeyIndex(idx);
-                    renderApiKeysModal();
-                    showCustomAlert('Chave ativa alterada!', 'success');
-                }
-                
-                if (targetDelete) {
-                    const idx = parseInt(targetDelete.getAttribute('data-index'), 10);
-                    const keys = getApiKeys();
-                    let activeIndex = getActiveKeyIndex();
-                    
-                    keys.splice(idx, 1);
-                    saveApiKeys(keys);
-                    
-                    if (activeIndex === idx) {
-                        setActiveKeyIndex(0);
-                    } else if (activeIndex > idx) {
-                        setActiveKeyIndex(activeIndex - 1);
-                    }
-                    
-                    renderApiKeysModal();
-                    showCustomAlert('Chave excluída com sucesso!', 'success');
-                }
-            });
         }
+        return;
     }
-}
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApiKeysModal);
-} else {
-    initApiKeysModal();
-}
+    // 4. Ações da Lista (Definir ativa / Excluir)
+    const targetSetActive = e.target.closest('.btn-set-active-key');
+    if (targetSetActive) {
+        const idx = parseInt(targetSetActive.getAttribute('data-index'), 10);
+        setActiveKeyIndex(idx);
+        renderApiKeysModal();
+        showCustomAlert('Chave ativa alterada!', 'success');
+        return;
+    }
+
+    const targetDelete = e.target.closest('.btn-delete-api-key');
+    if (targetDelete) {
+        const idx = parseInt(targetDelete.getAttribute('data-index'), 10);
+        const keys = getApiKeys();
+        let activeIndex = getActiveKeyIndex();
+        
+        keys.splice(idx, 1);
+        saveApiKeys(keys);
+        
+        if (activeIndex === idx) {
+            setActiveKeyIndex(0);
+        } else if (activeIndex > idx) {
+            setActiveKeyIndex(activeIndex - 1);
+        }
+        
+        renderApiKeysModal();
+        showCustomAlert('Chave excluída com sucesso!', 'success');
+        return;
+    }
+});

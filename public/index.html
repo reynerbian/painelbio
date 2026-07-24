@@ -34,7 +34,7 @@
         
         <div class="search-container">
             <input type="text" class="search-input" id="search-insta" placeholder="@loja..." autocomplete="off">
-            <button class="api-settings-btn" id="btn-api-settings" title="Configuração de Chaves API" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0 8px; color: rgba(255,255,255,0.6); position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 10; outline: none; transition: color 0.2s;">
+            <button class="api-settings-btn" id="btn-api-settings" title="Configuração de Chaves API" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 44px; height: 100%; color: rgba(255,255,255,0.6); position: absolute; right: 0; top: 0; z-index: 10; outline: none; transition: color 0.2s;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -328,9 +328,9 @@
     </div>
 
     <!-- Modal para Chaves da API -->
-    <div class="load-site-overlay" id="api-keys-overlay" style="display: none; z-index: 1100;"></div>
-    <div class="load-site-modal" id="api-keys-modal" style="display: none; z-index: 1200; max-width: 400px; padding: 20px;">
-        <div class="load-site-header" style="margin-bottom: 15px;">
+    <div class="load-site-overlay" id="api-keys-overlay"></div>
+    <div class="load-site-modal" id="api-keys-modal">
+        <div class="load-site-header" style="margin-bottom: 15px; padding: 20px;">
             <h3>🔑 Chaves RapidAPI</h3>
             <button id="close-api-keys" class="drawer-close" style="position: relative; right: 0; top: 0;" aria-label="Fechar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -339,7 +339,7 @@
                 </svg>
             </button>
         </div>
-        <div class="api-keys-content" style="display: flex; flex-direction: column; gap: 15px;">
+        <div class="api-keys-content" style="display: flex; flex-direction: column; gap: 15px; padding: 0 20px 20px 20px;">
             <!-- Campo para adicionar chave -->
             <div style="display: flex; gap: 8px;">
                 <input type="text" id="input-new-api-key" placeholder="Colar nova chave RapidAPI..." style="flex: 1; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; padding: 0 12px; font-size: 0.85rem; outline: none;">
@@ -358,6 +358,6 @@
     </div>
 
     <!-- Script App Principal -->
-    <script src="js/app.js?v=1784895045"></script>
+    <script src="js/app.js?v=1784895307"></script>
 </body>
 </html>
