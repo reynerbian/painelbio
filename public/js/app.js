@@ -1816,6 +1816,55 @@ loadClassicModel();
             viewLinks.innerHTML = buttonsHtml;
 
             viewFooter.style.display = "flex";
+
+            // Renderização do Add-on 1: Anúncio Flutuante de Topo no celular
+            const cardTopbanner = document.getElementById('card-addon-topbanner');
+            const isTopbannerActive = cardTopbanner && cardTopbanner.style.display !== 'none';
+            const phoneScreen = document.getElementById('phone-preview-screen');
+            let phoneTopBanner = document.getElementById('phone-live-top-banner');
+
+            if (isTopbannerActive) {
+                const tbText1 = document.getElementById('input-addon-tb-text1')?.value.trim() || '';
+                const tbText2 = document.getElementById('input-addon-tb-text2')?.value.trim() || '';
+                const tbText3 = document.getElementById('input-addon-tb-text3')?.value.trim() || '';
+                const tbBg = document.getElementById('input-addon-tb-bg')?.value || '#0f172a';
+                const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
+
+                const texts = [tbText1, tbText2, tbText3].filter(Boolean);
+
+                if (phoneScreen && texts.length > 0) {
+                    if (!phoneTopBanner) {
+                        phoneTopBanner = document.createElement('div');
+                        phoneTopBanner.id = 'phone-live-top-banner';
+                        phoneTopBanner.style.cssText = `position: absolute; top: 0; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 36px 36px 0 0;`;
+                        phoneScreen.prepend(phoneTopBanner);
+                    }
+                    phoneTopBanner.style.background = tbBg;
+                    phoneTopBanner.style.color = tbColor;
+                    phoneTopBanner.style.display = 'flex';
+                    phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
+
+                    window.phoneTbTexts = texts;
+                    if (!window.phoneTbInterval) {
+                        window.phoneTbIdx = 0;
+                        window.phoneTbInterval = setInterval(() => {
+                            const txtEl = document.getElementById('phone-tb-live-text');
+                            if (txtEl && window.phoneTbTexts && window.phoneTbTexts.length > 1) {
+                                txtEl.style.opacity = '0';
+                                setTimeout(() => {
+                                    window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                    txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                    txtEl.style.opacity = '1';
+                                }, 300);
+                            }
+                        }, 3500);
+                    }
+                } else if (phoneTopBanner) {
+                    phoneTopBanner.style.display = 'none';
+                }
+            } else if (phoneTopBanner) {
+                phoneTopBanner.style.display = 'none';
+            }
         }
 
         // Listener de entrada em tempo real para os inputs do formulário (vinculado dinamicamente)
@@ -1824,6 +1873,63 @@ loadClassicModel();
             formInputs.forEach(input => {
                 input.addEventListener('input', updatePreviewFromForm);
             });
+
+            // Troca de Abas no Inspector: [ 📝 Conteúdo ] vs [ 🧩 Add ons ]
+            const tabBtns = document.querySelectorAll('.inspector-tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-tab');
+                    tabBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#94a3b8';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = '#3b82f6';
+                    btn.style.color = '#ffffff';
+
+                    const panelContent = document.getElementById('panel-content');
+                    const panelAddons = document.getElementById('panel-addons');
+                    if (targetTab === 'content') {
+                        if (panelContent) panelContent.style.display = 'block';
+                        if (panelAddons) panelAddons.style.display = 'none';
+                    } else {
+                        if (panelContent) panelContent.style.display = 'none';
+                        if (panelAddons) panelAddons.style.display = 'block';
+                    }
+                });
+            });
+
+            // Lógica de Habilitar / Remover Add-ons
+            const btnEnableTopbanner = document.getElementById('btn-enable-topbanner-addon');
+            const cardTopbanner = document.getElementById('card-addon-topbanner');
+            const btnRemoveTopbanner = document.getElementById('btn-remove-topbanner-addon');
+
+            if (btnEnableTopbanner && cardTopbanner) {
+                btnEnableTopbanner.addEventListener('click', () => {
+                    cardTopbanner.style.display = 'block';
+                    const text1 = document.getElementById('input-addon-tb-text1');
+                    if (text1 && !text1.value) text1.value = "🔥 Frete Grátis em compras acima de R$ 199";
+                    const text2 = document.getElementById('input-addon-tb-text2');
+                    if (text2 && !text2.value) text2.value = "💳 Em até 10x sem juros no cartão";
+                    const text3 = document.getElementById('input-addon-tb-text3');
+                    if (text3 && !text3.value) text3.value = "🛍️ Cupom 10% OFF: BEMVINDO10";
+                    updatePreviewFromForm();
+                });
+            }
+
+            if (btnRemoveTopbanner && cardTopbanner) {
+                btnRemoveTopbanner.addEventListener('click', () => {
+                    cardTopbanner.style.display = 'none';
+                    const text1 = document.getElementById('input-addon-tb-text1');
+                    if (text1) text1.value = "";
+                    const text2 = document.getElementById('input-addon-tb-text2');
+                    if (text2) text2.value = "";
+                    const text3 = document.getElementById('input-addon-tb-text3');
+                    if (text3) text3.value = "";
+                    updatePreviewFromForm();
+                });
+            }
 
             // Clique no botão buscar imagem
             const btnSearchAvatar = document.getElementById('btn-search-avatar');
@@ -1883,6 +1989,12 @@ loadClassicModel();
                         btn3Url: document.getElementById('input-btn3-url')?.value.trim() || '',
                         btn4Title: document.getElementById('input-btn4-title')?.value.trim() || '',
                         btn4Url: document.getElementById('input-btn4-url')?.value.trim() || '',
+                        addonTopbannerActive: document.getElementById('card-addon-topbanner')?.style.display !== 'none',
+                        addonTopbannerText1: document.getElementById('input-addon-tb-text1')?.value.trim() || '',
+                        addonTopbannerText2: document.getElementById('input-addon-tb-text2')?.value.trim() || '',
+                        addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value.trim() || '',
+                        addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
+                        addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };

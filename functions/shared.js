@@ -18,7 +18,34 @@ export function generateStaticSite(data) {
   const cleanArroba = (data.arroba || '').replace('@', '').trim();
   const instaUrl = cleanArroba ? `https://instagram.com/${cleanArroba}` : '#';
   const bioAlign = data.bioAlign || 'center';
-  const isVitrine = data.model === 'vitrine' || Boolean(data.highlight1Img || data.highlight2Img || data.highlight3Img);
+  // ADD-ON: BANNER DE ANÚNCIO FLUTUANTE NO TOPO
+  const tbTexts = [data.addonTopbannerText1, data.addonTopbannerText2, data.addonTopbannerText3].filter(Boolean);
+  const hasTopBanner = Boolean((data.addonTopbannerActive || tbTexts.length > 0) && tbTexts.length > 0);
+  const tbBg = data.addonTopbannerBg || '#0f172a';
+  const tbColor = data.addonTopbannerColor || '#38bdf8';
+
+  const topBannerHtml = hasTopBanner ? `
+    <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <span id="pb-tb-text" style="transition: opacity 0.3s ease-in-out;">${tbTexts[0]}</span>
+    </div>
+    <script>
+        (function() {
+            var texts = ${JSON.stringify(tbTexts)};
+            var idx = 0;
+            var el = document.getElementById('pb-tb-text');
+            if (el && texts.length > 1) {
+                setInterval(function() {
+                    el.style.opacity = '0';
+                    setTimeout(function() {
+                        idx = (idx + 1) % texts.length;
+                        el.textContent = texts[idx];
+                        el.style.opacity = '1';
+                    }, 300);
+                }, 4000);
+            }
+        })();
+    </script>
+  ` : '';
 
   // SE FOR O MODELO 2: VITRINE (Sem card embutido, fotos no topo soltas, avatar sobreposto, botões estilo modelo 1 com borda colorida)
   if (isVitrine) {
@@ -252,6 +279,7 @@ export function generateStaticSite(data) {
     </style>
 </head>
 <body>
+    ${topBannerHtml}
     <div class="v-container">
         
         <!-- Grid Superior -->
@@ -498,6 +526,7 @@ export function generateStaticSite(data) {
     </style>
 </head>
 <body>
+    ${topBannerHtml}
     <div class="preview-bio-page">
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
