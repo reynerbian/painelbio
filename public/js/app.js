@@ -3044,7 +3044,7 @@ loadClassicModel();
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
+                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_profile_and_medias.php?username=${encodeURIComponent(cleanArroba)}&response_type=feeds&corsEnabled=false`, {
                         method: 'GET',
                         headers: {
                             'x-rapidapi-key': RAPIDAPI_KEY,
@@ -3089,6 +3089,8 @@ loadClassicModel();
 
                     if (response.ok) {
                         const result = await response.json();
+                        console.log('[PainelBio] API RAW RESULT:', JSON.stringify(result).substring(0, 500));
+                        addScraperLog(`Debug: chaves no resultado = ${Object.keys(result || {}).join(', ')}`, 'info');
                         
                         // Atualiza as cotas da chave ativa a partir dos headers
                         const remaining = response.headers.get('x-ratelimit-requests-remaining');
