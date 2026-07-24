@@ -1978,9 +1978,14 @@ loadClassicModel();
                     const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${mqSpeed}_${mqPause}_${tbBg}_${tbColor}`;
                     if (window.phoneTbConfigKey !== currentConfigKey) {
                         window.phoneTbConfigKey = currentConfigKey;
-                        if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
-                        if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
+                        if (window.phoneTbTimers) { window.phoneTbTimers.forEach(clearTimeout); }
+                        window.phoneTbTimers = [];
                         if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                        const safeSetTimeout = (fn, ms) => {
+                            const id = setTimeout(fn, ms);
+                            window.phoneTbTimers.push(id);
+                            return id;
+                        };
 
                         window.phoneTbTexts = texts;
                         window.phoneTbIdx = 0;
@@ -1996,13 +2001,13 @@ loadClassicModel();
                             if (effect === 'slide') {
                                 phoneTopBanner.style.transform = 'translateY(-100%)';
                                 phoneTopBanner.style.opacity = '0';
-                                setTimeout(() => {
+                                safeSetTimeout(() => {
                                     phoneTopBanner.style.transform = 'translateY(0)';
                                     phoneTopBanner.style.opacity = '1';
-                                    window.phoneTbTimer1 = setTimeout(() => {
+                                    window.phoneTbTimer1 = safeSetTimeout(() => {
                                         phoneTopBanner.style.transform = 'translateY(-100%)';
                                         phoneTopBanner.style.opacity = '0';
-                                        window.phoneTbTimer2 = setTimeout(() => {
+                                        window.phoneTbTimer2 = safeSetTimeout(() => {
                                             window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
                                             txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
                                             runLiveEffectCycle();
@@ -2164,15 +2169,25 @@ loadClassicModel();
                     }
                 } else if (phoneTopBanner) {
                     phoneTopBanner.style.display = 'none';
-                    if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
-                    if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
-                    if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                    if (window.phoneTbTimers) { window.phoneTbTimers.forEach(clearTimeout); }
+                        window.phoneTbTimers = [];
+                        if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                        const safeSetTimeout = (fn, ms) => {
+                            const id = setTimeout(fn, ms);
+                            window.phoneTbTimers.push(id);
+                            return id;
+                        };
                 }
             } else if (phoneTopBanner) {
                 phoneTopBanner.style.display = 'none';
-                if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
-                if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
-                if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                if (window.phoneTbTimers) { window.phoneTbTimers.forEach(clearTimeout); }
+                        window.phoneTbTimers = [];
+                        if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                        const safeSetTimeout = (fn, ms) => {
+                            const id = setTimeout(fn, ms);
+                            window.phoneTbTimers.push(id);
+                            return id;
+                        };
             }
 
             // =========================================================================
