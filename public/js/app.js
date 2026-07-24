@@ -3638,6 +3638,42 @@ function setActiveKeyIndex(index) {
 }
 
 // ==========================================
+// BANCO DE DADOS LOCAL DE PERFIS (CACHE)
+// Evita gastar créditos de API ao pesquisar perfis repetidos
+// ==========================================
+function getProfileCache(arroba) {
+    if (!arroba) return null;
+    const clean = arroba.toLowerCase().replace(/^@/, '');
+    try {
+        const cache = JSON.parse(localStorage.getItem('painelbio-profile-cache')) || {};
+        return cache[clean] || null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function saveProfileCache(arroba, data) {
+    if (!arroba || !data) return;
+    const clean = arroba.toLowerCase().replace(/^@/, '');
+    try {
+        const cache = JSON.parse(localStorage.getItem('painelbio-profile-cache')) || {};
+        cache[clean] = {
+            name: data.name || '',
+            bio: data.bio || '',
+            avatar: data.avatar || '',
+            highlight1Img: data.highlight1Img || '',
+            highlight2Img: data.highlight2Img || '',
+            highlight3Img: data.highlight3Img || '',
+            cachedAt: Date.now()
+        };
+        localStorage.setItem('painelbio-profile-cache', JSON.stringify(cache));
+        console.log(`[PainelBio Cache] 💾 Perfil @${clean} salvo com sucesso no banco de dados local.`);
+    } catch (e) {
+        console.error('[PainelBio Cache] Erro ao salvar cache de perfil:', e);
+    }
+}
+
+// ==========================================
 // API ALTERNATIVA: Instagram Public Bulk Scraper
 // Host: instagram-public-bulk-scraper.p.rapidapi.com
 // Usada automaticamente como fallback quando a API principal falha
