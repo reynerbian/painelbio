@@ -3646,7 +3646,7 @@ function renderApiKeysModal() {
 }
 
 // Configura Listeners do Modal de Chaves
-document.addEventListener('DOMContentLoaded', () => {
+function initApiKeysModal() {
     const btnSettings = document.getElementById('btn-api-settings');
     const overlay = document.getElementById('api-keys-overlay');
     const modal = document.getElementById('api-keys-modal');
@@ -3728,4 +3728,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApiKeysModal);
+} else {
+    initApiKeysModal();
+}
