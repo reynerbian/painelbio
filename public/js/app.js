@@ -146,7 +146,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     </div>
                                     
                                     <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <strong>Modelo:</strong> Classic / ${themeName}
+                                        <strong>Modelo:</strong> ${site.model === 'vitrine' ? 'Vitrine' : 'Classic'} / ${themeName}
                                     </div>
                                     
                                     <div style="font-size: 0.7rem; color: #6e7681;">
@@ -529,7 +529,7 @@ const leftIcon = document.querySelector('.left-icon');
                         <!-- Seção 3: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
-                            <div><strong>Modelo Atual:</strong> Classic (${site.preset || 'gray'})</div>
+                            <div><strong>Modelo Atual:</strong> ${site.model === 'vitrine' ? 'Vitrine' : 'Classic'} (${site.preset || 'gray'})</div>
                             <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
                         </div>
 
@@ -2012,9 +2012,12 @@ loadClassicModel();
                         cleanArroba = '@' + cleanArroba;
                     }
 
-                    // Lê todas as informações do form
+                    // Lê todas as informações do form com o modelo ativo correto
+                    const selectedCard = document.querySelector('.template-card.is-selected');
+                    const activeModel = (selectedCard && selectedCard.getAttribute('data-template')) || window.currentActiveModel || 'classic';
+
                     const updatedData = {
-                        model: window.currentActiveModel || 'classic',
+                        model: activeModel,
                         arroba: cleanArroba,
                         name: document.getElementById('input-name')?.value.trim() || '',
                         avatar: document.getElementById('input-avatar')?.value.trim() || '',
