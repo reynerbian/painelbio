@@ -1644,7 +1644,7 @@ let CLASSIC_FORM_HTML = "";
 // Função para carregar o modelo Classic dinamicamente
 async function loadClassicModel() {
     try {
-        const response = await fetch('/models/classic/inspector.html');
+        const response = await fetch('/models/classic/inspector.html?v=' + Date.now());
         CLASSIC_FORM_HTML = await response.text();
     } catch (e) {
         console.error("Erro ao carregar o modelo Classic:", e);
@@ -1806,11 +1806,11 @@ loadClassicModel();
 
             // Injeta o formulário do modelo dinamicamente no Inspector (/models/<activeModel>/inspector.html)
             try {
-                const res = await fetch(`/models/${activeModel}/inspector.html`);
+                const res = await fetch(`/models/${activeModel}/inspector.html?v=${Date.now()}`);
                 if (res.ok) {
                     inspectorContent.innerHTML = await res.text();
                 } else {
-                    const fallbackRes = await fetch('/models/classic/inspector.html');
+                    const fallbackRes = await fetch('/models/classic/inspector.html?v=' + Date.now());
                     inspectorContent.innerHTML = await fallbackRes.text();
                 }
             } catch (e) {
