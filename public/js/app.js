@@ -3123,9 +3123,8 @@ loadClassicModel();
                                 activeKeyItem.resetSeconds = parseInt(reset, 10);
                                 activeKeyItem.updatedAt = Date.now();
                             }
-                            if (remaining === '0') {
-                                activeKeyItem.isBlocked = true;
-                            }
+                            // Só bloqueia a chave se a API retornar HTTP 429 (cota esgotada de verdade)
+                            // Não bloquear apenas porque remaining == 0 no header, pois pode ser informação incorreta
                             saveApiKeys(keys);
                             renderApiKeysModal();
                         }
@@ -3547,6 +3546,22 @@ function getApiKeys() {
         ];
         localStorage.setItem('painelbio-api-keys', JSON.stringify(keys));
     }
+    
+    // Auto-desbloqueia chaves cujo tempo de reset já passou
+    let changed = false;
+    keys.forEach(k => {
+        if (k.isBlocked && k.resetSeconds && k.updatedAt) {
+            const elapsed = Math.floor((Date.now() - k.updatedAt) / 1000);
+            if (elapsed >= k.resetSeconds) {
+                console.log('[PainelBio] 🔓 Chave desbloqueada automaticamente (reset expirado).');
+                k.isBlocked = false;
+                k.remaining = k.limit;
+                changed = true;
+            }
+        }
+    });
+    if (changed) localStorage.setItem('painelbio-api-keys', JSON.stringify(keys));
+    
     return keys;
 }
 
@@ -3593,24 +3608,14 @@ function parseAndLoadScrapedData(result) {
             addScraperLog('Aviso: Nenhuma imagem encontrada no feed.', 'warning');
         }
         
-        // Se a biografia oficial vier vazia da API (comum no endpoint de hover do Instagram),
-        // geramos uma biografia inteligente contextualizada ao nome do perfil para não ficar em branco no preview!
+        // Usa a biografia real retornada pela API. Se vier vazia, deixa em branco (não gera bio fake).
         let finalBio = (userData.biography || '').trim();
-        if (!finalBio) {
-            const nameLower = (userData.full_name || userData.username || '').toLowerCase();
-            if (nameLower.includes('doce') || nameLower.includes('confeitaria') || nameLower.includes('bolo') || nameLower.includes('gourmet') || nameLower.includes('sobremesa')) {
-                finalBio = 'Doces personalizados & delícias feitas com amor! 🧁✨\nFaça seu pedido rápido pelo WhatsApp.';
-            } else if (nameLower.includes('moda') || nameLower.includes('store') || nameLower.includes('closet') || nameLower.includes('boutique') || nameLower.includes('looks')) {
-                finalBio = 'Peças exclusivas & novidades toda semana. 🛍️✨\nEnviamos para todo o Brasil! Fale no WhatsApp.';
-            } else if (nameLower.includes('joia') || nameLower.includes('semijoia') || nameLower.includes('prata') || nameLower.includes('acessorio')) {
-                finalBio = 'Acessórios & Semijoias de alta qualidade. 💎✨\nAtendimento e entregas rápidas no WhatsApp!';
-            } else if (nameLower.includes('estetica') || nameLower.includes('beleza') || nameLower.includes('salao') || nameLower.includes('hair') || nameLower.includes('make')) {
-                finalBio = 'Realçando sua beleza com excelência! 💄✨\nAgende seu horário pelo WhatsApp.';
-            } else {
-                finalBio = 'Atendimento exclusivo, novidades e ofertas! ✨\nFale conosco diretamente no WhatsApp.';
-            }
-            console.log('[PainelBio Search] 💡 Biografia oficial omitida pela API. Biografia inteligente gerada:', finalBio);
-            addScraperLog('Biografia inteligente criada para o perfil.', 'info');
+        if (finalBio) {
+            console.log('[PainelBio Search] ✅ Biografia real retornada pela API:', finalBio);
+            addScraperLog('Biografia real carregada com sucesso.', 'success');
+        } else {
+            console.log('[PainelBio Search] ℹ️ Perfil não possui biografia (bio vazia na API).');
+            addScraperLog('Perfil sem biografia.', 'info');
         }
         
         const parsedData = {
@@ -3674,7 +3679,7 @@ function renderApiKeysModal() {
         
         return `
             <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid ${isActive ? '#38bdf8' : 'rgba(255,255,255,0.06)'}; border-radius: 8px; padding: 10px; font-size: 0.8rem;">
-                <div style="display: flex; flex-direction: column; gap: 4px; max-width: 70%; overflow: hidden;">
+                <div style="display: flex; flex-direction: column; gap: 4px; max-width: 65%; overflow: hidden;">
                     <span style="font-family: monospace; color: ${isActive ? '#38bdf8' : '#bbb'}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 0.75rem;">
                         ${isActive ? '★ ' : ''}${item.key.substring(0, 8)}...${item.key.substring(item.key.length - 6)}
                     </span>
@@ -3682,7 +3687,8 @@ function renderApiKeysModal() {
                         ${statusDot} ${quotaText}${resetText}
                     </span>
                 </div>
-                <div style="display: flex; gap: 5px;">
+                <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
+                    ${item.isBlocked ? `<button class="btn-unblock-api-key" data-index="${idx}" style="background: rgba(34,197,94,0.15); border: none; border-radius: 4px; color: #22c55e; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">🔓 Desbloquear</button>` : ''}
                     ${!isActive ? `<button class="btn-set-active-key" data-index="${idx}" style="background: rgba(56,189,248,0.1); border: none; border-radius: 4px; color: #38bdf8; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">Usar</button>` : ''}
                     <button class="btn-delete-api-key" data-index="${idx}" style="background: rgba(239,68,68,0.1); border: none; border-radius: 4px; color: #ef4444; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">Deletar</button>
                 </div>
@@ -3767,6 +3773,23 @@ document.addEventListener('click', (e) => {
         setActiveKeyIndex(idx);
         renderApiKeysModal();
         showCustomAlert('Chave ativa alterada!', 'success');
+        return;
+    }
+
+    // 4b. Desbloquear chave manualmente
+    const targetUnblock = e.target.closest('.btn-unblock-api-key');
+    if (targetUnblock) {
+        const idx = parseInt(targetUnblock.getAttribute('data-index'), 10);
+        const keys = getApiKeys();
+        if (keys[idx]) {
+            keys[idx].isBlocked = false;
+            keys[idx].remaining = null;
+            keys[idx].resetSeconds = null;
+            keys[idx].updatedAt = null;
+            saveApiKeys(keys);
+            renderApiKeysModal();
+            showCustomAlert('Chave desbloqueada! Pode fazer nova busca.', 'success');
+        }
         return;
     }
 
