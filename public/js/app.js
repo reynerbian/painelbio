@@ -1,5 +1,5 @@
 // --- CONFIGURAÇÃO DA RAPIDAPI ---
-window.RAPIDAPI_KEY = '045b178d42msh8ab87b110533394p1397eajsn3ac55c365582';
+
 
 // Elementos do Sininho de Notificações
 const btnScraperNotifications = document.getElementById('btn-scraper-notifications');
@@ -3006,100 +3006,118 @@ loadClassicModel();
 
             // Busca via RapidAPI Instagram Scraper (direto do navegador, sem servidor)
             try {
-                const RAPIDAPI_KEY = window.RAPIDAPI_KEY || '';
-                if (!RAPIDAPI_KEY || RAPIDAPI_KEY === 'SUA_CHAVE_AQUI') {
-                    addScraperLog('RapidAPI Key não configurada. Coloque sua chave no app.js.', 'error');
-                    if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+                const isMockUser = cleanArroba.includes('test') || cleanArroba.includes('mock');
+                const isLocal = isMockUser ||
+                                window.location.hostname === 'localhost' || 
+                                window.location.hostname === '127.0.0.1' || 
+                                window.location.hostname.startsWith('192.168.') || 
+                                window.location.protocol === 'file:';
+
+                if (isLocal) {
+                    addScraperLog('Modo Teste Local Ativo! Lendo dados salvos...', 'info');
+                    const response = await fetch('/mocks/instagram-response.json');
+                    if (response.ok) {
+                        const result = await response.json();
+                        scrapedRealData = parseAndLoadScrapedData(result, cleanArroba);
+                    } else {
+                        addScraperLog('Erro ao carregar o mock de testes local.', 'error');
+                    }
                 } else {
-                    let response;
-                    const isMockUser = cleanArroba.includes('test') || cleanArroba.includes('mock');
-                    const isLocal = isMockUser ||
-                                    window.location.hostname === 'localhost' || 
-                                    window.location.hostname === '127.0.0.1' || 
-                                    window.location.hostname.startsWith('192.168.') || 
-                                    window.location.protocol === 'file:';
+                    const keys = getApiKeys();
+                    let activeIndex = getActiveKeyIndex();
                     
+                    if (activeIndex >= keys.length) {
+                        activeIndex = 0;
+                        setActiveKeyIndex(0);
+                    }
+                    
+                    const activeKeyItem = keys[activeIndex];
+                    const RAPIDAPI_KEY = activeKeyItem ? activeKeyItem.key : '';
+
+                    if (!RAPIDAPI_KEY) {
+                        addScraperLog('Nenhuma chave API configurada. Clique na engrenagem ⚙️ para cadastrar uma chave.', 'error');
+                        if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+                        return;
+                    }
+
+                    addScraperLog(`Conectando à RapidAPI usando Chave ${activeIndex + 1}...`, 'info');
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                    if (isLocal) {
-                        addScraperLog('Modo Teste Local Ativo! Lendo dados salvos...', 'info');
-                        response = await fetch('/mocks/instagram-response.json');
-                    } else {
-                        addScraperLog('Conectando à RapidAPI...', 'info');
-                        response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
-                            method: 'GET',
-                            headers: {
-                                'x-rapidapi-key': RAPIDAPI_KEY,
-                                'x-rapidapi-host': 'instagram-scraper-stable-api.p.rapidapi.com'
-                            },
-                            signal: controller.signal
-                        });
-                    }
+                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
+                        method: 'GET',
+                        headers: {
+                            'x-rapidapi-key': RAPIDAPI_KEY,
+                            'x-rapidapi-host': 'instagram-scraper-stable-api.p.rapidapi.com'
+                        },
+                        signal: controller.signal
+                    });
                     clearTimeout(timeoutId);
 
-                    if (response.ok) {
-                          const result = await response.json();
-                          console.log("RapidAPI Search Result:", result);
-                          
-                          const userData = result.user_data || result;
-                          if (userData && (userData.full_name || userData.username || userData.name)) {
-                              const hdPic = userData.hd_profile_pic_url_info?.url || userData.profile_pic_url || userData.avatar || '';
-                              const profileName = userData.full_name || userData.name || userData.username || cleanArroba;
-                              const profileBio = userData.biography || userData.bio || userData.description || userData.about || '';
-                              
-                              // Tenta obter posts do JSON da RapidAPI usando a nova estrutura de user_posts
-                              let scrapedImages = [];
-                              const posts = result.user_posts || result.edge_owner_to_timeline_media?.edges || result.edges || result.posts;
-                              if (posts && Array.isArray(posts)) {
-                                  for (const post of posts) {
-                                      const node = post.node || post;
-                                      const mediaDict = node.media_dict || node;
-                                      const candidates = mediaDict?.image_versions2?.candidates || node?.image_versions2?.candidates;
-                                      const imgUrl = candidates?.[0]?.url || mediaDict?.display_url || node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
-                                      if (imgUrl && typeof imgUrl === 'string') {
-                                          scrapedImages.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
-                                      }
-                                      if (scrapedImages.length >= 3) break;
-                                  }
-                              }
-                              
-                              scrapedRealData = {
-                                  name: profileName,
-                                  bio: profileBio,
-                                  avatar: hdPic ? `https://wsrv.nl/?url=${encodeURIComponent(hdPic)}` : '',
-                                  highlight1Img: scrapedImages[0] || '',
-                                  highlight2Img: scrapedImages[1] || '',
-                                  highlight3Img: scrapedImages[2] || ''
-                              };
-                              
-                              // Notificações de log detalhadas no Sininho
-                              addScraperLog(`Perfil carregado: ${profileName}`, 'success');
-                              if (profileBio) {
-                                  addScraperLog(`Biografia importada (${profileBio.substring(0, 30)}...)`, 'success');
-                              } else {
-                                  addScraperLog('Aviso: Biografia vazia ou indisponível no perfil.', 'warning');
-                              }
-                              
-                              if (scrapedImages.length > 0) {
-                                  addScraperLog(`Sucesso: ${scrapedImages.length} fotos do feed importadas.`, 'success');
-                              } else {
-                                  addScraperLog('Aviso: Nenhuma imagem encontrada no feed (perfil sem posts ou privado).', 'warning');
-                              }
-                            addScraperLog(`Sucesso! Nome: ${scrapedRealData.name}`, 'success');
-                            if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
-                        } else {
-                            addScraperLog('RapidAPI não encontrou dados para esse perfil.', 'warning');
-                            if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge warning'; }
+                    // Se der limite esgotado (429), tenta a próxima chave
+                    if (response.status === 429) {
+                        addScraperLog(`Chave ${activeIndex + 1} esgotada (Erro 429)...`, 'warning');
+                        if (activeKeyItem) {
+                            activeKeyItem.isBlocked = true;
+                            const reset = response.headers.get('x-ratelimit-requests-reset');
+                            if (reset) {
+                                activeKeyItem.resetSeconds = parseInt(reset, 10);
+                                activeKeyItem.updatedAt = Date.now();
+                            }
+                            saveApiKeys(keys);
+                            renderApiKeysModal();
                         }
+
+                        // Busca próxima chave que não esteja bloqueada
+                        let nextIndex = (activeIndex + 1) % keys.length;
+                        let attempts = 0;
+                        while (keys[nextIndex].isBlocked && attempts < keys.length) {
+                            nextIndex = (nextIndex + 1) % keys.length;
+                            attempts++;
+                        }
+
+                        if (nextIndex !== activeIndex && !keys[nextIndex].isBlocked) {
+                            addScraperLog(`Rotacionando automaticamente para a Chave ${nextIndex + 1}...`, 'info');
+                            setActiveKeyIndex(nextIndex);
+                            return generateInstagramBio(arrobaInput); // Recursão!
+                        } else {
+                            addScraperLog('Todas as chaves de API cadastradas estão esgotadas!', 'error');
+                            if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+                            return;
+                        }
+                    }
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        
+                        // Atualiza as cotas da chave ativa a partir dos headers
+                        const remaining = response.headers.get('x-ratelimit-requests-remaining');
+                        const limit = response.headers.get('x-ratelimit-requests-limit');
+                        const reset = response.headers.get('x-ratelimit-requests-reset');
+                        
+                        if (activeKeyItem) {
+                            if (remaining !== null) activeKeyItem.remaining = parseInt(remaining, 10);
+                            if (limit !== null) activeKeyItem.limit = parseInt(limit, 10);
+                            if (reset !== null) {
+                                activeKeyItem.resetSeconds = parseInt(reset, 10);
+                                activeKeyItem.updatedAt = Date.now();
+                            }
+                            if (remaining === '0') {
+                                activeKeyItem.isBlocked = true;
+                            }
+                            saveApiKeys(keys);
+                            renderApiKeysModal();
+                        }
+
+                        scrapedRealData = parseAndLoadScrapedData(result, cleanArroba);
                     } else {
-                        const errText = await response.text();
-                        addScraperLog(`RapidAPI retornou erro HTTP ${response.status}: ${errText.substring(0, 100)}`, 'error');
+                        const errorText = await response.text();
+                        addScraperLog(`RapidAPI retornou erro HTTP ${response.status}: ${errorText}`, 'error');
                         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
                     }
                 }
             } catch (err) {
-                addScraperLog(`Falha na conexão: ${err.name === 'AbortError' ? 'Tempo limite excedido (10s)' : err.message}`, 'error');
+                addScraperLog(`Erro de conexão com a API: ${err.message}`, 'error');
                 if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
             }
 
@@ -3484,3 +3502,230 @@ loadClassicModel();
             }
             showCustomAlert(`Site ${siteData.arroba} carregado com sucesso!`, 'success');
         }
+
+// ==========================================
+// SISTEMA DE CONFIGURAÇÃO DE CHAVES API ROTATIVAS
+// ==========================================
+
+function getApiKeys() {
+    let keys = JSON.parse(localStorage.getItem('painelbio-api-keys'));
+    if (!keys || !Array.isArray(keys) || keys.length === 0) {
+        keys = [
+            {
+                key: '045b178d42msh8ab87b110533394p1397eajsn3ac55c365582',
+                remaining: null,
+                limit: null,
+                resetSeconds: null,
+                updatedAt: null,
+                isBlocked: false
+            }
+        ];
+        localStorage.setItem('painelbio-api-keys', JSON.stringify(keys));
+    }
+    return keys;
+}
+
+function saveApiKeys(keys) {
+    localStorage.setItem('painelbio-api-keys', JSON.stringify(keys));
+}
+
+function getActiveKeyIndex() {
+    return parseInt(localStorage.getItem('painelbio-active-key-index') || '0', 10);
+}
+
+function setActiveKeyIndex(index) {
+    localStorage.setItem('painelbio-active-key-index', index.toString());
+}
+
+function parseAndLoadScrapedData(result) {
+    if (result && result.user_data) {
+        const userData = result.user_data;
+        const userPosts = result.user_posts || [];
+        
+        let highlight1 = '';
+        let highlight2 = '';
+        let highlight3 = '';
+        
+        if (userPosts.length > 0) {
+            const posts = [];
+            userPosts.forEach(post => {
+                let imgUrl = '';
+                if (post.node && post.node.media_dict && post.node.media_dict.image_versions2 && post.node.media_dict.image_versions2.candidates) {
+                    imgUrl = post.node.media_dict.image_versions2.candidates[0].url;
+                } else if (post.node && post.node.image_versions2 && post.node.image_versions2.candidates) {
+                    imgUrl = post.node.image_versions2.candidates[0].url;
+                }
+                if (imgUrl) {
+                    posts.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
+                }
+            });
+            highlight1 = posts[0] || '';
+            highlight2 = posts[1] || '';
+            highlight3 = posts[2] || '';
+        } else {
+            addScraperLog('Aviso: Nenhuma imagem encontrada no feed.', 'warning');
+        }
+        
+        scrapedRealData = {
+            name: userData.full_name || userData.username,
+            bio: userData.biography || '',
+            avatar: userData.hd_profile_pic_url_info?.url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.hd_profile_pic_url_info.url)}` : (userData.profile_pic_url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.profile_pic_url)}` : ''),
+            highlight1Img: highlight1,
+            highlight2Img: highlight2,
+            highlight3Img: highlight3
+        };
+        
+        if (!userData.biography) {
+            addScraperLog('Aviso: Biografia vazia ou indisponível no perfil.', 'warning');
+        }
+        
+        addScraperLog(`Sucesso! Nome: ${scrapedRealData.name}`, 'success');
+        if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
+    } else {
+        addScraperLog('Erro: Estrutura de dados inválida retornada.', 'error');
+        if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+    }
+}
+
+function renderApiKeysModal() {
+    const container = document.getElementById('api-keys-list-container');
+    if (!container) return;
+    
+    const keys = getApiKeys();
+    const activeIndex = getActiveKeyIndex();
+    
+    if (keys.length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: #666; font-size: 0.85rem; padding: 15px; margin: 0;">Nenhuma chave cadastrada ainda.</p>`;
+        return;
+    }
+    
+    container.innerHTML = keys.map((item, idx) => {
+        const isActive = idx === activeIndex;
+        let quotaText = 'Sem uso recente';
+        let statusDot = '⚪';
+        
+        if (item.isBlocked) {
+            statusDot = '🔴';
+            quotaText = 'Esgotada (429)';
+        } else if (item.remaining !== null && item.limit !== null) {
+            quotaText = `${item.remaining}/${item.limit} livres`;
+            statusDot = item.remaining > 0 ? '🟢' : '🔴';
+        }
+        
+        let resetText = '';
+        if (item.resetSeconds && item.updatedAt) {
+            const elapsed = Math.floor((Date.now() - item.updatedAt) / 1000);
+            const remainingReset = item.resetSeconds - elapsed;
+            if (remainingReset > 0) {
+                const hours = Math.floor(remainingReset / 3600);
+                const mins = Math.floor((remainingReset % 3600) / 60);
+                resetText = ` (reseta em ${hours > 0 ? hours + 'h ' : ''}${mins}m)`;
+            } else {
+                item.isBlocked = false;
+                item.remaining = item.limit;
+            }
+        }
+        
+        return `
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid ${isActive ? '#38bdf8' : 'rgba(255,255,255,0.06)'}; border-radius: 8px; padding: 10px; font-size: 0.8rem;">
+                <div style="display: flex; flex-direction: column; gap: 4px; max-width: 70%; overflow: hidden;">
+                    <span style="font-family: monospace; color: ${isActive ? '#38bdf8' : '#bbb'}; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 0.75rem;">
+                        ${isActive ? '★ ' : ''}${item.key.substring(0, 8)}...${item.key.substring(item.key.length - 6)}
+                    </span>
+                    <span style="color: #888; font-size: 0.75rem;">
+                        ${statusDot} ${quotaText}${resetText}
+                    </span>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    ${!isActive ? `<button class="btn-set-active-key" data-index="${idx}" style="background: rgba(56,189,248,0.1); border: none; border-radius: 4px; color: #38bdf8; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">Usar</button>` : ''}
+                    <button class="btn-delete-api-key" data-index="${idx}" style="background: rgba(239,68,68,0.1); border: none; border-radius: 4px; color: #ef4444; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">Deletar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Configura Listeners do Modal de Chaves
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSettings = document.getElementById('btn-api-settings');
+    const overlay = document.getElementById('api-keys-overlay');
+    const modal = document.getElementById('api-keys-modal');
+    const btnClose = document.getElementById('close-api-keys');
+    const btnAdd = document.getElementById('btn-add-api-key');
+    const inputNew = document.getElementById('input-new-api-key');
+    const container = document.getElementById('api-keys-list-container');
+
+    if (btnSettings && overlay && modal && btnClose) {
+        btnSettings.addEventListener('click', (e) => {
+            e.stopPropagation();
+            overlay.style.display = 'block';
+            modal.style.display = 'block';
+            renderApiKeysModal();
+        });
+
+        const closeModal = () => {
+            overlay.style.display = 'none';
+            modal.style.display = 'none';
+        };
+
+        btnClose.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+
+        btnAdd.addEventListener('click', () => {
+            const keyVal = inputNew.value.trim();
+            if (!keyVal) return;
+            
+            const keys = getApiKeys();
+            if (keys.some(k => k.key === keyVal)) {
+                showCustomAlert('Esta chave já foi cadastrada!', 'warning');
+                return;
+            }
+            
+            keys.push({
+                key: keyVal,
+                remaining: null,
+                limit: null,
+                resetSeconds: null,
+                updatedAt: null,
+                isBlocked: false
+            });
+            
+            saveApiKeys(keys);
+            inputNew.value = '';
+            renderApiKeysModal();
+            showCustomAlert('Chave cadastrada com sucesso!', 'success');
+        });
+
+        if (container) {
+            container.addEventListener('click', (e) => {
+                const targetSetActive = e.target.closest('.btn-set-active-key');
+                const targetDelete = e.target.closest('.btn-delete-api-key');
+                
+                if (targetSetActive) {
+                    const idx = parseInt(targetSetActive.getAttribute('data-index'), 10);
+                    setActiveKeyIndex(idx);
+                    renderApiKeysModal();
+                    showCustomAlert('Chave ativa alterada!', 'success');
+                }
+                
+                if (targetDelete) {
+                    const idx = parseInt(targetDelete.getAttribute('data-index'), 10);
+                    const keys = getApiKeys();
+                    let activeIndex = getActiveKeyIndex();
+                    
+                    keys.splice(idx, 1);
+                    saveApiKeys(keys);
+                    
+                    if (activeIndex === idx) {
+                        setActiveKeyIndex(0);
+                    } else if (activeIndex > idx) {
+                        setActiveKeyIndex(activeIndex - 1);
+                    }
+                    
+                    renderApiKeysModal();
+                    showCustomAlert('Chave excluída com sucesso!', 'success');
+                }
+            });
+        }
+    }
+});
