@@ -3096,7 +3096,10 @@ loadClassicModel();
                 scrapedRealData = {
                     name: `Loja ${capitalized}`,
                     bio: `Peças exclusivas & novidades toda semana. ✨\nEnviamos para todo o Brasil. 🛍️\nAtendimento rápido no WhatsApp!`,
-                    avatar: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200'
+                    avatar: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200',
+                    highlight1Img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
+                    highlight2Img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
+                    highlight3Img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500'
                 };
                 addScraperLog(`Simulação ativada! Gerados dados de teste para @${cleanArroba}`, 'info');
             }
