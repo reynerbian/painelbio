@@ -3693,7 +3693,9 @@ function applyAvatarSpinAnimation(duration, spins, activeModel) {
     const totalDeg = spins * 360;
     const kfName = `pb-spin-${totalDeg}`;
 
-    // Injeta (ou atualiza) o @keyframes com valores numéricos reais
+    // Gera keyframes SOMENTE com from e to.
+    // O cubic-bezier faz toda a desaceleração numa curva única e contínua,
+    // sem nenhuma "quebra" de velocidade no meio da animação.
     let styleEl = document.getElementById('pb-avatarspin-style');
     if (!styleEl) {
         styleEl = document.createElement('style');
@@ -3702,31 +3704,28 @@ function applyAvatarSpinAnimation(duration, spins, activeModel) {
     }
     styleEl.textContent = `
         @keyframes ${kfName} {
-            0%   { transform: rotateY(0deg) scale(1); }
-            15%  { transform: rotateY(${totalDeg * 0.15}deg) scale(1.06); }
-            40%  { transform: rotateY(${totalDeg * 0.55}deg) scale(1.03); }
-            70%  { transform: rotateY(${totalDeg * 0.82}deg) scale(1.01); }
-            88%  { transform: rotateY(${totalDeg * 0.96}deg) scale(1.003); }
-            100% { transform: rotateY(${totalDeg}deg) scale(1); }
+            from { transform: rotateY(0deg); }
+            to   { transform: rotateY(${totalDeg}deg); }
         }
     `;
 
     const imgEl = getAvatarImgEl(activeModel);
     if (!imgEl) return;
 
-    // O perspective precisa estar no PAI direto da imagem que vai girar
+    // Perspective no PAI direto da imagem para o efeito 3D funcionar
     const parentEl = imgEl.parentElement;
     if (parentEl) {
         parentEl.style.perspective = '500px';
-        parentEl.style.overflow = 'visible'; // permite o giro 3D escapar levemente
+        parentEl.style.overflow = 'visible';
     }
 
-    // Aplica na imagem diretamente (sem mexer no overflow:hidden do container circular)
-    imgEl.style.animation = 'none';
     imgEl.style.borderRadius = '50%';
     imgEl.style.display = 'block';
-    void imgEl.offsetHeight; // reflow forçado para reiniciar a animação
-    imgEl.style.animation = `${kfName} ${duration}s cubic-bezier(0.12, 0.04, 0.25, 1) forwards`;
+    imgEl.style.animation = 'none';
+    void imgEl.offsetHeight; // reflow: garante que o browser reseta a animação
+    // cubic-bezier(0.0, 0.0, 0.2, 1) = ease-out forte:
+    // começa na velocidade máxima e desacelera progressivamente até parar.
+    imgEl.style.animation = `${kfName} ${duration}s cubic-bezier(0.0, 0.0, 0.2, 1) forwards`;
 }
 
 /**
