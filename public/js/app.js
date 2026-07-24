@@ -1403,6 +1403,15 @@ loadClassicModel();
             const activeModel = templateId || 'classic';
             window.currentActiveModel = activeModel;
 
+            // Garante que o card do modelo ativo esteja marcado com a borda azul no menu de modelos
+            document.querySelectorAll('.template-card').forEach(card => {
+                if (card.getAttribute('data-template') === activeModel) {
+                    card.classList.add('is-selected');
+                } else {
+                    card.classList.remove('is-selected');
+                }
+            });
+
             if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';
@@ -2654,62 +2663,18 @@ loadClassicModel();
         }
 
         function loadSiteIntoEditor(siteData) {
+            if (!siteData) return;
             window.loadedFromGallery = true;
             const btnLoadSite = document.getElementById('btn-load-site');
             if (btnLoadSite) btnLoadSite.classList.add('site-loaded-active');
             
-            const selectedTemplate = document.querySelector('.template-card.is-selected');
-            if (!selectedTemplate) {
-                const classicCard = document.querySelector('.template-card[data-template="classic"]');
-                if (classicCard) classicCard.click();
-            }
+            const targetModel = siteData.model || 'classic';
 
-            setTimeout(() => {
-                const fieldsToRestore = {
-                    'input-avatar': siteData.avatar || '',
-                    'input-name': siteData.name || '',
-                    'input-arroba': siteData.arroba || '',
-                    'input-bio': siteData.bio || '',
-                    'input-btn1-title': siteData.btn1Title || '',
-                    'input-btn1-url': siteData.btn1Url || '',
-                    'input-btn2-title': siteData.btn2Title || '',
-                    'input-btn2-url': siteData.btn2Url || '',
-                    'input-btn3-title': siteData.btn3Title || '',
-                    'input-btn3-url': siteData.btn3Url || ''
-                };
-                for (const [id, val] of Object.entries(fieldsToRestore)) {
-                    const el = document.getElementById(id);
-                    if (el) el.value = val;
-                }
+            // Carrega a pré-visualização do modelo correto e injeta todos os dados do site
+            loadTemplatePreview(targetModel, siteData);
 
-                if (siteData.preset) {
-                    const colorOption = document.querySelector(`.color-option[data-preset="${siteData.preset}"]`);
-                    if (colorOption) {
-                        colorOption.click();
-                    }
-                }
-                
-                // Restaura o alinhamento da bio
-                if (siteData.bioAlign) {
-                    const alignBtn = document.querySelector(`.align-btn[data-align="${siteData.bioAlign}"]`);
-                    if (alignBtn) alignBtn.click();
-                } else {
-                    const alignBtn = document.querySelector(`.align-btn[data-align="center"]`);
-                    if (alignBtn) alignBtn.click();
-                }
-
-                if (typeof updatePreviewFromForm === 'function') {
-                    updatePreviewFromForm();
-                }
-                
-                // Simula digitação para atualizar a tela do celular
-                const event = new Event('input', { bubbles: true });
-                document.querySelectorAll('#inspector-form input, #inspector-form textarea').forEach(el => {
-                    el.dispatchEvent(event);
-                });
-                
+            if (typeof openDrawer === 'function' && rightDrawer) {
                 openDrawer(rightDrawer);
-                
-                showCustomAlert(`Site ${siteData.arroba} carregado com sucesso!`, 'success');
-            }, 450); // Mudei de sem delay (0) para 450ms para rodar DEPOIS do processTemplateSelection (350ms)
+            }
+            showCustomAlert(`Site ${siteData.arroba} carregado com sucesso!`, 'success');
         }
