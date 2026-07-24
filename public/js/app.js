@@ -2240,10 +2240,15 @@ loadClassicModel();
                 if (window.phoneErConfigKey !== configKey) {
                     window.phoneErConfigKey = configKey;
 
-                    if (!phoneEmojiRain) {
+                    let targetContainer = phoneScreen.querySelector('.v-live-page') || phoneScreen.querySelector('.preview-bio-page') || phoneScreen;
+                    
+                    if (!phoneEmojiRain || phoneEmojiRain.parentNode !== targetContainer) {
+                        if (phoneEmojiRain && phoneEmojiRain.parentNode) {
+                            phoneEmojiRain.parentNode.removeChild(phoneEmojiRain);
+                        }
                         phoneEmojiRain = document.createElement('div');
                         phoneEmojiRain.id = 'phone-live-emoji-rain';
-                        if (phoneScreen) phoneScreen.prepend(phoneEmojiRain);
+                        targetContainer.prepend(phoneEmojiRain);
                     } else {
                         phoneEmojiRain.innerHTML = '';
                         phoneEmojiRain.style.display = '';
@@ -2347,8 +2352,28 @@ loadClassicModel();
                         img3.src = h3Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
                         img3.style.display = h3Img ? 'block' : 'none';
                     }
+                    if (avatarWrapper && avatarWrapper.parentNode !== heroGrid) {
+                        heroGrid.appendChild(avatarWrapper);
+                    }
+                    if (avatarWrapper) {
+                        avatarWrapper.style.position = 'absolute';
+                        avatarWrapper.style.bottom = '-38px';
+                        avatarWrapper.style.left = '50%';
+                        avatarWrapper.style.transform = 'translateX(-50%)';
+                        avatarWrapper.style.margin = '0';
+                    }
                 } else {
                     heroGrid.style.display = 'none';
+                    if (avatarWrapper && avatarWrapper.parentNode !== infoSection) {
+                        infoSection.prepend(avatarWrapper);
+                    }
+                    if (avatarWrapper) {
+                        avatarWrapper.style.position = 'relative';
+                        avatarWrapper.style.bottom = '0';
+                        avatarWrapper.style.left = '0';
+                        avatarWrapper.style.transform = 'none';
+                        avatarWrapper.style.margin = '0 auto 20px auto';
+                    }
                 }
 
                 // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema
