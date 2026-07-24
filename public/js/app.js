@@ -816,16 +816,18 @@ const leftIcon = document.querySelector('.left-icon');
             let emojiRainHtml = '';
             if (hasEmojiRain) {
                 let particles = '';
+                const emojiArray = Array.from(erEmoji);
                 for (let i = 0; i < erCount; i++) {
+                    const emoji = emojiArray[i % emojiArray.length] || '🌸';
                     const sz  = (1.2 + Math.random() * 1.5).toFixed(2);
                     const lft = (Math.random() * 90).toFixed(1);
                     const dur = (erBase * (0.7 + Math.random() * 0.7)).toFixed(2);
                     const dly = -(Math.random() * erBase * 2).toFixed(2);
                     let animName = 'pb-emojifall';
                     if (erRotate) animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
-                    particles += `<span style="position:absolute;top:0;left:${lft}%;font-size:${sz}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite;">${erEmoji}</span>`;
+                    particles += `<span style="position:absolute;top:0;left:${lft}%;font-size:${sz}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite;">${emoji}</span>`;
                 }
-                emojiRainHtml = `<style>@keyframes pb-emojifall{0%{transform:translateY(-80px);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh);opacity:0}}@keyframes pb-emojifall-cw{0%{transform:translateY(-80px) rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh) rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{transform:translateY(-80px) rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh) rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:fixed;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
+                emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
             }
 
             if (isVitrine) {
