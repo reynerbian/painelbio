@@ -14,6 +14,7 @@ export function generateStaticSite(data) {
     'platinum': { c1: '#ffffff', c2: '#9e9e9e', text: '#000000', bg: '#111111', cardBg: '#1c1c1c' }
   };
 
+  const isVitrine = Boolean(data && data.model === 'vitrine');
   const theme = presetMap[data.preset] || presetMap['gray'];
   const cleanArroba = (data.arroba || '').replace('@', '').trim();
   const instaUrl = cleanArroba ? `https://instagram.com/${cleanArroba}` : '#';
