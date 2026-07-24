@@ -754,7 +754,7 @@ const leftIcon = document.querySelector('.left-icon');
             const tbBg = data.addonTopbannerBg || '#0f172a';
             const tbColor = data.addonTopbannerColor || '#38bdf8';
 
-            const isSlide = Boolean(data.addonTopbannerSlide);
+            const effect = data.addonTopbannerEffect || 'fade';
             const pauseSec = parseInt(data.addonTopbannerPause || 2, 10);
 
             const topBannerHtml = hasTopBanner ? `
@@ -811,7 +811,7 @@ const leftIcon = document.querySelector('.left-icon');
             const erSpeed = data.addonEmojiRainSpeed || 'normal';
             const erCoverage = Math.min(Math.max(parseInt(data.addonEmojiRainCoverage || 80, 10), 10), 100);
             const erRotate = Boolean(data.addonEmojiRainRotate);
-            const erDurMap = { slow: 6, normal: 3.5, fast: 1.8 };
+            const erDurMap = { slow: 6, normal: 5, fast: 3 };
             const erBase = erDurMap[erSpeed] || 3.5;
             let emojiRainHtml = '';
             if (hasEmojiRain) {
@@ -1582,7 +1582,7 @@ const leftIcon = document.querySelector('.left-icon');
                             addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value || '',
                             addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
                             addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
-                            addonTopbannerSlide: document.getElementById('input-addon-tb-slide')?.checked || false,
+                            addonTopbannerEffect: document.getElementById('select-addon-tb-effect')?.value || 'fade',
                             addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
@@ -1860,11 +1860,11 @@ loadClassicModel();
                     if (el) el.value = val;
                 }
 
-                const slideInput = document.getElementById('input-addon-tb-slide');
-                if (slideInput) {
-                    slideInput.checked = Boolean(backup.addonTopbannerSlide);
+                const effectSelect = document.getElementById('select-addon-tb-effect');
+                if (effectSelect) {
+                    effectSelect.value = backup.addonTopbannerEffect || 'fade';
                     const containerPause = document.getElementById('container-addon-tb-pause');
-                    if (containerPause) containerPause.style.display = slideInput.checked ? 'block' : 'none';
+                    if (containerPause) containerPause.style.display = (effectSelect.value === 'slide') ? 'block' : 'none';
                 }
 
                 if (backup.addonTopbannerActive) {
@@ -1944,7 +1944,7 @@ loadClassicModel();
                 const tbText3 = document.getElementById('input-addon-tb-text3')?.value.trim() || '';
                 const tbBg = document.getElementById('input-addon-tb-bg')?.value || '#0f172a';
                 const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
-                const isSlide = document.getElementById('input-addon-tb-slide')?.checked || false;
+                const effect = document.getElementById('select-addon-tb-effect')?.value || 'fade';
                 const pauseSec = parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10);
 
                 const texts = [tbText1, tbText2, tbText3].filter(Boolean);
@@ -1959,7 +1959,7 @@ loadClassicModel();
                     phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
                     phoneTopBanner.style.display = 'flex';
 
-                    const currentConfigKey = `${texts.join('|')}_${isSlide}_${pauseSec}_${tbBg}_${tbColor}`;
+                    const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${tbBg}_${tbColor}`;
                     if (window.phoneTbConfigKey !== currentConfigKey) {
                         window.phoneTbConfigKey = currentConfigKey;
                         if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
@@ -1970,45 +1970,96 @@ loadClassicModel();
                         window.phoneTbIdx = 0;
                         phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
 
-                        if (isSlide) {
-                            phoneTopBanner.style.transform = 'translateY(-100%)';
-                            phoneTopBanner.style.opacity = '0';
-
-                            function runLiveSlideCycle() {
-                                phoneTopBanner.style.transform = 'translateY(0)';
-                                phoneTopBanner.style.opacity = '1';
-
-                                window.phoneTbTimer1 = setTimeout(() => {
-                                    phoneTopBanner.style.transform = 'translateY(-100%)';
-                                    phoneTopBanner.style.opacity = '0';
-
-                                    window.phoneTbTimer2 = setTimeout(() => {
-                                        window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                        const txtEl = document.getElementById('phone-tb-live-text');
-                                        if (txtEl) txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                        runLiveSlideCycle();
-                                    }, pauseSec * 1000);
-                                }, 3500);
-                            }
-
-                            window.phoneTbTimer1 = setTimeout(runLiveSlideCycle, 500);
-                        } else {
-                            phoneTopBanner.style.transform = 'translateY(0)';
-                            phoneTopBanner.style.opacity = '1';
-                            if (texts.length > 1) {
-                                window.phoneTbInterval = setInterval(() => {
-                                    const txtEl = document.getElementById('phone-tb-live-text');
-                                    if (txtEl) {
+                        phoneTopBanner.style.transform = 'none';
+                        phoneTopBanner.style.opacity = '1';
+                        
+                        function runLiveEffectCycle() {
+                            const txtEl = document.getElementById('phone-tb-live-text');
+                            if (!txtEl) return;
+                            
+                            if (effect === 'slide') {
+                                phoneTopBanner.style.transform = 'translateY(-100%)';
+                                phoneTopBanner.style.opacity = '0';
+                                setTimeout(() => {
+                                    phoneTopBanner.style.transform = 'translateY(0)';
+                                    phoneTopBanner.style.opacity = '1';
+                                    window.phoneTbTimer1 = setTimeout(() => {
+                                        phoneTopBanner.style.transform = 'translateY(-100%)';
+                                        phoneTopBanner.style.opacity = '0';
+                                        window.phoneTbTimer2 = setTimeout(() => {
+                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                            runLiveEffectCycle();
+                                        }, pauseSec * 1000);
+                                    }, 3500);
+                                }, 100);
+                            } else if (effect === 'fade') {
+                                txtEl.style.transition = 'opacity 0.3s';
+                                if (texts.length > 1) {
+                                    window.phoneTbInterval = setTimeout(() => {
                                         txtEl.style.opacity = '0';
                                         setTimeout(() => {
                                             window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
                                             txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
                                             txtEl.style.opacity = '1';
+                                            runLiveEffectCycle();
                                         }, 300);
-                                    }
-                                }, 3500);
+                                    }, 3500);
+                                }
+                            } else if (effect === 'marquee') {
+                                txtEl.style.whiteSpace = 'nowrap';
+                                txtEl.innerHTML = window.phoneTbTexts.join(' &nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp; ');
+                                let pos = 100;
+                                window.phoneTbInterval = setInterval(() => {
+                                    pos -= 1;
+                                    if (pos < -150) pos = 100;
+                                    txtEl.style.transform = 'translateX(' + pos + '%)';
+                                }, 30);
+                            } else if (effect === 'bounce') {
+                                txtEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
+                                if (texts.length > 1) {
+                                    window.phoneTbInterval = setTimeout(() => {
+                                        txtEl.style.transform = 'scale(0)';
+                                        setTimeout(() => {
+                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                            txtEl.style.transform = 'scale(1)';
+                                            runLiveEffectCycle();
+                                        }, 500);
+                                    }, 3500);
+                                }
+                            } else if (effect === 'flip') {
+                                txtEl.style.transition = 'transform 0.4s ease-in, opacity 0.3s';
+                                if (texts.length > 1) {
+                                    window.phoneTbInterval = setTimeout(() => {
+                                        txtEl.style.transform = 'rotateX(90deg)';
+                                        setTimeout(() => {
+                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                            txtEl.style.transform = 'rotateX(0deg)';
+                                            runLiveEffectCycle();
+                                        }, 400);
+                                    }, 3500);
+                                }
+                            } else if (effect === 'shutter') {
+                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out';
+                                if (texts.length > 1) {
+                                    window.phoneTbInterval = setTimeout(() => {
+                                        phoneTopBanner.style.height = '0px';
+                                        phoneTopBanner.style.padding = '0px';
+                                        setTimeout(() => {
+                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                            phoneTopBanner.style.height = 'auto';
+                                            phoneTopBanner.style.padding = '8px 10px';
+                                            runLiveEffectCycle();
+                                        }, 400);
+                                    }, 3500);
+                                }
                             }
                         }
+                        
+                        runLiveEffectCycle();
                     }
                 } else if (phoneTopBanner) {
                     phoneTopBanner.style.display = 'none';
@@ -2036,7 +2087,7 @@ loadClassicModel();
                 const erSpeed = document.getElementById('select-addon-er-speed')?.value || 'normal';
                 const erCoverage = parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10);
                 const erRotate = document.getElementById('input-addon-er-rotate')?.checked || false;
-                const durationMap = { slow: 6, normal: 3.5, fast: 1.8 };
+                const durationMap = { slow: 6, normal: 5, fast: 3 };
                 const baseDuration = durationMap[erSpeed] || 3.5;
 
                 const configKey = `${erEmoji}_${erCount}_${erSpeed}_${erCoverage}_${erRotate}`;
@@ -2337,7 +2388,7 @@ loadClassicModel();
 
         // Listener de entrada em tempo real para os inputs do formulário (vinculado dinamicamente)
         function bindInspectorFormEvents() {
-            const formInputs = document.querySelectorAll('#inspector-form input, #inspector-form textarea');
+            const formInputs = document.querySelectorAll('#inspector-form input, #inspector-form textarea, #inspector-form select');
             formInputs.forEach(input => {
                 input.addEventListener('input', updatePreviewFromForm);
                 input.addEventListener('change', updatePreviewFromForm);
@@ -2553,7 +2604,7 @@ loadClassicModel();
                         addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value.trim() || '',
                         addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
                         addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
-                        addonTopbannerSlide: document.getElementById('input-addon-tb-slide')?.checked || false,
+                        addonTopbannerEffect: document.getElementById('select-addon-tb-effect')?.value || 'fade',
                         addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
                         addonEmojiRainActive: document.getElementById('card-addon-emojirain')?.style.display !== 'none',
                         addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value.trim() || '',
