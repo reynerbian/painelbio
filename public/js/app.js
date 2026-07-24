@@ -1456,7 +1456,7 @@ loadClassicModel();
                         <div class="bg-glow bg-glow-bottom"></div>
                         
                         <div class="preview-card" id="view-card" style="display: none;">
-                            <div class="preview-avatar-container" id="view-avatar-container">
+                            <div class="preview-avatar-glow" id="view-avatar-container">
                                 <div class="preview-avatar-inner" id="view-avatar-inner"></div>
                             </div>
                             
@@ -1828,7 +1828,7 @@ loadClassicModel();
             viewCard.style.display = "flex";
 
             if (avatarUrl) {
-                viewAvatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                viewAvatarInner.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
                 viewAvatarContainer.style.display = "flex";
             } else {
                 viewAvatarInner.innerHTML = "";

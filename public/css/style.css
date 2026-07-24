@@ -691,28 +691,44 @@
         }
 
         /* Avatar com contorno neon/gradient dinâmico */
-        .preview-avatar-glow {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--theme-color-1, #8e8e93), var(--theme-color-2, #3a3a3c)); /* Corrigido para as novas variáveis do tema */
-            padding: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px var(--theme-glow, rgba(142, 142, 147, 0.3));
-            margin-bottom: 16px;
+        .preview-avatar-glow,
+        .preview-avatar-container {
+            width: 90px !important;
+            height: 90px !important;
+            min-width: 90px !important;
+            min-height: 90px !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, var(--theme-color-1, #00c6ff), var(--theme-color-2, #0072ff));
+            padding: 3px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 0 20px var(--theme-glow, rgba(0, 198, 255, 0.4));
+            margin: 0 auto 16px auto !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
             transition: background 0.3s, box-shadow 0.3s;
         }
 
         .preview-avatar-inner {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: #111111; /* Alterado de amarelo para preto de fundo do avatar */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 50% !important;
+            background: #111111;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        .preview-avatar-inner img {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: block !important;
         }
 
         .preview-name {
