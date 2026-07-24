@@ -2258,17 +2258,17 @@ loadClassicModel();
                         styleEl.id = styleId;
                         document.head.appendChild(styleEl);
                     }
-                    // Distância em px = altura do phone screen + margem → garante que o emoji percorre todo o container
-                    const phoneScreenH = (phoneScreen ? phoneScreen.offsetHeight : 700) + 80;
                     styleEl.textContent = `
-                        @keyframes pb-emojifall    { 0%{transform:translateY(-60px);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px);opacity:0} }
-                        @keyframes pb-emojifall-cw { 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px) rotate(540deg);opacity:0} }
-                        @keyframes pb-emojifall-ccw{ 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px) rotate(-540deg);opacity:0} }
+                        @keyframes pb-emojifall    { 0%{top:-80px;opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;opacity:0} }
+                        @keyframes pb-emojifall-cw { 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;transform:rotate(540deg);opacity:0} }
+                        @keyframes pb-emojifall-ccw{ 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;transform:rotate(-540deg);opacity:0} }
                     `;
 
                     const count = Math.min(Math.max(erCount, 1), 20);
+                    const emojiArray = Array.from(erEmoji);
                     for (let i = 0; i < count; i++) {
                         const span = document.createElement('span');
+                        const emoji = emojiArray[i % emojiArray.length] || '🌸';
                         const size = (1.2 + Math.random() * 1.2).toFixed(2);
                         const left = (Math.random() * 90).toFixed(1);
                         const duration = (baseDuration * (0.7 + Math.random() * 0.7)).toFixed(2);
@@ -2277,8 +2277,8 @@ loadClassicModel();
                         if (erRotate) {
                             animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
                         }
-                        span.textContent = erEmoji;
-                        span.style.cssText = `position: absolute; top: 0; left: ${left}%; font-size: ${size}rem; filter: blur(2px); pointer-events: none; animation: ${animName} ${duration}s linear ${delay}s infinite;`;
+                        span.textContent = emoji;
+                        span.style.cssText = `position:absolute;top:0;left:${left}%;font-size:${size}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${duration}s linear ${delay}s infinite;`;
                         phoneEmojiRain.appendChild(span);
                     }
                 }
