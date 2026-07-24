@@ -2061,10 +2061,12 @@ loadClassicModel();
                         styleEl.id = styleId;
                         document.head.appendChild(styleEl);
                     }
+                    // Distância em px = altura do phone screen + margem → garante que o emoji percorre todo o container
+                    const phoneScreenH = (phoneScreen ? phoneScreen.offsetHeight : 700) + 80;
                     styleEl.textContent = `
-                        @keyframes pb-emojifall    { 0%{transform:translateY(-60px);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%);opacity:0} }
-                        @keyframes pb-emojifall-cw { 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%) rotate(540deg);opacity:0} }
-                        @keyframes pb-emojifall-ccw{ 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%) rotate(-540deg);opacity:0} }
+                        @keyframes pb-emojifall    { 0%{transform:translateY(-60px);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px);opacity:0} }
+                        @keyframes pb-emojifall-cw { 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px) rotate(540deg);opacity:0} }
+                        @keyframes pb-emojifall-ccw{ 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(${phoneScreenH}px) rotate(-540deg);opacity:0} }
                     `;
 
                     const count = Math.min(Math.max(erCount, 1), 20);
