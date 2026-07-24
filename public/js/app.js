@@ -1583,6 +1583,8 @@ const leftIcon = document.querySelector('.left-icon');
                             addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
                             addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                             addonTopbannerEffect: document.getElementById('select-addon-tb-effect')?.value || 'fade',
+                            addonTopbannerMarqueeSpeed: document.getElementById('input-addon-tb-marquee-speed')?.value || '5',
+                            addonTopbannerMarqueePause: document.getElementById('input-addon-tb-marquee-pause')?.value || '3',
                             addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
@@ -1864,7 +1866,19 @@ loadClassicModel();
                 if (effectSelect) {
                     effectSelect.value = backup.addonTopbannerEffect || 'fade';
                     const containerPause = document.getElementById('container-addon-tb-pause');
-                    if (containerPause) containerPause.style.display = (effectSelect.value === 'slide') ? 'block' : 'none';
+                    const containerMarquee = document.getElementById('container-addon-tb-marquee-settings');
+                    const mqSpeedInput = document.getElementById('input-addon-tb-marquee-speed');
+                    const mqPauseInput = document.getElementById('input-addon-tb-marquee-pause');
+                    
+                    if (mqSpeedInput) mqSpeedInput.value = backup.addonTopbannerMarqueeSpeed || '5';
+                    if (mqPauseInput) mqPauseInput.value = backup.addonTopbannerMarqueePause || '3';
+                    
+                    function updateAddonFields() {
+                        if (containerPause) containerPause.style.display = (effectSelect.value === 'slide') ? 'block' : 'none';
+                        if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
+                    }
+                    updateAddonFields();
+                    effectSelect.addEventListener('change', updateAddonFields);
                 }
 
                 if (backup.addonTopbannerActive) {
@@ -1946,6 +1960,8 @@ loadClassicModel();
                 const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
                 const effect = document.getElementById('select-addon-tb-effect')?.value || 'fade';
                 const pauseSec = parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10);
+                const mqSpeed = parseInt(document.getElementById('input-addon-tb-marquee-speed')?.value || '5', 10);
+                const mqPause = parseInt(document.getElementById('input-addon-tb-marquee-pause')?.value || '3', 10);
 
                 const texts = [tbText1, tbText2, tbText3].filter(Boolean);
 
@@ -1959,7 +1975,7 @@ loadClassicModel();
                     phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
                     phoneTopBanner.style.display = 'flex';
 
-                    const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${tbBg}_${tbColor}`;
+                    const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${mqSpeed}_${mqPause}_${tbBg}_${tbColor}`;
                     if (window.phoneTbConfigKey !== currentConfigKey) {
                         window.phoneTbConfigKey = currentConfigKey;
                         if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
@@ -2009,12 +2025,33 @@ loadClassicModel();
                             } else if (effect === 'marquee') {
                                 txtEl.style.whiteSpace = 'nowrap';
                                 txtEl.innerHTML = window.phoneTbTexts.join(' &nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp; ');
-                                let pos = 100;
-                                window.phoneTbInterval = setInterval(() => {
-                                    pos -= 1;
-                                    if (pos < -150) pos = 100;
-                                    txtEl.style.transform = 'translateX(' + pos + '%)';
-                                }, 30);
+                                
+                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
+                                phoneTopBanner.style.height = '0px';
+                                phoneTopBanner.style.padding = '0px';
+                                phoneTopBanner.style.overflow = 'hidden';
+                                
+                                setTimeout(() => {
+                                    phoneTopBanner.style.height = 'auto';
+                                    phoneTopBanner.style.padding = '8px 10px';
+                                    
+                                    let pos = 100;
+                                    txtEl.style.transform = 'translateX(100%)';
+                                    
+                                    const step = mqSpeed * 0.4; 
+                                    window.phoneTbInterval = setInterval(() => {
+                                        pos -= step;
+                                        txtEl.style.transform = 'translateX(' + pos + '%)';
+                                        if (pos < -150) {
+                                            clearInterval(window.phoneTbInterval);
+                                            phoneTopBanner.style.height = '0px';
+                                            phoneTopBanner.style.padding = '0px';
+                                            setTimeout(() => {
+                                                runLiveEffectCycle();
+                                            }, mqPause * 1000);
+                                        }
+                                    }, 20);
+                                }, 500);
                             } else if (effect === 'bounce') {
                                 txtEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
                                 if (texts.length > 1) {
