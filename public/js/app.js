@@ -1824,7 +1824,9 @@ loadClassicModel();
                     'input-addon-tb-text3': backup.addonTopbannerText3 || '',
                     'input-addon-tb-bg': backup.addonTopbannerBg || '#0f172a',
                     'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8',
-                    'input-addon-tb-pause': backup.addonTopbannerPause || 2
+                    'input-addon-tb-pause': backup.addonTopbannerPause || 2,
+                    'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
+                    'input-addon-er-count': backup.addonEmojiRainCount || 8
                 };
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
@@ -1841,6 +1843,16 @@ loadClassicModel();
                 if (backup.addonTopbannerActive) {
                     const cardTb = document.getElementById('card-addon-topbanner');
                     if (cardTb) cardTb.style.display = 'block';
+                }
+
+                if (backup.addonEmojiRainActive) {
+                    const cardEr = document.getElementById('card-addon-emojirain');
+                    if (cardEr) cardEr.style.display = 'block';
+                }
+
+                const erSpeedEl = document.getElementById('select-addon-er-speed');
+                if (erSpeedEl && backup.addonEmojiRainSpeed) {
+                    erSpeedEl.value = backup.addonEmojiRainSpeed;
                 }
                 
                 if (backup.bioAlign) {
@@ -1972,6 +1984,60 @@ loadClassicModel();
                 if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
                 if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
                 if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+            }
+
+            // =========================================================================
+            // ADD-ON 2: CHUVA DE EMOJI (Funciona em TODOS os modelos)
+            // =========================================================================
+            const cardEmojiRain = document.getElementById('card-addon-emojirain');
+            const isEmojiRainActive = cardEmojiRain && cardEmojiRain.style.display !== 'none';
+            let phoneEmojiRain = document.getElementById('phone-live-emoji-rain');
+
+            if (isEmojiRainActive) {
+                const erEmoji = document.getElementById('input-addon-er-emoji')?.value.trim() || '🌸';
+                const erCount = parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10);
+                const erSpeed = document.getElementById('select-addon-er-speed')?.value || 'normal';
+                const durationMap = { slow: 6, normal: 3.5, fast: 1.8 };
+                const baseDuration = durationMap[erSpeed] || 3.5;
+
+                const configKey = `${erEmoji}_${erCount}_${erSpeed}`;
+                if (window.phoneErConfigKey !== configKey) {
+                    window.phoneErConfigKey = configKey;
+
+                    if (!phoneEmojiRain) {
+                        phoneEmojiRain = document.createElement('div');
+                        phoneEmojiRain.id = 'phone-live-emoji-rain';
+                        phoneEmojiRain.style.cssText = 'position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;';
+                        if (phoneScreen) phoneScreen.prepend(phoneEmojiRain);
+                    } else {
+                        phoneEmojiRain.innerHTML = '';
+                        phoneEmojiRain.style.display = 'block';
+                    }
+
+                    const styleId = 'phone-emoji-rain-style';
+                    let styleEl = document.getElementById(styleId);
+                    if (!styleEl) {
+                        styleEl = document.createElement('style');
+                        styleEl.id = styleId;
+                        document.head.appendChild(styleEl);
+                    }
+                    styleEl.textContent = `@keyframes pb-emojifall { 0% { transform: translateY(-60px); opacity: 0; } 10% { opacity: 0.38; } 90% { opacity: 0.38; } 100% { transform: translateY(115%); opacity: 0; } }`;
+
+                    const count = Math.min(Math.max(erCount, 1), 20);
+                    for (let i = 0; i < count; i++) {
+                        const span = document.createElement('span');
+                        const size = (1.2 + Math.random() * 1.2).toFixed(2);
+                        const left = (Math.random() * 90).toFixed(1);
+                        const duration = (baseDuration * (0.8 + Math.random() * 0.6)).toFixed(2);
+                        const delay = -(Math.random() * baseDuration * 2).toFixed(2);
+                        span.textContent = erEmoji;
+                        span.style.cssText = `position: absolute; top: 0; left: ${left}%; font-size: ${size}rem; filter: blur(2px); pointer-events: none; animation: pb-emojifall ${duration}s linear ${delay}s infinite;`;
+                        phoneEmojiRain.appendChild(span);
+                    }
+                }
+            } else if (phoneEmojiRain) {
+                phoneEmojiRain.style.display = 'none';
+                window.phoneErConfigKey = null;
             }
 
             // =========================================================================
@@ -2305,6 +2371,38 @@ loadClassicModel();
                 });
             }
 
+            // Lógica de Habilitar / Remover Add-on 2: Chuva de Emoji
+            const btnEnableEmojiRain = document.getElementById('btn-enable-emojirain-addon');
+            const cardEmojiRainInspector = document.getElementById('card-addon-emojirain');
+            const btnRemoveEmojiRain = document.getElementById('btn-remove-emojirain-addon');
+
+            if (btnEnableEmojiRain && cardEmojiRainInspector) {
+                btnEnableEmojiRain.addEventListener('click', () => {
+                    cardEmojiRainInspector.style.display = 'block';
+                    const emojiInput = document.getElementById('input-addon-er-emoji');
+                    if (emojiInput && !emojiInput.value) emojiInput.value = '🌸';
+
+                    // Muda para aba Conteúdo para o usuário ver o card
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+
+                    updatePreviewFromForm();
+
+                    setTimeout(() => {
+                        cardEmojiRainInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveEmojiRain && cardEmojiRainInspector) {
+                btnRemoveEmojiRain.addEventListener('click', () => {
+                    cardEmojiRainInspector.style.display = 'none';
+                    const emojiInput = document.getElementById('input-addon-er-emoji');
+                    if (emojiInput) emojiInput.value = '';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Clique no botão buscar imagem
             const btnSearchAvatar = document.getElementById('btn-search-avatar');
             if (btnSearchAvatar) {
@@ -2374,6 +2472,10 @@ loadClassicModel();
                         addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                         addonTopbannerSlide: document.getElementById('input-addon-tb-slide')?.checked || false,
                         addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
+                        addonEmojiRainActive: document.getElementById('card-addon-emojirain')?.style.display !== 'none',
+                        addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value.trim() || '',
+                        addonEmojiRainCount: parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10),
+                        addonEmojiRainSpeed: document.getElementById('select-addon-er-speed')?.value || 'normal',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };

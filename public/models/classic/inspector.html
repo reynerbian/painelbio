@@ -113,18 +113,52 @@
                     </div>
                 </div>
 
-                <!-- Configuração de Pausa/Animação (Expandir e Encolher) -->
+                <!-- Motor de Efeitos Visuais do Anúncio de Topo -->
                 <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <label for="input-addon-tb-slide" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                            ⏱️ Efeito Encolher / Expandir:
-                        </label>
-                        <input type="checkbox" id="input-addon-tb-slide" style="width: 18px; height: 18px; cursor: pointer;">
-                    </div>
+                    <label for="select-addon-tb-effect" style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; display: block; margin-bottom: 6px;">
+                        🎬 Tipo de Efeito Visual do Anúncio:
+                    </label>
+                    <select id="select-addon-tb-effect" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer; margin-bottom: 10px;">
+                        <option value="fade">✨ 1. Fade Suave (Transição Fixa)</option>
+                        <option value="slide">⏱️ 2. Encolher &amp; Expandir (com Pausa)</option>
+                        <option value="marquee">📺 3. Letreiro Contínuo (Marquee/Ticker)</option>
+                        <option value="bounce">🎈 4. Quique Elástico (Pop Bounce)</option>
+                        <option value="flip">🔄 5. Giro 3D de Painel (Flip 3D)</option>
+                        <option value="shutter">🪟 6. Cortina / Persiana (Shutter)</option>
+                    </select>
 
-                    <div id="container-addon-tb-pause" style="display: none; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div id="container-addon-tb-pause" style="display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                         <label for="input-addon-tb-pause" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Pausa entre Anúncios (Segundos):</label>
                         <input type="number" id="input-addon-tb-pause" value="2" min="1" max="60" placeholder="Ex: 2" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card do Add-on 2: Chuva de Emoji -->
+            <div id="card-addon-emojirain" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-emojirain-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #a78bfa; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🌧️ Add-on Ativo: Chuva de Emoji
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-er-emoji">Emoji que vai cair:</label>
+                    <input type="text" id="input-addon-er-emoji" placeholder="Ex: 🌸  💸  🔥  ❄️  🌟" maxlength="4" style="font-size: 1.4rem; text-align: center; letter-spacing: 4px;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 4px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-er-count">Quantidade (1–20):</label>
+                        <input type="number" id="input-addon-er-count" value="8" min="1" max="20" style="width: 100%; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="select-addon-er-speed">Velocidade:</label>
+                        <select id="select-addon-er-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #a78bfa; border: 1px solid #334155; cursor: pointer; box-sizing: border-box;">
+                            <option value="slow">🐢 Lenta</option>
+                            <option value="normal" selected>🚶 Normal</option>
+                            <option value="fast">⚡ Rápida</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -140,12 +174,21 @@
             <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 12px 0; line-height: 1.4;">Clique em + Habilitar para enviar a configuração do Add-on para a aba Conteúdo:</p>
             
             <!-- Add-on Item 1: Banner Flutuante de Topo -->
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px;">
                 <div>
                     <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">📢 Anúncio Flutuante de Topo</div>
                     <div style="font-size: 0.7rem; color: #64748b;">Faixa no topo com frases alternadas de ofertas</div>
                 </div>
                 <button type="button" id="btn-enable-topbanner-addon" style="background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">+ Habilitar</button>
+            </div>
+
+            <!-- Add-on Item 2: Chuva de Emoji -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">🌧️ Chuva de Emoji</div>
+                    <div style="font-size: 0.7rem; color: #64748b;">Emojis caindo no fundo com efeito de vidro fosco</div>
+                </div>
+                <button type="button" id="btn-enable-emojirain-addon" style="background: #7c3aed; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">+ Habilitar</button>
             </div>
         </div>
     </div>
