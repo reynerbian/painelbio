@@ -1874,7 +1874,7 @@ loadClassicModel();
                     if (mqPauseInput) mqPauseInput.value = backup.addonTopbannerMarqueePause || '3';
                     
                     function updateAddonFields() {
-                        if (containerPause) containerPause.style.display = (effectSelect.value === 'slide') ? 'block' : 'none';
+                        if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
                         if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
                     }
                     updateAddonFields();
@@ -1972,7 +1972,7 @@ loadClassicModel();
                         phoneScreen.prepend(phoneTopBanner);
                     }
                     
-                    phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
+                    phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
                     phoneTopBanner.style.display = 'flex';
 
                     const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${mqSpeed}_${mqPause}_${tbBg}_${tbColor}`;
@@ -2053,46 +2053,110 @@ loadClassicModel();
                                     }, 20);
                                 }, 500);
                             } else if (effect === 'bounce') {
+                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
                                 txtEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
-                                if (texts.length > 1) {
-                                    window.phoneTbInterval = setTimeout(() => {
-                                        txtEl.style.transform = 'scale(0)';
+                                
+                                phoneTopBanner.style.height = '0px';
+                                phoneTopBanner.style.padding = '0px';
+                                
+                                setTimeout(() => {
+                                    phoneTopBanner.style.height = 'auto';
+                                    phoneTopBanner.style.padding = '8px 10px';
+                                    txtEl.style.transform = 'scale(1)';
+                                    
+                                    let currentIdx = 0;
+                                    function playNext() {
+                                        if (currentIdx >= texts.length - 1) {
+                                            setTimeout(() => {
+                                                phoneTopBanner.style.height = '0px';
+                                                phoneTopBanner.style.padding = '0px';
+                                                setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
+                                            }, 3500);
+                                            return;
+                                        }
                                         setTimeout(() => {
-                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                            txtEl.style.transform = 'scale(1)';
-                                            runLiveEffectCycle();
-                                        }, 500);
-                                    }, 3500);
-                                }
+                                            txtEl.style.transform = 'scale(0)';
+                                            setTimeout(() => {
+                                                currentIdx++;
+                                                window.phoneTbIdx = currentIdx;
+                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                                txtEl.style.transform = 'scale(1)';
+                                                playNext();
+                                            }, 500);
+                                        }, 3500);
+                                    }
+                                    playNext();
+                                }, 100);
                             } else if (effect === 'flip') {
+                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
                                 txtEl.style.transition = 'transform 0.4s ease-in, opacity 0.3s';
-                                if (texts.length > 1) {
-                                    window.phoneTbInterval = setTimeout(() => {
-                                        txtEl.style.transform = 'rotateX(90deg)';
+                                
+                                phoneTopBanner.style.height = '0px';
+                                phoneTopBanner.style.padding = '0px';
+                                
+                                setTimeout(() => {
+                                    phoneTopBanner.style.height = 'auto';
+                                    phoneTopBanner.style.padding = '8px 10px';
+                                    txtEl.style.transform = 'rotateX(0deg)';
+                                    
+                                    let currentIdx = 0;
+                                    function playNext() {
+                                        if (currentIdx >= texts.length - 1) {
+                                            setTimeout(() => {
+                                                phoneTopBanner.style.height = '0px';
+                                                phoneTopBanner.style.padding = '0px';
+                                                setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
+                                            }, 3500);
+                                            return;
+                                        }
                                         setTimeout(() => {
-                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                            txtEl.style.transform = 'rotateX(0deg)';
-                                            runLiveEffectCycle();
-                                        }, 400);
-                                    }, 3500);
-                                }
+                                            txtEl.style.transform = 'rotateX(90deg)';
+                                            setTimeout(() => {
+                                                currentIdx++;
+                                                window.phoneTbIdx = currentIdx;
+                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                                txtEl.style.transform = 'rotateX(0deg)';
+                                                playNext();
+                                            }, 400);
+                                        }, 3500);
+                                    }
+                                    playNext();
+                                }, 100);
                             } else if (effect === 'shutter') {
-                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out';
-                                if (texts.length > 1) {
-                                    window.phoneTbInterval = setTimeout(() => {
-                                        phoneTopBanner.style.height = '0px';
-                                        phoneTopBanner.style.padding = '0px';
+                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
+                                
+                                phoneTopBanner.style.height = '0px';
+                                phoneTopBanner.style.padding = '0px';
+                                
+                                setTimeout(() => {
+                                    phoneTopBanner.style.height = 'auto';
+                                    phoneTopBanner.style.padding = '8px 10px';
+                                    
+                                    let currentIdx = 0;
+                                    function playNext() {
+                                        if (currentIdx >= texts.length - 1) {
+                                            setTimeout(() => {
+                                                phoneTopBanner.style.height = '0px';
+                                                phoneTopBanner.style.padding = '0px';
+                                                setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
+                                            }, 3500);
+                                            return;
+                                        }
                                         setTimeout(() => {
-                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                            phoneTopBanner.style.height = 'auto';
-                                            phoneTopBanner.style.padding = '8px 10px';
-                                            runLiveEffectCycle();
-                                        }, 400);
-                                    }, 3500);
-                                }
+                                            phoneTopBanner.style.height = '0px';
+                                            phoneTopBanner.style.padding = '0px';
+                                            setTimeout(() => {
+                                                currentIdx++;
+                                                window.phoneTbIdx = currentIdx;
+                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                                phoneTopBanner.style.height = 'auto';
+                                                phoneTopBanner.style.padding = '8px 10px';
+                                                playNext();
+                                            }, 400);
+                                        }, 3500);
+                                    }
+                                    playNext();
+                                }, 100);
                             }
                         }
                         
