@@ -1251,6 +1251,20 @@ const leftIcon = document.querySelector('.left-icon');
                             btn2Url: document.getElementById('input-btn2-url')?.value || '',
                             btn3Title: document.getElementById('input-btn3-title')?.value || '',
                             btn3Url: document.getElementById('input-btn3-url')?.value || '',
+                            btn4Title: document.getElementById('input-btn4-title')?.value || '',
+                            btn4Url: document.getElementById('input-btn4-url')?.value || '',
+                            highlight1Img: document.getElementById('input-highlight1-img')?.value || '',
+                            highlight1Title: document.getElementById('input-highlight1-title')?.value || '',
+                            highlight2Img: document.getElementById('input-highlight2-img')?.value || '',
+                            highlight2Title: document.getElementById('input-highlight2-title')?.value || '',
+                            highlight3Img: document.getElementById('input-highlight3-img')?.value || '',
+                            highlight3Title: document.getElementById('input-highlight3-title')?.value || '',
+                            addonTopbannerActive: document.getElementById('card-addon-topbanner')?.style.display !== 'none',
+                            addonTopbannerText1: document.getElementById('input-addon-tb-text1')?.value || '',
+                            addonTopbannerText2: document.getElementById('input-addon-tb-text2')?.value || '',
+                            addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value || '',
+                            addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
+                            addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
                         };
@@ -1508,23 +1522,11 @@ loadClassicModel();
                     if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
                     if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
                     if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
-                } else {
-                    if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
-                    if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
-                    if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
-                    if (bioInput) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
-                    if (btn1TitleInput) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
-                    if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                    if (btn2TitleInput) btn2TitleInput.value = "✨ Seguir no Instagram";
-                    if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
-                    if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
-                    if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
                 }
             } else {
                 const form = document.getElementById('inspector-form');
                 if (form) form.reset();
             }
-
             updatePreviewFromForm();
         });
 
@@ -1550,19 +1552,22 @@ loadClassicModel();
                 const texts = [tbText1, tbText2, tbText3].filter(Boolean);
 
                 if (phoneScreen && texts.length > 0) {
+                    let isNewBanner = false;
                     if (!phoneTopBanner) {
                         phoneTopBanner = document.createElement('div');
                         phoneTopBanner.id = 'phone-live-top-banner';
                         phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;`;
                         phoneScreen.prepend(phoneTopBanner);
+                        isNewBanner = true;
                     }
                     phoneTopBanner.style.background = tbBg;
                     phoneTopBanner.style.color = tbColor;
                     phoneTopBanner.style.display = 'flex';
-                    phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
 
                     window.phoneTbTexts = texts;
-                    if (!window.phoneTbInterval) {
+                    if (isNewBanner || !window.phoneTbInterval) {
+                        if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
+                        phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
                         window.phoneTbIdx = 0;
                         window.phoneTbInterval = setInterval(() => {
                             const txtEl = document.getElementById('phone-tb-live-text');
@@ -1578,9 +1583,17 @@ loadClassicModel();
                     }
                 } else if (phoneTopBanner) {
                     phoneTopBanner.style.display = 'none';
+                    if (window.phoneTbInterval) {
+                        clearInterval(window.phoneTbInterval);
+                        window.phoneTbInterval = null;
+                    }
                 }
             } else if (phoneTopBanner) {
                 phoneTopBanner.style.display = 'none';
+                if (window.phoneTbInterval) {
+                    clearInterval(window.phoneTbInterval);
+                    window.phoneTbInterval = null;
+                }
             }
 
             // =========================================================================
