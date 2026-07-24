@@ -1231,15 +1231,17 @@ const leftIcon = document.querySelector('.left-icon');
                         if (confirm('Deseja DESCARTAR o site atual e iniciar um novo projeto VAZIO do zero?')) {
                             clearEditorState();
                             processTemplateSelection(card);
-                            return;
-                        } else {
+                           } else {
                             // Cancela a ação inteira
                             return;
                         }
                     }
                 } else {
-                    // Backup local para não perder o que foi digitado caso seja apenas um switch de template sem carregar da galeria
-                    if (currentArroba) {
+                    // Backup local para não perder o que foi digitado (APENAS se o switch de dados fakes estiver DESATIVADO)
+                    const fakeToggle = document.getElementById('fake-data-toggle');
+                    const isFakeOn = fakeToggle && fakeToggle.checked;
+
+                    if (currentArroba && !isFakeOn) {
                         window.tempFormBackup = {
                             avatar: document.getElementById('input-avatar')?.value || '',
                             name: document.getElementById('input-name')?.value || '',
@@ -1382,14 +1384,15 @@ loadClassicModel();
                 `;
             } else {
                 // Modelo Classic (Com vidro, luzes de fundo e card)
-                previewScreen.style.background = 'radial-gradient(circle at center, #1b162b 0%, #050409 100%)';
+                previewScreen.style.background = 'radial-gradient(circle at 50% 10%, #1e293b 0%, #0f172a 70%)';
+                
                 previewScreen.innerHTML = `
                     <div class="preview-bio-page">
                         <div class="bg-glow bg-glow-top"></div>
                         <div class="bg-glow bg-glow-bottom"></div>
-
+                        
                         <div class="preview-card" id="view-card" style="display: none;">
-                            <div class="preview-avatar-glow" id="view-avatar-container" style="display: none;">
+                            <div class="preview-avatar-container" id="view-avatar-container">
                                 <div class="preview-avatar-inner" id="view-avatar-inner"></div>
                             </div>
                             
@@ -1451,11 +1454,21 @@ loadClassicModel();
                     'input-highlight2-img': backup.highlight2Img || '',
                     'input-highlight2-title': backup.highlight2Title || '',
                     'input-highlight3-img': backup.highlight3Img || '',
-                    'input-highlight3-title': backup.highlight3Title || ''
+                    'input-highlight3-title': backup.highlight3Title || '',
+                    'input-addon-tb-text1': backup.addonTopbannerText1 || '',
+                    'input-addon-tb-text2': backup.addonTopbannerText2 || '',
+                    'input-addon-tb-text3': backup.addonTopbannerText3 || '',
+                    'input-addon-tb-bg': backup.addonTopbannerBg || '#0f172a',
+                    'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8'
                 };
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
                     if (el) el.value = val;
+                }
+
+                if (backup.addonTopbannerActive) {
+                    const cardTb = document.getElementById('card-addon-topbanner');
+                    if (cardTb) cardTb.style.display = 'block';
                 }
                 
                 if (backup.bioAlign) {
@@ -1522,6 +1535,19 @@ loadClassicModel();
                     if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
                     if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
                     if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+                } else {
+                    // MODELO 1: CLASSIC
+                    if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
+                    if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
+                    if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
+                    if (bioInput) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
+                    
+                    if (btn1TitleInput) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
+                    if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+                    if (btn2TitleInput) btn2TitleInput.value = "✨ Seguir no Instagram";
+                    if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
+                    if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
+                    if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
                 }
             } else {
                 const form = document.getElementById('inspector-form');
