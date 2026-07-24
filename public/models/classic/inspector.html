@@ -5,7 +5,7 @@
         <button type="button" class="inspector-tab-btn" data-tab="addons" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: transparent; color: #94a3b8; transition: all 0.2s;">🧩 Add ons</button>
     </div>
 
-    <!-- Painel 1: Conteúdo Principal do Site -->
+    <!-- Painel 1: Conteúdo Principal do Site (E Add-ons Ativos do Projeto) -->
     <div id="panel-content" class="inspector-panel active">
         <!-- Imagem de Perfil -->
         <div class="form-group">
@@ -71,40 +71,19 @@
             <label for="input-btn3-title">Título do Botão 3 (Opcional):</label>
             <input type="text" id="input-btn3-title" placeholder="Ex: 📍 Como Chegar (Localização)">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 16px;">
             <label for="input-btn3-url">URL do Botão 3:</label>
             <input type="text" id="input-btn3-url" placeholder="Ex: https://maps.google.com/...">
         </div>
-    </div>
 
-    <!-- Painel 2: Add ons (Efeitos Especiais & Módulos Extras) -->
-    <div id="panel-addons" class="inspector-panel" style="display: none;">
-        <!-- Lista de Add-ons Disponíveis para Habilitar -->
-        <div style="background: rgba(30, 41, 59, 0.5); border: 1px dashed rgba(59, 130, 246, 0.4); border-radius: 14px; padding: 14px; margin-bottom: 16px;">
-            <div style="font-size: 0.85rem; font-weight: 700; color: #60a5fa; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-                🛒 Catálogo de Add-ons
-            </div>
-            <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 12px 0; line-height: 1.4;">Habilite efeitos e módulos extras para turbinar o site:</p>
-            
-            <!-- Add-on Item 1: Banner Flutuante de Topo -->
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
-                <div>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">📢 Anúncio Flutuante de Topo</div>
-                    <div style="font-size: 0.7rem; color: #64748b;">Faixa no topo com frases alternadas de ofertas</div>
-                </div>
-                <button type="button" id="btn-enable-topbanner-addon" style="background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">+ Habilitar</button>
-            </div>
-        </div>
-
-        <!-- Container de Cards dos Add-ons Habilitados -->
+        <!-- AREA DE ADD-ONS ATIVOS NO PROJETO (Cards Habilitados Vêm Para Cá) -->
         <div id="active-addons-list">
-            
             <!-- Card do Add-on 1: Anúncio Flutuante de Topo -->
-            <div id="card-addon-topbanner" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-bottom: 16px; position: relative;">
+            <div id="card-addon-topbanner" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
                 <button type="button" id="btn-remove-topbanner-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
                 
                 <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                    📢 Configuração: Anúncio Flutuante
+                    📢 Add-on Ativo: Anúncio Flutuante
                 </div>
 
                 <div class="form-group" style="margin-bottom: 10px;">
@@ -133,7 +112,25 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <!-- Painel 2: Add ons (Catálogo Limpo de Adição) -->
+    <div id="panel-addons" class="inspector-panel" style="display: none;">
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px dashed rgba(59, 130, 246, 0.4); border-radius: 14px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #60a5fa; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                🛒 Catálogo de Add-ons
+            </div>
+            <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 12px 0; line-height: 1.4;">Clique em + Habilitar para enviar a configuração do Add-on para a aba Conteúdo:</p>
+            
+            <!-- Add-on Item 1: Banner Flutuante de Topo -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #fff;">📢 Anúncio Flutuante de Topo</div>
+                    <div style="font-size: 0.7rem; color: #64748b;">Faixa no topo com frases alternadas de ofertas</div>
+                </div>
+                <button type="button" id="btn-enable-topbanner-addon" style="background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;">+ Habilitar</button>
+            </div>
         </div>
     </div>
 

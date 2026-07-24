@@ -1836,7 +1836,7 @@ loadClassicModel();
                     if (!phoneTopBanner) {
                         phoneTopBanner = document.createElement('div');
                         phoneTopBanner.id = 'phone-live-top-banner';
-                        phoneTopBanner.style.cssText = `position: absolute; top: 0; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 36px 36px 0 0;`;
+                        phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1);`;
                         phoneScreen.prepend(phoneTopBanner);
                     }
                     phoneTopBanner.style.background = tbBg;
@@ -1914,7 +1914,17 @@ loadClassicModel();
                     if (text2 && !text2.value) text2.value = "💳 Em até 10x sem juros no cartão";
                     const text3 = document.getElementById('input-addon-tb-text3');
                     if (text3 && !text3.value) text3.value = "🛍️ Cupom 10% OFF: BEMVINDO10";
+                    
+                    // Alterna automaticamente para a aba Conteúdo para o usuário visualizar o card habilitado
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+
                     updatePreviewFromForm();
+
+                    // Rola até o card
+                    setTimeout(() => {
+                        cardTopbanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
                 });
             }
 
