@@ -2323,65 +2323,26 @@ loadClassicModel();
             const cardAvatarSpinCheck = document.getElementById('card-addon-avatarspin');
             const isAvatarSpinActive = cardAvatarSpinCheck && cardAvatarSpinCheck.style.display !== 'none';
 
-            // Injeta o @keyframes do rodopio uma única vez no <head>
-            if (!document.getElementById('pb-avatarspin-style')) {
-                const styleEl = document.createElement('style');
-                styleEl.id = 'pb-avatarspin-style';
-                styleEl.textContent = `
-                    @keyframes pb-avatarspin {
-                        0%   { transform: rotateY(0deg) scale(1); }
-                        20%  { transform: rotateY(calc(var(--spin-total) * 0.2)) scale(1.08); }
-                        60%  { transform: rotateY(calc(var(--spin-total) * 0.7)) scale(1.03); }
-                        85%  { transform: rotateY(calc(var(--spin-total) * 0.93)) scale(1.01); }
-                        95%  { transform: rotateY(calc(var(--spin-total) * 0.98)) scale(1.005); }
-                        100% { transform: rotateY(var(--spin-total)) scale(1); }
-                    }
-                `;
-                document.head.appendChild(styleEl);
-            }
-
-            // Pega o container do avatar dependendo do modelo ativo
-            const liveAvatarEl = activeModel === 'vitrine'
-                ? document.getElementById('v-view-avatar-wrapper')
-                : document.getElementById('view-avatar-container');
-
-            if (isAvatarSpinActive && liveAvatarEl) {
+            if (isAvatarSpinActive) {
                 const asDuration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
-                const asSpins = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
-                const asRepeat = document.getElementById('input-addon-as-repeat')?.checked || false;
+                const asSpins   = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+                const asRepeat  = document.getElementById('input-addon-as-repeat')?.checked || false;
                 const asInterval = parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10);
-                const totalDeg = asSpins * 360;
+                const configKey  = `${asDuration}_${asSpins}_${asRepeat}_${asInterval}`;
 
-                liveAvatarEl.style.setProperty('--spin-total', `${totalDeg}deg`);
-                liveAvatarEl.style.perspective = '600px';
-                liveAvatarEl.style.transformStyle = 'preserve-3d';
-
-                // Dispara a animação inicial
-                const configKey = `${asDuration}_${asSpins}_${asRepeat}_${asInterval}`;
                 if (window.phoneAsConfigKey !== configKey) {
                     window.phoneAsConfigKey = configKey;
-                    // Cancela timer de repetição anterior se houver
                     if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
-
-                    // Função que dispara um ciclo de giro
-                    const doSpin = () => {
-                        liveAvatarEl.style.animation = 'none';
-                        liveAvatarEl.offsetHeight; // reflow forçado para reiniciar
-                        liveAvatarEl.style.animation = `pb-avatarspin ${asDuration}s cubic-bezier(0.15, 0.05, 0.3, 1) forwards`;
-                    };
-
-                    doSpin();
-
+                    applyAvatarSpinAnimation(asDuration, asSpins, activeModel);
                     if (asRepeat) {
                         window.phoneAsRepeatTimer = setInterval(() => {
-                            doSpin();
+                            applyAvatarSpinAnimation(asDuration, asSpins, activeModel);
                         }, (asDuration + asInterval) * 1000);
                     }
                 }
-            } else if (liveAvatarEl) {
-                // Remove a animação se o add-on foi desativado
-                liveAvatarEl.style.animation = '';
-                liveAvatarEl.style.perspective = '';
+            } else {
+                // Remove animação se add-on desativado
+                removeAvatarSpinAnimation();
                 if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
                 window.phoneAsConfigKey = null;
             }
@@ -3708,29 +3669,93 @@ loadClassicModel();
         }
 
 // ==========================================
-// ADD-ON 3: FUNÇÃO DE TESTE IMEDIATO DO RODOPIO
+// ADD-ON 3: RODOPIO DO AVATAR — FUNÇÕES CENTRAIS
 // ==========================================
+
+/**
+ * Busca o elemento <img> dentro do avatar para aplicar a animação diretamente
+ * sobre a imagem (não o container com overflow:hidden/border-radius).
+ */
+function getAvatarImgEl(activeModel) {
+    if (activeModel === 'vitrine') {
+        // Vitrine: v-view-avatar-inner > img
+        return document.querySelector('#v-view-avatar-inner img') || document.getElementById('v-view-avatar-inner');
+    }
+    // Classic: view-avatar-inner > img
+    return document.querySelector('#view-avatar-inner img') || document.getElementById('view-avatar-inner');
+}
+
+/**
+ * Gera e injeta um @keyframes único com os graus exatos (sem CSS var),
+ * e aplica a animação na <img> do avatar com perspective no seu pai direto.
+ */
+function applyAvatarSpinAnimation(duration, spins, activeModel) {
+    const totalDeg = spins * 360;
+    const kfName = `pb-spin-${totalDeg}`;
+
+    // Injeta (ou atualiza) o @keyframes com valores numéricos reais
+    let styleEl = document.getElementById('pb-avatarspin-style');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'pb-avatarspin-style';
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `
+        @keyframes ${kfName} {
+            0%   { transform: rotateY(0deg) scale(1); }
+            15%  { transform: rotateY(${totalDeg * 0.15}deg) scale(1.06); }
+            40%  { transform: rotateY(${totalDeg * 0.55}deg) scale(1.03); }
+            70%  { transform: rotateY(${totalDeg * 0.82}deg) scale(1.01); }
+            88%  { transform: rotateY(${totalDeg * 0.96}deg) scale(1.003); }
+            100% { transform: rotateY(${totalDeg}deg) scale(1); }
+        }
+    `;
+
+    const imgEl = getAvatarImgEl(activeModel);
+    if (!imgEl) return;
+
+    // O perspective precisa estar no PAI direto da imagem que vai girar
+    const parentEl = imgEl.parentElement;
+    if (parentEl) {
+        parentEl.style.perspective = '500px';
+        parentEl.style.overflow = 'visible'; // permite o giro 3D escapar levemente
+    }
+
+    // Aplica na imagem diretamente (sem mexer no overflow:hidden do container circular)
+    imgEl.style.animation = 'none';
+    imgEl.style.borderRadius = '50%';
+    imgEl.style.display = 'block';
+    void imgEl.offsetHeight; // reflow forçado para reiniciar a animação
+    imgEl.style.animation = `${kfName} ${duration}s cubic-bezier(0.12, 0.04, 0.25, 1) forwards`;
+}
+
+/**
+ * Remove a animação do avatar e restaura os estilos originais.
+ */
+function removeAvatarSpinAnimation() {
+    const models = ['classic', 'vitrine'];
+    models.forEach(m => {
+        const imgEl = getAvatarImgEl(m);
+        if (imgEl) {
+            imgEl.style.animation = '';
+            const parentEl = imgEl.parentElement;
+            if (parentEl) {
+                parentEl.style.perspective = '';
+                parentEl.style.overflow = '';
+            }
+        }
+    });
+}
+
+/**
+ * Função chamada pelo botão "Testar Animação Agora" no Inspector.
+ */
 function triggerAvatarSpinPreview() {
     const activeModel = window.currentActiveModel || 'classic';
-    const liveAvatarEl = activeModel === 'vitrine'
-        ? document.getElementById('v-view-avatar-wrapper')
-        : document.getElementById('view-avatar-container');
-
-    if (!liveAvatarEl) return;
-
-    const asDuration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
-    const asSpins = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
-    const totalDeg = asSpins * 360;
-
-    liveAvatarEl.style.setProperty('--spin-total', `${totalDeg}deg`);
-    liveAvatarEl.style.perspective = '600px';
-    liveAvatarEl.style.transformStyle = 'preserve-3d';
-    liveAvatarEl.style.animation = 'none';
-    liveAvatarEl.offsetHeight; // reflow
-    liveAvatarEl.style.animation = `pb-avatarspin ${asDuration}s cubic-bezier(0.15, 0.05, 0.3, 1) forwards`;
-
-    // Reseta o configKey para que a próxima chamada ao updatePreview reconheça a nova config
-    window.phoneAsConfigKey = null;
+    const duration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
+    const spins    = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+    applyAvatarSpinAnimation(duration, spins, activeModel);
+    window.phoneAsConfigKey = null; // reseta para próxima mudança de config
 }
 
 // ==========================================
