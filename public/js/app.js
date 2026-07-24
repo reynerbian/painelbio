@@ -3015,14 +3015,12 @@ loadClassicModel();
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                    const response = await fetch('https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_v3.php', {
-                        method: 'POST',
+                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
+                        method: 'GET',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
                             'x-rapidapi-key': RAPIDAPI_KEY,
                             'x-rapidapi-host': 'instagram-scraper-stable-api.p.rapidapi.com'
                         },
-                        body: `username_or_url=${encodeURIComponent(cleanArroba)}`,
                         signal: controller.signal
                     });
                     clearTimeout(timeoutId);
@@ -3030,16 +3028,19 @@ loadClassicModel();
                     if (response.ok) {
                           const result = await response.json();
                           console.log("RapidAPI Search Result:", result);
-                          if (result && result.full_name) {
-                              const hdPic = result.hd_profile_pic_url_info?.url || result.profile_pic_url || '';
+                          
+                          const userData = result.user_data || result;
+                          if (userData && (userData.full_name || userData.username)) {
+                              const hdPic = userData.hd_profile_pic_url_info?.url || userData.profile_pic_url || '';
                               
-                              // Tenta obter posts do JSON da RapidAPI
+                              // Tenta obter posts do JSON da RapidAPI usando a nova estrutura de user_posts
                               let scrapedImages = [];
-                              const posts = result.edge_owner_to_timeline_media?.edges || result.edges || result.posts || result.last_posts || result.recent_posts;
+                              const posts = result.user_posts || result.edge_owner_to_timeline_media?.edges || result.edges || result.posts;
                               if (posts && Array.isArray(posts)) {
                                   for (const post of posts) {
                                       const node = post.node || post;
-                                      const imgUrl = node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
+                                      const candidates = node?.image_versions2?.candidates;
+                                      const imgUrl = candidates?.[0]?.url || node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
                                       if (imgUrl && typeof imgUrl === 'string') {
                                           scrapedImages.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
                                       }
@@ -3048,8 +3049,8 @@ loadClassicModel();
                               }
                               
                               scrapedRealData = {
-                                  name: result.full_name || cleanArroba,
-                                  bio: result.biography || '',
+                                  name: userData.full_name || cleanArroba,
+                                  bio: userData.biography || '',
                                   avatar: hdPic ? `https://wsrv.nl/?url=${encodeURIComponent(hdPic)}` : '',
                                   highlight1Img: scrapedImages[0] || '',
                                   highlight2Img: scrapedImages[1] || '',
