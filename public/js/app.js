@@ -1041,8 +1041,8 @@ const leftIcon = document.querySelector('.left-icon');
 </head>
 <body>
     ${topBannerHtml}
-    ${emojiRainHtml}
     <div class="v-container">
+        ${emojiRainHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
             ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
@@ -1267,8 +1267,8 @@ const leftIcon = document.querySelector('.left-icon');
 </head>
 <body>
     ${topBannerHtml}
-    ${emojiRainHtml}
     <div class="preview-bio-page">
+        ${emojiRainHtml}
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
         
