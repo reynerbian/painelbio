@@ -785,7 +785,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     textEl.textContent = texts[idx];
                                     runSlideCycle();
                                 }, pauseMs);
-                            }, 3500);
+                            }, pauseBetweenSec * 1000);
                         }
                         setTimeout(runSlideCycle, 500);
                     } else {
@@ -797,7 +797,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     textEl.textContent = texts[idx];
                                     textEl.style.opacity = '1';
                                 }, 300);
-                            }, 3500);
+                            }, pauseBetweenSec * 1000);
                         }
                     }
                 })();
@@ -1960,6 +1960,7 @@ loadClassicModel();
                 const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
                 const effect = document.getElementById('select-addon-tb-effect')?.value || 'fade';
                 const pauseSec = parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10);
+                const pauseBetweenSec = parseInt(document.getElementById('input-addon-tb-pause-between')?.value || '1', 10);
                 const mqSpeed = parseInt(document.getElementById('input-addon-tb-marquee-speed')?.value || '5', 10);
                 const mqPause = parseInt(document.getElementById('input-addon-tb-marquee-pause')?.value || '3', 10);
 
@@ -1975,7 +1976,7 @@ loadClassicModel();
                     phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
                     phoneTopBanner.style.display = 'flex';
 
-                    const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${mqSpeed}_${mqPause}_${tbBg}_${tbColor}`;
+                    const currentConfigKey = `${texts.join('|')}_${effect}_${pauseSec}_${pauseBetweenSec}_${mqSpeed}_${mqPause}_${tbBg}_${tbColor}`;
                     if (window.phoneTbConfigKey !== currentConfigKey) {
                         window.phoneTbConfigKey = currentConfigKey;
                         if (window.phoneTbTimers) { window.phoneTbTimers.forEach(clearTimeout); }
@@ -2012,7 +2013,7 @@ loadClassicModel();
                                             txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
                                             runLiveEffectCycle();
                                         }, pauseSec * 1000);
-                                    }, 3500);
+                                    }, pauseBetweenSec * 1000);
                                 }, 100);
                             } else if (effect === 'fade') {
                                 txtEl.style.transition = 'opacity 0.3s';
@@ -2025,7 +2026,7 @@ loadClassicModel();
                                             txtEl.style.opacity = '1';
                                             runLiveEffectCycle();
                                         }, 300);
-                                    }, 3500);
+                                    }, pauseBetweenSec * 1000);
                                 }
                             } else if (effect === 'marquee') {
                                 txtEl.style.whiteSpace = 'nowrap';
@@ -2076,7 +2077,7 @@ loadClassicModel();
                                                 phoneTopBanner.style.height = '0px';
                                                 phoneTopBanner.style.padding = '0px';
                                                 setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, 3500);
+                                            }, pauseBetweenSec * 1000);
                                             return;
                                         }
                                         setTimeout(() => {
@@ -2088,7 +2089,7 @@ loadClassicModel();
                                                 txtEl.style.transform = 'scale(1)';
                                                 playNext();
                                             }, 500);
-                                        }, 3500);
+                                        }, pauseBetweenSec * 1000);
                                     }
                                     playNext();
                                 }, 100);
@@ -2111,7 +2112,7 @@ loadClassicModel();
                                                 phoneTopBanner.style.height = '0px';
                                                 phoneTopBanner.style.padding = '0px';
                                                 setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, 3500);
+                                            }, pauseBetweenSec * 1000);
                                             return;
                                         }
                                         setTimeout(() => {
@@ -2123,7 +2124,7 @@ loadClassicModel();
                                                 txtEl.style.transform = 'rotateX(0deg)';
                                                 playNext();
                                             }, 400);
-                                        }, 3500);
+                                        }, pauseBetweenSec * 1000);
                                     }
                                     playNext();
                                 }, 100);
@@ -2144,7 +2145,7 @@ loadClassicModel();
                                                 phoneTopBanner.style.height = '0px';
                                                 phoneTopBanner.style.padding = '0px';
                                                 setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, 3500);
+                                            }, pauseBetweenSec * 1000);
                                             return;
                                         }
                                         setTimeout(() => {
@@ -2158,7 +2159,7 @@ loadClassicModel();
                                                 phoneTopBanner.style.padding = '8px 10px';
                                                 playNext();
                                             }, 400);
-                                        }, 3500);
+                                        }, pauseBetweenSec * 1000);
                                     }
                                     playNext();
                                 }, 100);
@@ -2510,13 +2511,19 @@ loadClassicModel();
                 input.addEventListener('change', updatePreviewFromForm);
             });
 
-            // Checkbox de Animação de Slide/Pausa do Banner de Topo
-            const tbSlideInput = document.getElementById('input-addon-tb-slide');
-            const tbPauseContainer = document.getElementById('container-addon-tb-pause');
-            if (tbSlideInput && tbPauseContainer) {
-                tbPauseContainer.style.display = tbSlideInput.checked ? 'block' : 'none';
-                tbSlideInput.addEventListener('change', () => {
-                    tbPauseContainer.style.display = tbSlideInput.checked ? 'block' : 'none';
+            // Animação de Slide/Marquee do Banner de Topo
+            const effectSelect = document.getElementById('select-addon-tb-effect');
+            const containerPause = document.getElementById('container-addon-tb-pause');
+            const containerMarquee = document.getElementById('container-addon-tb-marquee-settings');
+            if (effectSelect) {
+                function updateAddonFields() {
+                    if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
+                    if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
+                }
+                updateAddonFields();
+                effectSelect.addEventListener('change', () => {
+                    updateAddonFields();
+                    // trigger preview update too since it's an effect change!
                     updatePreviewFromForm();
                 });
             }
@@ -2793,7 +2800,7 @@ loadClassicModel();
                             setTimeout(() => {
                                 btnSave.textContent = originalText;
                                 btnSave.classList.remove('saved-success');
-                            }, 2000);
+                            }, pauseBetweenSec * 1000);
                         }
                     } catch (err) {
                         console.error('Erro ao salvar:', err);
@@ -2802,7 +2809,7 @@ loadClassicModel();
                             btnSave.style.opacity = '1';
                             setTimeout(() => {
                                 btnSave.textContent = originalText;
-                            }, 2000);
+                            }, pauseBetweenSec * 1000);
                         }
                         showCustomAlert('Houve um erro ao publicar: ' + err.message, 'error');
                     }
