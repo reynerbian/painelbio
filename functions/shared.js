@@ -20,7 +20,7 @@ export function generateStaticSite(data) {
   const bioAlign = data.bioAlign || 'center';
   const isVitrine = data.model === 'vitrine' || Boolean(data.highlight1Img || data.highlight2Img || data.highlight3Img);
 
-  // SE FOR O MODELO 2: VITRINE (Sem card embutido, fotos no topo soltas, avatar sobreposto, botões maciços)
+  // SE FOR O MODELO 2: VITRINE (Sem card embutido, fotos no topo soltas, avatar sobreposto, botões estilo modelo 1 com borda colorida)
   if (isVitrine) {
     const h1 = data.highlight1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600';
     const h2 = data.highlight2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
@@ -57,7 +57,7 @@ export function generateStaticSite(data) {
     <style>
         :root {
             --v-accent: ${theme.c1};
-            --v-text: ${theme.text};
+            --v-accent-2: ${theme.c2 || theme.c1};
             --v-bg: ${theme.bg};
         }
         
@@ -125,7 +125,7 @@ export function generateStaticSite(data) {
             object-fit: cover;
         }
 
-        /* Avatar Sobreposto Centralizado */
+        /* Avatar Sobreposto Centralizado com Borda/Anel Colorido Vibrante do Tema */
         .v-avatar-overlap {
             position: absolute;
             bottom: -42px;
@@ -134,17 +134,27 @@ export function generateStaticSite(data) {
             width: 94px;
             height: 94px;
             border-radius: 50%;
-            background: #fdf6df;
+            background: linear-gradient(135deg, var(--v-accent), var(--v-accent-2));
+            padding: 3px;
             border: 4px solid var(--v-bg);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 22px rgba(0,0,0,0.6);
             z-index: 20;
+            box-sizing: border-box;
         }
 
-        .v-avatar-overlap img {
+        .v-avatar-overlap-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .v-avatar-overlap-inner img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -188,7 +198,7 @@ export function generateStaticSite(data) {
             width: 90%;
         }
 
-        /* Botões Maciços Arredondados */
+        /* Botões Estilo Modelo 1 (Transparente, Texto Branco, Borda Colorida do Tema) */
         .v-buttons {
             width: 100%;
             display: flex;
@@ -198,26 +208,29 @@ export function generateStaticSite(data) {
 
         .v-btn {
             width: 100%;
-            background-color: var(--v-accent);
-            color: var(--v-text);
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border: 1.5px solid var(--v-accent);
             padding: 16px 20px;
             border-radius: 18px;
             text-decoration: none;
             font-size: 0.95rem;
-            font-weight: 800;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-            transition: transform 0.2s, opacity 0.2s;
+            transition: transform 0.2s, background 0.2s;
         }
 
         .v-btn:active {
             transform: scale(0.98);
-            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.12);
         }
 
         .v-footer {
@@ -256,7 +269,9 @@ export function generateStaticSite(data) {
             
             ${data.avatar ? `
             <div class="v-avatar-overlap">
-                <img src="${data.avatar}" alt="${data.name || ''}">
+                <div class="v-avatar-overlap-inner">
+                    <img src="${data.avatar}" alt="${data.name || ''}">
+                </div>
             </div>` : ''}
         </div>
 
@@ -266,7 +281,7 @@ export function generateStaticSite(data) {
             <a href="${instaUrl}" target="_blank" rel="noopener" class="v-arroba">${data.arroba || ''}</a>
             ${data.bio ? `<p class="v-bio">${data.bio}</p>` : ''}
 
-            <!-- Botões Maciços -->
+            <!-- Botões Estilo Modelo 1 com Borda Colorida -->
             <div class="v-buttons">
                 ${btn1Html}
                 ${btn2Html}

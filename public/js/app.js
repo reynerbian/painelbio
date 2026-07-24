@@ -1569,9 +1569,32 @@ loadClassicModel();
                 if (img2) img2.src = h2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
                 if (img3) img3.src = h3Img || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400';
 
-                // Avatar Sobreposto
+                // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema
+                const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';
+                const presetThemeMap = {
+                    'gray': '#a3d959',
+                    'sunset': '#ff0844',
+                    'neon-blue': '#00c6ff',
+                    'synthwave': '#f107a3',
+                    'fire': '#ff5858',
+                    'aurora': '#00ff87',
+                    'indigo': '#06b6d4',
+                    'cyber-lime': '#a8ff78',
+                    'rose-gold': '#fda085',
+                    'golden': '#f5af19',
+                    'deep-purple': '#e94057',
+                    'platinum': '#e2e8f0'
+                };
+                const themeBorderColor = presetThemeMap[activePreset] || '#a3d959';
+
                 if (avatarUrl) {
-                    if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    if (avatarWrapper) {
+                        avatarWrapper.style.background = themeBorderColor;
+                        avatarWrapper.style.padding = '3px';
+                        avatarWrapper.style.border = '4px solid #0e110d';
+                        avatarWrapper.style.boxShadow = `0 0 20px ${themeBorderColor}66`;
+                    }
+                    if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                     if (avatarWrapper) avatarWrapper.style.display = 'flex';
                 } else {
                     if (avatarInner) avatarInner.innerHTML = '';
@@ -1588,6 +1611,7 @@ loadClassicModel();
                         const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
                         viewArroba.textContent = displayArroba;
                         viewArroba.href = `https://instagram.com/${cleanUser}`;
+                        viewArroba.style.color = themeBorderColor;
                         viewArroba.style.display = 'inline-block';
                     } else {
                         viewArroba.style.display = 'none';
@@ -1601,14 +1625,10 @@ loadClassicModel();
                     viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'center';
                 }
 
-                // Botões Maciços Arredondados Cheios
+                // Botões Estilo Modelo 1 (Fundo Transparente, Texto Branco, Borda Colorida do Tema)
                 let btnsHtml = '';
-                const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';
-                const buttonBgColor = activePreset === 'gray' ? '#a3d959' : 'var(--theme-color-1)';
-                const buttonTextColor = activePreset === 'gray' ? '#000000' : '#ffffff';
-
                 const createVBtn = (title, url) => `
-                    <div style="width: 100%; background: ${buttonBgColor}; color: ${buttonTextColor}; padding: 14px 18px; border-radius: 16px; font-weight: 800; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.3); cursor: pointer;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                    <div style="width: 100%; background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 15px 18px; border-radius: 16px; font-weight: 700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.3); backdrop-filter: blur(8px); cursor: pointer;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
                         ${title}
                     </div>
                 `;
@@ -1679,6 +1699,7 @@ loadClassicModel();
             const h3Title = h3TitleInput ? h3TitleInput.value.trim() : '';
 
             const hasVitrine = window.currentActiveModel === 'vitrine' || h1Img || h2Img || h3Img;
+            const viewVitrineGrid = document.getElementById('view-vitrine-grid');
 
             if (viewVitrineGrid) {
                 if (hasVitrine) {
