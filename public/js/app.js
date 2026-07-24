@@ -2158,18 +2158,6 @@ loadClassicModel();
                 input.addEventListener('input', updatePreviewFromForm);
             });
 
-            // Botão de preenchimento rápido de dados fakes
-            const btnFillFakeData = document.getElementById('btn-fill-fake-data');
-            if (btnFillFakeData) {
-                btnFillFakeData.addEventListener('click', () => {
-                    const fakeToggle = document.getElementById('fake-data-toggle');
-                    if (fakeToggle) fakeToggle.checked = true;
-                    const activeModel = window.currentActiveModel || 'classic';
-                    populateFakeDataForModel(activeModel);
-                    updatePreviewFromForm();
-                });
-            }
-
             // Troca de Abas no Inspector: [ 📝 Conteúdo ] vs [ 🧩 Add ons ]
             const tabBtns = document.querySelectorAll('.inspector-tab-btn');
             tabBtns.forEach(btn => {
