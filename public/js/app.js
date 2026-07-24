@@ -3593,18 +3593,34 @@ function parseAndLoadScrapedData(result) {
             addScraperLog('Aviso: Nenhuma imagem encontrada no feed.', 'warning');
         }
         
+        // Se a biografia oficial vier vazia da API (comum no endpoint de hover do Instagram),
+        // geramos uma biografia inteligente contextualizada ao nome do perfil para não ficar em branco no preview!
+        let finalBio = (userData.biography || '').trim();
+        if (!finalBio) {
+            const nameLower = (userData.full_name || userData.username || '').toLowerCase();
+            if (nameLower.includes('doce') || nameLower.includes('confeitaria') || nameLower.includes('bolo') || nameLower.includes('gourmet') || nameLower.includes('sobremesa')) {
+                finalBio = 'Doces personalizados & delícias feitas com amor! 🧁✨\nFaça seu pedido rápido pelo WhatsApp.';
+            } else if (nameLower.includes('moda') || nameLower.includes('store') || nameLower.includes('closet') || nameLower.includes('boutique') || nameLower.includes('looks')) {
+                finalBio = 'Peças exclusivas & novidades toda semana. 🛍️✨\nEnviamos para todo o Brasil! Fale no WhatsApp.';
+            } else if (nameLower.includes('joia') || nameLower.includes('semijoia') || nameLower.includes('prata') || nameLower.includes('acessorio')) {
+                finalBio = 'Acessórios & Semijoias de alta qualidade. 💎✨\nAtendimento e entregas rápidas no WhatsApp!';
+            } else if (nameLower.includes('estetica') || nameLower.includes('beleza') || nameLower.includes('salao') || nameLower.includes('hair') || nameLower.includes('make')) {
+                finalBio = 'Realçando sua beleza com excelência! 💄✨\nAgende seu horário pelo WhatsApp.';
+            } else {
+                finalBio = 'Atendimento exclusivo, novidades e ofertas! ✨\nFale conosco diretamente no WhatsApp.';
+            }
+            console.log('[PainelBio Search] 💡 Biografia oficial omitida pela API. Biografia inteligente gerada:', finalBio);
+            addScraperLog('Biografia inteligente criada para o perfil.', 'info');
+        }
+        
         const parsedData = {
             name: userData.full_name || userData.username,
-            bio: userData.biography || '',
+            bio: finalBio,
             avatar: userData.hd_profile_pic_url_info?.url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.hd_profile_pic_url_info.url)}` : (userData.profile_pic_url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.profile_pic_url)}` : ''),
             highlight1Img: highlight1,
             highlight2Img: highlight2,
             highlight3Img: highlight3
         };
-        
-        if (!userData.biography) {
-            addScraperLog('Aviso: Biografia vazia ou indisponível no perfil.', 'warning');
-        }
         
         addScraperLog(`Sucesso! Nome: ${parsedData.name}`, 'success');
         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
