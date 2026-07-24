@@ -25,24 +25,51 @@ export function generateStaticSite(data) {
   const tbBg = data.addonTopbannerBg || '#0f172a';
   const tbColor = data.addonTopbannerColor || '#38bdf8';
 
+  const isSlide = Boolean(data.addonTopbannerSlide);
+  const pauseSec = parseInt(data.addonTopbannerPause || 2, 10);
+
   const topBannerHtml = hasTopBanner ? `
-    <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+    <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s; ${isSlide ? 'transform: translateY(-100%); opacity: 0;' : 'transform: translateY(0); opacity: 1;'}">
         <span id="pb-tb-text" style="transition: opacity 0.3s ease-in-out;">${tbTexts[0]}</span>
     </div>
     <script>
         (function() {
             var texts = ${JSON.stringify(tbTexts)};
+            var isSlide = ${isSlide};
+            var pauseMs = ${pauseSec} * 1000;
             var idx = 0;
-            var el = document.getElementById('pb-tb-text');
-            if (el && texts.length > 1) {
-                setInterval(function() {
-                    el.style.opacity = '0';
+            var banner = document.getElementById('pb-top-banner');
+            var textEl = document.getElementById('pb-tb-text');
+            if (!banner || !textEl || texts.length === 0) return;
+
+            if (isSlide) {
+                function runSlideCycle() {
+                    banner.style.transform = 'translateY(0)';
+                    banner.style.opacity = '1';
+
                     setTimeout(function() {
-                        idx = (idx + 1) % texts.length;
-                        el.textContent = texts[idx];
-                        el.style.opacity = '1';
-                    }, 300);
-                }, 4000);
+                        banner.style.transform = 'translateY(-100%)';
+                        banner.style.opacity = '0';
+
+                        setTimeout(function() {
+                            idx = (idx + 1) % texts.length;
+                            textEl.textContent = texts[idx];
+                            runSlideCycle();
+                        }, pauseMs);
+                    }, 3500);
+                }
+                setTimeout(runSlideCycle, 500);
+            } else {
+                if (texts.length > 1) {
+                    setInterval(function() {
+                        textEl.style.opacity = '0';
+                        setTimeout(function() {
+                            idx = (idx + 1) % texts.length;
+                            textEl.textContent = texts[idx];
+                            textEl.style.opacity = '1';
+                        }, 300);
+                    }, 3500);
+                }
             }
         })();
     </script>

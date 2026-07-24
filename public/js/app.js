@@ -754,24 +754,51 @@ const leftIcon = document.querySelector('.left-icon');
             const tbBg = data.addonTopbannerBg || '#0f172a';
             const tbColor = data.addonTopbannerColor || '#38bdf8';
 
+            const isSlide = Boolean(data.addonTopbannerSlide);
+            const pauseSec = parseInt(data.addonTopbannerPause || 2, 10);
+
             const topBannerHtml = hasTopBanner ? `
-            <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s; ${isSlide ? 'transform: translateY(-100%); opacity: 0;' : 'transform: translateY(0); opacity: 1;'}">
                 <span id="pb-tb-text" style="transition: opacity 0.3s ease-in-out;">${tbTexts[0]}</span>
             </div>
             <script>
                 (function() {
                     var texts = ${JSON.stringify(tbTexts)};
+                    var isSlide = ${isSlide};
+                    var pauseMs = ${pauseSec} * 1000;
                     var idx = 0;
-                    var el = document.getElementById('pb-tb-text');
-                    if (el && texts.length > 1) {
-                        setInterval(function() {
-                            el.style.opacity = '0';
+                    var banner = document.getElementById('pb-top-banner');
+                    var textEl = document.getElementById('pb-tb-text');
+                    if (!banner || !textEl || texts.length === 0) return;
+
+                    if (isSlide) {
+                        function runSlideCycle() {
+                            banner.style.transform = 'translateY(0)';
+                            banner.style.opacity = '1';
+
                             setTimeout(function() {
-                                idx = (idx + 1) % texts.length;
-                                el.textContent = texts[idx];
-                                el.style.opacity = '1';
-                            }, 300);
-                        }, 4000);
+                                banner.style.transform = 'translateY(-100%)';
+                                banner.style.opacity = '0';
+
+                                setTimeout(function() {
+                                    idx = (idx + 1) % texts.length;
+                                    textEl.textContent = texts[idx];
+                                    runSlideCycle();
+                                }, pauseMs);
+                            }, 3500);
+                        }
+                        setTimeout(runSlideCycle, 500);
+                    } else {
+                        if (texts.length > 1) {
+                            setInterval(function() {
+                                textEl.style.opacity = '0';
+                                setTimeout(function() {
+                                    idx = (idx + 1) % texts.length;
+                                    textEl.textContent = texts[idx];
+                                    textEl.style.opacity = '1';
+                                }, 300);
+                            }, 3500);
+                        }
                     }
                 })();
             </script>
@@ -1529,6 +1556,8 @@ const leftIcon = document.querySelector('.left-icon');
                             addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value || '',
                             addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
                             addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
+                            addonTopbannerSlide: document.getElementById('input-addon-tb-slide')?.checked || false,
+                            addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
                         };
@@ -1794,11 +1823,19 @@ loadClassicModel();
                     'input-addon-tb-text2': backup.addonTopbannerText2 || '',
                     'input-addon-tb-text3': backup.addonTopbannerText3 || '',
                     'input-addon-tb-bg': backup.addonTopbannerBg || '#0f172a',
-                    'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8'
+                    'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8',
+                    'input-addon-tb-pause': backup.addonTopbannerPause || 2
                 };
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
                     if (el) el.value = val;
+                }
+
+                const slideInput = document.getElementById('input-addon-tb-slide');
+                if (slideInput) {
+                    slideInput.checked = Boolean(backup.addonTopbannerSlide);
+                    const containerPause = document.getElementById('container-addon-tb-pause');
+                    if (containerPause) containerPause.style.display = slideInput.checked ? 'block' : 'none';
                 }
 
                 if (backup.addonTopbannerActive) {
@@ -1858,52 +1895,83 @@ loadClassicModel();
                 const tbText3 = document.getElementById('input-addon-tb-text3')?.value.trim() || '';
                 const tbBg = document.getElementById('input-addon-tb-bg')?.value || '#0f172a';
                 const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
+                const isSlide = document.getElementById('input-addon-tb-slide')?.checked || false;
+                const pauseSec = parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10);
 
                 const texts = [tbText1, tbText2, tbText3].filter(Boolean);
 
                 if (phoneScreen && texts.length > 0) {
-                    let isNewBanner = false;
                     if (!phoneTopBanner) {
                         phoneTopBanner = document.createElement('div');
                         phoneTopBanner.id = 'phone-live-top-banner';
-                        phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;`;
                         phoneScreen.prepend(phoneTopBanner);
-                        isNewBanner = true;
                     }
-                    phoneTopBanner.style.background = tbBg;
-                    phoneTopBanner.style.color = tbColor;
+                    
+                    phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; background: ${tbBg}; color: ${tbColor}; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;`;
                     phoneTopBanner.style.display = 'flex';
 
-                    window.phoneTbTexts = texts;
-                    if (isNewBanner || !window.phoneTbInterval) {
+                    const currentConfigKey = `${texts.join('|')}_${isSlide}_${pauseSec}_${tbBg}_${tbColor}`;
+                    if (window.phoneTbConfigKey !== currentConfigKey) {
+                        window.phoneTbConfigKey = currentConfigKey;
+                        if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
+                        if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
                         if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
-                        phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
+
+                        window.phoneTbTexts = texts;
                         window.phoneTbIdx = 0;
-                        window.phoneTbInterval = setInterval(() => {
-                            const txtEl = document.getElementById('phone-tb-live-text');
-                            if (txtEl && window.phoneTbTexts && window.phoneTbTexts.length > 1) {
-                                txtEl.style.opacity = '0';
-                                setTimeout(() => {
-                                    window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                    txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                    txtEl.style.opacity = '1';
-                                }, 300);
+                        phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
+
+                        if (isSlide) {
+                            phoneTopBanner.style.transform = 'translateY(-100%)';
+                            phoneTopBanner.style.opacity = '0';
+
+                            function runLiveSlideCycle() {
+                                phoneTopBanner.style.transform = 'translateY(0)';
+                                phoneTopBanner.style.opacity = '1';
+
+                                window.phoneTbTimer1 = setTimeout(() => {
+                                    phoneTopBanner.style.transform = 'translateY(-100%)';
+                                    phoneTopBanner.style.opacity = '0';
+
+                                    window.phoneTbTimer2 = setTimeout(() => {
+                                        window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                        const txtEl = document.getElementById('phone-tb-live-text');
+                                        if (txtEl) txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                        runLiveSlideCycle();
+                                    }, pauseSec * 1000);
+                                }, 3500);
                             }
-                        }, 3500);
+
+                            window.phoneTbTimer1 = setTimeout(runLiveSlideCycle, 500);
+                        } else {
+                            phoneTopBanner.style.transform = 'translateY(0)';
+                            phoneTopBanner.style.opacity = '1';
+                            if (texts.length > 1) {
+                                window.phoneTbInterval = setInterval(() => {
+                                    const txtEl = document.getElementById('phone-tb-live-text');
+                                    if (txtEl) {
+                                        txtEl.style.opacity = '0';
+                                        setTimeout(() => {
+                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                            txtEl.style.opacity = '1';
+                                        }, 300);
+                                    }
+                                }, 3500);
+                            }
+                        }
                     }
                 } else if (phoneTopBanner) {
                     phoneTopBanner.style.display = 'none';
-                    if (window.phoneTbInterval) {
-                        clearInterval(window.phoneTbInterval);
-                        window.phoneTbInterval = null;
-                    }
+                    if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
+                    if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
+                    if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
                 }
             } else if (phoneTopBanner) {
                 phoneTopBanner.style.display = 'none';
-                if (window.phoneTbInterval) {
-                    clearInterval(window.phoneTbInterval);
-                    window.phoneTbInterval = null;
-                }
+                if (window.phoneTbTimer1) clearTimeout(window.phoneTbTimer1);
+                if (window.phoneTbTimer2) clearTimeout(window.phoneTbTimer2);
+                if (window.phoneTbInterval) clearInterval(window.phoneTbInterval);
             }
 
             // =========================================================================
@@ -2156,7 +2224,19 @@ loadClassicModel();
             const formInputs = document.querySelectorAll('#inspector-form input, #inspector-form textarea');
             formInputs.forEach(input => {
                 input.addEventListener('input', updatePreviewFromForm);
+                input.addEventListener('change', updatePreviewFromForm);
             });
+
+            // Checkbox de Animação de Slide/Pausa do Banner de Topo
+            const tbSlideInput = document.getElementById('input-addon-tb-slide');
+            const tbPauseContainer = document.getElementById('container-addon-tb-pause');
+            if (tbSlideInput && tbPauseContainer) {
+                tbPauseContainer.style.display = tbSlideInput.checked ? 'block' : 'none';
+                tbSlideInput.addEventListener('change', () => {
+                    tbPauseContainer.style.display = tbSlideInput.checked ? 'block' : 'none';
+                    updatePreviewFromForm();
+                });
+            }
 
             // Troca de Abas no Inspector: [ 📝 Conteúdo ] vs [ 🧩 Add ons ]
             const tabBtns = document.querySelectorAll('.inspector-tab-btn');
@@ -2292,6 +2372,8 @@ loadClassicModel();
                         addonTopbannerText3: document.getElementById('input-addon-tb-text3')?.value.trim() || '',
                         addonTopbannerBg: document.getElementById('input-addon-tb-bg')?.value || '#0f172a',
                         addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
+                        addonTopbannerSlide: document.getElementById('input-addon-tb-slide')?.checked || false,
+                        addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };
