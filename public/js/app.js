@@ -3011,18 +3011,29 @@ loadClassicModel();
                     addScraperLog('RapidAPI Key não configurada. Coloque sua chave no app.js.', 'error');
                     if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
                 } else {
-                    addScraperLog('Conectando à RapidAPI...', 'info');
+                    let response;
+                    const isLocal = window.location.hostname === 'localhost' || 
+                                    window.location.hostname === '127.0.0.1' || 
+                                    window.location.hostname.startsWith('192.168.') || 
+                                    window.location.protocol === 'file:';
+                    
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
-                        method: 'GET',
-                        headers: {
-                            'x-rapidapi-key': RAPIDAPI_KEY,
-                            'x-rapidapi-host': 'instagram-scraper-stable-api.p.rapidapi.com'
-                        },
-                        signal: controller.signal
-                    });
+                    if (isLocal) {
+                        addScraperLog('Modo Teste Local Ativo! Lendo dados salvos...', 'info');
+                        response = await fetch('/mocks/instagram-response.json');
+                    } else {
+                        addScraperLog('Conectando à RapidAPI...', 'info');
+                        response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
+                            method: 'GET',
+                            headers: {
+                                'x-rapidapi-key': RAPIDAPI_KEY,
+                                'x-rapidapi-host': 'instagram-scraper-stable-api.p.rapidapi.com'
+                            },
+                            signal: controller.signal
+                        });
+                    }
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
