@@ -1092,6 +1092,11 @@ const leftIcon = document.querySelector('.left-icon');
                 document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('is-selected'));
                 optionToSelect.classList.add('is-selected');
             }
+
+            // Atualiza a pré-visualização do celular em tempo real para refletir a nova cor imediatamente
+            if (typeof updatePreviewFromForm === 'function') {
+                updatePreviewFromForm();
+            }
         }
 
         function toggleColorPicker() {
@@ -1563,11 +1568,26 @@ loadClassicModel();
                 const h2Img = document.getElementById('input-highlight2-img')?.value.trim() || '';
                 const h3Img = document.getElementById('input-highlight3-img')?.value.trim() || '';
 
-                // Mostra o Grid de Fotos
-                heroGrid.style.display = 'block';
-                if (img1) img1.src = h1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600';
-                if (img2) img2.src = h2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
-                if (img3) img3.src = h3Img || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400';
+                // Mostra o Grid de Fotos APENAS se houver ao menos 1 URL preenchida
+                const hasAnyPhoto = Boolean(h1Img || h2Img || h3Img);
+
+                if (hasAnyPhoto) {
+                    heroGrid.style.display = 'block';
+                    if (img1) {
+                        img1.src = h1Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
+                        img1.style.display = h1Img ? 'block' : 'none';
+                    }
+                    if (img2) {
+                        img2.src = h2Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
+                        img2.style.display = h2Img ? 'block' : 'none';
+                    }
+                    if (img3) {
+                        img3.src = h3Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
+                        img3.style.display = h3Img ? 'block' : 'none';
+                    }
+                } else {
+                    heroGrid.style.display = 'none';
+                }
 
                 // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema
                 const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';

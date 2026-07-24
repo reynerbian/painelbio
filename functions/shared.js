@@ -22,9 +22,10 @@ export function generateStaticSite(data) {
 
   // SE FOR O MODELO 2: VITRINE (Sem card embutido, fotos no topo soltas, avatar sobreposto, botões estilo modelo 1 com borda colorida)
   if (isVitrine) {
-    const h1 = data.highlight1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600';
-    const h2 = data.highlight2Img || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400';
-    const h3 = data.highlight3Img || 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400';
+    const h1 = data.highlight1Img || '';
+    const h2 = data.highlight2Img || '';
+    const h3 = data.highlight3Img || '';
+    const hasHeroPhotos = Boolean(h1 || h2 || h3);
 
     const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
     const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
@@ -254,17 +255,12 @@ export function generateStaticSite(data) {
     <div class="v-container">
         
         <!-- Grid Superior -->
+        ${hasHeroPhotos ? `
         <div class="v-grid-hero">
-            <div class="v-main-pic">
-                <img src="${h1}" alt="Destaque 1">
-            </div>
+            ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
             <div class="v-sub-row">
-                <div class="v-sub-pic">
-                    <img src="${h2}" alt="Destaque 2">
-                </div>
-                <div class="v-sub-pic">
-                    <img src="${h3}" alt="Destaque 3">
-                </div>
+                ${h2 ? `<div class="v-sub-pic"><img src="${h2}" alt="Destaque 2"></div>` : ''}
+                ${h3 ? `<div class="v-sub-pic"><img src="${h3}" alt="Destaque 3"></div>` : ''}
             </div>
             
             ${data.avatar ? `
@@ -273,7 +269,14 @@ export function generateStaticSite(data) {
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : ''}
-        </div>
+        </div>` : data.avatar ? `
+        <div style="position: relative; width: 100px; height: 100px; margin-bottom: 20px;">
+            <div class="v-avatar-overlap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">
+                <div class="v-avatar-overlap-inner">
+                    <img src="${data.avatar}" alt="${data.name || ''}">
+                </div>
+            </div>
+        </div>` : ''}
 
         <!-- Informações da Loja -->
         <div class="v-info">
