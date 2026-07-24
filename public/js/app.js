@@ -1304,12 +1304,17 @@ const leftIcon = document.querySelector('.left-icon');
             // Adiciona seleção ao card clicado (borda fica azul)
             card.classList.add('is-selected');
 
-            // Fecha o menu de modelos após 350ms de delay
+            // Fecha o menu de modelos e abre o Inspector após 350ms de delay
             setTimeout(() => {
                 closeAll();
                 
-                // Remove o loader e carrega a página de pré-visualização no celular
-                loadTemplatePreview(card.getAttribute('data-template'));
+                const templateId = card.getAttribute('data-template');
+                loadTemplatePreview(templateId);
+
+                // Abre a gaveta do Inspector automaticamente para o usuário ver os campos!
+                if (typeof openDrawer === 'function' && rightDrawer) {
+                    openDrawer(rightDrawer);
+                }
             }, 350);
         }
 
@@ -1329,8 +1334,67 @@ async function loadClassicModel() {
 // Carregar o modelo ao iniciar (isso pode ser mudado para quando clicar no menu)
 loadClassicModel();
 
+        // Preenche campos do formulário com dados fakes do modelo ativo
+        function populateFakeDataForModel(activeModel) {
+            const avatarInput = document.getElementById('input-avatar');
+            const nameInput = document.getElementById('input-name');
+            const arrobaInput = document.getElementById('input-arroba');
+            const bioInput = document.getElementById('input-bio');
+            
+            const btn1TitleInput = document.getElementById('input-btn1-title');
+            const btn1UrlInput = document.getElementById('input-btn1-url');
+            const btn2TitleInput = document.getElementById('input-btn2-title');
+            const btn2UrlInput = document.getElementById('input-btn2-url');
+            const btn3TitleInput = document.getElementById('input-btn3-title');
+            const btn3UrlInput = document.getElementById('input-btn3-url');
+            const btn4TitleInput = document.getElementById('input-btn4-title');
+            const btn4UrlInput = document.getElementById('input-btn4-url');
 
-        async function loadTemplatePreview(templateId) {
+            const h1ImgInput = document.getElementById('input-highlight1-img');
+            const h1TitleInput = document.getElementById('input-highlight1-title');
+            const h2ImgInput = document.getElementById('input-highlight2-img');
+            const h2TitleInput = document.getElementById('input-highlight2-title');
+            const h3ImgInput = document.getElementById('input-highlight3-img');
+            const h3TitleInput = document.getElementById('input-highlight3-title');
+
+            if (activeModel === 'vitrine') {
+                if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
+                if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
+                if (h2ImgInput) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
+                if (h2TitleInput) h2TitleInput.value = "✨ Novidades";
+                if (h3ImgInput) h3ImgInput.value = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
+                if (h3TitleInput) h3TitleInput.value = "💥 Mais Vendido";
+                
+                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200";
+                if (nameInput) nameInput.value = "Boutique Elegance | Moda Feminina";
+                if (arrobaInput) arrobaInput.value = "boutique.elegance";
+                if (bioInput) bioInput.value = `Moda feminina premium & peças exclusivas.\nEnviamos para todo o Brasil com Frete Grátis! 🛍️`;
+                
+                if (btn1TitleInput) btn1TitleInput.value = "💬 Atendimento no WhatsApp";
+                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Coleção Completa";
+                if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/boutique.elegance";
+                if (btn3TitleInput) btn3TitleInput.value = "📍 Endereço da Loja Física";
+                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+                if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
+                if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+            } else {
+                // MODELO 1: CLASSIC
+                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
+                if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
+                if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
+                if (bioInput) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
+                
+                if (btn1TitleInput) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
+                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput) btn2TitleInput.value = "✨ Seguir no Instagram";
+                if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
+                if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
+                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+            }
+        }
+
+        async function loadTemplatePreview(templateId, dataToFill = null) {
             const previewScreen = document.getElementById('phone-preview-screen');
             const inspectorContent = document.getElementById('inspector-content');
             const inspectorActions = document.getElementById('inspector-actions');
@@ -1426,16 +1490,16 @@ loadClassicModel();
             }
             
             inspectorActions.style.display = 'flex';
-            if (fakeDataToggle) fakeDataToggle.checked = false;
 
             bindInspectorFormEvents();
 
             const topBtn = document.querySelector('.top-action-btn');
             if (topBtn) topBtn.classList.remove('disabled');
 
-            // Restaura dados se houver
-            if (window.tempFormBackup && window.tempFormBackup.arroba) {
-                const backup = window.tempFormBackup;
+            // Restaura dados se fornecido ou se houver backup / fake data
+            const payload = dataToFill || window.tempFormBackup;
+            if (payload && (payload.arroba || payload.name)) {
+                const backup = payload;
                 const fieldsToRestore = {
                     'input-avatar': backup.avatar || '',
                     'input-name': backup.name || '',
@@ -1481,6 +1545,9 @@ loadClassicModel();
                 }
                 updatePreviewFromForm();
                 window.tempFormBackup = null;
+            } else if (fakeDataToggle && fakeDataToggle.checked) {
+                populateFakeDataForModel(activeModel);
+                updatePreviewFromForm();
             } else {
                 updatePreviewFromForm();
             }
@@ -1488,73 +1555,19 @@ loadClassicModel();
 
         // Lógica do Switch de Dados de Exemplo no Inspector
         const fakeDataToggle = document.getElementById('fake-data-toggle');
-
-        fakeDataToggle.addEventListener('change', () => {
-            const activeModel = window.currentActiveModel || 'classic';
-            
-            if (fakeDataToggle.checked) {
-                const avatarInput = document.getElementById('input-avatar');
-                const nameInput = document.getElementById('input-name');
-                const arrobaInput = document.getElementById('input-arroba');
-                const bioInput = document.getElementById('input-bio');
+        if (fakeDataToggle) {
+            fakeDataToggle.addEventListener('change', () => {
+                const activeModel = window.currentActiveModel || 'classic';
                 
-                const btn1TitleInput = document.getElementById('input-btn1-title');
-                const btn1UrlInput = document.getElementById('input-btn1-url');
-                const btn2TitleInput = document.getElementById('input-btn2-title');
-                const btn2UrlInput = document.getElementById('input-btn2-url');
-                const btn3TitleInput = document.getElementById('input-btn3-title');
-                const btn3UrlInput = document.getElementById('input-btn3-url');
-                const btn4TitleInput = document.getElementById('input-btn4-title');
-                const btn4UrlInput = document.getElementById('input-btn4-url');
-
-                const h1ImgInput = document.getElementById('input-highlight1-img');
-                const h1TitleInput = document.getElementById('input-highlight1-title');
-                const h2ImgInput = document.getElementById('input-highlight2-img');
-                const h2TitleInput = document.getElementById('input-highlight2-title');
-                const h3ImgInput = document.getElementById('input-highlight3-img');
-                const h3TitleInput = document.getElementById('input-highlight3-title');
-
-                if (activeModel === 'vitrine') {
-                    if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
-                    if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
-                    if (h2ImgInput) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
-                    if (h2TitleInput) h2TitleInput.value = "✨ Novidades";
-                    if (h3ImgInput) h3ImgInput.value = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
-                    if (h3TitleInput) h3TitleInput.value = "💥 Mais Vendido";
-                    
-                    if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200";
-                    if (nameInput) nameInput.value = "Boutique Elegance | Moda Feminina";
-                    if (arrobaInput) arrobaInput.value = "boutique.elegance";
-                    if (bioInput) bioInput.value = `Moda feminina premium & peças exclusivas.\nEnviamos para todo o Brasil com Frete Grátis! 🛍️`;
-                    
-                    if (btn1TitleInput) btn1TitleInput.value = "💬 Atendimento no WhatsApp";
-                    if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                    if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Coleção Completa";
-                    if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/boutique.elegance";
-                    if (btn3TitleInput) btn3TitleInput.value = "📍 Endereço da Loja Física";
-                    if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
-                    if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
-                    if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+                if (fakeDataToggle.checked) {
+                    populateFakeDataForModel(activeModel);
                 } else {
-                    // MODELO 1: CLASSIC
-                    if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
-                    if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
-                    if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
-                    if (bioInput) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
-                    
-                    if (btn1TitleInput) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
-                    if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                    if (btn2TitleInput) btn2TitleInput.value = "✨ Seguir no Instagram";
-                    if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
-                    if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
-                    if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+                    const form = document.getElementById('inspector-form');
+                    if (form) form.reset();
                 }
-            } else {
-                const form = document.getElementById('inspector-form');
-                if (form) form.reset();
-            }
-            updatePreviewFromForm();
-        });
+                updatePreviewFromForm();
+            });
+        }
 
         // Função para ler o formulário e atualizar a pré-visualização em tempo real
         function updatePreviewFromForm() {
@@ -1873,6 +1886,18 @@ loadClassicModel();
             formInputs.forEach(input => {
                 input.addEventListener('input', updatePreviewFromForm);
             });
+
+            // Botão de preenchimento rápido de dados fakes
+            const btnFillFakeData = document.getElementById('btn-fill-fake-data');
+            if (btnFillFakeData) {
+                btnFillFakeData.addEventListener('click', () => {
+                    const fakeToggle = document.getElementById('fake-data-toggle');
+                    if (fakeToggle) fakeToggle.checked = true;
+                    const activeModel = window.currentActiveModel || 'classic';
+                    populateFakeDataForModel(activeModel);
+                    updatePreviewFromForm();
+                });
+            }
 
             // Troca de Abas no Inspector: [ 📝 Conteúdo ] vs [ 🧩 Add ons ]
             const tabBtns = document.querySelectorAll('.inspector-tab-btn');
@@ -2269,14 +2294,25 @@ loadClassicModel();
                 if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
             }
 
-            // Se não conseguiu dados, avisa o usuário
+            // Se não conseguiu dados reais mas o switch de dados fakes estiver ativado, gera dados fakes completos
+            if (!scrapedRealData && isFakeDataEnabled) {
+                const capitalized = cleanArroba.charAt(0).toUpperCase() + cleanArroba.slice(1);
+                scrapedRealData = {
+                    name: `Loja ${capitalized}`,
+                    bio: `Peças exclusivas & novidades toda semana. ✨\nEnviamos para todo o Brasil. 🛍️\nAtendimento rápido no WhatsApp!`,
+                    avatar: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200'
+                };
+                addScraperLog(`Simulação ativada! Gerados dados de teste para @${cleanArroba}`, 'info');
+            }
+
+            // Se não conseguiu dados e nem os fakes foram ativados, avisa o usuário
             if (!scrapedRealData && !isFakeDataEnabled) {
                 if (typeof showToast === 'function') {
-                    showToast('Não foi possível buscar os dados. Verifique a chave RapidAPI.', 'error');
+                    showToast('Não foi possível buscar os dados. Verifique a chave RapidAPI ou ative Dados Fake.', 'error');
                 }
             }
 
-            // Atualiza os dados com as informações reais extraídas
+            // Atualiza os dados com as informações extraídas ou fakes
             if (scrapedRealData) {
                 generatedData.bio = scrapedRealData.bio || generatedData.bio;
                 generatedData.name = scrapedRealData.name || generatedData.name;
@@ -2361,46 +2397,20 @@ loadClassicModel();
             const currentTemplate = document.querySelector('.template-card.is-selected');
 
             if (currentTemplate) {
-                // Template já selecionado: re-injeta o HTML do template (o loader substituiu)
-                // loadTemplatePreview já restaura dados do localStorage e chama updatePreviewFromForm
                 const templateId = currentTemplate.getAttribute('data-template');
-                loadTemplatePreview(templateId);
+                loadTemplatePreview(templateId, data);
             } else {
-                // Sem template selecionado: mostra tela neutra com dados do perfil encontrado
-                const previewScreen = document.getElementById('phone-preview-screen');
-                if (previewScreen) {
-                    const avatarUrl = data.avatar || '';
-                    const displayName = data.name || '';
-                    const displayArroba = data.arroba || '';
-                    const displayBio = data.bio || '';
-                    previewScreen.innerHTML = `
-                        <div class="preview-bio-page" style="justify-content: center; align-items: center; padding: 30px 20px;">
-                            <div style="text-align: center; color: #ffffff; font-family:-apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                                ${avatarUrl ? `<img src="${avatarUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);" onerror="this.style.display='none'"/>` : ''}
-                                <div style="font-size: 1rem; font-weight: 700; color: #fff;">${displayName}</div>
-                                <div style="font-size: 0.8rem; color: rgba(255,255,255,0.5);">${displayArroba}</div>
-                                ${displayBio ? `<div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); max-width: 250px; line-height: 1.4;">${displayBio}</div>` : ''}
-                                <div id="select-model-cta" style="margin-top: 20px; font-size: 0.8rem; font-weight: 600; background: linear-gradient(135deg, #00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; padding: 8px 16px; border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; transition: all 0.2s;">✨ Selecione um modelo para continuar</div>
-                            </div>
-                        </div>
-                    `;
-                    // Torna o "Selecione um modelo" clicável para abrir o menu de modelos
-                    const selectModelCta = document.getElementById('select-model-cta');
-                    if (selectModelCta) {
-                        selectModelCta.addEventListener('click', () => {
-                            openDrawer(leftDrawer);
-                        });
-                    }
-                }
+                const classicCard = document.querySelector('.template-card[data-template="classic"]');
+                if (classicCard) classicCard.classList.add('is-selected');
+                loadTemplatePreview('classic', data);
             }
 
-            // Garante que o lápis da notificação seja ativado
+            const topActionBtn = document.querySelector('.top-action-btn');
             if (topActionBtn) {
                 topActionBtn.classList.remove('disabled');
             }
 
-            // Abre o Inspector somente se já tem um template carregado
-            if (currentTemplate) {
+            if (typeof openDrawer === 'function' && rightDrawer) {
                 openDrawer(rightDrawer);
             }
         }
