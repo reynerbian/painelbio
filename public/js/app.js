@@ -1533,6 +1533,57 @@ loadClassicModel();
             const activeModel = window.currentActiveModel || 'classic';
 
             // =========================================================================
+            // ADD-ON 1: ANÚNCIO FLUTUANTE DE TOPO (Funciona em TODOS os modelos)
+            // =========================================================================
+            const cardTopbanner = document.getElementById('card-addon-topbanner');
+            const isTopbannerActive = cardTopbanner && cardTopbanner.style.display !== 'none';
+            const phoneScreen = document.getElementById('phone-preview-screen');
+            let phoneTopBanner = document.getElementById('phone-live-top-banner');
+
+            if (isTopbannerActive) {
+                const tbText1 = document.getElementById('input-addon-tb-text1')?.value.trim() || '';
+                const tbText2 = document.getElementById('input-addon-tb-text2')?.value.trim() || '';
+                const tbText3 = document.getElementById('input-addon-tb-text3')?.value.trim() || '';
+                const tbBg = document.getElementById('input-addon-tb-bg')?.value || '#0f172a';
+                const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
+
+                const texts = [tbText1, tbText2, tbText3].filter(Boolean);
+
+                if (phoneScreen && texts.length > 0) {
+                    if (!phoneTopBanner) {
+                        phoneTopBanner = document.createElement('div');
+                        phoneTopBanner.id = 'phone-live-top-banner';
+                        phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;`;
+                        phoneScreen.prepend(phoneTopBanner);
+                    }
+                    phoneTopBanner.style.background = tbBg;
+                    phoneTopBanner.style.color = tbColor;
+                    phoneTopBanner.style.display = 'flex';
+                    phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
+
+                    window.phoneTbTexts = texts;
+                    if (!window.phoneTbInterval) {
+                        window.phoneTbIdx = 0;
+                        window.phoneTbInterval = setInterval(() => {
+                            const txtEl = document.getElementById('phone-tb-live-text');
+                            if (txtEl && window.phoneTbTexts && window.phoneTbTexts.length > 1) {
+                                txtEl.style.opacity = '0';
+                                setTimeout(() => {
+                                    window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                    txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+                                    txtEl.style.opacity = '1';
+                                }, 300);
+                            }
+                        }, 3500);
+                    }
+                } else if (phoneTopBanner) {
+                    phoneTopBanner.style.display = 'none';
+                }
+            } else if (phoneTopBanner) {
+                phoneTopBanner.style.display = 'none';
+            }
+
+            // =========================================================================
             // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
             // =========================================================================
             if (activeModel === 'vitrine') {
@@ -1567,6 +1618,13 @@ loadClassicModel();
                 const h1Img = document.getElementById('input-highlight1-img')?.value.trim() || '';
                 const h2Img = document.getElementById('input-highlight2-img')?.value.trim() || '';
                 const h3Img = document.getElementById('input-highlight3-img')?.value.trim() || '';
+
+                // Ajusta margem do topo se o banner estiver ativo
+                if (isTopbannerActive) {
+                    heroGrid.style.marginTop = '36px';
+                } else {
+                    heroGrid.style.marginTop = '0px';
+                }
 
                 // Mostra o Grid de Fotos APENAS se houver ao menos 1 URL preenchida
                 const hasAnyPhoto = Boolean(h1Img || h2Img || h3Img);
@@ -1676,6 +1734,13 @@ loadClassicModel();
 
             if (!viewCard) return;
 
+            // Ajusta margem do card se o banner estiver ativo
+            if (isTopbannerActive) {
+                viewCard.style.marginTop = '36px';
+            } else {
+                viewCard.style.marginTop = '0px';
+            }
+
             const avatarUrlInput = document.getElementById('input-avatar');
             const nameInput = document.getElementById('input-name');
             const arrobaInput = document.getElementById('input-arroba');
@@ -1687,15 +1752,6 @@ loadClassicModel();
             const btn2UrlInput = document.getElementById('input-btn2-url');
             const btn3TitleInput = document.getElementById('input-btn3-title');
             const btn3UrlInput = document.getElementById('input-btn3-url');
-            const btn4TitleInput = document.getElementById('input-btn4-title');
-            const btn4UrlInput = document.getElementById('input-btn4-url');
-
-            const h1ImgInput = document.getElementById('input-highlight1-img');
-            const h1TitleInput = document.getElementById('input-highlight1-title');
-            const h2ImgInput = document.getElementById('input-highlight2-img');
-            const h2TitleInput = document.getElementById('input-highlight2-title');
-            const h3ImgInput = document.getElementById('input-highlight3-img');
-            const h3TitleInput = document.getElementById('input-highlight3-title');
 
             const avatarUrl = avatarUrlInput ? avatarUrlInput.value.trim() : '';
             const name = nameInput ? nameInput.value.trim() : '';
@@ -1708,51 +1764,8 @@ loadClassicModel();
             const btn2Url = btn2UrlInput ? btn2UrlInput.value.trim() : '';
             const btn3Title = btn3TitleInput ? btn3TitleInput.value.trim() : '';
             const btn3Url = btn3UrlInput ? btn3UrlInput.value.trim() : '';
-            const btn4Title = btn4TitleInput ? btn4TitleInput.value.trim() : '';
-            const btn4Url = btn4UrlInput ? btn4UrlInput.value.trim() : '';
 
-            const h1Img = h1ImgInput ? h1ImgInput.value.trim() : '';
-            const h1Title = h1TitleInput ? h1TitleInput.value.trim() : '';
-            const h2Img = h2ImgInput ? h2ImgInput.value.trim() : '';
-            const h2Title = h2TitleInput ? h2TitleInput.value.trim() : '';
-            const h3Img = h3ImgInput ? h3ImgInput.value.trim() : '';
-            const h3Title = h3TitleInput ? h3TitleInput.value.trim() : '';
-
-            const hasVitrine = window.currentActiveModel === 'vitrine' || h1Img || h2Img || h3Img;
-            const viewVitrineGrid = document.getElementById('view-vitrine-grid');
-
-            if (viewVitrineGrid) {
-                if (hasVitrine) {
-                    viewVitrineGrid.style.display = 'grid';
-                    const img1 = document.getElementById('view-h1-img');
-                    const tag1 = document.getElementById('view-h1-tag');
-                    if (img1) img1.src = h1Img || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
-                    if (tag1) {
-                        if (h1Title) { tag1.textContent = h1Title; tag1.style.display = 'block'; }
-                        else { tag1.style.display = 'none'; }
-                    }
-
-                    const img2 = document.getElementById('view-h2-img');
-                    const tag2 = document.getElementById('view-h2-tag');
-                    if (img2) img2.src = h2Img || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
-                    if (tag2) {
-                        if (h2Title) { tag2.textContent = h2Title; tag2.style.display = 'block'; }
-                        else { tag2.style.display = 'none'; }
-                    }
-
-                    const img3 = document.getElementById('view-h3-img');
-                    const tag3 = document.getElementById('view-h3-tag');
-                    if (img3) img3.src = h3Img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
-                    if (tag3) {
-                        if (h3Title) { tag3.textContent = h3Title; tag3.style.display = 'block'; }
-                        else { tag3.style.display = 'none'; }
-                    }
-                } else {
-                    viewVitrineGrid.style.display = 'none';
-                }
-            }
-
-            const hasAnyContent = avatarUrl || name || arroba || bio || btn1Title || btn2Title || btn3Title || btn4Title || hasVitrine;
+            const hasAnyContent = avatarUrl || name || arroba || bio || btn1Title || btn2Title || btn3Title;
 
             if (!hasAnyContent) {
                 viewCard.style.display = "none";
@@ -1810,61 +1823,9 @@ loadClassicModel();
             if (btn3Title) {
                 buttonsHtml += `<div class="preview-btn" onclick="${btn3Url ? `window.open('${btn3Url}', '_blank')` : ''}">${btn3Title}</div>`;
             }
-            if (btn4Title) {
-                buttonsHtml += `<div class="preview-btn" onclick="${btn4Url ? `window.open('${btn4Url}', '_blank')` : ''}">${btn4Title}</div>`;
-            }
             viewLinks.innerHTML = buttonsHtml;
 
             viewFooter.style.display = "flex";
-
-            // Renderização do Add-on 1: Anúncio Flutuante de Topo no celular
-            const cardTopbanner = document.getElementById('card-addon-topbanner');
-            const isTopbannerActive = cardTopbanner && cardTopbanner.style.display !== 'none';
-            const phoneScreen = document.getElementById('phone-preview-screen');
-            let phoneTopBanner = document.getElementById('phone-live-top-banner');
-
-            if (isTopbannerActive) {
-                const tbText1 = document.getElementById('input-addon-tb-text1')?.value.trim() || '';
-                const tbText2 = document.getElementById('input-addon-tb-text2')?.value.trim() || '';
-                const tbText3 = document.getElementById('input-addon-tb-text3')?.value.trim() || '';
-                const tbBg = document.getElementById('input-addon-tb-bg')?.value || '#0f172a';
-                const tbColor = document.getElementById('input-addon-tb-color')?.value || '#38bdf8';
-
-                const texts = [tbText1, tbText2, tbText3].filter(Boolean);
-
-                if (phoneScreen && texts.length > 0) {
-                    if (!phoneTopBanner) {
-                        phoneTopBanner = document.createElement('div');
-                        phoneTopBanner.id = 'phone-live-top-banner';
-                        phoneTopBanner.style.cssText = `position: absolute; top: 46px; left: 0; width: 100%; padding: 8px 10px; font-size: 0.72rem; font-weight: 700; text-align: center; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1);`;
-                        phoneScreen.prepend(phoneTopBanner);
-                    }
-                    phoneTopBanner.style.background = tbBg;
-                    phoneTopBanner.style.color = tbColor;
-                    phoneTopBanner.style.display = 'flex';
-                    phoneTopBanner.innerHTML = `<span id="phone-tb-live-text" style="transition: opacity 0.3s;">${texts[0]}</span>`;
-
-                    window.phoneTbTexts = texts;
-                    if (!window.phoneTbInterval) {
-                        window.phoneTbIdx = 0;
-                        window.phoneTbInterval = setInterval(() => {
-                            const txtEl = document.getElementById('phone-tb-live-text');
-                            if (txtEl && window.phoneTbTexts && window.phoneTbTexts.length > 1) {
-                                txtEl.style.opacity = '0';
-                                setTimeout(() => {
-                                    window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                    txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                    txtEl.style.opacity = '1';
-                                }, 300);
-                            }
-                        }, 3500);
-                    }
-                } else if (phoneTopBanner) {
-                    phoneTopBanner.style.display = 'none';
-                }
-            } else if (phoneTopBanner) {
-                phoneTopBanner.style.display = 'none';
-            }
         }
 
         // Listener de entrada em tempo real para os inputs do formulário (vinculado dinamicamente)
