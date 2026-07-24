@@ -1572,12 +1572,12 @@ const leftIcon = document.querySelector('.left-icon');
                             btn3Url: document.getElementById('input-btn3-url')?.value || '',
                             btn4Title: document.getElementById('input-btn4-title')?.value || '',
                             btn4Url: document.getElementById('input-btn4-url')?.value || '',
-                            highlight1Img: document.getElementById('input-highlight1-img')?.value || '',
-                            highlight1Title: document.getElementById('input-highlight1-title')?.value || '',
-                            highlight2Img: document.getElementById('input-highlight2-img')?.value || '',
-                            highlight2Title: document.getElementById('input-highlight2-title')?.value || '',
-                            highlight3Img: document.getElementById('input-highlight3-img')?.value || '',
-                            highlight3Title: document.getElementById('input-highlight3-title')?.value || '',
+                            highlight1Img: document.getElementById('input-highlight1-img') ? document.getElementById('input-highlight1-img').value : (window.tempFormBackup?.highlight1Img || ''),
+                            highlight1Title: document.getElementById('input-highlight1-title') ? document.getElementById('input-highlight1-title').value : (window.tempFormBackup?.highlight1Title || ''),
+                            highlight2Img: document.getElementById('input-highlight2-img') ? document.getElementById('input-highlight2-img').value : (window.tempFormBackup?.highlight2Img || ''),
+                            highlight2Title: document.getElementById('input-highlight2-title') ? document.getElementById('input-highlight2-title').value : (window.tempFormBackup?.highlight2Title || ''),
+                            highlight3Img: document.getElementById('input-highlight3-img') ? document.getElementById('input-highlight3-img').value : (window.tempFormBackup?.highlight3Img || ''),
+                            highlight3Title: document.getElementById('input-highlight3-title') ? document.getElementById('input-highlight3-title').value : (window.tempFormBackup?.highlight3Title || ''),
                             addonTopbannerActive: document.getElementById('card-addon-topbanner')?.style.display !== 'none',
                             addonTopbannerText1: document.getElementById('input-addon-tb-text1')?.value || '',
                             addonTopbannerText2: document.getElementById('input-addon-tb-text2')?.value || '',
@@ -2761,12 +2761,12 @@ loadClassicModel();
                         name: document.getElementById('input-name')?.value.trim() || '',
                         avatar: document.getElementById('input-avatar')?.value.trim() || '',
                         bio: document.getElementById('input-bio')?.value.trim() || '',
-                        highlight1Img: document.getElementById('input-highlight1-img')?.value.trim() || '',
-                        highlight1Title: document.getElementById('input-highlight1-title')?.value.trim() || '',
-                        highlight2Img: document.getElementById('input-highlight2-img')?.value.trim() || '',
-                        highlight2Title: document.getElementById('input-highlight2-title')?.value.trim() || '',
-                        highlight3Img: document.getElementById('input-highlight3-img')?.value.trim() || '',
-                        highlight3Title: document.getElementById('input-highlight3-title')?.value.trim() || '',
+                        highlight1Img: document.getElementById('input-highlight1-img') ? document.getElementById('input-highlight1-img').value.trim() : (window.tempFormBackup?.highlight1Img || ''),
+                        highlight1Title: document.getElementById('input-highlight1-title') ? document.getElementById('input-highlight1-title').value.trim() : (window.tempFormBackup?.highlight1Title || ''),
+                        highlight2Img: document.getElementById('input-highlight2-img') ? document.getElementById('input-highlight2-img').value.trim() : (window.tempFormBackup?.highlight2Img || ''),
+                        highlight2Title: document.getElementById('input-highlight2-title') ? document.getElementById('input-highlight2-title').value.trim() : (window.tempFormBackup?.highlight2Title || ''),
+                        highlight3Img: document.getElementById('input-highlight3-img') ? document.getElementById('input-highlight3-img').value.trim() : (window.tempFormBackup?.highlight3Img || ''),
+                        highlight3Title: document.getElementById('input-highlight3-title') ? document.getElementById('input-highlight3-title').value.trim() : (window.tempFormBackup?.highlight3Title || ''),
                         btn1Title: document.getElementById('input-btn1-title')?.value.trim() || '',
                         btn1Url: document.getElementById('input-btn1-url')?.value.trim() || '',
                         btn2Title: document.getElementById('input-btn2-title')?.value.trim() || '',
@@ -3028,14 +3028,33 @@ loadClassicModel();
                     clearTimeout(timeoutId);
 
                     if (response.ok) {
-                        const result = await response.json();
-                        if (result && result.full_name) {
-                            const hdPic = result.hd_profile_pic_url_info?.url || result.profile_pic_url || '';
-                            scrapedRealData = {
-                                name: result.full_name || cleanArroba,
-                                bio: result.biography || '',
-                                avatar: hdPic ? `https://wsrv.nl/?url=${encodeURIComponent(hdPic)}` : ''
-                            };
+                          const result = await response.json();
+                          console.log("RapidAPI Search Result:", result);
+                          if (result && result.full_name) {
+                              const hdPic = result.hd_profile_pic_url_info?.url || result.profile_pic_url || '';
+                              
+                              // Tenta obter posts do JSON da RapidAPI
+                              let scrapedImages = [];
+                              const posts = result.edge_owner_to_timeline_media?.edges || result.edges || result.posts || result.last_posts || result.recent_posts;
+                              if (posts && Array.isArray(posts)) {
+                                  for (const post of posts) {
+                                      const node = post.node || post;
+                                      const imgUrl = node.display_url || node.display_src || node.image || node.thumbnail || node.thumbnail_src || node.url;
+                                      if (imgUrl && typeof imgUrl === 'string') {
+                                          scrapedImages.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
+                                      }
+                                      if (scrapedImages.length >= 3) break;
+                                  }
+                              }
+                              
+                              scrapedRealData = {
+                                  name: result.full_name || cleanArroba,
+                                  bio: result.biography || '',
+                                  avatar: hdPic ? `https://wsrv.nl/?url=${encodeURIComponent(hdPic)}` : '',
+                                  highlight1Img: scrapedImages[0] || '',
+                                  highlight2Img: scrapedImages[1] || '',
+                                  highlight3Img: scrapedImages[2] || ''
+                              };
                             addScraperLog(`Sucesso! Nome: ${scrapedRealData.name}`, 'success');
                             if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
                         } else {
@@ -3078,6 +3097,9 @@ loadClassicModel();
                 if (scrapedRealData.avatar) {
                     generatedData.avatar = scrapedRealData.avatar;
                 }
+                if (scrapedRealData.highlight1Img) generatedData.highlight1Img = scrapedRealData.highlight1Img;
+                if (scrapedRealData.highlight2Img) generatedData.highlight2Img = scrapedRealData.highlight2Img;
+                if (scrapedRealData.highlight3Img) generatedData.highlight3Img = scrapedRealData.highlight3Img;
             }
 
             // Pós-processador inteligente de nicho e botões fakes: SÓ roda se o switch de dados fakes estiver ativado!
