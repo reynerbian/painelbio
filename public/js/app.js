@@ -3044,7 +3044,7 @@ loadClassicModel();
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_profile_and_medias.php?username=${encodeURIComponent(cleanArroba)}&response_type=feeds&corsEnabled=false`, {
+                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
                         method: 'GET',
                         headers: {
                             'x-rapidapi-key': RAPIDAPI_KEY,
@@ -3089,8 +3089,20 @@ loadClassicModel();
 
                     if (response.ok) {
                         const result = await response.json();
-                        console.log('[PainelBio] API RAW RESULT:', JSON.stringify(result).substring(0, 500));
-                        addScraperLog(`Debug: chaves no resultado = ${Object.keys(result || {}).join(', ')}`, 'info');
+                        console.log('[PainelBio] RESULTADO COMPLETO DA API:', result);
+                        
+                        // Diagnóstico no sininho
+                        const topKeys = Object.keys(result || {}).join(', ');
+                        addScraperLog(`Chaves recebidas: ${topKeys}`, 'info');
+                        if (result.user_data) {
+                            const udKeys = Object.keys(result.user_data).join(', ');
+                            addScraperLog(`user_data: ${udKeys}`, 'info');
+                            addScraperLog(`biography: "${result.user_data.biography || '(vazio)'}"`, 'info');
+                            addScraperLog(`full_name: "${result.user_data.full_name || '(vazio)'}"`, 'info');
+                        }
+                        if (result.user_posts) {
+                            addScraperLog(`user_posts: ${result.user_posts.length} itens`, 'info');
+                        }
                         
                         // Atualiza as cotas da chave ativa a partir dos headers
                         const remaining = response.headers.get('x-ratelimit-requests-remaining');
