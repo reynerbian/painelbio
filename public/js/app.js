@@ -804,6 +804,30 @@ const leftIcon = document.querySelector('.left-icon');
             </script>
             ` : '';
 
+            // ADD-ON 2: CHUVA DE EMOJI
+            const hasEmojiRain = Boolean(data.addonEmojiRainActive && data.addonEmojiRainEmoji);
+            const erEmoji = data.addonEmojiRainEmoji || '🌸';
+            const erCount = Math.min(Math.max(parseInt(data.addonEmojiRainCount || 8, 10), 1), 20);
+            const erSpeed = data.addonEmojiRainSpeed || 'normal';
+            const erCoverage = Math.min(Math.max(parseInt(data.addonEmojiRainCoverage || 80, 10), 10), 100);
+            const erRotate = Boolean(data.addonEmojiRainRotate);
+            const erDurMap = { slow: 6, normal: 3.5, fast: 1.8 };
+            const erBase = erDurMap[erSpeed] || 3.5;
+            let emojiRainHtml = '';
+            if (hasEmojiRain) {
+                let particles = '';
+                for (let i = 0; i < erCount; i++) {
+                    const sz  = (1.2 + Math.random() * 1.5).toFixed(2);
+                    const lft = (Math.random() * 90).toFixed(1);
+                    const dur = (erBase * (0.7 + Math.random() * 0.7)).toFixed(2);
+                    const dly = -(Math.random() * erBase * 2).toFixed(2);
+                    let animName = 'pb-emojifall';
+                    if (erRotate) animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
+                    particles += `<span style="position:absolute;top:0;left:${lft}%;font-size:${sz}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite;">${erEmoji}</span>`;
+                }
+                emojiRainHtml = `<style>@keyframes pb-emojifall{0%{transform:translateY(-80px);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh);opacity:0}}@keyframes pb-emojifall-cw{0%{transform:translateY(-80px) rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh) rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{transform:translateY(-80px) rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{transform:translateY(110vh) rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:fixed;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
+            }
+
             if (isVitrine) {
                 const h1 = data.highlight1Img || '';
                 const h2 = data.highlight2Img || '';
@@ -1015,6 +1039,7 @@ const leftIcon = document.querySelector('.left-icon');
 </head>
 <body>
     ${topBannerHtml}
+    ${emojiRainHtml}
     <div class="v-container">
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
@@ -1240,6 +1265,7 @@ const leftIcon = document.querySelector('.left-icon');
 </head>
 <body>
     ${topBannerHtml}
+    ${emojiRainHtml}
     <div class="preview-bio-page">
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
@@ -1826,7 +1852,8 @@ loadClassicModel();
                     'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8',
                     'input-addon-tb-pause': backup.addonTopbannerPause || 2,
                     'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
-                    'input-addon-er-count': backup.addonEmojiRainCount || 8
+                    'input-addon-er-count': backup.addonEmojiRainCount || 8,
+                    'input-addon-er-coverage': backup.addonEmojiRainCoverage || 80
                 };
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
@@ -1853,6 +1880,16 @@ loadClassicModel();
                 const erSpeedEl = document.getElementById('select-addon-er-speed');
                 if (erSpeedEl && backup.addonEmojiRainSpeed) {
                     erSpeedEl.value = backup.addonEmojiRainSpeed;
+                }
+                const erRotateEl = document.getElementById('input-addon-er-rotate');
+                if (erRotateEl && backup.addonEmojiRainRotate !== undefined) {
+                    erRotateEl.checked = Boolean(backup.addonEmojiRainRotate);
+                }
+                const erCoverLabelEl = document.getElementById('label-addon-er-coverage');
+                const erCoverInputEl = document.getElementById('input-addon-er-coverage');
+                if (erCoverLabelEl && erCoverInputEl) {
+                    erCoverLabelEl.textContent = (backup.addonEmojiRainCoverage || 80) + '%';
+                    erCoverInputEl.value = backup.addonEmojiRainCoverage || 80;
                 }
                 
                 if (backup.bioAlign) {
@@ -1997,22 +2034,25 @@ loadClassicModel();
                 const erEmoji = document.getElementById('input-addon-er-emoji')?.value.trim() || '🌸';
                 const erCount = parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10);
                 const erSpeed = document.getElementById('select-addon-er-speed')?.value || 'normal';
+                const erCoverage = parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10);
+                const erRotate = document.getElementById('input-addon-er-rotate')?.checked || false;
                 const durationMap = { slow: 6, normal: 3.5, fast: 1.8 };
                 const baseDuration = durationMap[erSpeed] || 3.5;
 
-                const configKey = `${erEmoji}_${erCount}_${erSpeed}`;
+                const configKey = `${erEmoji}_${erCount}_${erSpeed}_${erCoverage}_${erRotate}`;
                 if (window.phoneErConfigKey !== configKey) {
                     window.phoneErConfigKey = configKey;
 
                     if (!phoneEmojiRain) {
                         phoneEmojiRain = document.createElement('div');
                         phoneEmojiRain.id = 'phone-live-emoji-rain';
-                        phoneEmojiRain.style.cssText = 'position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;';
                         if (phoneScreen) phoneScreen.prepend(phoneEmojiRain);
                     } else {
                         phoneEmojiRain.innerHTML = '';
-                        phoneEmojiRain.style.display = 'block';
+                        phoneEmojiRain.style.display = '';
                     }
+                    // z-index: 0 = atrás de todo conteúdo posicionado (cards, texto, botões)
+                    phoneEmojiRain.style.cssText = `position: absolute; top: 0; left: 0; right: 0; height: ${erCoverage}%; overflow: hidden; pointer-events: none; z-index: 0;`;
 
                     const styleId = 'phone-emoji-rain-style';
                     let styleEl = document.getElementById(styleId);
@@ -2021,17 +2061,25 @@ loadClassicModel();
                         styleEl.id = styleId;
                         document.head.appendChild(styleEl);
                     }
-                    styleEl.textContent = `@keyframes pb-emojifall { 0% { transform: translateY(-60px); opacity: 0; } 10% { opacity: 0.38; } 90% { opacity: 0.38; } 100% { transform: translateY(115%); opacity: 0; } }`;
+                    styleEl.textContent = `
+                        @keyframes pb-emojifall    { 0%{transform:translateY(-60px);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%);opacity:0} }
+                        @keyframes pb-emojifall-cw { 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%) rotate(540deg);opacity:0} }
+                        @keyframes pb-emojifall-ccw{ 0%{transform:translateY(-60px) rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{transform:translateY(115%) rotate(-540deg);opacity:0} }
+                    `;
 
                     const count = Math.min(Math.max(erCount, 1), 20);
                     for (let i = 0; i < count; i++) {
                         const span = document.createElement('span');
                         const size = (1.2 + Math.random() * 1.2).toFixed(2);
                         const left = (Math.random() * 90).toFixed(1);
-                        const duration = (baseDuration * (0.8 + Math.random() * 0.6)).toFixed(2);
+                        const duration = (baseDuration * (0.7 + Math.random() * 0.7)).toFixed(2);
                         const delay = -(Math.random() * baseDuration * 2).toFixed(2);
+                        let animName = 'pb-emojifall';
+                        if (erRotate) {
+                            animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
+                        }
                         span.textContent = erEmoji;
-                        span.style.cssText = `position: absolute; top: 0; left: ${left}%; font-size: ${size}rem; filter: blur(2px); pointer-events: none; animation: pb-emojifall ${duration}s linear ${delay}s infinite;`;
+                        span.style.cssText = `position: absolute; top: 0; left: ${left}%; font-size: ${size}rem; filter: blur(2px); pointer-events: none; animation: ${animName} ${duration}s linear ${delay}s infinite;`;
                         phoneEmojiRain.appendChild(span);
                     }
                 }
@@ -2403,6 +2451,39 @@ loadClassicModel();
                 });
             }
 
+            // Emoji catalog: clique nos botões para preencher o campo
+            const emojiCatalogBtns = document.querySelectorAll('.emoji-pick-btn');
+            emojiCatalogBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const emojiInput = document.getElementById('input-addon-er-emoji');
+                    if (emojiInput) {
+                        emojiInput.value = btn.getAttribute('data-emoji');
+                        window.phoneErConfigKey = null; // força rebuild
+                        updatePreviewFromForm();
+                    }
+                });
+            });
+
+            // Coverage slider: atualiza label ao vivo
+            const coverageInput = document.getElementById('input-addon-er-coverage');
+            const coverageLabel = document.getElementById('label-addon-er-coverage');
+            if (coverageInput && coverageLabel) {
+                coverageInput.addEventListener('input', () => {
+                    coverageLabel.textContent = coverageInput.value + '%';
+                    window.phoneErConfigKey = null; // força rebuild
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Rotate checkbox: rebuild ao mudar
+            const erRotateInput = document.getElementById('input-addon-er-rotate');
+            if (erRotateInput) {
+                erRotateInput.addEventListener('change', () => {
+                    window.phoneErConfigKey = null;
+                    updatePreviewFromForm();
+                });
+            }
+
             // Clique no botão buscar imagem
             const btnSearchAvatar = document.getElementById('btn-search-avatar');
             if (btnSearchAvatar) {
@@ -2476,6 +2557,8 @@ loadClassicModel();
                         addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value.trim() || '',
                         addonEmojiRainCount: parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10),
                         addonEmojiRainSpeed: document.getElementById('select-addon-er-speed')?.value || 'normal',
+                        addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10),
+                        addonEmojiRainRotate: document.getElementById('input-addon-er-rotate')?.checked || false,
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };
