@@ -3523,10 +3523,11 @@ loadClassicModel();
 
 function getApiKeys() {
     let keys = JSON.parse(localStorage.getItem('painelbio-api-keys'));
-    if (!keys || !Array.isArray(keys) || keys.length === 0) {
+    // Se não houver chaves ou se a primeira chave for a antiga bloqueada, atualiza para a nova chave ativa
+    if (!keys || !Array.isArray(keys) || keys.length === 0 || keys[0].key === '045b178d42msh8ab87b110533394p1397eajsn3ac55c365582') {
         keys = [
             {
-                key: '045b178d42msh8ab87b110533394p1397eajsn3ac55c365582',
+                key: '0e3e97244emsh041247f2ed4cb16p17e6fdjsn9789bef4bce1',
                 remaining: null,
                 limit: null,
                 resetSeconds: null,
@@ -3568,6 +3569,8 @@ function parseAndLoadScrapedData(result) {
                     imgUrl = post.node.media_dict.image_versions2.candidates[0].url;
                 } else if (post.node && post.node.image_versions2 && post.node.image_versions2.candidates) {
                     imgUrl = post.node.image_versions2.candidates[0].url;
+                } else if (post.node && post.node.display_url) {
+                    imgUrl = post.node.display_url;
                 }
                 if (imgUrl) {
                     posts.push(`https://wsrv.nl/?url=${encodeURIComponent(imgUrl)}`);
@@ -3580,7 +3583,7 @@ function parseAndLoadScrapedData(result) {
             addScraperLog('Aviso: Nenhuma imagem encontrada no feed.', 'warning');
         }
         
-        scrapedRealData = {
+        const parsedData = {
             name: userData.full_name || userData.username,
             bio: userData.biography || '',
             avatar: userData.hd_profile_pic_url_info?.url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.hd_profile_pic_url_info.url)}` : (userData.profile_pic_url ? `https://wsrv.nl/?url=${encodeURIComponent(userData.profile_pic_url)}` : ''),
@@ -3593,11 +3596,14 @@ function parseAndLoadScrapedData(result) {
             addScraperLog('Aviso: Biografia vazia ou indisponível no perfil.', 'warning');
         }
         
-        addScraperLog(`Sucesso! Nome: ${scrapedRealData.name}`, 'success');
+        addScraperLog(`Sucesso! Nome: ${parsedData.name}`, 'success');
         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
+        
+        return parsedData;
     } else {
         addScraperLog('Erro: Estrutura de dados inválida retornada.', 'error');
         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
+        return null;
     }
 }
 
