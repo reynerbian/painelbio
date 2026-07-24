@@ -3030,8 +3030,10 @@ loadClassicModel();
                           console.log("RapidAPI Search Result:", result);
                           
                           const userData = result.user_data || result;
-                          if (userData && (userData.full_name || userData.username)) {
-                              const hdPic = userData.hd_profile_pic_url_info?.url || userData.profile_pic_url || '';
+                          if (userData && (userData.full_name || userData.username || userData.name)) {
+                              const hdPic = userData.hd_profile_pic_url_info?.url || userData.profile_pic_url || userData.avatar || '';
+                              const profileName = userData.full_name || userData.name || userData.username || cleanArroba;
+                              const profileBio = userData.biography || userData.bio || userData.description || userData.about || '';
                               
                               // Tenta obter posts do JSON da RapidAPI usando a nova estrutura de user_posts
                               let scrapedImages = [];
@@ -3049,13 +3051,27 @@ loadClassicModel();
                               }
                               
                               scrapedRealData = {
-                                  name: userData.full_name || cleanArroba,
-                                  bio: userData.biography || '',
+                                  name: profileName,
+                                  bio: profileBio,
                                   avatar: hdPic ? `https://wsrv.nl/?url=${encodeURIComponent(hdPic)}` : '',
                                   highlight1Img: scrapedImages[0] || '',
                                   highlight2Img: scrapedImages[1] || '',
                                   highlight3Img: scrapedImages[2] || ''
                               };
+                              
+                              // Notificações de log detalhadas no Sininho
+                              addScraperLog(`Perfil carregado: ${profileName}`, 'success');
+                              if (profileBio) {
+                                  addScraperLog(`Biografia importada (${profileBio.substring(0, 30)}...)`, 'success');
+                              } else {
+                                  addScraperLog('Aviso: Biografia vazia ou indisponível no perfil.', 'warning');
+                              }
+                              
+                              if (scrapedImages.length > 0) {
+                                  addScraperLog(`Sucesso: ${scrapedImages.length} fotos do feed importadas.`, 'success');
+                              } else {
+                                  addScraperLog('Aviso: Nenhuma imagem encontrada no feed (perfil sem posts ou privado).', 'warning');
+                              }
                             addScraperLog(`Sucesso! Nome: ${scrapedRealData.name}`, 'success');
                             if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge success'; }
                         } else {
