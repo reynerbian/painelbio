@@ -2829,7 +2829,7 @@ loadClassicModel();
                             setTimeout(() => {
                                 btnSave.textContent = originalText;
                                 btnSave.classList.remove('saved-success');
-                            }, pauseBetweenSec * 1000);
+                            }, 3500);
                         }
                     } catch (err) {
                         console.error('Erro ao salvar:', err);
@@ -2838,7 +2838,7 @@ loadClassicModel();
                             btnSave.style.opacity = '1';
                             setTimeout(() => {
                                 btnSave.textContent = originalText;
-                            }, pauseBetweenSec * 1000);
+                            }, 3500);
                         }
                         showCustomAlert('Houve um erro ao publicar: ' + err.message, 'error');
                     }
