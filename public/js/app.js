@@ -2318,6 +2318,75 @@ loadClassicModel();
             }
 
             // =========================================================================
+            // ADD-ON 3: RODOPIO DO AVATAR (Giro 3D desacelerando ao abrir o site)
+            // =========================================================================
+            const cardAvatarSpinCheck = document.getElementById('card-addon-avatarspin');
+            const isAvatarSpinActive = cardAvatarSpinCheck && cardAvatarSpinCheck.style.display !== 'none';
+
+            // Injeta o @keyframes do rodopio uma única vez no <head>
+            if (!document.getElementById('pb-avatarspin-style')) {
+                const styleEl = document.createElement('style');
+                styleEl.id = 'pb-avatarspin-style';
+                styleEl.textContent = `
+                    @keyframes pb-avatarspin {
+                        0%   { transform: rotateY(0deg) scale(1); }
+                        20%  { transform: rotateY(calc(var(--spin-total) * 0.2)) scale(1.08); }
+                        60%  { transform: rotateY(calc(var(--spin-total) * 0.7)) scale(1.03); }
+                        85%  { transform: rotateY(calc(var(--spin-total) * 0.93)) scale(1.01); }
+                        95%  { transform: rotateY(calc(var(--spin-total) * 0.98)) scale(1.005); }
+                        100% { transform: rotateY(var(--spin-total)) scale(1); }
+                    }
+                `;
+                document.head.appendChild(styleEl);
+            }
+
+            // Pega o container do avatar dependendo do modelo ativo
+            const liveAvatarEl = activeModel === 'vitrine'
+                ? document.getElementById('v-view-avatar-wrapper')
+                : document.getElementById('view-avatar-container');
+
+            if (isAvatarSpinActive && liveAvatarEl) {
+                const asDuration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
+                const asSpins = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+                const asRepeat = document.getElementById('input-addon-as-repeat')?.checked || false;
+                const asInterval = parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10);
+                const totalDeg = asSpins * 360;
+
+                liveAvatarEl.style.setProperty('--spin-total', `${totalDeg}deg`);
+                liveAvatarEl.style.perspective = '600px';
+                liveAvatarEl.style.transformStyle = 'preserve-3d';
+
+                // Dispara a animação inicial
+                const configKey = `${asDuration}_${asSpins}_${asRepeat}_${asInterval}`;
+                if (window.phoneAsConfigKey !== configKey) {
+                    window.phoneAsConfigKey = configKey;
+                    // Cancela timer de repetição anterior se houver
+                    if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
+
+                    // Função que dispara um ciclo de giro
+                    const doSpin = () => {
+                        liveAvatarEl.style.animation = 'none';
+                        liveAvatarEl.offsetHeight; // reflow forçado para reiniciar
+                        liveAvatarEl.style.animation = `pb-avatarspin ${asDuration}s cubic-bezier(0.15, 0.05, 0.3, 1) forwards`;
+                    };
+
+                    doSpin();
+
+                    if (asRepeat) {
+                        window.phoneAsRepeatTimer = setInterval(() => {
+                            doSpin();
+                        }, (asDuration + asInterval) * 1000);
+                    }
+                }
+            } else if (liveAvatarEl) {
+                // Remove a animação se o add-on foi desativado
+                liveAvatarEl.style.animation = '';
+                liveAvatarEl.style.perspective = '';
+                if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
+                window.phoneAsConfigKey = null;
+            }
+
+            // =========================================================================
             // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
             // =========================================================================
             if (activeModel === 'vitrine') {
@@ -2739,6 +2808,53 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 3: RODOPIO DO AVATAR
+            // ==========================================
+            const btnEnableAvatarSpin = document.getElementById('btn-enable-avatarspin-addon');
+            const cardAvatarSpin = document.getElementById('card-addon-avatarspin');
+            const btnRemoveAvatarSpin = document.getElementById('btn-remove-avatarspin-addon');
+
+            if (btnEnableAvatarSpin && cardAvatarSpin) {
+                btnEnableAvatarSpin.addEventListener('click', () => {
+                    cardAvatarSpin.style.display = 'block';
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    updatePreviewFromForm();
+                    setTimeout(() => {
+                        cardAvatarSpin.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveAvatarSpin && cardAvatarSpin) {
+                btnRemoveAvatarSpin.addEventListener('click', () => {
+                    cardAvatarSpin.style.display = 'none';
+                    // Remove animação do avatar no preview
+                    const liveAvatar = document.getElementById('view-avatar-container') || document.getElementById('v-view-avatar-wrapper');
+                    if (liveAvatar) liveAvatar.style.animation = '';
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Checkbox de repetição do giro
+            const asRepeatChk = document.getElementById('input-addon-as-repeat');
+            const asIntervalCont = document.getElementById('container-addon-as-interval');
+            if (asRepeatChk && asIntervalCont) {
+                asRepeatChk.addEventListener('change', () => {
+                    asIntervalCont.style.display = asRepeatChk.checked ? 'block' : 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Botão testar animação agora
+            const btnPreviewSpin = document.getElementById('btn-preview-avatarspin');
+            if (btnPreviewSpin) {
+                btnPreviewSpin.addEventListener('click', () => {
+                    triggerAvatarSpinPreview();
+                });
+            }
+
             // Clique no botão buscar imagem
             const btnSearchAvatar = document.getElementById('btn-search-avatar');
             if (btnSearchAvatar) {
@@ -2814,6 +2930,11 @@ loadClassicModel();
                         addonEmojiRainSpeed: document.getElementById('select-addon-er-speed')?.value || 'normal',
                         addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10),
                         addonEmojiRainRotate: document.getElementById('input-addon-er-rotate')?.checked || false,
+                        addonAvatarSpinActive: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
+                        addonAvatarSpinDuration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
+                        addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
+                        addonAvatarSpinRepeat: document.getElementById('input-addon-as-repeat')?.checked || false,
+                        addonAvatarSpinInterval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };
@@ -3585,6 +3706,32 @@ loadClassicModel();
             }
             showCustomAlert(`Site ${siteData.arroba} carregado com sucesso!`, 'success');
         }
+
+// ==========================================
+// ADD-ON 3: FUNÇÃO DE TESTE IMEDIATO DO RODOPIO
+// ==========================================
+function triggerAvatarSpinPreview() {
+    const activeModel = window.currentActiveModel || 'classic';
+    const liveAvatarEl = activeModel === 'vitrine'
+        ? document.getElementById('v-view-avatar-wrapper')
+        : document.getElementById('view-avatar-container');
+
+    if (!liveAvatarEl) return;
+
+    const asDuration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
+    const asSpins = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+    const totalDeg = asSpins * 360;
+
+    liveAvatarEl.style.setProperty('--spin-total', `${totalDeg}deg`);
+    liveAvatarEl.style.perspective = '600px';
+    liveAvatarEl.style.transformStyle = 'preserve-3d';
+    liveAvatarEl.style.animation = 'none';
+    liveAvatarEl.offsetHeight; // reflow
+    liveAvatarEl.style.animation = `pb-avatarspin ${asDuration}s cubic-bezier(0.15, 0.05, 0.3, 1) forwards`;
+
+    // Reseta o configKey para que a próxima chamada ao updatePreview reconheça a nova config
+    window.phoneAsConfigKey = null;
+}
 
 // ==========================================
 // SISTEMA DE CONFIGURAÇÃO DE CHAVES API ROTATIVAS

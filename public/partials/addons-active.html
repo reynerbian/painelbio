@@ -143,3 +143,54 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Card do Add-on 3: Rodopio do Avatar -->
+            <div id="card-addon-avatarspin" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-avatarspin-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🌀 Add-on Ativo: Rodopio do Avatar
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Quando o visitante abre o site, a foto de perfil dá um giro completo em 3D e vai desacelerando até parar, igual a uma moeda girando.
+                </p>
+
+                <!-- Duração do giro -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="input-addon-as-duration" style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+                        ⏱️ Duração do Rodopio (segundos):
+                    </label>
+                    <input type="number" id="input-addon-as-duration" value="3" min="1" max="10" step="0.5"
+                        style="width: 100%; font-size: 1rem; font-weight: 700; padding: 10px 14px; border-radius: 8px; background: #0f172a; color: #f59e0b; border: 1px solid #f59e0b55; box-sizing: border-box; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #475569; margin-top: 4px; text-align: center;">1 segundo = giro rápido · 10 segundos = giro bem lento e elegante</div>
+                </div>
+
+                <!-- Número de voltas -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="input-addon-as-spins" style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+                        🔁 Número de Voltas (rotações):
+                    </label>
+                    <input type="number" id="input-addon-as-spins" value="4" min="1" max="20"
+                        style="width: 100%; font-size: 1rem; font-weight: 700; padding: 10px 14px; border-radius: 8px; background: #0f172a; color: #f59e0b; border: 1px solid #f59e0b55; box-sizing: border-box; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #475569; margin-top: 4px; text-align: center;">Ex: 4 voltas completas antes de parar.</div>
+                </div>
+
+                <!-- Repetir? -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 10px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <label for="input-addon-as-repeat" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer;">
+                        🔂 Repetir o giro a cada X segundos:
+                    </label>
+                    <input type="checkbox" id="input-addon-as-repeat" style="width: 18px; height: 18px; cursor: pointer; accent-color: #f59e0b;">
+                </div>
+                <div id="container-addon-as-interval" style="display: none; margin-top: 10px;">
+                    <label for="input-addon-as-interval" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Intervalo entre cada giro (segundos):</label>
+                    <input type="number" id="input-addon-as-interval" value="5" min="2" max="60"
+                        style="width: 100%; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Preview rápido -->
+                <button type="button" id="btn-preview-avatarspin" style="margin-top: 14px; width: 100%; background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    ▶ Testar Animação Agora
+                </button>
+            </div>
