@@ -3003,23 +3003,23 @@ loadClassicModel();
                 scraperBadge.className = 'notification-badge';
             }
             addScraperLog(`Iniciando busca do perfil @${cleanArroba}...`, 'info');
+            console.log(`[PainelBio Search] ----------------------------------------`);
+            console.log(`[PainelBio Search] 🔍 Nova busca iniciada para o perfil: @${cleanArroba}`);
 
             // Busca via RapidAPI Instagram Scraper (direto do navegador, sem servidor)
             try {
-                const isMockUser = cleanArroba.includes('test') || cleanArroba.includes('mock');
-                const isLocal = isMockUser ||
-                                window.location.hostname === 'localhost' || 
-                                window.location.hostname === '127.0.0.1' || 
-                                window.location.hostname.startsWith('192.168.') || 
-                                window.location.protocol === 'file:';
+                const isMockUser = cleanArroba === 'test' || cleanArroba === 'mock';
 
-                if (isLocal) {
-                    addScraperLog('Modo Teste Local Ativo! Lendo dados salvos...', 'info');
+                if (isMockUser) {
+                    console.log(`[PainelBio Search] 🧪 Modo Mock Ativo para usuario de teste (@${cleanArroba}). Lendo /mocks/instagram-response.json...`);
+                    addScraperLog('Modo Teste Mock Ativo! Lendo dados salvos...', 'info');
                     const response = await fetch('/mocks/instagram-response.json');
                     if (response.ok) {
                         const result = await response.json();
                         scrapedRealData = parseAndLoadScrapedData(result, cleanArroba);
+                        console.log('[PainelBio Search] ✅ Dados Mock carregados com sucesso:', scrapedRealData);
                     } else {
+                        console.error('[PainelBio Search] ❌ Erro ao carregar o mock de testes local.');
                         addScraperLog('Erro ao carregar o mock de testes local.', 'error');
                     }
                 } else {
@@ -3035,16 +3035,21 @@ loadClassicModel();
                     const RAPIDAPI_KEY = activeKeyItem ? activeKeyItem.key : '';
 
                     if (!RAPIDAPI_KEY) {
+                        console.error('[PainelBio Search] ❌ Nenhuma chave RapidAPI configurada!');
                         addScraperLog('Nenhuma chave API configurada. Clique na engrenagem ⚙️ para cadastrar uma chave.', 'error');
                         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
                         return;
                     }
 
+                    console.log(`[PainelBio Search] 🔑 Conectando à RapidAPI usando a Chave ${activeIndex + 1} (Final ${RAPIDAPI_KEY.slice(-6)})...`);
                     addScraperLog(`Conectando à RapidAPI usando Chave ${activeIndex + 1}...`, 'info');
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-                    const response = await fetch(`https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`, {
+                    const apiUrl = `https://instagram-scraper-stable-api.p.rapidapi.com/ig_get_fb_profile_hover.php?username=${encodeURIComponent(cleanArroba)}&username_or_url=${encodeURIComponent(cleanArroba)}`;
+                    console.log(`[PainelBio Search] 🌐 URL da API: ${apiUrl}`);
+
+                    const response = await fetch(apiUrl, {
                         method: 'GET',
                         headers: {
                             'x-rapidapi-key': RAPIDAPI_KEY,
@@ -3054,8 +3059,11 @@ loadClassicModel();
                     });
                     clearTimeout(timeoutId);
 
+                    console.log(`[PainelBio Search] 📡 Resposta HTTP da RapidAPI: Status ${response.status} ${response.statusText}`);
+
                     // Se der limite esgotado (429), tenta a próxima chave
                     if (response.status === 429) {
+                        console.warn(`[PainelBio Search] ⚠️ Chave ${activeIndex + 1} esgotada (Erro 429). Tentando rotacionar...`);
                         addScraperLog(`Chave ${activeIndex + 1} esgotada (Erro 429)...`, 'warning');
                         if (activeKeyItem) {
                             activeKeyItem.isBlocked = true;
@@ -3077,10 +3085,12 @@ loadClassicModel();
                         }
 
                         if (nextIndex !== activeIndex && !keys[nextIndex].isBlocked) {
+                            console.log(`[PainelBio Search] 🔄 Rotacionando para a Chave ${nextIndex + 1}...`);
                             addScraperLog(`Rotacionando automaticamente para a Chave ${nextIndex + 1}...`, 'info');
                             setActiveKeyIndex(nextIndex);
                             return generateInstagramBio(arrobaInput); // Recursão!
                         } else {
+                            console.error('[PainelBio Search] ❌ Todas as chaves de API cadastradas estão esgotadas!');
                             addScraperLog('Todas as chaves de API cadastradas estão esgotadas!', 'error');
                             if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
                             return;
@@ -3089,19 +3099,16 @@ loadClassicModel();
 
                     if (response.ok) {
                         const result = await response.json();
-                        console.log('[PainelBio] RESULTADO COMPLETO DA API:', result);
+                        console.log('[PainelBio Search] 🎉 RESULTADO COMPLETO DA RAPIDAPI RECEBIDO:', result);
                         
-                        // Diagnóstico no sininho
-                        const topKeys = Object.keys(result || {}).join(', ');
-                        addScraperLog(`Chaves recebidas: ${topKeys}`, 'info');
+                        // Diagnóstico no console e no sininho
                         if (result.user_data) {
-                            const udKeys = Object.keys(result.user_data).join(', ');
-                            addScraperLog(`user_data: ${udKeys}`, 'info');
-                            addScraperLog(`biography: "${result.user_data.biography || '(vazio)'}"`, 'info');
-                            addScraperLog(`full_name: "${result.user_data.full_name || '(vazio)'}"`, 'info');
+                            console.log('[PainelBio Search] 👤 Nome retornado:', result.user_data.full_name || result.user_data.username);
+                            console.log('[PainelBio Search] 📝 Bio retornada:', result.user_data.biography);
+                            console.log('[PainelBio Search] 🖼️ Foto HD retornada:', result.user_data.hd_profile_pic_url_info?.url || result.user_data.profile_pic_url);
                         }
                         if (result.user_posts) {
-                            addScraperLog(`user_posts: ${result.user_posts.length} itens`, 'info');
+                            console.log(`[PainelBio Search] 📸 Posts retornados: ${result.user_posts.length} posts encontrados.`);
                         }
                         
                         // Atualiza as cotas da chave ativa a partir dos headers
@@ -3123,14 +3130,17 @@ loadClassicModel();
                             renderApiKeysModal();
                         }
 
-                        scrapedRealData = parseAndLoadScrapedData(result, cleanArroba);
+                        scrapedRealData = parseAndLoadScrapedData(result);
+                        console.log('[PainelBio Search] 🌟 Dados extraídos prontos para o preview:', scrapedRealData);
                     } else {
                         const errorText = await response.text();
+                        console.error(`[PainelBio Search] ❌ Erro HTTP ${response.status} da RapidAPI:`, errorText);
                         addScraperLog(`RapidAPI retornou erro HTTP ${response.status}: ${errorText}`, 'error');
                         if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
                     }
                 }
             } catch (err) {
+                console.error('[PainelBio Search] 💥 Exceção/Erro na requisição:', err);
                 addScraperLog(`Erro de conexão com a API: ${err.message}`, 'error');
                 if (scraperBadge) { scraperBadge.style.display = 'block'; scraperBadge.className = 'notification-badge error'; }
             }
