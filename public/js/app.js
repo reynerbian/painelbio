@@ -933,6 +933,152 @@ const leftIcon = document.querySelector('.left-icon');
                 </script>`;
             }
 
+            if (data.model === 'feed') {
+                const postsCount = data.feedStatPosts || '248';
+                const followersCount = data.feedStatFollowers || '12.5k';
+
+                const stories = [
+                    { img: data.story1Img, title: data.story1Title, url: data.story1Url },
+                    { img: data.story2Img, title: data.story2Title, url: data.story2Url },
+                    { img: data.story3Img, title: data.story3Title, url: data.story3Url },
+                    { img: data.story4Img, title: data.story4Title, url: data.story4Url }
+                ].filter(s => s.img || s.title);
+
+                const posts = [
+                    { img: data.feedPost1Img, title: data.feedPost1Title, url: data.feedPost1Url },
+                    { img: data.feedPost2Img, title: data.feedPost2Title, url: data.feedPost2Url },
+                    { img: data.feedPost3Img, title: data.feedPost3Title, url: data.feedPost3Url }
+                ].filter(p => p.img || p.title);
+
+                const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="f-cta-btn" target="_blank" rel="noopener">${data.btn1Title}</a>` : '';
+
+                let storiesHtml = '';
+                if (stories.length > 0) {
+                    storiesHtml = `<div class="f-stories-row">` + stories.map(s => `
+                        <a href="${s.url || '#'}" target="_blank" class="f-story-item">
+                            <div class="f-story-ring">
+                                <div class="f-story-inner">
+                                    ${s.img ? `<img src="${s.img}" alt="${s.title}">` : '<div style="width:100%;height:100%;background:#334155;"></div>'}
+                                </div>
+                            </div>
+                            <span class="f-story-label">${s.title || ''}</span>
+                        </a>
+                    `).join('') + `</div>`;
+                }
+
+                let postsHtml = '';
+                if (posts.length > 0) {
+                    postsHtml = `<div class="f-posts-grid">` + posts.map(p => `
+                        <a href="${p.url || '#'}" target="_blank" class="f-post-card">
+                            ${p.img ? `<img src="${p.img}" alt="${p.title}">` : '<div style="width:100%;height:100%;background:#1e293b;"></div>'}
+                            ${p.title ? `<div class="f-post-overlay"><span>${p.title}</span></div>` : ''}
+                        </a>
+                    `).join('') + `</div>`;
+                }
+
+                return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${data.name || data.arroba || 'Bio Feed'}</title>
+    <style>
+        :root {
+            --f-accent: ${theme.c1};
+            --f-accent-2: ${theme.c2 || theme.c1};
+            --f-bg: #090d16;
+        }
+        html, body {
+            margin: 0; padding: 0; width: 100%; min-height: 100%;
+            background-color: var(--f-bg); color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; justify-content: center;
+        }
+        .f-container {
+            width: 100%; max-width: 440px; padding: 16px 14px 40px 14px;
+            box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+        }
+        .f-header-bar {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 18px;
+        }
+        .f-header-arroba { font-weight: 700; font-size: 1.05rem; color: #ffffff; }
+        .f-profile-row { width: 100%; display: flex; align-items: center; gap: 20px; margin-bottom: 16px; }
+        .f-avatar-ring {
+            width: 78px; height: 78px; border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            padding: 2.5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .f-avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #111; overflow: hidden; border: 2px solid #090d16; }
+        .f-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .f-stats-row { flex: 1; display: flex; justify-content: space-around; text-align: center; }
+        .f-stat-num { font-weight: 800; font-size: 1.05rem; color: #ffffff; display: block; }
+        .f-stat-lbl { font-size: 0.72rem; color: #94a3b8; }
+        .f-info-box { width: 100%; text-align: left; margin-bottom: 18px; }
+        .f-name { font-weight: 700; font-size: 1.05rem; color: #ffffff; margin-bottom: 4px; }
+        .f-bio { font-size: 0.86rem; color: #cbd5e1; line-height: 1.45; white-space: pre-wrap; margin-bottom: 14px; text-align: ${bioAlign}; }
+        .f-cta-btn {
+            display: flex; align-items: center; justify-content: center; width: 100%;
+            padding: 12px 18px; border-radius: 12px; background: linear-gradient(135deg, var(--f-accent), var(--f-accent-2));
+            color: #ffffff; font-weight: 700; font-size: 0.92rem; text-decoration: none; box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
+        }
+        .f-stories-row {
+            width: 100%; display: flex; gap: 14px; overflow-x: auto; padding: 10px 0 16px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 18px; scrollbar-width: none;
+        }
+        .f-story-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; flex-shrink: 0; }
+        .f-story-ring {
+            width: 58px; height: 58px; border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+            padding: 2px; display: flex; align-items: center; justify-content: center;
+        }
+        .f-story-inner { width: 100%; height: 100%; border-radius: 50%; background: #111; overflow: hidden; border: 2px solid #090d16; }
+        .f-story-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .f-story-label { font-size: 0.72rem; color: #cbd5e1; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .f-posts-grid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 24px; }
+        .f-post-card { position: relative; width: 100%; padding-top: 100%; border-radius: 10px; overflow: hidden; background: #1e293b; text-decoration: none; }
+        .f-post-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .f-post-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 6px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); font-size: 0.65rem; color: #fff; text-align: center; }
+        .f-footer { margin-top: 20px; font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
+        .f-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    ${topBannerHtml}
+    <div class="f-container">
+        ${emojiRainHtml}
+        <div class="f-header-bar">
+            <span class="f-header-arroba">${data.arroba || ''}</span>
+            <span style="font-size:1.2rem;">✨</span>
+        </div>
+        <div class="f-profile-row">
+            <div class="f-avatar-ring">
+                <div class="f-avatar-inner">
+                    ${data.avatar ? `<img src="${data.avatar}" alt="${data.name || ''}">` : '<div style="width:100%;height:100%;background:#334155;"></div>'}
+                </div>
+            </div>
+            <div class="f-stats-row">
+                <div><span class="f-stat-num">${postsCount}</span><span class="f-stat-lbl">Publicações</span></div>
+                <div><span class="f-stat-num">${followersCount}</span><span class="f-stat-lbl">Seguidores</span></div>
+            </div>
+        </div>
+        <div class="f-info-box">
+            <div class="f-name">${data.name || ''}</div>
+            ${data.bio ? `<div class="f-bio">${data.bio}</div>` : ''}
+            ${btn1Html}
+        </div>
+        ${storiesHtml}
+        ${postsHtml}
+        <div class="f-footer">
+            CRIADO COM <a href="/">PAINELBIO</a>
+        </div>
+    </div>
+    ${audioPlayerHtml}
+</body>
+</html>`;
+            }
+
             if (isVitrine) {
                 const h1 = data.highlight1Img || '';
                 const h2 = data.highlight2Img || '';
@@ -1809,7 +1955,69 @@ loadClassicModel();
             const h3ImgInput = document.getElementById('input-highlight3-img');
             const h3TitleInput = document.getElementById('input-highlight3-title');
 
-            if (activeModel === 'vitrine') {
+            if (activeModel === 'feed') {
+                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300";
+                if (nameInput) nameInput.value = "Studio Beauty | Estética & Cílios";
+                if (arrobaInput) arrobaInput.value = "studiobeauty.oficial";
+                if (bioInput) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!\n📍 Jardins - São Paulo/SP`;
+                
+                const postsStat = document.getElementById('input-feed-stat-posts');
+                const followersStat = document.getElementById('input-feed-stat-followers');
+                if (postsStat) postsStat.value = "342";
+                if (followersStat) followersStat.value = "18.4k";
+
+                const s1Img = document.getElementById('input-story1-img');
+                const s1Title = document.getElementById('input-story1-title');
+                const s1Url = document.getElementById('input-story1-url');
+                if (s1Img) s1Img.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200";
+                if (s1Title) s1Title.value = "Promoções";
+                if (s1Url) s1Url.value = "https://wa.me/5511999999999";
+
+                const s2Img = document.getElementById('input-story2-img');
+                const s2Title = document.getElementById('input-story2-title');
+                const s2Url = document.getElementById('input-story2-url');
+                if (s2Img) s2Img.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200";
+                if (s2Title) s2Title.value = "Resultados";
+                if (s2Url) s2Url.value = "https://instagram.com";
+
+                const s3Img = document.getElementById('input-story3-img');
+                const s3Title = document.getElementById('input-story3-title');
+                const s3Url = document.getElementById('input-story3-url');
+                if (s3Img) s3Img.value = "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200";
+                if (s3Title) s3Title.value = "Cursos";
+                if (s3Url) s3Url.value = "https://wa.me/5511999999999";
+
+                const s4Img = document.getElementById('input-story4-img');
+                const s4Title = document.getElementById('input-story4-title');
+                const s4Url = document.getElementById('input-story4-url');
+                if (s4Img) s4Img.value = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200";
+                if (s4Title) s4Title.value = "Endereço";
+                if (s4Url) s4Url.value = "https://maps.google.com";
+
+                const p1Img = document.getElementById('input-feed-post1-img');
+                const p1Title = document.getElementById('input-feed-post1-title');
+                const p1Url = document.getElementById('input-feed-post1-url');
+                if (p1Img) p1Img.value = "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500";
+                if (p1Title) p1Title.value = "✨ Volume Russo Luxo";
+                if (p1Url) p1Url.value = "https://wa.me/5511999999999";
+
+                const p2Img = document.getElementById('input-feed-post2-img');
+                const p2Title = document.getElementById('input-feed-post2-title');
+                const p2Url = document.getElementById('input-feed-post2-url');
+                if (p2Img) p2Img.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500";
+                if (p2Title) p2Title.value = "💖 Micro Labial Hydra";
+                if (p2Url) p2Url.value = "https://wa.me/5511999999999";
+
+                const p3Img = document.getElementById('input-feed-post3-img');
+                const p3Title = document.getElementById('input-feed-post3-title');
+                const p3Url = document.getElementById('input-feed-post3-url');
+                if (p3Img) p3Img.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500";
+                if (p3Title) p3Title.value = "🌿 Design Henna Premium";
+                if (p3Url) p3Url.value = "https://wa.me/5511999999999";
+
+                if (btn1TitleInput) btn1TitleInput.value = "💬 Agendar Horário no WhatsApp";
+                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+            } else if (activeModel === 'vitrine') {
                 if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
                 if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
                 if (h2ImgInput) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
@@ -1864,7 +2072,59 @@ loadClassicModel();
                 }
             });
 
-            if (activeModel === 'vitrine') {
+            if (activeModel === 'feed') {
+                previewScreen.style.background = '#090d16';
+                previewScreen.innerHTML = `
+                    <div class="f-live-page" style="width: 100%; min-height: 100%; padding: 14px 12px 30px 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; overflow-y: auto;">
+                        
+                        <!-- Header do Perfil (Avatar + Stats) -->
+                        <div id="f-view-header" style="width: 100%; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 0 4px;">
+                            <!-- Avatar com anel de Story -->
+                            <div id="f-view-avatar-ring" style="width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #f59e0b, #7c3aed); padding: 2.5px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);">
+                                <div id="f-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; background: #090d16; overflow: hidden; border: 2px solid #090d16;"></div>
+                            </div>
+                            
+                            <!-- Contadores (Estatísticas) -->
+                            <div style="flex: 1; display: flex; justify-space-around; align-items: center; text-align: center;">
+                                <div>
+                                    <div id="f-view-stat-posts" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">248</div>
+                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Posts</div>
+                                </div>
+                                <div>
+                                    <div id="f-view-stat-followers" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">12.5k</div>
+                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Seguidores</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.95rem; font-weight: 700; color: #4ade80;">Online</div>
+                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Atendimento</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio e Handle -->
+                        <div id="f-view-info" style="width: 100%; display: flex; flex-direction: column; margin-bottom: 14px; padding: 0 4px;">
+                            <h1 id="f-view-name" style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0;"></h1>
+                            <a id="f-view-arroba" href="#" target="_blank" style="font-size: 0.8rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 8px;"></a>
+                            <p id="f-view-bio" style="font-size: 0.8rem; color: rgba(255,255,255,0.85); line-height: 1.45; margin: 0; white-space: pre-wrap;"></p>
+                        </div>
+
+                        <!-- Stories / Destaques Circulares -->
+                        <div id="f-view-stories" style="width: 100%; display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 10px 4px; margin-bottom: 12px; scrollbar-width: none;"></div>
+
+                        <!-- Botão Principal de Ação -->
+                        <div id="f-view-buttons" style="width: 100%; margin-bottom: 16px;"></div>
+
+                        <!-- Grid de Posts do Feed -->
+                        <div id="f-view-posts-grid" style="width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 20px;"></div>
+
+                        <!-- Rodapé PainelBio -->
+                        <div id="f-view-footer" style="margin-top: 10px; font-size: 0.7rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
+                            CRIADO COM <a href="#" style="color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700;">PAINELBIO</a>
+                        </div>
+
+                    </div>
+                `;
+            } else if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';
                 
@@ -1986,6 +2246,29 @@ loadClassicModel();
                     'input-name': backup.name || '',
                     'input-arroba': backup.arroba || '',
                     'input-bio': backup.bio || '',
+                    'input-feed-stat-posts': backup.feedStatPosts || '',
+                    'input-feed-stat-followers': backup.feedStatFollowers || '',
+                    'input-story1-img': backup.story1Img || '',
+                    'input-story1-title': backup.story1Title || '',
+                    'input-story1-url': backup.story1Url || '',
+                    'input-story2-img': backup.story2Img || '',
+                    'input-story2-title': backup.story2Title || '',
+                    'input-story2-url': backup.story2Url || '',
+                    'input-story3-img': backup.story3Img || '',
+                    'input-story3-title': backup.story3Title || '',
+                    'input-story3-url': backup.story3Url || '',
+                    'input-story4-img': backup.story4Img || '',
+                    'input-story4-title': backup.story4Title || '',
+                    'input-story4-url': backup.story4Url || '',
+                    'input-feed-post1-img': backup.feedPost1Img || '',
+                    'input-feed-post1-title': backup.feedPost1Title || '',
+                    'input-feed-post1-url': backup.feedPost1Url || '',
+                    'input-feed-post2-img': backup.feedPost2Img || '',
+                    'input-feed-post2-title': backup.feedPost2Title || '',
+                    'input-feed-post2-url': backup.feedPost2Url || '',
+                    'input-feed-post3-img': backup.feedPost3Img || '',
+                    'input-feed-post3-title': backup.feedPost3Title || '',
+                    'input-feed-post3-url': backup.feedPost3Url || '',
                     'input-btn1-title': backup.btn1Title || '',
                     'input-btn1-url': backup.btn1Url || '',
                     'input-btn2-title': backup.btn2Title || '',
@@ -2567,6 +2850,137 @@ loadClassicModel();
             }
 
             // =========================================================================
+            // MODELO 3: BIO FEED & STORIES (Stories circulares, contadores e grid de posts)
+            // =========================================================================
+            if (activeModel === 'feed') {
+                const avatarInner = document.getElementById('f-view-avatar-inner');
+                const viewName = document.getElementById('f-view-name');
+                const viewArroba = document.getElementById('f-view-arroba');
+                const viewBio = document.getElementById('f-view-bio');
+                const statPosts = document.getElementById('f-view-stat-posts');
+                const statFollowers = document.getElementById('f-view-stat-followers');
+                const storiesContainer = document.getElementById('f-view-stories');
+                const postsGrid = document.getElementById('f-view-posts-grid');
+                const viewButtons = document.getElementById('f-view-buttons');
+
+                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
+                const name = document.getElementById('input-name')?.value.trim() || '';
+                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
+                const bio = document.getElementById('input-bio')?.value.trim() || '';
+
+                const postsVal = document.getElementById('input-feed-stat-posts')?.value.trim() || '248';
+                const followersVal = document.getElementById('input-feed-stat-followers')?.value.trim() || '12.5k';
+
+                // Top Banner Margin Adjustment
+                const fLivePage = document.querySelector('.f-live-page');
+                if (fLivePage) {
+                    fLivePage.style.marginTop = isTopbannerActive ? '36px' : '0px';
+                }
+
+                // Avatar
+                if (avatarInner) {
+                    if (avatarUrl) {
+                        avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    } else {
+                        avatarInner.innerHTML = `<div style="width:100%;height:100%;background:#334155;"></div>`;
+                    }
+                }
+
+                // Header Info
+                if (viewName) viewName.textContent = name || '';
+                if (viewArroba) {
+                    if (arroba) {
+                        const displayArroba = arroba.startsWith('@') ? arroba : `@${arroba}`;
+                        const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
+                        viewArroba.textContent = displayArroba;
+                        viewArroba.href = `https://instagram.com/${cleanUser}`;
+                        viewArroba.style.display = 'inline-block';
+                    } else {
+                        viewArroba.style.display = 'none';
+                    }
+                }
+                if (viewBio) {
+                    viewBio.textContent = bio || '';
+                    viewBio.style.display = bio ? 'block' : 'none';
+                    const activeAlignBtn = document.querySelector('.align-btn.active');
+                    viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'left';
+                }
+
+                if (statPosts) statPosts.textContent = postsVal;
+                if (statFollowers) statFollowers.textContent = followersVal;
+
+                // Stories Rendering
+                const stories = [
+                    { img: document.getElementById('input-story1-img')?.value.trim(), title: document.getElementById('input-story1-title')?.value.trim() || 'Destaque', url: document.getElementById('input-story1-url')?.value.trim() },
+                    { img: document.getElementById('input-story2-img')?.value.trim(), title: document.getElementById('input-story2-title')?.value.trim() || 'Novidades', url: document.getElementById('input-story2-url')?.value.trim() },
+                    { img: document.getElementById('input-story3-img')?.value.trim(), title: document.getElementById('input-story3-title')?.value.trim() || 'Fotos', url: document.getElementById('input-story3-url')?.value.trim() },
+                    { img: document.getElementById('input-story4-img')?.value.trim(), title: document.getElementById('input-story4-title')?.value.trim() || 'Contato', url: document.getElementById('input-story4-url')?.value.trim() }
+                ].filter(s => s.img || s.title);
+
+                if (storiesContainer) {
+                    if (stories.length > 0) {
+                        storiesContainer.style.display = 'flex';
+                        storiesContainer.innerHTML = stories.map(s => `
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; cursor: pointer;" onclick="${s.url ? `window.open('${s.url}', '_blank')` : ''}">
+                                <div style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #f59e0b); padding: 2px; box-shadow: 0 4px 10px rgba(236,72,153,0.3);">
+                                    <div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #090d16; border: 1.5px solid #090d16;">
+                                        <img src="${s.img || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200'">
+                                    </div>
+                                </div>
+                                <span style="font-size: 0.65rem; color: #cbd5e1; font-weight: 600; text-align: center; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.title}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        storiesContainer.style.display = 'none';
+                    }
+                }
+
+                // Feed Posts Grid Rendering
+                const posts = [
+                    { img: document.getElementById('input-feed-post1-img')?.value.trim(), title: document.getElementById('input-feed-post1-title')?.value.trim(), url: document.getElementById('input-feed-post1-url')?.value.trim() },
+                    { img: document.getElementById('input-feed-post2-img')?.value.trim(), title: document.getElementById('input-feed-post2-title')?.value.trim(), url: document.getElementById('input-feed-post2-url')?.value.trim() },
+                    { img: document.getElementById('input-feed-post3-img')?.value.trim(), title: document.getElementById('input-feed-post3-title')?.value.trim(), url: document.getElementById('input-feed-post3-url')?.value.trim() }
+                ].filter(p => p.img || p.title);
+
+                if (postsGrid) {
+                    if (posts.length > 0) {
+                        postsGrid.style.display = 'grid';
+                        postsGrid.innerHTML = posts.map(p => `
+                            <div style="position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; background: #1e293b; cursor: pointer; border: 1px solid rgba(255,255,255,0.08);" onclick="${p.url ? `window.open('${p.url}', '_blank')` : ''}">
+                                <img src="${p.img || 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500'">
+                                ${p.title ? `
+                                    <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 4px 4px 4px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); font-size: 0.62rem; color: #fff; font-weight: 600; text-align: center; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                        ${p.title}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('');
+                    } else {
+                        postsGrid.style.display = 'none';
+                    }
+                }
+
+                // CTA Button
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                if (viewButtons) {
+                    if (btn1Title) {
+                        viewButtons.innerHTML = `
+                            <div style="width: 100%; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #ffffff; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 0.86rem; text-align: center; box-shadow: 0 4px 16px rgba(236,72,153,0.4); cursor: pointer; box-sizing: border-box;" onclick="${btn1Url ? `window.open('${btn1Url}', '_blank')` : ''}">
+                                ${btn1Title}
+                            </div>
+                        `;
+                        viewButtons.style.display = 'block';
+                    } else {
+                        viewButtons.innerHTML = '';
+                        viewButtons.style.display = 'none';
+                    }
+                }
+
+                return;
+            }
+
+            // =========================================================================
             // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
             // =========================================================================
             if (activeModel === 'vitrine') {
@@ -3144,6 +3558,29 @@ loadClassicModel();
                         name: document.getElementById('input-name')?.value.trim() || '',
                         avatar: document.getElementById('input-avatar')?.value.trim() || '',
                         bio: document.getElementById('input-bio')?.value.trim() || '',
+                        feedStatPosts: document.getElementById('input-feed-stat-posts')?.value.trim() || '',
+                        feedStatFollowers: document.getElementById('input-feed-stat-followers')?.value.trim() || '',
+                        story1Img: document.getElementById('input-story1-img')?.value.trim() || '',
+                        story1Title: document.getElementById('input-story1-title')?.value.trim() || '',
+                        story1Url: document.getElementById('input-story1-url')?.value.trim() || '',
+                        story2Img: document.getElementById('input-story2-img')?.value.trim() || '',
+                        story2Title: document.getElementById('input-story2-title')?.value.trim() || '',
+                        story2Url: document.getElementById('input-story2-url')?.value.trim() || '',
+                        story3Img: document.getElementById('input-story3-img')?.value.trim() || '',
+                        story3Title: document.getElementById('input-story3-title')?.value.trim() || '',
+                        story3Url: document.getElementById('input-story3-url')?.value.trim() || '',
+                        story4Img: document.getElementById('input-story4-img')?.value.trim() || '',
+                        story4Title: document.getElementById('input-story4-title')?.value.trim() || '',
+                        story4Url: document.getElementById('input-story4-url')?.value.trim() || '',
+                        feedPost1Img: document.getElementById('input-feed-post1-img')?.value.trim() || '',
+                        feedPost1Title: document.getElementById('input-feed-post1-title')?.value.trim() || '',
+                        feedPost1Url: document.getElementById('input-feed-post1-url')?.value.trim() || '',
+                        feedPost2Img: document.getElementById('input-feed-post2-img')?.value.trim() || '',
+                        feedPost2Title: document.getElementById('input-feed-post2-title')?.value.trim() || '',
+                        feedPost2Url: document.getElementById('input-feed-post2-url')?.value.trim() || '',
+                        feedPost3Img: document.getElementById('input-feed-post3-img')?.value.trim() || '',
+                        feedPost3Title: document.getElementById('input-feed-post3-title')?.value.trim() || '',
+                        feedPost3Url: document.getElementById('input-feed-post3-url')?.value.trim() || '',
                         highlight1Img: document.getElementById('input-highlight1-img') ? document.getElementById('input-highlight1-img').value.trim() : (window.tempFormBackup?.highlight1Img || ''),
                         highlight1Title: document.getElementById('input-highlight1-title') ? document.getElementById('input-highlight1-title').value.trim() : (window.tempFormBackup?.highlight1Title || ''),
                         highlight2Img: document.getElementById('input-highlight2-img') ? document.getElementById('input-highlight2-img').value.trim() : (window.tempFormBackup?.highlight2Img || ''),

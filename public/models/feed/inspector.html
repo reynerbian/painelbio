@@ -1,0 +1,169 @@
+<div class="inspector-tabs" style="display: flex; background: #0f172a; border-bottom: 1px solid #334155; padding: 4px; gap: 4px;">
+    <button type="button" class="inspector-tab-btn active" data-tab="content" style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 6px; background: #3b82f6; color: #ffffff; cursor: pointer; transition: all 0.2s;">
+        📝 Conteúdo
+    </button>
+    <button type="button" class="inspector-tab-btn" data-tab="addons" style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 6px; background: transparent; color: #94a3b8; cursor: pointer; transition: all 0.2s;">
+        🧩 Add ons
+    </button>
+</div>
+
+<form id="inspector-form" style="padding: 16px;">
+    <div id="panel-content">
+        <div style="font-size: 0.9rem; font-weight: 700; color: #ec4899; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            📸 Modelo: Bio Feed &amp; Stories
+        </div>
+
+        <!-- Instagram @arroba -->
+        <div class="form-group" style="margin-bottom: 14px;">
+            <label for="input-arroba" style="font-size: 0.8rem; font-weight: 700; color: #ec4899;">@ Usuário do Instagram:</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="input-arroba" placeholder="ex: @sualoja" required style="flex: 1; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+            </div>
+        </div>
+
+        <!-- Foto de Perfil (Avatar) -->
+        <div class="form-group" style="margin-bottom: 14px;">
+            <label for="input-avatar" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🖼️ URL da Foto de Perfil:</label>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="input-avatar" placeholder="https://exemplo.com/avatar.jpg" style="flex: 1; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                <button type="button" id="btn-search-avatar" title="Buscar Foto" style="background: #334155; color: #fff; border: none; border-radius: 8px; padding: 0 10px; cursor: pointer;">🔍</button>
+            </div>
+        </div>
+
+        <!-- Nome da Loja/Perfil -->
+        <div class="form-group" style="margin-bottom: 14px;">
+            <label for="input-name" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">✏️ Nome de Exibição:</label>
+            <input type="text" id="input-name" placeholder="Ex: Boutique Elegance" style="width: 100%; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+        </div>
+
+        <!-- Biografia -->
+        <div class="form-group" style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label for="input-bio" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0;">📄 Biografia:</label>
+                <div class="align-selector" style="display: flex; gap: 2px;">
+                    <button type="button" class="align-btn active" data-align="center" style="background: #334155; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; cursor: pointer;">↔️</button>
+                    <button type="button" class="align-btn" data-align="left" style="background: #1e293b; color: #94a3b8; border: none; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; cursor: pointer;">⬅️</button>
+                </div>
+            </div>
+            <textarea id="input-bio" rows="3" placeholder="Descreva sua loja, benefícios e frete..." style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+
+        <!-- Estatísticas (Posts / Seguidores) -->
+        <div style="margin-bottom: 16px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+            <div style="font-size: 0.78rem; font-weight: 700; color: #ec4899; margin-bottom: 8px;">📊 Contadores do Perfil (Estatísticas):</div>
+            <div style="display: flex; gap: 8px;">
+                <div style="flex: 1;">
+                    <label for="input-feed-stat-posts" style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px;">Publicações:</label>
+                    <input type="text" id="input-feed-stat-posts" placeholder="Ex: 248" value="248" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+                <div style="flex: 1;">
+                    <label for="input-feed-stat-followers" style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px;">Seguidores:</label>
+                    <input type="text" id="input-feed-stat-followers" placeholder="Ex: 12.5k" value="12.5k" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: STORIES / DESTAQUES CIRCULARES -->
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.15);">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #ec4899; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                ⭕ Stories / Destaques Circulares (Topo)
+            </div>
+
+            <!-- Story 1 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #f472b6; margin-bottom: 6px;">Story 1</div>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <input type="text" id="input-story1-img" placeholder="URL da Foto do Story 1" style="flex: 1; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                    <input type="text" id="input-story1-title" placeholder="Rótulo (ex: Ofertas)" style="width: 100px; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                </div>
+                <input type="text" id="input-story1-url" placeholder="Link de destino ao clicar no Story 1" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+
+            <!-- Story 2 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #f472b6; margin-bottom: 6px;">Story 2</div>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <input type="text" id="input-story2-img" placeholder="URL da Foto do Story 2" style="flex: 1; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                    <input type="text" id="input-story2-title" placeholder="Rótulo (ex: Novidades)" style="width: 100px; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                </div>
+                <input type="text" id="input-story2-url" placeholder="Link de destino ao clicar no Story 2" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+
+            <!-- Story 3 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #f472b6; margin-bottom: 6px;">Story 3</div>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <input type="text" id="input-story3-img" placeholder="URL da Foto do Story 3" style="flex: 1; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                    <input type="text" id="input-story3-title" placeholder="Rótulo (ex: Feedbacks)" style="width: 100px; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                </div>
+                <input type="text" id="input-story3-url" placeholder="Link de destino ao clicar no Story 3" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+
+            <!-- Story 4 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #f472b6; margin-bottom: 6px;">Story 4</div>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <input type="text" id="input-story4-img" placeholder="URL da Foto do Story 4" style="flex: 1; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                    <input type="text" id="input-story4-title" placeholder="Rótulo (ex: Contato)" style="width: 100px; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155;">
+                </div>
+                <input type="text" id="input-story4-url" placeholder="Link de destino ao clicar no Story 4" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <!-- SEÇÃO: CARDS DO FEED DE FOTOS -->
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.15);">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #ec4899; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                🖼️ Postagens / Cards do Feed
+            </div>
+
+            <!-- Post 1 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Post 1</div>
+                <input type="text" id="input-feed-post1-img" placeholder="URL da Imagem do Post 1" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post1-title" placeholder="Título / Legenda da foto" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post1-url" placeholder="https://wa.me/... ou Link do Produto" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+
+            <!-- Post 2 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Post 2</div>
+                <input type="text" id="input-feed-post2-img" placeholder="URL da Imagem do Post 2" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post2-title" placeholder="Título / Legenda da foto" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post2-url" placeholder="https://wa.me/... ou Link do Produto" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+
+            <!-- Post 3 -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Post 3</div>
+                <input type="text" id="input-feed-post3-img" placeholder="URL da Imagem do Post 3" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post3-title" placeholder="Título / Legenda da foto" style="width: 100%; font-size: 0.78rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; margin-bottom: 6px; box-sizing: border-box;">
+                <input type="text" id="input-feed-post3-url" placeholder="https://wa.me/... ou Link do Produto" style="width: 100%; font-size: 0.75rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #94a3b8; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <!-- SEÇÃO: BOTÃO PRINCIPAL DE AÇÃO -->
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.15);">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #ec4899; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                🔗 Botão Principal de Ação
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label for="input-btn1-title" style="font-size: 0.78rem; color: #cbd5e1;">Título do Botão:</label>
+                <input type="text" id="input-btn1-title" placeholder="Ex: 💬 Falar no WhatsApp" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom: 14px;">
+                <label for="input-btn1-url" style="font-size: 0.78rem; color: #cbd5e1;">Link / URL do Botão:</label>
+                <input type="text" id="input-btn1-url" placeholder="https://wa.me/5511999999999" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <!-- Botão Salvar -->
+        <button type="submit" id="btn-save-inspector" style="margin-top: 16px; width: 100%; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #ffffff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 14px rgba(236,72,153,0.4); transition: transform 0.2s;">
+            💾 Salvar Alterações
+        </button>
+    </div>
+
+    <!-- Painel de Add-ons -->
+    <div id="panel-addons" style="display: none;">
+        <div id="active-addons-list"></div>
+    </div>
+</form>
