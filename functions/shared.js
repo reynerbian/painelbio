@@ -514,6 +514,7 @@ export function generateStaticSite(data) {
 <body>
     ${topBannerHtml}
     ${audioPlayerHtml}
+    ${liveChatHtml}
     <div class="v-container">
         ${emojiRainHtml}
         ${hasHeroPhotos ? `
@@ -665,6 +666,7 @@ export function generateStaticSite(data) {
 <body>
     ${topBannerHtml}
     ${audioPlayerHtml}
+    ${liveChatHtml}
     <div class="preview-bio-page">
         ${emojiRainHtml}
         <div class="bg-glow bg-glow-top"></div>
