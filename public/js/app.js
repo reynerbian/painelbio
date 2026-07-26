@@ -989,7 +989,7 @@ const leftIcon = document.querySelector('.left-icon');
             flex: 1; height: 3px; background: rgba(255,255,255,0.35); border-radius: 2px; overflow: hidden;
         }
         .c-prog-fill {
-            width: 0%; height: 100%; background: #ffffff; transition: width 0.3s;
+            width: 0%; height: 100%; background: ${theme.c1}; transition: width 0.3s;
         }
         .c-header {
             position: absolute; top: 26px; left: 14px; right: 14px;
@@ -997,7 +997,7 @@ const leftIcon = document.querySelector('.left-icon');
         }
         .c-avatar-wrapper {
             width: 48px; height: 48px; border-radius: 50%; padding: 2.5px;
-            background: linear-gradient(135deg, #ec4899, #f59e0b, #3b82f6); flex-shrink: 0;
+            background: linear-gradient(135deg, ${theme.c1}, #ec4899); flex-shrink: 0;
             box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         }
         .c-avatar-inner {
@@ -1010,17 +1010,17 @@ const leftIcon = document.querySelector('.left-icon');
             border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
         .c-name { font-size: 0.92rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0; }
-        .c-arroba { font-size: 0.76rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block; }
+        .c-arroba { font-size: 0.76rem; color: ${theme.c1}; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block; }
         .c-bio { font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.35; margin: 0; white-space: pre-wrap; text-align: ${data.bioAlign || 'left'}; }
         .c-buttons {
             position: absolute; bottom: 24px; left: 14px; right: 14px;
             display: flex; flex-direction: column; gap: 10px; z-index: 10;
         }
         .c-btn {
-            width: 100%; background: rgba(15, 23, 42, 0.75); color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.22); padding: 14px 18px; border-radius: 14px;
+            width: 100%; background: rgba(15, 23, 42, 0.78); color: #ffffff;
+            border: 1.5px solid ${theme.c1}; padding: 14px 18px; border-radius: 14px;
             font-weight: 700; font-size: 0.88rem; text-align: center; text-decoration: none;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${theme.c1}44; backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px); box-sizing: border-box; display: block;
         }
         .c-footer {
@@ -2973,40 +2973,51 @@ loadClassicModel();
             // MODELO: CARROSSEL STORIES (3 Fotos Tela Cheia com Progresso no Topo)
             // =========================================================================
             if (activeModel === 'carousel') {
+                const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';
+                const presetThemeMap = {
+                    'gray': '#a3d959',
+                    'sunset': '#ff0844',
+                    'neon-blue': '#00c6ff',
+                    'synthwave': '#f107a3',
+                    'fire': '#ff5858',
+                    'aurora': '#00ff87',
+                    'indigo': '#06b6d4',
+                    'cyber-lime': '#a8ff78',
+                    'rose-gold': '#fda085',
+                    'golden': '#f5af19',
+                    'deep-purple': '#e94057',
+                    'platinum': '#e2e8f0'
+                };
+                const themeBorderColor = presetThemeMap[activePreset] || '#a3d959';
+
                 const img1 = document.getElementById('c-view-img1');
                 const img2 = document.getElementById('c-view-img2');
                 const img3 = document.getElementById('c-view-img3');
                 
+                const avatarWrapper = document.getElementById('c-view-avatar-wrapper');
                 const avatarInner = document.getElementById('c-view-avatar-inner');
                 const viewName = document.getElementById('c-view-name');
                 const viewArroba = document.getElementById('c-view-arroba');
                 const viewBio = document.getElementById('c-view-bio');
                 const viewButtons = document.getElementById('c-view-buttons');
 
-                const c1Url = document.getElementById('input-carousel1-img')?.value.trim() || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
-                const c2Url = document.getElementById('input-carousel2-img')?.value.trim() || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
-                const c3Url = document.getElementById('input-carousel3-img')?.value.trim() || 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
+                const c1Url = document.getElementById('input-carousel1-img')?.value.trim();
+                const c2Url = document.getElementById('input-carousel2-img')?.value.trim();
+                const c3Url = document.getElementById('input-carousel3-img')?.value.trim();
 
-                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
-                const name = document.getElementById('input-name')?.value.trim() || '';
-                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
-                const bio = document.getElementById('input-bio')?.value.trim() || '';
+                const fallbackImg1 = 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
+                const fallbackImg2 = 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
+                const fallbackImg3 = 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
 
-                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
-                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
-                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
-                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
-                const btn3Title = document.getElementById('input-btn3-title')?.value.trim() || '';
-                const btn3Url = document.getElementById('input-btn3-url')?.value.trim() || '';
-                const btn4Title = document.getElementById('input-btn4-title')?.value.trim() || '';
-                const btn4Url = document.getElementById('input-btn4-url')?.value.trim() || '';
+                if (img1) img1.src = c1Url || fallbackImg1;
+                if (img2) img2.src = c2Url || fallbackImg2;
+                if (img3) img3.src = c3Url || fallbackImg3;
 
-                if (img1) img1.src = c1Url;
-                if (img2) img2.src = c2Url;
-                if (img3) img3.src = c3Url;
+                if (avatarWrapper) {
+                    avatarWrapper.style.background = `linear-gradient(135deg, ${themeBorderColor}, #ec4899)`;
+                }
 
-                // Gerenciador de Animação / Troca dos Slides no Live Preview
-                const configKey = `${c1Url}_${c2Url}_${c3Url}`;
+                const configKey = `${c1Url}_${c2Url}_${c3Url}_${themeBorderColor}`;
                 if (window.carouselConfigKey !== configKey) {
                     window.carouselConfigKey = configKey;
                     if (window.carouselTimer) clearInterval(window.carouselTimer);
@@ -3028,7 +3039,10 @@ loadClassicModel();
                             if (s) s.style.opacity = (i === idx) ? '1' : '0';
                         });
                         progs.forEach((p, i) => {
-                            if (p) p.style.width = (i <= idx) ? '100%' : '0%';
+                            if (p) {
+                                p.style.width = (i <= idx) ? '100%' : '0%';
+                                p.style.background = themeBorderColor;
+                            }
                         });
                     }
 
@@ -3039,7 +3053,20 @@ loadClassicModel();
                     }, 4000);
                 }
 
-                // Avatar
+                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
+                const name = document.getElementById('input-name')?.value.trim() || '';
+                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
+                const bio = document.getElementById('input-bio')?.value.trim() || '';
+
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
+                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
+                const btn3Title = document.getElementById('input-btn3-title')?.value.trim() || '';
+                const btn3Url = document.getElementById('input-btn3-url')?.value.trim() || '';
+                const btn4Title = document.getElementById('input-btn4-title')?.value.trim() || '';
+                const btn4Url = document.getElementById('input-btn4-url')?.value.trim() || '';
+
                 if (avatarInner) {
                     if (avatarUrl) {
                         avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
@@ -3048,7 +3075,6 @@ loadClassicModel();
                     }
                 }
 
-                // Info Perfil
                 if (viewName) viewName.textContent = name || '';
                 if (viewArroba) {
                     if (arroba) {
@@ -3056,6 +3082,7 @@ loadClassicModel();
                         const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
                         viewArroba.textContent = displayArroba;
                         viewArroba.href = `https://instagram.com/${cleanUser}`;
+                        viewArroba.style.color = themeBorderColor;
                         viewArroba.style.display = 'inline-block';
                     } else {
                         viewArroba.style.display = 'none';
@@ -3068,10 +3095,9 @@ loadClassicModel();
                     viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'left';
                 }
 
-                // Botões de Ação com Vidro Fosco
                 let btnsHtml = '';
                 const createCBtn = (title, url) => `
-                    <div style="width: 100%; background: rgba(15, 23, 42, 0.72); color: #ffffff; border: 1px solid rgba(255,255,255,0.22); padding: 13px 16px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); cursor: pointer; transition: transform 0.2s;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                    <div style="width: 100%; background: rgba(15, 23, 42, 0.78); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 13px 16px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${themeBorderColor}33; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); cursor: pointer; transition: transform 0.2s;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
                         ${title}
                     </div>
                 `;
