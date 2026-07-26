@@ -3062,7 +3062,7 @@ loadClassicModel();
                     cardAudioPlayerInspector.style.display = 'block';
                     const urlInput = document.getElementById('input-addon-ap-url');
                     if (urlInput && !urlInput.value) {
-                        urlInput.value = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3';
+                        urlInput.value = 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3';
                     }
 
                     const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
