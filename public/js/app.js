@@ -2241,11 +2241,11 @@ loadClassicModel();
                         <!-- Perfil no Canto Superior -->
                         <div id="c-view-header" style="position: absolute; top: 26px; left: 14px; right: 14px; display: flex; align-items: flex-start; gap: 10px; z-index: 10;">
                             <!-- Avatar Circular no Canto -->
-                            <div id="c-view-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 50%; padding: 2.5px; background: linear-gradient(135deg, #ec4899, #f59e0b, #3b82f6); flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                            <div id="c-view-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 50%; padding: 2.5px; background: linear-gradient(135deg, #ec4899, #f59e0b, #3b82f6); flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.4); display: none;">
                                 <div id="c-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #000;"></div>
                             </div>
                             <!-- Handle, Nome e Bio em Card de Vidro Fino -->
-                            <div style="flex: 1; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 14px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+                            <div id="c-view-profile-card" style="flex: 1; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 14px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: none;">
                                 <h1 id="c-view-name" style="font-size: 0.92rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0;"></h1>
                                 <a id="c-view-arroba" href="#" target="_blank" style="font-size: 0.76rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block;"></a>
                                 <p id="c-view-bio" style="font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.35; margin: 0; white-space: pre-wrap;"></p>
@@ -2994,63 +2994,81 @@ loadClassicModel();
                 const img2 = document.getElementById('c-view-img2');
                 const img3 = document.getElementById('c-view-img3');
                 
+                const storiesProgress = document.getElementById('c-view-stories-progress');
                 const avatarWrapper = document.getElementById('c-view-avatar-wrapper');
                 const avatarInner = document.getElementById('c-view-avatar-inner');
+                const profileCard = document.getElementById('c-view-profile-card');
                 const viewName = document.getElementById('c-view-name');
                 const viewArroba = document.getElementById('c-view-arroba');
                 const viewBio = document.getElementById('c-view-bio');
                 const viewButtons = document.getElementById('c-view-buttons');
 
-                const c1Url = document.getElementById('input-carousel1-img')?.value.trim();
-                const c2Url = document.getElementById('input-carousel2-img')?.value.trim();
-                const c3Url = document.getElementById('input-carousel3-img')?.value.trim();
+                const c1Url = document.getElementById('input-carousel1-img')?.value.trim() || '';
+                const c2Url = document.getElementById('input-carousel2-img')?.value.trim() || '';
+                const c3Url = document.getElementById('input-carousel3-img')?.value.trim() || '';
+
+                const fakeToggle = document.getElementById('fake-data-toggle');
+                const isFakeOn = fakeToggle && fakeToggle.checked;
 
                 const fallbackImg1 = 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
                 const fallbackImg2 = 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
                 const fallbackImg3 = 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
 
-                if (img1) img1.src = c1Url || fallbackImg1;
-                if (img2) img2.src = c2Url || fallbackImg2;
-                if (img3) img3.src = c3Url || fallbackImg3;
-
-                if (avatarWrapper) {
-                    avatarWrapper.style.background = `linear-gradient(135deg, ${themeBorderColor}, #ec4899)`;
+                // Fotos de Fundo
+                let finalImg1 = c1Url;
+                let finalImg2 = c2Url;
+                let finalImg3 = c3Url;
+                if (!finalImg1 && !finalImg2 && !finalImg3 && isFakeOn) {
+                    finalImg1 = fallbackImg1;
+                    finalImg2 = fallbackImg2;
+                    finalImg3 = fallbackImg3;
                 }
 
-                const configKey = `${c1Url}_${c2Url}_${c3Url}_${themeBorderColor}`;
+                const hasPhotos = Boolean(finalImg1 || finalImg2 || finalImg3);
+                if (storiesProgress) {
+                    storiesProgress.style.display = hasPhotos ? 'flex' : 'none';
+                }
+
+                if (img1) img1.src = finalImg1 || '';
+                if (img2) img2.src = finalImg2 || '';
+                if (img3) img3.src = finalImg3 || '';
+
+                const configKey = `${finalImg1}_${finalImg2}_${finalImg3}_${themeBorderColor}`;
                 if (window.carouselConfigKey !== configKey) {
                     window.carouselConfigKey = configKey;
                     if (window.carouselTimer) clearInterval(window.carouselTimer);
                     
-                    window.carouselSlideIdx = 0;
-                    const slides = [
-                        document.getElementById('c-slide-1'),
-                        document.getElementById('c-slide-2'),
-                        document.getElementById('c-slide-3')
-                    ];
-                    const progs = [
-                        document.getElementById('c-prog-1'),
-                        document.getElementById('c-prog-2'),
-                        document.getElementById('c-prog-3')
-                    ];
+                    if (hasPhotos) {
+                        window.carouselSlideIdx = 0;
+                        const slides = [
+                            document.getElementById('c-slide-1'),
+                            document.getElementById('c-slide-2'),
+                            document.getElementById('c-slide-3')
+                        ];
+                        const progs = [
+                            document.getElementById('c-prog-1'),
+                            document.getElementById('c-prog-2'),
+                            document.getElementById('c-prog-3')
+                        ];
 
-                    function showSlide(idx) {
-                        slides.forEach((s, i) => {
-                            if (s) s.style.opacity = (i === idx) ? '1' : '0';
-                        });
-                        progs.forEach((p, i) => {
-                            if (p) {
-                                p.style.width = (i <= idx) ? '100%' : '0%';
-                                p.style.background = themeBorderColor;
-                            }
-                        });
+                        function showSlide(idx) {
+                            slides.forEach((s, i) => {
+                                if (s) s.style.opacity = (i === idx) ? '1' : '0';
+                            });
+                            progs.forEach((p, i) => {
+                                if (p) {
+                                    p.style.width = (i <= idx) ? '100%' : '0%';
+                                    p.style.background = themeBorderColor;
+                                }
+                            });
+                        }
+
+                        showSlide(0);
+                        window.carouselTimer = setInterval(() => {
+                            window.carouselSlideIdx = (window.carouselSlideIdx + 1) % 3;
+                            showSlide(window.carouselSlideIdx);
+                        }, 4000);
                     }
-
-                    showSlide(0);
-                    window.carouselTimer = setInterval(() => {
-                        window.carouselSlideIdx = (window.carouselSlideIdx + 1) % 3;
-                        showSlide(window.carouselSlideIdx);
-                    }, 4000);
                 }
 
                 const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
@@ -3058,21 +3076,22 @@ loadClassicModel();
                 const arroba = document.getElementById('input-arroba')?.value.trim() || '';
                 const bio = document.getElementById('input-bio')?.value.trim() || '';
 
-                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
-                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
-                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
-                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
-                const btn3Title = document.getElementById('input-btn3-title')?.value.trim() || '';
-                const btn3Url = document.getElementById('input-btn3-url')?.value.trim() || '';
-                const btn4Title = document.getElementById('input-btn4-title')?.value.trim() || '';
-                const btn4Url = document.getElementById('input-btn4-url')?.value.trim() || '';
-
-                if (avatarInner) {
+                // Ocultar bolinha do avatar se não houver foto
+                if (avatarWrapper && avatarInner) {
                     if (avatarUrl) {
+                        avatarWrapper.style.display = 'flex';
+                        avatarWrapper.style.background = `linear-gradient(135deg, ${themeBorderColor}, #ec4899)`;
                         avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
                     } else {
-                        avatarInner.innerHTML = `<div style="width:100%;height:100%;background:#334155;"></div>`;
+                        avatarWrapper.style.display = 'none';
+                        avatarInner.innerHTML = '';
                     }
+                }
+
+                // Ocultar balão de perfil se nome, @ e bio estiverem todos vazios
+                const hasProfileText = Boolean(name || arroba || bio);
+                if (profileCard) {
+                    profileCard.style.display = hasProfileText ? 'block' : 'none';
                 }
 
                 if (viewName) viewName.textContent = name || '';
