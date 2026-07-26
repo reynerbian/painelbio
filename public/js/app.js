@@ -416,18 +416,59 @@ const leftIcon = document.querySelector('.left-icon');
             }
         };
 
-        // Função global para pré-visualizar o site offline
+        // Função global para pré-visualizar o site (Modal Seguro no Celular & Desktop sem Bloqueador de Popups)
         window.previewSiteOffline = function(arroba) {
             let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
             const siteData = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
             
-            if (siteData) {
-                const htmlContent = window.generateStaticSite(siteData);
-                const blob = new Blob([htmlContent], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                window.open(url, '_blank');
-            } else {
+            if (!siteData) {
                 showCustomAlert('Site não encontrado na memória.', 'error');
+                return;
+            }
+
+            // Carrega os dados diretamente no editor
+            loadSiteIntoEditor(siteData);
+            
+            // Remove modal de prévia antigo se existir
+            const oldModal = document.getElementById('offline-preview-modal');
+            if (oldModal) oldModal.remove();
+
+            const htmlContent = window.generateStaticSite(siteData);
+
+            const modalHtml = `
+                <div id="offline-preview-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 99999; display: flex; flex-direction: column; box-sizing: border-box;">
+                    <!-- Header do Modal de Prévia -->
+                    <div style="background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.9rem; font-weight: 700; color: #fff;">👁️ Prévia de ${siteData.arroba}</span>
+                            <span style="font-size: 0.75rem; color: #3b82f6; background: rgba(59, 130, 246, 0.15); padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 600;">${siteData.model === 'carousel' ? 'Carrossel' : (siteData.model === 'vitrine' ? 'Vitrine' : 'Classic')}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="close-offline-preview-btn" style="background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+                                ✕ Fechar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- iFrame com o HTML gerado em srcdoc (Funciona 100% no iOS Safari e Android Chrome sem Popups!) -->
+                    <div style="flex: 1; width: 100%; position: relative; overflow: hidden; display: flex; justify-content: center; background: #000;">
+                        <iframe id="offline-preview-iframe" style="width: 100%; max-width: 480px; height: 100%; border: none; background: #000; display: block;" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const iframe = document.getElementById('offline-preview-iframe');
+            if (iframe) {
+                iframe.srcdoc = htmlContent;
+            }
+
+            const closeBtn = document.getElementById('close-offline-preview-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    document.getElementById('offline-preview-modal').remove();
+                });
             }
         };
 
