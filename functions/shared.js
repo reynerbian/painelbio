@@ -260,10 +260,11 @@ export function generateStaticSite(data) {
       * { box-sizing: border-box; }
       html, body {
           margin: 0; padding: 0; width: 100%; height: 100%;
-          overflow: hidden; background: #000000; color: #ffffff;
+          overflow: hidden; background: #08080a; color: #ffffff;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          display: flex; justify-content: center; align-items: center;
       }
-      .c-fullscreen-page { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+      .c-fullscreen-page { position: relative; width: 100%; max-width: 440px; height: 100vh; margin: 0 auto; overflow: hidden; background: #000000; box-shadow: 0 0 60px rgba(0,0,0,0.9); }
       .c-slider { position: absolute; inset: 0; z-index: 1; }
       .c-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out; }
       .c-slide.active { opacity: 1; }
