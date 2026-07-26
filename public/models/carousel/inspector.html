@@ -1,0 +1,127 @@
+<!-- Inspector Form: Modelo Fullscreen Carousel (Estilo Instagram) -->
+<form id="inspector-form" class="inspector-form">
+    
+    <!-- Header com Switch de Dados de Exemplo -->
+    <div class="fake-data-bar">
+        <span class="fake-data-label">✨ Preencher com Dados de Exemplo</span>
+        <label class="switch-toggle">
+            <input type="checkbox" id="fake-data-toggle" checked>
+            <span class="switch-slider"></span>
+        </label>
+    </div>
+
+    <!-- Navegação por Abas Internas -->
+    <div class="inspector-tabs">
+        <button type="button" class="inspector-tab-btn active" data-tab="content">📝 Conteúdo</button>
+        <button type="button" class="inspector-tab-btn" data-tab="addons">🧩 Add ons</button>
+    </div>
+
+    <!-- PAINEL 1: CONTEÚDO PRINCIPAL -->
+    <div id="panel-content" class="tab-panel active">
+        
+        <!-- Bloco 1: Perfil do Instagram -->
+        <div class="inspector-section">
+            <h4 class="inspector-section-title">
+                <span>👤 Perfil da Loja / Criador</span>
+            </h4>
+            
+            <div class="form-group">
+                <label for="input-arroba">Usuário do Instagram (@)</label>
+                <div class="input-with-icon">
+                    <span class="input-icon">@</span>
+                    <input type="text" id="input-arroba" placeholder="seu.usuario" value="studiobeauty.oficial">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="input-name">Nome Principal</label>
+                <input type="text" id="input-name" placeholder="Ex: Studio Beauty | Estética" value="Studio Beauty | Estética">
+            </div>
+
+            <div class="form-group">
+                <label for="input-avatar">Foto de Perfil (URL do Avatar)</label>
+                <div class="input-with-action">
+                    <input type="url" id="input-avatar" placeholder="https://..." value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300">
+                    <button type="button" class="btn-input-action" id="btn-search-avatar" title="Buscar foto">🖼️</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="input-bio">Biografia (Texto de Apresentação)</label>
+                <textarea id="input-bio" rows="3" placeholder="Escreva a biografia aqui...">Especialista em micropigmentação & extensão de cílios ✨&#10;Agendamento prático no WhatsApp!</textarea>
+                <div class="bio-alignment-selector">
+                    <span class="align-label">Alinhamento da Bio:</span>
+                    <div class="align-btn-group">
+                        <button type="button" class="align-btn active" data-align="left" title="Esquerda">⬅️</button>
+                        <button type="button" class="align-btn" data-align="center" title="Centralizado">↔️</button>
+                        <button type="button" class="align-btn" data-align="right" title="Direita">➡️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloco 2: Carrossel 3 Fotos Tela Cheia -->
+        <div class="inspector-section">
+            <h4 class="inspector-section-title">
+                <span>📸 Fotos do Carrossel (3 Imagens Tela Cheia)</span>
+            </h4>
+            <p class="section-desc">Essas imagens serão exibidas em carrossel de tela cheia estilo Instagram Stories/Posts.</p>
+
+            <div class="form-group">
+                <label for="input-carousel1-img">Foto 1 de Fundo (URL)</label>
+                <input type="url" id="input-carousel1-img" placeholder="https://..." value="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000">
+            </div>
+
+            <div class="form-group">
+                <label for="input-carousel2-img">Foto 2 de Fundo (URL)</label>
+                <input type="url" id="input-carousel2-img" placeholder="https://..." value="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000">
+            </div>
+
+            <div class="form-group">
+                <label for="input-carousel3-img">Foto 3 de Fundo (URL)</label>
+                <input type="url" id="input-carousel3-img" placeholder="https://..." value="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000">
+            </div>
+        </div>
+
+        <!-- Bloco 3: Botões de Ação CTA -->
+        <div class="inspector-section">
+            <h4 class="inspector-section-title">
+                <span>🔗 Botões de Ação Principais</span>
+            </h4>
+
+            <div class="form-group">
+                <label for="input-btn1-title">Botão 1 (Título)</label>
+                <input type="text" id="input-btn1-title" placeholder="Ex: 💬 Agendar no WhatsApp" value="💬 Agendar Horário no WhatsApp">
+                <input type="url" id="input-btn1-url" placeholder="https://wa.me/..." value="https://wa.me/5511999999999" class="sub-input">
+            </div>
+
+            <div class="form-group">
+                <label for="input-btn2-title">Botão 2 (Título)</label>
+                <input type="text" id="input-btn2-title" placeholder="Ex: 🛍️ Ver Tabela de Preços" value="🛍️ Ver Tabela de Preços">
+                <input type="url" id="input-btn2-url" placeholder="https://..." value="https://wa.me/5511999999999" class="sub-input">
+            </div>
+
+            <div class="form-group">
+                <label for="input-btn3-title">Botão 3 (Título)</label>
+                <input type="text" id="input-btn3-title" placeholder="Ex: 📍 Nossa Localização" value="📍 Nossa Localização">
+                <input type="url" id="input-btn3-url" placeholder="https://maps.google.com" value="https://maps.google.com" class="sub-input">
+            </div>
+
+            <div class="form-group">
+                <label for="input-btn4-title">Botão 4 (Título)</label>
+                <input type="text" id="input-btn4-title" placeholder="Ex: ✨ Seguir no Instagram" value="✨ Seguir no Instagram">
+                <input type="url" id="input-btn4-url" placeholder="https://instagram.com" value="https://instagram.com" class="sub-input">
+            </div>
+        </div>
+
+        <!-- Container para Add-ons Ativados -->
+        <div id="active-addons-list"></div>
+
+    </div>
+
+    <!-- PAINEL 2: CATÁLOGO DE ADD-ONS -->
+    <div id="panel-addons" class="tab-panel">
+        <!-- Injetado dinamicamente de /partials/addons-catalog.html -->
+    </div>
+
+</form>

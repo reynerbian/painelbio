@@ -933,6 +933,177 @@ const leftIcon = document.querySelector('.left-icon');
                 </script>`;
             }
 
+            if (data.model === 'carousel') {
+                const c1Img = data.carousel1Img || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
+                const c2Img = data.carousel2Img || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
+                const c3Img = data.carousel3Img || 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
+
+                const avatarHtml = data.avatar ? `
+                    <div class="c-avatar-wrapper">
+                        <div class="c-avatar-inner">
+                            <img src="${data.avatar}" alt="${data.name || ''}">
+                        </div>
+                    </div>
+                ` : '';
+
+                const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" target="_blank" rel="noopener" class="c-btn">${data.btn1Title}</a>` : '';
+                const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" target="_blank" rel="noopener" class="c-btn">${data.btn2Title}</a>` : '';
+                const btn3Html = data.btn3Title ? `<a href="${data.btn3Url || '#'}" target="_blank" rel="noopener" class="c-btn">${data.btn3Title}</a>` : '';
+                const btn4Html = data.btn4Title ? `<a href="${data.btn4Url || '#'}" target="_blank" rel="noopener" class="c-btn">${data.btn4Title}</a>` : '';
+
+                return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${data.name || data.arroba || 'PainelBio'}</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background: #000000; color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .c-fullscreen-page {
+            position: relative; width: 100%; height: 100vh; overflow: hidden;
+        }
+        .c-slider {
+            position: absolute; inset: 0; z-index: 1;
+        }
+        .c-slide {
+            position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out;
+        }
+        .c-slide.active { opacity: 1; }
+        .c-slide img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .c-overlay {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 35%, rgba(0,0,0,0.85) 100%);
+        }
+        .c-stories-progress {
+            position: absolute; top: 12px; left: 12px; right: 12px;
+            display: flex; gap: 4px; z-index: 10;
+        }
+        .c-prog-bar {
+            flex: 1; height: 3px; background: rgba(255,255,255,0.35); border-radius: 2px; overflow: hidden;
+        }
+        .c-prog-fill {
+            width: 0%; height: 100%; background: #ffffff; transition: width 0.3s;
+        }
+        .c-header {
+            position: absolute; top: 26px; left: 14px; right: 14px;
+            display: flex; align-items: flex-start; gap: 10px; z-index: 10;
+        }
+        .c-avatar-wrapper {
+            width: 48px; height: 48px; border-radius: 50%; padding: 2.5px;
+            background: linear-gradient(135deg, #ec4899, #f59e0b, #3b82f6); flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+        }
+        .c-avatar-inner {
+            width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #000;
+        }
+        .c-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .c-profile-card {
+            flex: 1; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); border-radius: 14px; padding: 10px 12px;
+            border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .c-name { font-size: 0.92rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0; }
+        .c-arroba { font-size: 0.76rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block; }
+        .c-bio { font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.35; margin: 0; white-space: pre-wrap; text-align: ${data.bioAlign || 'left'}; }
+        .c-buttons {
+            position: absolute; bottom: 24px; left: 14px; right: 14px;
+            display: flex; flex-direction: column; gap: 10px; z-index: 10;
+        }
+        .c-btn {
+            width: 100%; background: rgba(15, 23, 42, 0.75); color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.22); padding: 14px 18px; border-radius: 14px;
+            font-weight: 700; font-size: 0.88rem; text-align: center; text-decoration: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); box-sizing: border-box; display: block;
+        }
+        .c-footer {
+            position: absolute; bottom: 6px; left: 0; right: 0; text-align: center;
+            font-size: 0.65rem; color: rgba(255,255,255,0.4); z-index: 10; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .c-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+    ${topBannerHtml}
+    ${audioPlayerHtml}
+    <div class="c-fullscreen-page">
+        ${emojiRainHtml}
+        <div class="c-slider">
+            <div class="c-slide active" id="c-s-0">
+                <img src="${c1Img}">
+            </div>
+            <div class="c-slide" id="c-s-1">
+                <img src="${c2Img}">
+            </div>
+            <div class="c-slide" id="c-s-2">
+                <img src="${c3Img}">
+            </div>
+        </div>
+        <div class="c-overlay"></div>
+        <div class="c-stories-progress">
+            <div class="c-prog-bar"><div class="c-prog-fill" id="c-p-0" style="width: 100%;"></div></div>
+            <div class="c-prog-bar"><div class="c-prog-fill" id="c-p-1"></div></div>
+            <div class="c-prog-bar"><div class="c-prog-fill" id="c-p-2"></div></div>
+        </div>
+        <div class="c-header">
+            ${avatarHtml}
+            <div class="c-profile-card">
+                ${data.name ? `<h1 class="c-name">${data.name}</h1>` : ''}
+                ${data.arroba ? `<a href="https://instagram.com/${cleanArroba}" target="_blank" class="c-arroba">${displayArroba}</a>` : ''}
+                ${data.bio ? `<p class="c-bio">${data.bio}</p>` : ''}
+            </div>
+        </div>
+        <div class="c-buttons">
+            ${btn1Html}
+            ${btn2Html}
+            ${btn3Html}
+            ${btn4Html}
+        </div>
+        <div class="c-footer">
+            CRIADO COM <a href="https://painelbio.pages.dev">PAINELBIO</a>
+        </div>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 3;
+        function updateCarousel(idx) {
+            for (let i = 0; i < totalSlides; i++) {
+                const s = document.getElementById('c-s-' + i);
+                const p = document.getElementById('c-p-' + i);
+                if (s) s.classList.toggle('active', i === idx);
+                if (p) p.style.width = (i <= idx) ? '100%' : '0%';
+            }
+        }
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel(currentSlide);
+        }, 4000);
+
+        let startX = 0;
+        document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, false);
+        document.addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX - endX > 40) {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel(currentSlide);
+            } else if (endX - startX > 40) {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateCarousel(currentSlide);
+            }
+        }, false);
+    </script>
+</body>
+</html>`;
+            }
+
             if (data.model === 'feed') {
                 const postsCount = data.feedStatPosts || '248';
                 const followersCount = data.feedStatFollowers || '12.5k';
@@ -1955,68 +2126,28 @@ loadClassicModel();
             const h3ImgInput = document.getElementById('input-highlight3-img');
             const h3TitleInput = document.getElementById('input-highlight3-title');
 
-            if (activeModel === 'feed') {
+            const c1ImgInput = document.getElementById('input-carousel1-img');
+            const c2ImgInput = document.getElementById('input-carousel2-img');
+            const c3ImgInput = document.getElementById('input-carousel3-img');
+
+            if (activeModel === 'carousel') {
+                if (c1ImgInput) c1ImgInput.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000";
+                if (c2ImgInput) c2ImgInput.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000";
+                if (c3ImgInput) c3ImgInput.value = "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000";
+
                 if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300";
                 if (nameInput) nameInput.value = "Studio Beauty | Estética & Cílios";
                 if (arrobaInput) arrobaInput.value = "studiobeauty.oficial";
-                if (bioInput) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!\n📍 Jardins - São Paulo/SP`;
-                
-                const postsStat = document.getElementById('input-feed-stat-posts');
-                const followersStat = document.getElementById('input-feed-stat-followers');
-                if (postsStat) postsStat.value = "342";
-                if (followersStat) followersStat.value = "18.4k";
-
-                const s1Img = document.getElementById('input-story1-img');
-                const s1Title = document.getElementById('input-story1-title');
-                const s1Url = document.getElementById('input-story1-url');
-                if (s1Img) s1Img.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200";
-                if (s1Title) s1Title.value = "Promoções";
-                if (s1Url) s1Url.value = "https://wa.me/5511999999999";
-
-                const s2Img = document.getElementById('input-story2-img');
-                const s2Title = document.getElementById('input-story2-title');
-                const s2Url = document.getElementById('input-story2-url');
-                if (s2Img) s2Img.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200";
-                if (s2Title) s2Title.value = "Resultados";
-                if (s2Url) s2Url.value = "https://instagram.com";
-
-                const s3Img = document.getElementById('input-story3-img');
-                const s3Title = document.getElementById('input-story3-title');
-                const s3Url = document.getElementById('input-story3-url');
-                if (s3Img) s3Img.value = "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200";
-                if (s3Title) s3Title.value = "Cursos";
-                if (s3Url) s3Url.value = "https://wa.me/5511999999999";
-
-                const s4Img = document.getElementById('input-story4-img');
-                const s4Title = document.getElementById('input-story4-title');
-                const s4Url = document.getElementById('input-story4-url');
-                if (s4Img) s4Img.value = "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200";
-                if (s4Title) s4Title.value = "Endereço";
-                if (s4Url) s4Url.value = "https://maps.google.com";
-
-                const p1Img = document.getElementById('input-feed-post1-img');
-                const p1Title = document.getElementById('input-feed-post1-title');
-                const p1Url = document.getElementById('input-feed-post1-url');
-                if (p1Img) p1Img.value = "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500";
-                if (p1Title) p1Title.value = "✨ Volume Russo Luxo";
-                if (p1Url) p1Url.value = "https://wa.me/5511999999999";
-
-                const p2Img = document.getElementById('input-feed-post2-img');
-                const p2Title = document.getElementById('input-feed-post2-title');
-                const p2Url = document.getElementById('input-feed-post2-url');
-                if (p2Img) p2Img.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500";
-                if (p2Title) p2Title.value = "💖 Micro Labial Hydra";
-                if (p2Url) p2Url.value = "https://wa.me/5511999999999";
-
-                const p3Img = document.getElementById('input-feed-post3-img');
-                const p3Title = document.getElementById('input-feed-post3-title');
-                const p3Url = document.getElementById('input-feed-post3-url');
-                if (p3Img) p3Img.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500";
-                if (p3Title) p3Title.value = "🌿 Design Henna Premium";
-                if (p3Url) p3Url.value = "https://wa.me/5511999999999";
+                if (bioInput) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!`;
 
                 if (btn1TitleInput) btn1TitleInput.value = "💬 Agendar Horário no WhatsApp";
                 if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Tabela de Preços";
+                if (btn2UrlInput) btn2UrlInput.value = "https://wa.me/5511999999999";
+                if (btn3TitleInput) btn3TitleInput.value = "📍 Nossa Localização";
+                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+                if (btn4TitleInput) btn4TitleInput.value = "✨ Seguir no Instagram";
+                if (btn4UrlInput) btn4UrlInput.value = "https://instagram.com";
             } else if (activeModel === 'vitrine') {
                 if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
                 if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
@@ -2072,54 +2203,61 @@ loadClassicModel();
                 }
             });
 
-            if (activeModel === 'feed') {
-                previewScreen.style.background = '#090d16';
+            if (activeModel === 'carousel') {
+                previewScreen.style.background = '#000000';
+                
                 previewScreen.innerHTML = `
-                    <div class="f-live-page" style="width: 100%; min-height: 100%; padding: 14px 12px 30px 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; overflow-y: auto;">
+                    <div class="c-live-page" style="position: relative; width: 100%; height: 100%; overflow: hidden; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                         
-                        <!-- Header do Perfil (Avatar + Stats) -->
-                        <div id="f-view-header" style="width: 100%; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding: 0 4px;">
-                            <!-- Avatar com anel de Story -->
-                            <div id="f-view-avatar-ring" style="width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #f59e0b, #7c3aed); padding: 2.5px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);">
-                                <div id="f-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; background: #090d16; overflow: hidden; border: 2px solid #090d16;"></div>
+                        <!-- Carrossel de Fotos em Tela Cheia -->
+                        <div id="c-view-slider" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;">
+                            <div id="c-slide-1" class="c-slide active" style="position: absolute; inset: 0; opacity: 1; transition: opacity 0.8s ease-in-out;">
+                                <img id="c-view-img1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000'" />
                             </div>
-                            
-                            <!-- Contadores (Estatísticas) -->
-                            <div style="flex: 1; display: flex; justify-space-around; align-items: center; text-align: center;">
-                                <div>
-                                    <div id="f-view-stat-posts" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">248</div>
-                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Posts</div>
-                                </div>
-                                <div>
-                                    <div id="f-view-stat-followers" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">12.5k</div>
-                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Seguidores</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.95rem; font-weight: 700; color: #4ade80;">Online</div>
-                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 500;">Atendimento</div>
-                                </div>
+                            <div id="c-slide-2" class="c-slide" style="position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out;">
+                                <img id="c-view-img2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000'" />
+                            </div>
+                            <div id="c-slide-3" class="c-slide" style="position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out;">
+                                <img id="c-view-img3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000'" />
                             </div>
                         </div>
 
-                        <!-- Bio e Handle -->
-                        <div id="f-view-info" style="width: 100%; display: flex; flex-direction: column; margin-bottom: 14px; padding: 0 4px;">
-                            <h1 id="f-view-name" style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0;"></h1>
-                            <a id="f-view-arroba" href="#" target="_blank" style="font-size: 0.8rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 8px;"></a>
-                            <p id="f-view-bio" style="font-size: 0.8rem; color: rgba(255,255,255,0.85); line-height: 1.45; margin: 0; white-space: pre-wrap;"></p>
+                        <!-- Dark Overlay Degradê para contraste de leitura -->
+                        <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 35%, rgba(0,0,0,0.85) 100%); z-index: 2; pointer-events: none;"></div>
+
+                        <!-- Barra de Progresso Estilo Instagram Stories no Topo -->
+                        <div id="c-view-stories-progress" style="position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 4px; z-index: 10;">
+                            <div class="c-progress-bar" style="flex: 1; height: 3px; background: rgba(255,255,255,0.35); border-radius: 2px; overflow: hidden;">
+                                <div id="c-prog-1" style="width: 100%; height: 100%; background: #ffffff; transition: width 0.3s;"></div>
+                            </div>
+                            <div class="c-progress-bar" style="flex: 1; height: 3px; background: rgba(255,255,255,0.35); border-radius: 2px; overflow: hidden;">
+                                <div id="c-prog-2" style="width: 0%; height: 100%; background: #ffffff; transition: width 0.3s;"></div>
+                            </div>
+                            <div class="c-progress-bar" style="flex: 1; height: 3px; background: rgba(255,255,255,0.35); border-radius: 2px; overflow: hidden;">
+                                <div id="c-prog-3" style="width: 0%; height: 100%; background: #ffffff; transition: width 0.3s;"></div>
+                            </div>
                         </div>
 
-                        <!-- Stories / Destaques Circulares -->
-                        <div id="f-view-stories" style="width: 100%; display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 10px 4px; margin-bottom: 12px; scrollbar-width: none;"></div>
+                        <!-- Perfil no Canto Superior -->
+                        <div id="c-view-header" style="position: absolute; top: 26px; left: 14px; right: 14px; display: flex; align-items: flex-start; gap: 10px; z-index: 10;">
+                            <!-- Avatar Circular no Canto -->
+                            <div id="c-view-avatar-wrapper" style="width: 48px; height: 48px; border-radius: 50%; padding: 2.5px; background: linear-gradient(135deg, #ec4899, #f59e0b, #3b82f6); flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                                <div id="c-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #000;"></div>
+                            </div>
+                            <!-- Handle, Nome e Bio em Card de Vidro Fino -->
+                            <div style="flex: 1; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 14px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+                                <h1 id="c-view-name" style="font-size: 0.92rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0;"></h1>
+                                <a id="c-view-arroba" href="#" target="_blank" style="font-size: 0.76rem; color: #ec4899; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block;"></a>
+                                <p id="c-view-bio" style="font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.35; margin: 0; white-space: pre-wrap;"></p>
+                            </div>
+                        </div>
 
-                        <!-- Botão Principal de Ação -->
-                        <div id="f-view-buttons" style="width: 100%; margin-bottom: 16px;"></div>
+                        <!-- Botões de Ação na Parte Inferior -->
+                        <div id="c-view-buttons" style="position: absolute; bottom: 20px; left: 14px; right: 14px; display: flex; flex-direction: column; gap: 10px; z-index: 10;"></div>
 
-                        <!-- Grid de Posts do Feed -->
-                        <div id="f-view-posts-grid" style="width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 20px;"></div>
-
-                        <!-- Rodapé PainelBio -->
-                        <div id="f-view-footer" style="margin-top: 10px; font-size: 0.7rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
-                            CRIADO COM <a href="#" style="color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700;">PAINELBIO</a>
+                        <!-- Rodapé Criado com PainelBio -->
+                        <div style="position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.4); z-index: 10; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            CRIADO COM PAINELBIO
                         </div>
 
                     </div>
@@ -2246,29 +2384,9 @@ loadClassicModel();
                     'input-name': backup.name || '',
                     'input-arroba': backup.arroba || '',
                     'input-bio': backup.bio || '',
-                    'input-feed-stat-posts': backup.feedStatPosts || '',
-                    'input-feed-stat-followers': backup.feedStatFollowers || '',
-                    'input-story1-img': backup.story1Img || '',
-                    'input-story1-title': backup.story1Title || '',
-                    'input-story1-url': backup.story1Url || '',
-                    'input-story2-img': backup.story2Img || '',
-                    'input-story2-title': backup.story2Title || '',
-                    'input-story2-url': backup.story2Url || '',
-                    'input-story3-img': backup.story3Img || '',
-                    'input-story3-title': backup.story3Title || '',
-                    'input-story3-url': backup.story3Url || '',
-                    'input-story4-img': backup.story4Img || '',
-                    'input-story4-title': backup.story4Title || '',
-                    'input-story4-url': backup.story4Url || '',
-                    'input-feed-post1-img': backup.feedPost1Img || '',
-                    'input-feed-post1-title': backup.feedPost1Title || '',
-                    'input-feed-post1-url': backup.feedPost1Url || '',
-                    'input-feed-post2-img': backup.feedPost2Img || '',
-                    'input-feed-post2-title': backup.feedPost2Title || '',
-                    'input-feed-post2-url': backup.feedPost2Url || '',
-                    'input-feed-post3-img': backup.feedPost3Img || '',
-                    'input-feed-post3-title': backup.feedPost3Title || '',
-                    'input-feed-post3-url': backup.feedPost3Url || '',
+                    'input-carousel1-img': backup.carousel1Img || '',
+                    'input-carousel2-img': backup.carousel2Img || '',
+                    'input-carousel3-img': backup.carousel3Img || '',
                     'input-btn1-title': backup.btn1Title || '',
                     'input-btn1-url': backup.btn1Url || '',
                     'input-btn2-title': backup.btn2Title || '',
@@ -2849,32 +2967,76 @@ loadClassicModel();
                 phoneAudioPlayer.style.display = 'none';
             }
 
+
+
             // =========================================================================
-            // MODELO 3: BIO FEED & STORIES (Stories circulares, contadores e grid de posts)
+            // MODELO: CARROSSEL STORIES (3 Fotos Tela Cheia com Progresso no Topo)
             // =========================================================================
-            if (activeModel === 'feed') {
-                const avatarInner = document.getElementById('f-view-avatar-inner');
-                const viewName = document.getElementById('f-view-name');
-                const viewArroba = document.getElementById('f-view-arroba');
-                const viewBio = document.getElementById('f-view-bio');
-                const statPosts = document.getElementById('f-view-stat-posts');
-                const statFollowers = document.getElementById('f-view-stat-followers');
-                const storiesContainer = document.getElementById('f-view-stories');
-                const postsGrid = document.getElementById('f-view-posts-grid');
-                const viewButtons = document.getElementById('f-view-buttons');
+            if (activeModel === 'carousel') {
+                const img1 = document.getElementById('c-view-img1');
+                const img2 = document.getElementById('c-view-img2');
+                const img3 = document.getElementById('c-view-img3');
+                
+                const avatarInner = document.getElementById('c-view-avatar-inner');
+                const viewName = document.getElementById('c-view-name');
+                const viewArroba = document.getElementById('c-view-arroba');
+                const viewBio = document.getElementById('c-view-bio');
+                const viewButtons = document.getElementById('c-view-buttons');
+
+                const c1Url = document.getElementById('input-carousel1-img')?.value.trim() || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
+                const c2Url = document.getElementById('input-carousel2-img')?.value.trim() || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
+                const c3Url = document.getElementById('input-carousel3-img')?.value.trim() || 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
 
                 const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
                 const name = document.getElementById('input-name')?.value.trim() || '';
                 const arroba = document.getElementById('input-arroba')?.value.trim() || '';
                 const bio = document.getElementById('input-bio')?.value.trim() || '';
 
-                const postsVal = document.getElementById('input-feed-stat-posts')?.value.trim() || '248';
-                const followersVal = document.getElementById('input-feed-stat-followers')?.value.trim() || '12.5k';
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
+                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
+                const btn3Title = document.getElementById('input-btn3-title')?.value.trim() || '';
+                const btn3Url = document.getElementById('input-btn3-url')?.value.trim() || '';
+                const btn4Title = document.getElementById('input-btn4-title')?.value.trim() || '';
+                const btn4Url = document.getElementById('input-btn4-url')?.value.trim() || '';
 
-                // Top Banner Margin Adjustment
-                const fLivePage = document.querySelector('.f-live-page');
-                if (fLivePage) {
-                    fLivePage.style.marginTop = isTopbannerActive ? '36px' : '0px';
+                if (img1) img1.src = c1Url;
+                if (img2) img2.src = c2Url;
+                if (img3) img3.src = c3Url;
+
+                // Gerenciador de Animação / Troca dos Slides no Live Preview
+                const configKey = `${c1Url}_${c2Url}_${c3Url}`;
+                if (window.carouselConfigKey !== configKey) {
+                    window.carouselConfigKey = configKey;
+                    if (window.carouselTimer) clearInterval(window.carouselTimer);
+                    
+                    window.carouselSlideIdx = 0;
+                    const slides = [
+                        document.getElementById('c-slide-1'),
+                        document.getElementById('c-slide-2'),
+                        document.getElementById('c-slide-3')
+                    ];
+                    const progs = [
+                        document.getElementById('c-prog-1'),
+                        document.getElementById('c-prog-2'),
+                        document.getElementById('c-prog-3')
+                    ];
+
+                    function showSlide(idx) {
+                        slides.forEach((s, i) => {
+                            if (s) s.style.opacity = (i === idx) ? '1' : '0';
+                        });
+                        progs.forEach((p, i) => {
+                            if (p) p.style.width = (i <= idx) ? '100%' : '0%';
+                        });
+                    }
+
+                    showSlide(0);
+                    window.carouselTimer = setInterval(() => {
+                        window.carouselSlideIdx = (window.carouselSlideIdx + 1) % 3;
+                        showSlide(window.carouselSlideIdx);
+                    }, 4000);
                 }
 
                 // Avatar
@@ -2886,7 +3048,7 @@ loadClassicModel();
                     }
                 }
 
-                // Header Info
+                // Info Perfil
                 if (viewName) viewName.textContent = name || '';
                 if (viewArroba) {
                     if (arroba) {
@@ -2906,77 +3068,20 @@ loadClassicModel();
                     viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'left';
                 }
 
-                if (statPosts) statPosts.textContent = postsVal;
-                if (statFollowers) statFollowers.textContent = followersVal;
+                // Botões de Ação com Vidro Fosco
+                let btnsHtml = '';
+                const createCBtn = (title, url) => `
+                    <div style="width: 100%; background: rgba(15, 23, 42, 0.72); color: #ffffff; border: 1px solid rgba(255,255,255,0.22); padding: 13px 16px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); cursor: pointer; transition: transform 0.2s;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                        ${title}
+                    </div>
+                `;
 
-                // Stories Rendering
-                const stories = [
-                    { img: document.getElementById('input-story1-img')?.value.trim(), title: document.getElementById('input-story1-title')?.value.trim() || 'Destaque', url: document.getElementById('input-story1-url')?.value.trim() },
-                    { img: document.getElementById('input-story2-img')?.value.trim(), title: document.getElementById('input-story2-title')?.value.trim() || 'Novidades', url: document.getElementById('input-story2-url')?.value.trim() },
-                    { img: document.getElementById('input-story3-img')?.value.trim(), title: document.getElementById('input-story3-title')?.value.trim() || 'Fotos', url: document.getElementById('input-story3-url')?.value.trim() },
-                    { img: document.getElementById('input-story4-img')?.value.trim(), title: document.getElementById('input-story4-title')?.value.trim() || 'Contato', url: document.getElementById('input-story4-url')?.value.trim() }
-                ].filter(s => s.img || s.title);
+                if (btn1Title) btnsHtml += createCBtn(btn1Title, btn1Url);
+                if (btn2Title) btnsHtml += createCBtn(btn2Title, btn2Url);
+                if (btn3Title) btnsHtml += createCBtn(btn3Title, btn3Url);
+                if (btn4Title) btnsHtml += createCBtn(btn4Title, btn4Url);
 
-                if (storiesContainer) {
-                    if (stories.length > 0) {
-                        storiesContainer.style.display = 'flex';
-                        storiesContainer.innerHTML = stories.map(s => `
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; cursor: pointer;" onclick="${s.url ? `window.open('${s.url}', '_blank')` : ''}">
-                                <div style="width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #f59e0b); padding: 2px; box-shadow: 0 4px 10px rgba(236,72,153,0.3);">
-                                    <div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #090d16; border: 1.5px solid #090d16;">
-                                        <img src="${s.img || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200'">
-                                    </div>
-                                </div>
-                                <span style="font-size: 0.65rem; color: #cbd5e1; font-weight: 600; text-align: center; max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.title}</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        storiesContainer.style.display = 'none';
-                    }
-                }
-
-                // Feed Posts Grid Rendering
-                const posts = [
-                    { img: document.getElementById('input-feed-post1-img')?.value.trim(), title: document.getElementById('input-feed-post1-title')?.value.trim(), url: document.getElementById('input-feed-post1-url')?.value.trim() },
-                    { img: document.getElementById('input-feed-post2-img')?.value.trim(), title: document.getElementById('input-feed-post2-title')?.value.trim(), url: document.getElementById('input-feed-post2-url')?.value.trim() },
-                    { img: document.getElementById('input-feed-post3-img')?.value.trim(), title: document.getElementById('input-feed-post3-title')?.value.trim(), url: document.getElementById('input-feed-post3-url')?.value.trim() }
-                ].filter(p => p.img || p.title);
-
-                if (postsGrid) {
-                    if (posts.length > 0) {
-                        postsGrid.style.display = 'grid';
-                        postsGrid.innerHTML = posts.map(p => `
-                            <div style="position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 10px; overflow: hidden; background: #1e293b; cursor: pointer; border: 1px solid rgba(255,255,255,0.08);" onclick="${p.url ? `window.open('${p.url}', '_blank')` : ''}">
-                                <img src="${p.img || 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500'">
-                                ${p.title ? `
-                                    <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 4px 4px 4px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); font-size: 0.62rem; color: #fff; font-weight: 600; text-align: center; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                                        ${p.title}
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `).join('');
-                    } else {
-                        postsGrid.style.display = 'none';
-                    }
-                }
-
-                // CTA Button
-                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
-                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
-                if (viewButtons) {
-                    if (btn1Title) {
-                        viewButtons.innerHTML = `
-                            <div style="width: 100%; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #ffffff; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 0.86rem; text-align: center; box-shadow: 0 4px 16px rgba(236,72,153,0.4); cursor: pointer; box-sizing: border-box;" onclick="${btn1Url ? `window.open('${btn1Url}', '_blank')` : ''}">
-                                ${btn1Title}
-                            </div>
-                        `;
-                        viewButtons.style.display = 'block';
-                    } else {
-                        viewButtons.innerHTML = '';
-                        viewButtons.style.display = 'none';
-                    }
-                }
-
+                if (viewButtons) viewButtons.innerHTML = btnsHtml;
                 return;
             }
 
@@ -3558,29 +3663,9 @@ loadClassicModel();
                         name: document.getElementById('input-name')?.value.trim() || '',
                         avatar: document.getElementById('input-avatar')?.value.trim() || '',
                         bio: document.getElementById('input-bio')?.value.trim() || '',
-                        feedStatPosts: document.getElementById('input-feed-stat-posts')?.value.trim() || '',
-                        feedStatFollowers: document.getElementById('input-feed-stat-followers')?.value.trim() || '',
-                        story1Img: document.getElementById('input-story1-img')?.value.trim() || '',
-                        story1Title: document.getElementById('input-story1-title')?.value.trim() || '',
-                        story1Url: document.getElementById('input-story1-url')?.value.trim() || '',
-                        story2Img: document.getElementById('input-story2-img')?.value.trim() || '',
-                        story2Title: document.getElementById('input-story2-title')?.value.trim() || '',
-                        story2Url: document.getElementById('input-story2-url')?.value.trim() || '',
-                        story3Img: document.getElementById('input-story3-img')?.value.trim() || '',
-                        story3Title: document.getElementById('input-story3-title')?.value.trim() || '',
-                        story3Url: document.getElementById('input-story3-url')?.value.trim() || '',
-                        story4Img: document.getElementById('input-story4-img')?.value.trim() || '',
-                        story4Title: document.getElementById('input-story4-title')?.value.trim() || '',
-                        story4Url: document.getElementById('input-story4-url')?.value.trim() || '',
-                        feedPost1Img: document.getElementById('input-feed-post1-img')?.value.trim() || '',
-                        feedPost1Title: document.getElementById('input-feed-post1-title')?.value.trim() || '',
-                        feedPost1Url: document.getElementById('input-feed-post1-url')?.value.trim() || '',
-                        feedPost2Img: document.getElementById('input-feed-post2-img')?.value.trim() || '',
-                        feedPost2Title: document.getElementById('input-feed-post2-title')?.value.trim() || '',
-                        feedPost2Url: document.getElementById('input-feed-post2-url')?.value.trim() || '',
-                        feedPost3Img: document.getElementById('input-feed-post3-img')?.value.trim() || '',
-                        feedPost3Title: document.getElementById('input-feed-post3-title')?.value.trim() || '',
-                        feedPost3Url: document.getElementById('input-feed-post3-url')?.value.trim() || '',
+                        carousel1Img: document.getElementById('input-carousel1-img') ? document.getElementById('input-carousel1-img').value.trim() : (window.tempFormBackup?.carousel1Img || ''),
+                        carousel2Img: document.getElementById('input-carousel2-img') ? document.getElementById('input-carousel2-img').value.trim() : (window.tempFormBackup?.carousel2Img || ''),
+                        carousel3Img: document.getElementById('input-carousel3-img') ? document.getElementById('input-carousel3-img').value.trim() : (window.tempFormBackup?.carousel3Img || ''),
                         highlight1Img: document.getElementById('input-highlight1-img') ? document.getElementById('input-highlight1-img').value.trim() : (window.tempFormBackup?.highlight1Img || ''),
                         highlight1Title: document.getElementById('input-highlight1-title') ? document.getElementById('input-highlight1-title').value.trim() : (window.tempFormBackup?.highlight1Title || ''),
                         highlight2Img: document.getElementById('input-highlight2-img') ? document.getElementById('input-highlight2-img').value.trim() : (window.tempFormBackup?.highlight2Img || ''),
