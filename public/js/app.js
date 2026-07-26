@@ -2563,7 +2563,8 @@ loadClassicModel();
                 { btnId: 'btn-enable-topbanner-addon', cardId: 'card-addon-topbanner' },
                 { btnId: 'btn-enable-emojirain-addon', cardId: 'card-addon-emojirain' },
                 { btnId: 'btn-enable-avatarspin-addon', cardId: 'card-addon-avatarspin' },
-                { btnId: 'btn-enable-audioplayer-addon', cardId: 'card-addon-audioplayer' }
+                { btnId: 'btn-enable-audioplayer-addon', cardId: 'card-addon-audioplayer' },
+                { btnId: 'btn-enable-livechat-addon', cardId: 'card-addon-livechat' }
             ];
 
             addons.forEach(({ btnId, cardId }) => {
@@ -3754,6 +3755,35 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 5: BALÃO DE ATENDIMENTO "ONLINE AGORA"
+            // ==========================================
+            const btnEnableLivechat = document.getElementById('btn-enable-livechat-addon');
+            const cardLivechatInspector = document.getElementById('card-addon-livechat');
+            const btnRemoveLivechat = document.getElementById('btn-remove-livechat-addon');
+
+            if (btnEnableLivechat && cardLivechatInspector) {
+                btnEnableLivechat.addEventListener('click', () => {
+                    cardLivechatInspector.style.display = 'block';
+                    
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    
+                    updatePreviewFromForm();
+                    
+                    setTimeout(() => {
+                        cardLivechatInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveLivechat && cardLivechatInspector) {
+                btnRemoveLivechat.addEventListener('click', () => {
+                    cardLivechatInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -3856,6 +3886,14 @@ loadClassicModel();
                         addonAudioPlayerColor: document.getElementById('input-addon-ap-color')?.value || '#ec4899',
                         addonAudioPlayerWaveColor: document.getElementById('input-addon-ap-wave-color')?.value || '#ffffff',
                         addonAudioPlayerAutoplay: document.getElementById('input-addon-ap-autoplay')?.checked || false,
+                        addonLivechatActive: document.getElementById('card-addon-livechat')?.style.display !== 'none',
+                        addonLivechatAvatar: document.getElementById('input-addon-lc-avatar')?.value.trim() || '',
+                        addonLivechatName: document.getElementById('input-addon-lc-name')?.value.trim() || 'Suporte Amanda',
+                        addonLivechatStatusText: document.getElementById('input-addon-lc-status')?.value.trim() || 'Online Agora',
+                        addonLivechatMessage: document.getElementById('input-addon-lc-message')?.value.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋',
+                        addonLivechatUrl: document.getElementById('input-addon-lc-url')?.value.trim() || 'https://wa.me/5511999999999',
+                        addonLivechatPosition: document.getElementById('select-addon-lc-position')?.value || 'bottom-left',
+                        addonLivechatColor: document.getElementById('input-addon-lc-color')?.value || '#22c55e',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
                     };
