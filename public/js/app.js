@@ -758,8 +758,11 @@ const leftIcon = document.querySelector('.left-icon');
         window.generateStaticSite = function(data) {
             if (!data) return '';
             const modelType = (data && data.model ? String(data.model).toLowerCase().trim() : 'classic');
-            const isVitrine = modelType === 'vitrine';
-            const isCarousel = modelType === 'carousel' || modelType === 'carrossel';
+            const hasCarouselImages = Boolean(data && (data.carousel1Img || data.carousel2Img || data.carousel3Img));
+            const hasHighlightImages = Boolean(data && (data.highlight1Img || data.highlight2Img || data.highlight3Img));
+
+            const isCarousel = modelType === 'carousel' || modelType === 'carrossel' || (modelType === 'classic' && hasCarouselImages);
+            const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel;
             const presetMap = {
                 'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
                 'sunset': { c1: '#ff0844', c2: '#ffb199', text: '#ffffff', bg: '#120508', cardBg: '#1c080d' },
