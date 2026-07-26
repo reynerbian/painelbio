@@ -160,3 +160,11 @@ document.addEventListener('visibilitychange', async () => {
 
 // Tenta ativar ao carregar o script
 requestWakeLock();
+
+// Expor funções globais de UI
+window.openDrawer = openDrawer;
+window.closeAll = closeAll;
+window.toggleColorPicker = toggleColorPicker;
+window.applyThemePreset = applyThemePreset;
+window.showCustomAlert = showCustomAlert;
+window.addScraperLog = addScraperLog;

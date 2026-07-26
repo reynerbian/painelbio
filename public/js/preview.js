@@ -1609,3 +1609,9 @@ function generateStaticSite(data) {
 </body>
 </html>`;
 }
+
+// Expor funções para chamadas globais
+window.loadTemplatePreview = loadTemplatePreview;
+window.updatePreviewFromForm = updatePreviewFromForm;
+window.generateStaticSite = generateStaticSite;
+window.populateFakeDataForModel = populateFakeDataForModel;

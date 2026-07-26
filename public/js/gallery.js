@@ -697,3 +697,7 @@ window.startUploadSite = startUploadSite;
 window.deleteSite = deleteSite;
 window.previewSiteOffline = previewSiteOffline;
 window.openSiteInfoModal = openSiteInfoModal;
+window.openLoadSiteModal = openLoadSiteModal;
+window.closeLoadSiteModal = closeLoadSiteModal;
+window.renderLoadSiteList = renderLoadSiteList;
+window.loadSiteIntoEditor = loadSiteIntoEditor;

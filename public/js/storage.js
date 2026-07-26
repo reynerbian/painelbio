@@ -57,3 +57,10 @@ function saveSearchHistory(searchItem) {
     history = history.slice(0, 5); // Guarda apenas as 5 buscas mais recentes
     localStorage.setItem('painelbio-search-history', JSON.stringify(history));
 }
+
+// Expor funções globais de armazenamento
+window.getProfileCache = getProfileCache;
+window.saveProfileCache = saveProfileCache;
+window.getLeads = getLeads;
+window.getSearchHistory = getSearchHistory;
+window.saveSearchHistory = saveSearchHistory;

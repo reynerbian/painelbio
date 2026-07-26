@@ -533,3 +533,6 @@ async function generateInstagramBio(arrobaInput) {
         }
     }, 800);
 }
+
+// Expor funções globais de API
+window.generateInstagramBio = generateInstagramBio;

@@ -384,3 +384,5 @@ function loadLeadData(data) {
         openDrawer(rightDrawer);
     }
 }
+
+window.loadLeadData = loadLeadData;
