@@ -871,6 +871,20 @@ function bindInspectorFormEvents() {
         input.addEventListener('change', updatePreviewFromForm);
     });
 
+    const fakeDataToggle = document.getElementById('fake-data-toggle');
+    if (fakeDataToggle) {
+        fakeDataToggle.addEventListener('change', () => {
+            const activeModel = window.currentActiveModel || 'classic';
+            if (fakeDataToggle.checked) {
+                populateFakeDataForModel(activeModel);
+            } else {
+                const form = document.getElementById('inspector-form');
+                if (form) form.reset();
+            }
+            updatePreviewFromForm();
+        });
+    }
+
     const effectSelect = document.getElementById('select-addon-tb-effect');
     const containerPause = document.getElementById('container-addon-tb-pause');
     const containerMarquee = document.getElementById('container-addon-tb-marquee-settings');
