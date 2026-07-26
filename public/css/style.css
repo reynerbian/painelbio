@@ -355,6 +355,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            box-sizing: border-box;
             position: relative;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;

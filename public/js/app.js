@@ -1014,14 +1014,15 @@ const leftIcon = document.querySelector('.left-icon');
         .c-bio { font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.35; margin: 0; white-space: pre-wrap; text-align: ${data.bioAlign || 'left'}; }
         .c-buttons {
             position: absolute; bottom: 24px; left: 14px; right: 14px;
-            display: flex; flex-direction: column; gap: 10px; z-index: 10;
+            display: flex; gap: 10px; z-index: 10;
         }
         .c-btn {
-            width: 100%; background: rgba(15, 23, 42, 0.78); color: #ffffff;
-            border: 1.5px solid ${theme.c1}; padding: 14px 18px; border-radius: 14px;
-            font-weight: 700; font-size: 0.88rem; text-align: center; text-decoration: none;
+            flex: 1; background: rgba(15, 23, 42, 0.78); color: #ffffff;
+            border: 1.5px solid ${theme.c1}; padding: 13px 10px; border-radius: 14px;
+            font-weight: 700; font-size: 0.82rem; text-align: center; text-decoration: none;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${theme.c1}44; backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); box-sizing: border-box; display: block;
+            -webkit-backdrop-filter: blur(12px); box-sizing: border-box; display: flex;
+            align-items: center; justify-content: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .c-footer {
             position: absolute; bottom: 6px; left: 0; right: 0; text-align: center;
@@ -1064,8 +1065,6 @@ const leftIcon = document.querySelector('.left-icon');
         <div class="c-buttons">
             ${btn1Html}
             ${btn2Html}
-            ${btn3Html}
-            ${btn4Html}
         </div>
         <div class="c-footer">
             CRIADO COM <a href="https://painelbio.pages.dev">PAINELBIO</a>
@@ -2140,14 +2139,10 @@ loadClassicModel();
                 if (arrobaInput) arrobaInput.value = "studiobeauty.oficial";
                 if (bioInput) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!`;
 
-                if (btn1TitleInput) btn1TitleInput.value = "💬 Agendar Horário no WhatsApp";
+                if (btn1TitleInput) btn1TitleInput.value = "💬 WhatsApp";
                 if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Tabela de Preços";
+                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Preços";
                 if (btn2UrlInput) btn2UrlInput.value = "https://wa.me/5511999999999";
-                if (btn3TitleInput) btn3TitleInput.value = "📍 Nossa Localização";
-                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
-                if (btn4TitleInput) btn4TitleInput.value = "✨ Seguir no Instagram";
-                if (btn4UrlInput) btn4UrlInput.value = "https://instagram.com";
             } else if (activeModel === 'vitrine') {
                 if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
                 if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
@@ -2252,8 +2247,8 @@ loadClassicModel();
                             </div>
                         </div>
 
-                        <!-- Botões de Ação na Parte Inferior -->
-                        <div id="c-view-buttons" style="position: absolute; bottom: 20px; left: 14px; right: 14px; display: flex; flex-direction: column; gap: 10px; z-index: 10;"></div>
+                        <!-- Botões de Ação na Parte Inferior Lado a Lado -->
+                        <div id="c-view-buttons" style="position: absolute; bottom: 22px; left: 14px; right: 14px; display: flex; gap: 10px; z-index: 10;"></div>
 
                         <!-- Rodapé Criado com PainelBio -->
                         <div style="position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.4); z-index: 10; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -3114,19 +3109,25 @@ loadClassicModel();
                     viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'left';
                 }
 
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
+                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
+
                 let btnsHtml = '';
                 const createCBtn = (title, url) => `
-                    <div style="width: 100%; background: rgba(15, 23, 42, 0.78); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 13px 16px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${themeBorderColor}33; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); cursor: pointer; transition: transform 0.2s;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                    <div style="flex: 1; background: rgba(15, 23, 42, 0.78); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 13px 10px; border-radius: 14px; font-weight: 700; font-size: 0.82rem; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 12px ${themeBorderColor}33; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); cursor: pointer; transition: transform 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
                         ${title}
                     </div>
                 `;
 
                 if (btn1Title) btnsHtml += createCBtn(btn1Title, btn1Url);
                 if (btn2Title) btnsHtml += createCBtn(btn2Title, btn2Url);
-                if (btn3Title) btnsHtml += createCBtn(btn3Title, btn3Url);
-                if (btn4Title) btnsHtml += createCBtn(btn4Title, btn4Url);
 
-                if (viewButtons) viewButtons.innerHTML = btnsHtml;
+                if (viewButtons) {
+                    viewButtons.style.display = (btn1Title || btn2Title) ? 'flex' : 'none';
+                    viewButtons.innerHTML = btnsHtml;
+                }
                 return;
             }
 
