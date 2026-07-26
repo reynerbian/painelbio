@@ -1073,6 +1073,8 @@ const leftIcon = document.querySelector('.left-icon');
     <script>
         let currentSlide = 0;
         const totalSlides = 3;
+        let isPaused = false;
+
         function updateCarousel(idx) {
             for (let i = 0; i < totalSlides; i++) {
                 const s = document.getElementById('c-s-' + i);
@@ -1081,13 +1083,27 @@ const leftIcon = document.querySelector('.left-icon');
                 if (p) p.style.width = (i <= idx) ? '100%' : '0%';
             }
         }
+
         setInterval(() => {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateCarousel(currentSlide);
+            if (!isPaused) {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel(currentSlide);
+            }
         }, 4000);
 
+        // Segurar para pausar o carrossel (Estilo Instagram Stories)
+        const pauseCarousel = () => { isPaused = true; };
+        const resumeCarousel = () => { isPaused = false; };
+
+        document.addEventListener('mousedown', pauseCarousel);
+        document.addEventListener('mouseup', resumeCarousel);
+        document.addEventListener('touchstart', pauseCarousel, { passive: true });
+        document.addEventListener('touchend', resumeCarousel);
+        document.addEventListener('touchcancel', resumeCarousel);
+
+        // Arrastar para os lados (Swipe)
         let startX = 0;
-        document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, false);
+        document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
         document.addEventListener('touchend', e => {
             let endX = e.changedTouches[0].clientX;
             if (startX - endX > 40) {
@@ -2507,9 +2523,41 @@ loadClassicModel();
             });
         }
 
+        // Atualiza a aparencia e status dos botoes no Catalogo de Add-ons (Cinza inativo vs Azul ativo)
+        function updateAddonCatalogButtonStates() {
+            const addons = [
+                { btnId: 'btn-enable-topbanner-addon', cardId: 'card-addon-topbanner' },
+                { btnId: 'btn-enable-emojirain-addon', cardId: 'card-addon-emojirain' },
+                { btnId: 'btn-enable-avatarspin-addon', cardId: 'card-addon-avatarspin' },
+                { btnId: 'btn-enable-audioplayer-addon', cardId: 'card-addon-audioplayer' }
+            ];
+
+            addons.forEach(({ btnId, cardId }) => {
+                const btn = document.getElementById(btnId);
+                const card = document.getElementById(cardId);
+                if (btn) {
+                    const isEnabled = card && card.style.display !== 'none';
+                    if (isEnabled) {
+                        btn.style.background = '#3b82f6';
+                        btn.style.color = '#ffffff';
+                        btn.style.border = '1px solid #60a5fa';
+                        btn.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.4)';
+                        btn.textContent = '✓ Habilitado';
+                    } else {
+                        btn.style.background = '#334155';
+                        btn.style.color = '#cbd5e1';
+                        btn.style.border = '1px solid rgba(255,255,255,0.1)';
+                        btn.style.boxShadow = 'none';
+                        btn.textContent = '+ Habilitar';
+                    }
+                }
+            });
+        }
+
         // Função para ler o formulário e atualizar a pré-visualização em tempo real
         function updatePreviewFromForm() {
             const activeModel = window.currentActiveModel || 'classic';
+            updateAddonCatalogButtonStates();
 
             // =========================================================================
             // ADD-ON 1: ANÚNCIO FLUTUANTE DE TOPO (Funciona em TODOS os modelos)
@@ -3035,6 +3083,8 @@ loadClassicModel();
                     
                     if (hasPhotos) {
                         window.carouselSlideIdx = 0;
+                        window.carouselIsPaused = false;
+
                         const slides = [
                             document.getElementById('c-slide-1'),
                             document.getElementById('c-slide-2'),
@@ -3059,10 +3109,30 @@ loadClassicModel();
                         }
 
                         showSlide(0);
-                        window.carouselTimer = setInterval(() => {
+
+                        function nextSlide() {
+                            if (window.carouselIsPaused) return;
                             window.carouselSlideIdx = (window.carouselSlideIdx + 1) % 3;
                             showSlide(window.carouselSlideIdx);
-                        }, 4000);
+                        }
+
+                        window.carouselTimer = setInterval(nextSlide, 4000);
+
+                        // Pressionar e segurar para pausar no preview
+                        const sliderContainer = document.getElementById('c-view-slider');
+                        if (sliderContainer && !sliderContainer.dataset.holdEventsBound) {
+                            sliderContainer.dataset.holdEventsBound = 'true';
+                            
+                            const pause = () => { window.carouselIsPaused = true; };
+                            const resume = () => { window.carouselIsPaused = false; };
+
+                            sliderContainer.addEventListener('mousedown', pause);
+                            sliderContainer.addEventListener('mouseup', resume);
+                            sliderContainer.addEventListener('mouseleave', resume);
+                            sliderContainer.addEventListener('touchstart', pause, { passive: true });
+                            sliderContainer.addEventListener('touchend', resume);
+                            sliderContainer.addEventListener('touchcancel', resume);
+                        }
                     }
                 }
 
