@@ -109,6 +109,7 @@ export async function onRequest(context) {
       name: data.name,
       avatar: data.avatar,
       preset: data.preset || 'gray',
+      model: data.model || 'classic',
       createdAt: data.createdAt,
       previewPath: data.avatar
     });
