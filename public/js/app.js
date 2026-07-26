@@ -872,39 +872,63 @@ const leftIcon = document.querySelector('.left-icon');
                     (function() {
                         var player = document.getElementById('pb-static-audio-player');
                         var audio = document.getElementById('pb-static-audio-el');
-                        if (player && audio) {
-                            var playIcon = player.querySelector('.ap-icon-play');
-                            var pauseIcon = player.querySelector('.ap-icon-pause');
-                            var wbars = player.querySelectorAll('.ap-wbar');
+                        if (!player || !audio) return;
 
-                            function updateUI(playing) {
-                                if (playing) {
-                                    if (playIcon) playIcon.style.display = 'none';
-                                    if (pauseIcon) pauseIcon.style.display = 'block';
-                                    player.style.opacity = '1';
-                                    player.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77';
-                                    wbars.forEach(function(bar, idx) { bar.style.animation = 'apWave 0.75s ease-in-out infinite ' + (idx * 0.18) + 's alternate'; });
-                                } else {
-                                    if (playIcon) playIcon.style.display = 'block';
-                                    if (pauseIcon) pauseIcon.style.display = 'none';
-                                    player.style.opacity = '0.85';
-                                    player.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33';
-                                    wbars.forEach(function(bar) { bar.style.animation = 'none'; });
-                                }
+                        var playIcon = player.querySelector('.ap-icon-play');
+                        var pauseIcon = player.querySelector('.ap-icon-pause');
+                        var wbars = player.querySelectorAll('.ap-wbar');
+
+                        function updateUI(playing) {
+                            if (playing) {
+                                if (playIcon) playIcon.style.display = 'none';
+                                if (pauseIcon) pauseIcon.style.display = 'block';
+                                player.style.opacity = '1';
+                                player.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77';
+                                wbars.forEach(function(bar, idx) { bar.style.animation = 'apWave 0.75s ease-in-out infinite ' + (idx * 0.18) + 's alternate'; });
+                            } else {
+                                if (playIcon) playIcon.style.display = 'block';
+                                if (pauseIcon) pauseIcon.style.display = 'none';
+                                player.style.opacity = '0.85';
+                                player.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33';
+                                wbars.forEach(function(bar) { bar.style.animation = 'none'; });
                             }
-
-                            if (!audio.paused) updateUI(true);
-                            else updateUI(false);
-
-                            player.addEventListener('click', function() {
-                                if (audio.paused) {
-                                    audio.play().then(function() { updateUI(true); }).catch(function(){});
-                                } else {
-                                    audio.pause();
-                                    updateUI(false);
-                                }
-                            });
                         }
+
+                        // Tenta tocar o som assim que entra na página
+                        function tryAutoplay() {
+                            var promise = audio.play();
+                            if (promise !== undefined) {
+                                promise.then(function() {
+                                    updateUI(true);
+                                }).catch(function() {
+                                    // Se o navegador bloqueou o som sem toque, toca no primeiro clique/toque em qualquer parte do site
+                                    updateUI(false);
+                                    function playOnFirstInteraction() {
+                                        if (audio.paused) {
+                                            audio.play().then(function() { updateUI(true); }).catch(function(){});
+                                        }
+                                        window.removeEventListener('pointerdown', playOnFirstInteraction);
+                                        window.removeEventListener('touchstart', playOnFirstInteraction);
+                                        window.removeEventListener('click', playOnFirstInteraction);
+                                    }
+                                    window.addEventListener('pointerdown', playOnFirstInteraction, { once: true });
+                                    window.addEventListener('touchstart', playOnFirstInteraction, { once: true });
+                                    window.addEventListener('click', playOnFirstInteraction, { once: true });
+                                });
+                            }
+                        }
+
+                        tryAutoplay();
+
+                        player.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (audio.paused) {
+                                audio.play().then(function() { updateUI(true); }).catch(function(){});
+                            } else {
+                                audio.pause();
+                                updateUI(false);
+                            }
+                        });
                     })();
                 </script>`;
             }
