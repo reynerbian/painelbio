@@ -3094,6 +3094,69 @@ loadClassicModel();
                 phoneAudioPlayer.style.display = 'none';
             }
 
+            // =========================================================================
+            // ADD-ON 5: BALÃO DE ATENDIMENTO "ONLINE AGORA" (PREVIEW)
+            // =========================================================================
+            const cardLivechatCheck = document.getElementById('card-addon-livechat');
+            const isLiveChatActive = cardLivechatCheck && cardLivechatCheck.style.display !== 'none';
+            let phoneLiveChat = document.getElementById('phone-live-chat-addon');
+
+            if (isLiveChatActive) {
+                const lcAvatar = document.getElementById('input-addon-lc-avatar')?.value.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+                const lcName = document.getElementById('input-addon-lc-name')?.value.trim() || 'Suporte Amanda';
+                const lcStatusText = document.getElementById('input-addon-lc-status')?.value.trim() || 'Online Agora';
+                const lcPosition = document.getElementById('select-addon-lc-position')?.value || 'bottom-left';
+                const lcColor = document.getElementById('input-addon-lc-color')?.value || '#22c55e';
+                const lcMessage = document.getElementById('input-addon-lc-message')?.value.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 💬';
+
+                let targetContainer = phoneScreen.querySelector('.v-live-page') || phoneScreen.querySelector('.preview-bio-page') || phoneScreen.querySelector('.c-live-page') || phoneScreen.querySelector('.f-container') || phoneScreen;
+
+                if (!phoneLiveChat || phoneLiveChat.parentNode !== targetContainer) {
+                    if (phoneLiveChat && phoneLiveChat.parentNode) {
+                        phoneLiveChat.parentNode.removeChild(phoneLiveChat);
+                    }
+                    phoneLiveChat = document.createElement('a');
+                    phoneLiveChat.id = 'phone-live-chat-addon';
+                    phoneLiveChat.href = '#';
+                    targetContainer.appendChild(phoneLiveChat);
+                } else {
+                    phoneLiveChat.style.display = 'flex';
+                }
+
+                let posCss = 'bottom: 20px; left: 20px;';
+                if (lcPosition === 'bottom-right') posCss = 'bottom: 20px; right: 20px;';
+
+                phoneLiveChat.style.cssText = `position: absolute; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;`;
+                
+                phoneLiveChat.innerHTML = `
+                    <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
+                        <img src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
+                        <span style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.78rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcName}</span>
+                            <span style="font-size: 0.65rem; font-weight: 600; color: ${lcColor}; background: ${lcColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">${lcStatusText}</span>
+                        </div>
+                        <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcMessage}</span>
+                    </div>
+                `;
+
+                let lcStyle = document.getElementById('phone-lc-style');
+                if (!lcStyle) {
+                    lcStyle = document.createElement('style');
+                    lcStyle.id = 'phone-lc-style';
+                    document.head.appendChild(lcStyle);
+                }
+                lcStyle.textContent = `
+                    @keyframes lcPulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}aa; } 70% { transform: scale(1); box-shadow: 0 0 0 8px ${lcColor}00; } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}00; } }
+                    @keyframes lcPop { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+                `;
+
+            } else if (phoneLiveChat) {
+                phoneLiveChat.style.display = 'none';
+            }
+
 
 
             // =========================================================================
