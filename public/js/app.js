@@ -220,6 +220,15 @@ const leftIcon = document.querySelector('.left-icon');
                 return;
             }
 
+            // Garante que o modelo enviado reflita a edicao atual
+            const currentFormArroba = document.getElementById('input-arroba')?.value.trim().toLowerCase();
+            const cleanFormArroba = currentFormArroba ? (currentFormArroba.startsWith('@') ? currentFormArroba : '@' + currentFormArroba) : '';
+            if (!cleanFormArroba || cleanFormArroba.toLowerCase() === site.arroba.toLowerCase()) {
+                if (window.currentActiveModel) {
+                    site.model = window.currentActiveModel;
+                }
+            }
+
             // Remove modal antigo se existir
             const oldModal = document.getElementById('upload-progress-modal');
             if (oldModal) oldModal.remove();
@@ -748,7 +757,9 @@ const leftIcon = document.querySelector('.left-icon');
 
         window.generateStaticSite = function(data) {
             if (!data) return '';
-            const isVitrine = Boolean(data.model === 'vitrine');
+            const modelType = (data && data.model ? String(data.model).toLowerCase().trim() : 'classic');
+            const isVitrine = modelType === 'vitrine';
+            const isCarousel = modelType === 'carousel' || modelType === 'carrossel';
             const presetMap = {
                 'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
                 'sunset': { c1: '#ff0844', c2: '#ffb199', text: '#ffffff', bg: '#120508', cardBg: '#1c080d' },
@@ -952,7 +963,7 @@ const leftIcon = document.querySelector('.left-icon');
                 </script>`;
             }
 
-            if (data.model === 'carousel') {
+            if (isCarousel) {
                 const c1Img = data.carousel1Img || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000';
                 const c2Img = data.carousel2Img || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
                 const c3Img = data.carousel3Img || 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
