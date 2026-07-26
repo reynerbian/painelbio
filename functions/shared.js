@@ -84,6 +84,49 @@ export function generateStaticSite(data) {
     </script>
   ` : '';
 
+  // ADD-ON 5: BALÃO DE ATENDIMENTO "ONLINE AGORA" (WHATSAPP)
+  const hasLiveChat = Boolean(data.addonLivechatActive);
+  const lcAvatar = data.addonLivechatAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+  const lcName = data.addonLivechatName || 'Suporte Amanda';
+  const lcStatusText = data.addonLivechatStatusText || 'Online Agora';
+  const lcMessage = data.addonLivechatMessage || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋';
+  const lcPosition = data.addonLivechatPosition || 'bottom-left';
+  const lcUrl = data.addonLivechatUrl || (data.btn1Url && data.btn1Url.includes('wa.me') ? data.btn1Url : 'https://wa.me/5511999999999');
+  const lcColor = data.addonLivechatColor || '#22c55e';
+
+  let liveChatHtml = '';
+  if (hasLiveChat) {
+      let posCss = 'bottom: 20px; left: 20px;';
+      if (lcPosition === 'bottom-right') posCss = 'bottom: 20px; right: 20px;';
+
+      liveChatHtml = `
+      <style>
+          @keyframes lcPulse {
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}aa; }
+              70% { transform: scale(1); box-shadow: 0 0 0 8px ${lcColor}00; }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}00; }
+          }
+          @keyframes lcPop {
+              0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+              100% { transform: scale(1) translateY(0); opacity: 1; }
+          }
+      </style>
+      <a href="${lcUrl}" target="_blank" rel="noopener" id="pb-static-livechat" style="position: fixed; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+          <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
+              <img src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
+              <span style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
+          </div>
+          <div style="display: flex; flex-direction: column; overflow: hidden;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 0.78rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcName}</span>
+                  <span style="font-size: 0.65rem; font-weight: 600; color: ${lcColor}; background: ${lcColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">${lcStatusText}</span>
+              </div>
+              <span style="font-size: 0.72rem; color: rgba(255,255,255,0.85); line-height: 1.25; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcMessage}</span>
+          </div>
+      </a>
+      `;
+  }
+
   // ADD-ON 2: CHUVA DE EMOJI
   const hasEmojiRain = Boolean(data.addonEmojiRainActive && data.addonEmojiRainEmoji);
   const erEmoji = data.addonEmojiRainEmoji || '🌸';
@@ -290,6 +333,7 @@ export function generateStaticSite(data) {
 <body>
   ${topBannerHtml}
   ${audioPlayerHtml}
+  ${liveChatHtml}
   <div class="c-fullscreen-page">
       ${emojiRainHtml}
       <div class="c-slider">

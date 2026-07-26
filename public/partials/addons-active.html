@@ -263,3 +263,61 @@
                     <input type="checkbox" id="input-addon-ap-autoplay" style="width: 18px; height: 18px; cursor: pointer; accent-color: #ec4899;">
                 </div>
             </div>
+
+            <!-- Card do Add-on 5: Balão de Atendimento "Online Agora" -->
+            <div id="card-addon-livechat" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-livechat-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #22c55e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    💬 Add-on Ativo: Balão "Online Agora" (WhatsApp)
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Exibe um balão flutuante com a foto do atendente, um ponto verde piscando ("Online Agora") e a prévia de mensagem para conversão imediata no WhatsApp.
+                </p>
+
+                <!-- Foto / Avatar do Atendente -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-avatar" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">🖼️ Foto do Atendente (URL):</label>
+                    <input type="text" id="input-addon-lc-avatar" placeholder="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Nome do Atendente -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-name" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">👤 Nome do Atendente:</label>
+                    <input type="text" id="input-addon-lc-name" placeholder="Ex: Suporte Amanda | Atendimento" value="Suporte Amanda" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Status Text -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-status" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🟢 Texto do Status (ponto verde):</label>
+                    <input type="text" id="input-addon-lc-status" placeholder="Ex: Online Agora" value="Online Agora" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Mensagem do Balão -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-message" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">💬 Prévia da Mensagem:</label>
+                    <textarea id="input-addon-lc-message" rows="2" placeholder="Ex: Dúvidas sobre tamanhos? Fale comigo no WhatsApp! 👋" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; resize: vertical;">Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋</textarea>
+                </div>
+
+                <!-- Link do WhatsApp -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-url" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">🔗 Link do WhatsApp (URL):</label>
+                    <input type="text" id="input-addon-lc-url" placeholder="https://wa.me/5511999999999" value="https://wa.me/5511999999999" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Posição Flutuante -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-lc-position" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📍 Posição no Celular:</label>
+                    <select id="select-addon-lc-position" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="bottom-left" selected>↙️ Canto Inferior Esquerdo (Recomendado)</option>
+                        <option value="bottom-right">↘️ Canto Inferior Direito</option>
+                    </select>
+                </div>
+
+                <!-- Cor do Ponto / Badge -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="input-addon-lc-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Cor do Ponto Online:</label>
+                    <input type="color" id="input-addon-lc-color" value="#22c55e" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                </div>
+            </div>
