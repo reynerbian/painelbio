@@ -146,7 +146,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     </div>
                                     
                                     <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <strong>Modelo:</strong> ${site.model === 'vitrine' ? 'Vitrine' : 'Classic'} / ${themeName}
+                                        <strong>Modelo:</strong> ${site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic')} / ${themeName}
                                     </div>
                                     
                                     <div style="font-size: 0.7rem; color: #6e7681;">
@@ -3771,7 +3771,7 @@ loadClassicModel();
 
                     // Lê todas as informações do form com o modelo ativo correto
                     const selectedCard = document.querySelector('.template-card.is-selected');
-                    const activeModel = (selectedCard && selectedCard.getAttribute('data-template')) || window.currentActiveModel || 'classic';
+                    const activeModel = window.currentActiveModel || (selectedCard && selectedCard.getAttribute('data-template')) || 'classic';
 
                     const updatedData = {
                         model: activeModel,
