@@ -1242,7 +1242,6 @@ function bindInspectorFormEvents() {
                 addonAudioPlayerAutoplay: document.getElementById('input-addon-ap-autoplay')?.checked || false,
                 preset: localStorage.getItem('selected-theme-preset') || 'gray',
                 bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
-            };.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
             };
 
             const btnSave = document.getElementById('btn-save-inspector');
