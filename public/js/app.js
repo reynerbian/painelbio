@@ -1112,8 +1112,8 @@ const leftIcon = document.querySelector('.left-icon');
 <body>
     ${topBannerHtml}
     ${audioPlayerHtml}
-    ${liveChatHtml}
     <div class="c-fullscreen-page">
+        ${liveChatHtml}
         ${emojiRainHtml}
         <div class="c-slider">
             <div class="c-slide active" id="c-s-0">
@@ -1310,8 +1310,8 @@ const leftIcon = document.querySelector('.left-icon');
 </head>
 <body>
     ${topBannerHtml}
-    ${liveChatHtml}
     <div class="f-container">
+        ${liveChatHtml}
         ${emojiRainHtml}
         <div class="f-header-bar">
             <span class="f-header-arroba">${data.arroba || ''}</span>
@@ -1556,8 +1556,8 @@ const leftIcon = document.querySelector('.left-icon');
 <body>
     ${topBannerHtml}
     ${audioPlayerHtml}
-    ${liveChatHtml}
     <div class="v-container">
+        ${liveChatHtml}
         ${emojiRainHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
@@ -1785,8 +1785,8 @@ const leftIcon = document.querySelector('.left-icon');
 <body>
     ${topBannerHtml}
     ${audioPlayerHtml}
-    ${liveChatHtml}
     <div class="preview-bio-page">
+        ${liveChatHtml}
         ${emojiRainHtml}
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
