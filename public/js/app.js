@@ -830,6 +830,54 @@ const leftIcon = document.querySelector('.left-icon');
                 emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
             }
 
+            // ADD-ON 4: PLAYER DE ÁUDIO FLUTUANTE
+            const hasAudioPlayer = Boolean(data.addonAudioPlayerActive);
+            const apUrl = data.addonAudioPlayerUrl || 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3';
+            const apLabel = data.addonAudioPlayerLabel || 'Música da Loja';
+            const apPosition = data.addonAudioPlayerPosition || 'bottom-right';
+            const apColor = data.addonAudioPlayerColor || '#ec4899';
+            const apWaveColor = data.addonAudioPlayerWaveColor || '#ffffff';
+            const apAutoplay = Boolean(data.addonAudioPlayerAutoplay);
+
+            let audioPlayerHtml = '';
+            if (hasAudioPlayer) {
+                let posCss = 'bottom: 20px; right: 20px;';
+                if (apPosition === 'bottom-left') posCss = 'bottom: 20px; left: 20px;';
+                if (apPosition === 'top-right') posCss = 'top: 20px; right: 20px;';
+
+                audioPlayerHtml = `
+                <style>
+                    @keyframes apWave { 0% { height: 20%; } 100% { height: 100%; } }
+                </style>
+                <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; gap: 8px; background: ${apColor}; color: #ffffff; padding: 10px 16px; border-radius: 30px; font-size: 0.82rem; font-weight: 700; box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-end; gap: 3px; height: 14px;">
+                        <span style="width: 3px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite alternate;"></span>
+                        <span style="width: 3px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.2s alternate;"></span>
+                        <span style="width: 3px; height: 80%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.4s alternate;"></span>
+                        <span style="width: 3px; height: 40%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.6s alternate;"></span>
+                    </div>
+                    <span>${apLabel}</span>
+                    <audio id="pb-static-audio-el" src="${apUrl}" loop ${apAutoplay ? 'autoplay' : ''}></audio>
+                </div>
+                <script>
+                    (function() {
+                        var player = document.getElementById('pb-static-audio-player');
+                        var audio = document.getElementById('pb-static-audio-el');
+                        if (player && audio) {
+                            player.addEventListener('click', function() {
+                                if (audio.paused) {
+                                    audio.play().catch(function(){});
+                                    player.style.opacity = '1';
+                                } else {
+                                    audio.pause();
+                                    player.style.opacity = '0.7';
+                                }
+                            });
+                        }
+                    })();
+                </script>`;
+            }
+
             if (isVitrine) {
                 const h1 = data.highlight1Img || '';
                 const h2 = data.highlight2Img || '';
@@ -1083,6 +1131,7 @@ const leftIcon = document.querySelector('.left-icon');
             </div>
         </div>
     </div>
+    ${audioPlayerHtml}
 </body>
 </html>`;
             }
@@ -1287,6 +1336,7 @@ const leftIcon = document.querySelector('.left-icon');
             </div>
         </div>
     </div>
+    ${audioPlayerHtml}
 </body>
 </html>`;
         }
@@ -1903,8 +1953,17 @@ loadClassicModel();
                     'input-addon-tb-pause': backup.addonTopbannerPause || 2,
                     'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
                     'input-addon-er-count': backup.addonEmojiRainCount || 8,
-                    'input-addon-er-coverage': backup.addonEmojiRainCoverage || 80
+                    'input-addon-er-coverage': backup.addonEmojiRainCoverage || 80,
+                    'input-addon-ap-url': backup.addonAudioPlayerUrl || '',
+                    'input-addon-ap-label': backup.addonAudioPlayerLabel || 'Música da Loja',
+                    'select-addon-ap-position': backup.addonAudioPlayerPosition || 'bottom-right',
+                    'input-addon-ap-color': backup.addonAudioPlayerColor || '#ec4899',
+                    'input-addon-ap-wave-color': backup.addonAudioPlayerWaveColor || '#ffffff'
                 };
+                const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
+                if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
+                    apAutoplayEl.checked = Boolean(backup.addonAudioPlayerAutoplay);
+                }
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
                     if (el) el.value = val;
@@ -1937,6 +1996,16 @@ loadClassicModel();
                 if (backup.addonEmojiRainActive) {
                     const cardEr = document.getElementById('card-addon-emojirain');
                     if (cardEr) cardEr.style.display = 'block';
+                }
+
+                if (backup.addonAvatarSpinActive) {
+                    const cardAs = document.getElementById('card-addon-avatarspin');
+                    if (cardAs) cardAs.style.display = 'block';
+                }
+
+                if (backup.addonAudioPlayerActive) {
+                    const cardAp = document.getElementById('card-addon-audioplayer');
+                    if (cardAp) cardAp.style.display = 'block';
                 }
 
                 const erSpeedEl = document.getElementById('select-addon-er-speed');
@@ -2345,6 +2414,73 @@ loadClassicModel();
                 removeAvatarSpinAnimation();
                 if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
                 window.phoneAsConfigKey = null;
+            }
+
+            // =========================================================================
+            // ADD-ON 4: PLAYER DE ÁUDIO FLUTUANTE (Funciona em TODOS os modelos)
+            // =========================================================================
+            const cardAudioPlayer = document.getElementById('card-addon-audioplayer');
+            const isAudioPlayerActive = cardAudioPlayer && cardAudioPlayer.style.display !== 'none';
+            let phoneAudioPlayer = document.getElementById('phone-live-audio-player');
+
+            if (isAudioPlayerActive) {
+                const apUrl = document.getElementById('input-addon-ap-url')?.value.trim() || 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3';
+                const apLabel = document.getElementById('input-addon-ap-label')?.value.trim() || 'Música da Loja';
+                const apPosition = document.getElementById('select-addon-ap-position')?.value || 'bottom-right';
+                const apColor = document.getElementById('input-addon-ap-color')?.value || '#ec4899';
+                const apWaveColor = document.getElementById('input-addon-ap-wave-color')?.value || '#ffffff';
+
+                if (phoneScreen) {
+                    if (!phoneAudioPlayer) {
+                        phoneAudioPlayer = document.createElement('div');
+                        phoneAudioPlayer.id = 'phone-live-audio-player';
+                        phoneScreen.appendChild(phoneAudioPlayer);
+                    }
+
+                    let posCss = 'bottom: 16px; right: 16px;';
+                    if (apPosition === 'bottom-left') posCss = 'bottom: 16px; left: 16px;';
+                    if (apPosition === 'top-right') posCss = 'top: 60px; right: 16px;';
+
+                    phoneAudioPlayer.style.cssText = `position: absolute; ${posCss} z-index: 999; display: flex; align-items: center; gap: 8px; background: ${apColor}; color: #ffffff; padding: 8px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.4); cursor: pointer; backdrop-filter: blur(8px); transition: all 0.3s ease;`;
+
+                    phoneAudioPlayer.innerHTML = `
+                        <div style="display: flex; align-items: flex-end; gap: 2px; height: 12px;">
+                            <span class="ap-wave-bar" style="width: 2px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite alternate;"></span>
+                            <span class="ap-wave-bar" style="width: 2px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.2s alternate;"></span>
+                            <span class="ap-wave-bar" style="width: 2px; height: 80%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.4s alternate;"></span>
+                            <span class="ap-wave-bar" style="width: 2px; height: 40%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.8s ease-in-out infinite 0.6s alternate;"></span>
+                        </div>
+                        <span>${apLabel}</span>
+                        <audio id="phone-audio-el" src="${apUrl}" loop></audio>
+                    `;
+                    phoneAudioPlayer.style.display = 'flex';
+
+                    // Animação CSS para wave bars
+                    let waveStyle = document.getElementById('phone-ap-wave-style');
+                    if (!waveStyle) {
+                        waveStyle = document.createElement('style');
+                        waveStyle.id = 'phone-ap-wave-style';
+                        waveStyle.textContent = `@keyframes apWave { 0% { height: 20%; } 100% { height: 100%; } }`;
+                        document.head.appendChild(waveStyle);
+                    }
+
+                    // Toggle play/pause ao clicar no player do mockup
+                    phoneAudioPlayer.onclick = (e) => {
+                        e.stopPropagation();
+                        const audioEl = document.getElementById('phone-audio-el');
+                        if (audioEl) {
+                            if (audioEl.paused) {
+                                audioEl.play().catch(() => {});
+                                phoneAudioPlayer.style.opacity = '1';
+                            } else {
+                                audioEl.pause();
+                                phoneAudioPlayer.style.opacity = '0.7';
+                            }
+                        }
+                    };
+                }
+            } else if (phoneAudioPlayer) {
+                phoneAudioPlayer.style.display = 'none';
             }
 
             // =========================================================================
