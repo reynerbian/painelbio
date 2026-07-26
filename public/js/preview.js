@@ -610,6 +610,67 @@ function updatePreviewFromForm() {
         window.phoneAsConfigKey = null;
     }
 
+    // ADD-ON 4: PLAYER DE ÁUDIO FLUTUANTE
+    const cardAudioPlayer = document.getElementById('card-addon-audioplayer');
+    const isAudioPlayerActive = cardAudioPlayer && cardAudioPlayer.style.display !== 'none';
+    let phoneAudioPlayer = document.getElementById('phone-live-audio-player');
+
+    if (isAudioPlayerActive) {
+        const apUrl = document.getElementById('input-addon-ap-url')?.value.trim() || '';
+        const apLabel = document.getElementById('input-addon-ap-label')?.value.trim() || 'Música da Loja';
+        const apPos = document.getElementById('select-addon-ap-position')?.value || 'bottom-right';
+        const apColor = document.getElementById('input-addon-ap-color')?.value || '#ec4899';
+        const apWaveColor = document.getElementById('input-addon-ap-wave-color')?.value || '#ffffff';
+
+        if (phoneScreen && apUrl) {
+            if (!phoneAudioPlayer) {
+                phoneAudioPlayer = document.createElement('div');
+                phoneAudioPlayer.id = 'phone-live-audio-player';
+                phoneScreen.appendChild(phoneAudioPlayer);
+            }
+
+            let posStyle = 'bottom: 16px; right: 16px;';
+            if (apPos === 'bottom-left') posStyle = 'bottom: 16px; left: 16px;';
+            else if (apPos === 'top-right') posStyle = 'top: 60px; right: 16px;';
+
+            phoneAudioPlayer.style.cssText = `position: absolute; ${posStyle} z-index: 9999; display: flex; align-items: center; gap: 8px; background: ${apColor}; color: #ffffff; padding: 8px 14px; border-radius: 30px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); cursor: pointer; border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(8px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box;`;
+            
+            if (!document.getElementById('phone-audio-eq-style')) {
+                const style = document.createElement('style');
+                style.id = 'phone-audio-eq-style';
+                style.textContent = `
+                    @keyframes pb-wave-bar {
+                        0%, 100% { height: 4px; }
+                        50% { height: 14px; }
+                    }
+                    .pb-wave-item {
+                        width: 3px;
+                        background: var(--ap-wave-c, #ffffff);
+                        border-radius: 2px;
+                        animation: pb-wave-bar 0.75s ease-in-out infinite;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            phoneAudioPlayer.style.setProperty('--ap-wave-c', apWaveColor);
+            phoneAudioPlayer.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 2px; height: 14px;">
+                    <div class="pb-wave-item" style="animation-delay: 0s;"></div>
+                    <div class="pb-wave-item" style="animation-delay: 0.15s;"></div>
+                    <div class="pb-wave-item" style="animation-delay: 0.3s;"></div>
+                    <div class="pb-wave-item" style="animation-delay: 0.45s;"></div>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 700; white-space: nowrap;">${apLabel}</span>
+            `;
+            phoneAudioPlayer.style.display = 'flex';
+        } else if (phoneAudioPlayer) {
+            phoneAudioPlayer.style.display = 'none';
+        }
+    } else if (phoneAudioPlayer) {
+        phoneAudioPlayer.style.display = 'none';
+    }
+
     // MODELO 2: VITRINE
     if (activeModel === 'vitrine') {
         const heroGrid = document.getElementById('v-view-hero-grid');
@@ -1014,12 +1075,7 @@ function bindInspectorFormEvents() {
     const erRotateInput = document.getElementById('input-addon-er-rotate');
     if (erRotateInput) {
         erRotateInput.addEventListener('change', () => {
-            window.phoneErConfigKey = null;
-            updatePreviewFromForm();
-        });
-    }
-
-    const btnEnableAvatarSpin = document.getElementById('btn-enable-avatarspin-addon');
+                const btnEnableAvatarSpin = document.getElementById('btn-enable-avatarspin-addon');
     const cardAvatarSpin = document.getElementById('card-addon-avatarspin');
     const btnRemoveAvatarSpin = document.getElementById('btn-remove-avatarspin-addon');
 
@@ -1059,6 +1115,47 @@ function bindInspectorFormEvents() {
             if (typeof triggerAvatarSpinPreview === 'function') triggerAvatarSpinPreview();
         });
     }
+
+    // Add-on 4: Player de Áudio Flutuante
+    const btnEnableAudioPlayer = document.getElementById('btn-enable-audioplayer-addon');
+    const cardAudioPlayer = document.getElementById('card-addon-audioplayer');
+    const btnRemoveAudioPlayer = document.getElementById('btn-remove-audioplayer-addon');
+
+    if (btnEnableAudioPlayer && cardAudioPlayer) {
+        btnEnableAudioPlayer.addEventListener('click', () => {
+            cardAudioPlayer.style.display = 'block';
+            const urlInput = document.getElementById('input-addon-ap-url');
+            if (urlInput && !urlInput.value) {
+                urlInput.value = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3";
+            }
+            const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+            if (contentTabBtn) contentTabBtn.click();
+            updatePreviewFromForm();
+            setTimeout(() => {
+                cardAudioPlayer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+    }
+
+    if (btnRemoveAudioPlayer && cardAudioPlayer) {
+        btnRemoveAudioPlayer.addEventListener('click', () => {
+            cardAudioPlayer.style.display = 'none';
+            const urlInput = document.getElementById('input-addon-ap-url');
+            if (urlInput) urlInput.value = '';
+            updatePreviewFromForm();
+        });
+    }
+
+    const apDemoBtns = document.querySelectorAll('.ap-demo-btn');
+    apDemoBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const urlInput = document.getElementById('input-addon-ap-url');
+            if (urlInput) {
+                urlInput.value = btn.getAttribute('data-url');
+                updatePreviewFromForm();
+            }
+        });
+    });
 
     const btnSearchAvatar = document.getElementById('btn-search-avatar');
     if (btnSearchAvatar) {
@@ -1136,8 +1233,16 @@ function bindInspectorFormEvents() {
                 addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
                 addonAvatarSpinRepeat: document.getElementById('input-addon-as-repeat')?.checked || false,
                 addonAvatarSpinInterval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
+                addonAudioPlayerActive: document.getElementById('card-addon-audioplayer')?.style.display !== 'none',
+                addonAudioPlayerUrl: document.getElementById('input-addon-ap-url')?.value.trim() || '',
+                addonAudioPlayerLabel: document.getElementById('input-addon-ap-label')?.value.trim() || 'Música da Loja',
+                addonAudioPlayerPosition: document.getElementById('select-addon-ap-position')?.value || 'bottom-right',
+                addonAudioPlayerColor: document.getElementById('input-addon-ap-color')?.value || '#ec4899',
+                addonAudioPlayerWaveColor: document.getElementById('input-addon-ap-wave-color')?.value || '#ffffff',
+                addonAudioPlayerAutoplay: document.getElementById('input-addon-ap-autoplay')?.checked || false,
                 preset: localStorage.getItem('selected-theme-preset') || 'gray',
                 bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
+            };.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
             };
 
             const btnSave = document.getElementById('btn-save-inspector');
@@ -1309,6 +1414,67 @@ function generateStaticSite(data) {
         emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
     }
 
+    const hasAudioPlayer = Boolean(data.addonAudioPlayerActive && data.addonAudioPlayerUrl);
+    const apUrl = data.addonAudioPlayerUrl || '';
+    const apLabel = data.addonAudioPlayerLabel || 'Música da Loja';
+    const apPos = data.addonAudioPlayerPosition || 'bottom-right';
+    const apColor = data.addonAudioPlayerColor || '#ec4899';
+    const apWaveColor = data.addonAudioPlayerWaveColor || '#ffffff';
+    const apAutoplay = Boolean(data.addonAudioPlayerAutoplay);
+
+    let posCss = 'bottom: 20px; right: 20px;';
+    if (apPos === 'bottom-left') posCss = 'bottom: 20px; left: 20px;';
+    else if (apPos === 'top-right') posCss = 'top: 20px; right: 20px;';
+
+    const audioPlayerHtml = hasAudioPlayer ? `
+    <style>
+        @keyframes pb-wave-bar { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+        .pb-wave-bar { width: 3px; background: ${apWaveColor}; border-radius: 2px; }
+        .pb-wave-active .pb-wave-bar { animation: pb-wave-bar 0.75s ease-in-out infinite; }
+    </style>
+    <div id="pb-audio-floating-btn" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; gap: 8px; background: ${apColor}; color: #ffffff; padding: 10px 16px; border-radius: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); cursor: pointer; border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.2s, box-shadow 0.2s;" onclick="togglePbAudio()">
+        <div id="pb-wave-icon" class="pb-wave-active" style="display: flex; align-items: center; gap: 2px; height: 16px;">
+            <div class="pb-wave-bar" style="animation-delay: 0s;"></div>
+            <div class="pb-wave-bar" style="animation-delay: 0.15s;"></div>
+            <div class="pb-wave-bar" style="animation-delay: 0.3s;"></div>
+            <div class="pb-wave-bar" style="animation-delay: 0.45s;"></div>
+        </div>
+        <span id="pb-audio-status-label" style="font-size: 0.78rem; font-weight: 700;">${apLabel}</span>
+    </div>
+    <audio id="pb-bg-audio" src="${apUrl}" loop preload="auto"></audio>
+    <script>
+        (function() {
+            var audio = document.getElementById('pb-bg-audio');
+            var waveIcon = document.getElementById('pb-wave-icon');
+            var isAutoplay = ${apAutoplay};
+
+            window.togglePbAudio = function() {
+                if (!audio) return;
+                if (audio.paused) {
+                    audio.play().then(function() {
+                        if (waveIcon) waveIcon.classList.add('pb-wave-active');
+                    }).catch(function(e) { console.log('Audio error:', e); });
+                } else {
+                    audio.pause();
+                    if (waveIcon) waveIcon.classList.remove('pb-wave-active');
+                }
+            };
+
+            if (isAutoplay && audio) {
+                var startOnInteract = function() {
+                    audio.play().then(function() {
+                        if (waveIcon) waveIcon.classList.add('pb-wave-active');
+                    }).catch(function(){});
+                    document.removeEventListener('click', startOnInteract);
+                    document.removeEventListener('touchstart', startOnInteract);
+                };
+                document.addEventListener('click', startOnInteract, { once: true });
+                document.addEventListener('touchstart', startOnInteract, { once: true });
+            }
+        })();
+    </script>
+    ` : '';
+
     if (isVitrine) {
         const h1 = data.highlight1Img || '';
         const h2 = data.highlight2Img || '';
@@ -1385,6 +1551,7 @@ function generateStaticSite(data) {
             <div class="v-footer">CRIADO COM <a href="/">PAINELBIO</a></div>
         </div>
     </div>
+    ${audioPlayerHtml}
 </body>
 </html>`;
     }
@@ -1439,6 +1606,7 @@ function generateStaticSite(data) {
             <div class="footer">CRIADO COM <a href="/">PAINELBIO</a></div>
         </div>
     </div>
+    ${audioPlayerHtml}
 </body>
 </html>`;
 }

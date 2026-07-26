@@ -194,3 +194,71 @@
                     ▶ Testar Animação Agora
                 </button>
             </div>
+
+            <!-- Card do Add-on 4: Player de Áudio Flutuante -->
+            <div id="card-addon-audioplayer" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-audioplayer-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #ec4899; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🎵 Add-on Ativo: Player de Áudio Flutuante
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Adiciona um botão de som no canto da tela com barras de ondas sonoras (equalizador) para tocar vinheta, música temática ou recado de voz.
+                </p>
+
+                <!-- URL do Áudio MP3 -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-ap-url" style="font-size: 0.8rem; font-weight: 700; color: #f472b6;">🔗 Link / URL do Áudio (MP3 ou OGG):</label>
+                    <input type="text" id="input-addon-ap-url" placeholder="https://exemplo.com/musica.mp3" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Faixas de Demonstração -->
+                <div style="margin-top: 10px; margin-bottom: 14px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: #f472b6; display: block; margin-bottom: 6px;">🎶 Ou escolha uma trilha de exemplo:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="ap-demo-btn" data-url="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">☕ Lofi Soft</button>
+                        <button type="button" class="ap-demo-btn" data-url="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=fashion-chill-102559.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">✨ Fashion Chill</button>
+                        <button type="button" class="ap-demo-btn" data-url="https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f792d7.mp3?filename=acoustic-breeze-124654.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">🎸 Acústico Suave</button>
+                    </div>
+                </div>
+
+                <!-- Rótulo / Legenda do Botão -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-ap-label" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📝 Rótulo / Legenda do Botão:</label>
+                    <input type="text" id="input-addon-ap-label" placeholder="Ex: Ouvir Música da Loja" value="Música da Loja" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Posição Flutuante -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-ap-position" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📍 Posição do Botão Flutuante:</label>
+                    <select id="select-addon-ap-position" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f472b6; border: 1px solid #334155; cursor: pointer;">
+                        <option value="bottom-right" selected>↘️ Canto Inferior Direito</option>
+                        <option value="bottom-left">↙️ Canto Inferior Esquerdo</option>
+                        <option value="top-right">↗️ Canto Superior Direito</option>
+                    </select>
+                </div>
+
+                <!-- Cores -->
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-ap-color">Cor do Botão:</label>
+                        <input type="color" id="input-addon-ap-color" value="#ec4899" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-ap-wave-color">Cor da Onda (Wave):</label>
+                        <input type="color" id="input-addon-ap-wave-color" value="#ffffff" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Autoplay -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding: 10px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <label for="input-addon-ap-autoplay" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer; display: block;">
+                            ▶️ Iniciar Som Automaticamente:
+                        </label>
+                        <span style="font-size: 0.68rem; color: #64748b;">(Requer primeira interação do toque no celular)</span>
+                    </div>
+                    <input type="checkbox" id="input-addon-ap-autoplay" style="width: 18px; height: 18px; cursor: pointer; accent-color: #ec4899;">
+                </div>
+            </div>
