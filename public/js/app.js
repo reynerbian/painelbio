@@ -3109,7 +3109,8 @@ loadClassicModel();
                 const lcColor = document.getElementById('input-addon-lc-color')?.value || '#22c55e';
                 const lcMessage = document.getElementById('input-addon-lc-message')?.value.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 💬';
 
-                let targetContainer = phoneScreen.querySelector('.v-live-page') || phoneScreen.querySelector('.preview-bio-page') || phoneScreen.querySelector('.c-live-page') || phoneScreen.querySelector('.f-container') || phoneScreen;
+                // Usamos phoneScreen diretamente para que fique fixo em relação à borda do celular, independentemente do scroll
+                let targetContainer = phoneScreen;
 
                 if (!phoneLiveChat || phoneLiveChat.parentNode !== targetContainer) {
                     if (phoneLiveChat && phoneLiveChat.parentNode) {
