@@ -2420,9 +2420,8 @@ loadClassicModel();
                             
                             <div class="preview-links" id="view-links"></div>
                             
-                            <div class="preview-footer" id="view-footer" style="display: none;">
-                                <span>🔗 Criado com</span>
-                                <a href="#">PainelBio</a>
+                            <div class="preview-footer" id="view-footer" style="display: none; margin-top: 25px; font-size: 0.75rem; color: rgba(255,255,255,0.4); align-items: center; justify-content: center; gap: 6px;">
+                                CRIADO COM <a href="#" style="color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase;">PAINELBIO</a>
                             </div>
                         </div>
                     </div>

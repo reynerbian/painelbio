@@ -530,6 +530,7 @@
             padding: 40px 10px 10px 10px; /* Espaço superior para o notch, laterais e inferior reduzidos */
             position: relative;
             scrollbar-width: none; /* Esconde scrollbar no Firefox */
+            box-sizing: border-box; /* Adicionado para evitar scroll indesejado devido ao padding */
         }
 
         .phone-screen::-webkit-scrollbar {
