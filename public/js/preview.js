@@ -1298,6 +1298,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     document.head.appendChild(glowStyle);
                 }
 
+            } else if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';
                 
