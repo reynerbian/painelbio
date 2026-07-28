@@ -1,8 +1,5 @@
-// ===============================================================================
-// PAINELBIO - MÓDULO DE ARMAZENAMENTO LOCAL (STORAGE.JS)
-// ===============================================================================
+// --- STORAGE MODULE ---
 
-// 1. BANCO DE DADOS LOCAL DE PERFIS (CACHE)
 function getProfileCache(arroba) {
     if (!arroba) return null;
     const clean = arroba.toLowerCase().replace(/^@/, '');
@@ -35,32 +32,24 @@ function saveProfileCache(arroba, data) {
     }
 }
 
-// 2. SITES SALVOS DA GALERIA
 function getLeads() {
-    return JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-}
+            return JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        }
 
-// 3. HISTÓRICO DE BUSCAS
 function getSearchHistory() {
-    return JSON.parse(localStorage.getItem('painelbio-search-history')) || [];
-}
+            return JSON.parse(localStorage.getItem('painelbio-search-history')) || [];
+        }
 
 function saveSearchHistory(searchItem) {
-    if (!searchItem || !searchItem.arroba) return;
-    let history = getSearchHistory();
-    history = history.filter(h => h.arroba.toLowerCase() !== searchItem.arroba.toLowerCase());
-    history.unshift({
-        arroba: searchItem.arroba,
-        name: searchItem.name || searchItem.arroba,
-        avatar: searchItem.avatar || ''
-    });
-    history = history.slice(0, 5); // Guarda apenas as 5 buscas mais recentes
-    localStorage.setItem('painelbio-search-history', JSON.stringify(history));
-}
+            if (!searchItem || !searchItem.arroba) return;
+            let history = getSearchHistory();
+            history = history.filter(h => h.arroba.toLowerCase() !== searchItem.arroba.toLowerCase());
+            history.unshift({
+                arroba: searchItem.arroba,
+                name: searchItem.name || searchItem.arroba,
+                avatar: searchItem.avatar || ''
+            });
+            history = history.slice(0, 5); // Guarda apenas as 5 buscas mais recentes
+            localStorage.setItem('painelbio-search-history', JSON.stringify(history));
+        }
 
-// Expor funções globais de armazenamento
-window.getProfileCache = getProfileCache;
-window.saveProfileCache = saveProfileCache;
-window.getLeads = getLeads;
-window.getSearchHistory = getSearchHistory;
-window.saveSearchHistory = saveSearchHistory;
