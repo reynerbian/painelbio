@@ -817,6 +817,43 @@ function updatePreviewFromForm() {
                     catalogBtn.href = catUrl;
                 } else { catalogBtn.style.display = 'none'; }
 
+                // ── Fundo desfocado com imagem do produto 1 ──
+                const bgEl  = document.getElementById('s-view-bg');
+                const bgFade = document.getElementById('s-view-bg-fade');
+                const firstImgUrl = document.getElementById('input-shop-p1-img')?.value.trim()
+                                 || document.getElementById('input-shop-p2-img')?.value.trim()
+                                 || document.getElementById('input-shop-p3-img')?.value.trim()
+                                 || '';
+                if (bgEl && firstImgUrl) {
+                    bgEl.style.backgroundImage = `url('${firstImgUrl}')`;
+                    bgEl.style.display = 'block';
+                    if (bgFade) bgFade.style.display = 'block';
+                } else if (bgEl) {
+                    bgEl.style.display = 'none';
+                    if (bgFade) bgFade.style.display = 'none';
+                }
+
+                // ── Mouse drag-to-scroll no carrossel (desktop preview) ──
+                const carousel = document.getElementById('s-view-carousel');
+                if (carousel && !carousel._dragBound) {
+                    carousel._dragBound = true;
+                    let isDown = false, startX = 0, scrollLeft = 0;
+                    carousel.addEventListener('mousedown', e => {
+                        isDown = true;
+                        carousel.style.cursor = 'grabbing';
+                        startX = e.pageX - carousel.offsetLeft;
+                        scrollLeft = carousel.scrollLeft;
+                    });
+                    carousel.addEventListener('mouseleave', () => { isDown = false; carousel.style.cursor = 'grab'; });
+                    carousel.addEventListener('mouseup', () => { isDown = false; carousel.style.cursor = 'grab'; });
+                    carousel.addEventListener('mousemove', e => {
+                        if (!isDown) return;
+                        e.preventDefault();
+                        const x = e.pageX - carousel.offsetLeft;
+                        carousel.scrollLeft = scrollLeft - (x - startX);
+                    });
+                }
+
                 return;
             }
             
@@ -1166,60 +1203,75 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = '#0f172a';
                 
                 previewScreen.innerHTML = `
-                    <div class="s-live-page" style="width: 100%; min-height: 100%; padding: 24px 0 30px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; background: #0f172a; color: #fff;">
-                        <!-- Profile -->
-                        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; padding: 0 16px;">
-                            <div id="s-view-avatar-wrapper" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #f59e0b; margin-bottom: 12px; display: none;">
-                                <div id="s-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
-                            </div>
-                            <h1 id="s-view-name" style="font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0;"></h1>
-                            <a id="s-view-arroba" href="#" target="_blank" style="font-size: 0.85rem; color: #f59e0b; text-decoration: none; font-weight: 600; margin-bottom: 8px;"></a>
-                            <p id="s-view-bio" style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 100%;"></p>
-                        </div>
+                    <div class="s-live-page" style="position: relative; width: 100%; min-height: 100%; padding: 24px 0 30px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; background: #0f172a; color: #fff; overflow: hidden;">
 
-                        <!-- Carousel -->
-                        <div style="width: 100%; margin-bottom: 24px; display: flex; flex-direction: column;">
-                            <div style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 12px; padding: 0 16px;">Mais Vendidos</div>
-                            <div id="s-view-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding: 0 16px 16px 16px; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
-                                <!-- Prod 1 -->
-                                <div id="s-view-p1-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
-                                    <div style="width: 100%; height: 220px; background: #0f172a;">
-                                        <img id="s-view-p1-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'" />
-                                    </div>
-                                    <div style="padding: 14px;">
-                                        <div id="s-view-p1-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                                        <div id="s-view-p1-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
-                                        <a id="s-view-p1-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
-                                    </div>
+                        <!-- Fundo desfocado com degradê (preenchido via JS com a imagem do produto 1) -->
+                        <div id="s-view-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 55%; background-size: cover; background-position: center; filter: blur(22px) brightness(0.45); transform: scale(1.1); z-index: 0; display: none;"></div>
+                        <div id="s-view-bg-fade" style="position: absolute; top: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to bottom, rgba(15,23,42,0) 0%, #0f172a 100%); z-index: 1; pointer-events: none; display: none;"></div>
+
+                        <!-- Conteúdo (z-index acima do fundo) -->
+                        <div style="position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: center;">
+
+                            <!-- Profile -->
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; padding: 0 16px;">
+                                <div id="s-view-avatar-wrapper" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid var(--theme-color-1, #f59e0b); margin-bottom: 12px; display: none; box-shadow: 0 0 20px var(--theme-color-1, #f59e0b)44;">
+                                    <div id="s-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
                                 </div>
-                                <!-- Prod 2 -->
-                                <div id="s-view-p2-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
-                                    <div style="width: 100%; height: 220px; background: #0f172a;">
-                                        <img id="s-view-p2-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'" />
+                                <h1 id="s-view-name" style="font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0;"></h1>
+                                <a id="s-view-arroba" href="#" target="_blank" style="font-size: 0.85rem; color: var(--theme-color-1, #f59e0b); text-decoration: none; font-weight: 600; margin-bottom: 8px;"></a>
+                                <p id="s-view-bio" style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 100%;"></p>
+                            </div>
+
+                            <!-- Carousel -->
+                            <div style="width: 100%; margin-bottom: 20px; display: flex; flex-direction: column;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--theme-color-1, #f59e0b); margin-bottom: 10px; padding: 0 16px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">✦ Mais Vendidos</div>
+                                <div id="s-view-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding: 0 16px 16px 16px; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; cursor: grab; user-select: none; -webkit-overflow-scrolling: touch;">
+                                    <!-- Prod 1 -->
+                                    <div id="s-view-p1-card" style="display: none; flex: 0 0 82%; background: rgba(30,41,59,0.85); border-radius: 18px; overflow: hidden; scroll-snap-align: center; border: 1px solid var(--theme-color-1, #f59e0b)33; backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                                        <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
+                                            <img id="s-view-p1-img" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'" />
+                                            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent);"></div>
+                                        </div>
+                                        <div style="padding: 14px;">
+                                            <div id="s-view-p1-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                            <div id="s-view-p1-price" style="font-size: 1.2rem; font-weight: 700; color: var(--theme-color-1, #f59e0b); margin-bottom: 12px;"></div>
+                                            <a id="s-view-p1-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: var(--theme-color-1, #f59e0b); color: #0f172a; text-align: center; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 0.9rem; box-sizing: border-box;">Eu quero este 🛍️</a>
+                                        </div>
                                     </div>
-                                    <div style="padding: 14px;">
-                                        <div id="s-view-p2-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                                        <div id="s-view-p2-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
-                                        <a id="s-view-p2-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
+                                    <!-- Prod 2 -->
+                                    <div id="s-view-p2-card" style="display: none; flex: 0 0 82%; background: rgba(30,41,59,0.85); border-radius: 18px; overflow: hidden; scroll-snap-align: center; border: 1px solid var(--theme-color-1, #f59e0b)33; backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                                        <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
+                                            <img id="s-view-p2-img" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'" />
+                                            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent);"></div>
+                                        </div>
+                                        <div style="padding: 14px;">
+                                            <div id="s-view-p2-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                            <div id="s-view-p2-price" style="font-size: 1.2rem; font-weight: 700; color: var(--theme-color-1, #f59e0b); margin-bottom: 12px;"></div>
+                                            <a id="s-view-p2-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: var(--theme-color-1, #f59e0b); color: #0f172a; text-align: center; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 0.9rem; box-sizing: border-box;">Eu quero este 🛍️</a>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- Prod 3 -->
-                                <div id="s-view-p3-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
-                                    <div style="width: 100%; height: 220px; background: #0f172a;">
-                                        <img id="s-view-p3-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'" />
-                                    </div>
-                                    <div style="padding: 14px;">
-                                        <div id="s-view-p3-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                                        <div id="s-view-p3-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
-                                        <a id="s-view-p3-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
+                                    <!-- Prod 3 -->
+                                    <div id="s-view-p3-card" style="display: none; flex: 0 0 82%; background: rgba(30,41,59,0.85); border-radius: 18px; overflow: hidden; scroll-snap-align: center; border: 1px solid var(--theme-color-1, #f59e0b)33; backdrop-filter: blur(8px); box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                                        <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
+                                            <img id="s-view-p3-img" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'" />
+                                            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent);"></div>
+                                        </div>
+                                        <div style="padding: 14px;">
+                                            <div id="s-view-p3-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                            <div id="s-view-p3-price" style="font-size: 1.2rem; font-weight: 700; color: var(--theme-color-1, #f59e0b); margin-bottom: 12px;"></div>
+                                            <a id="s-view-p3-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: var(--theme-color-1, #f59e0b); color: #0f172a; text-align: center; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 0.9rem; box-sizing: border-box;">Eu quero este 🛍️</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Catalog Button -->
-                        <div style="width: 100%; padding: 0 16px; box-sizing: border-box; margin-bottom: 24px;">
-                            <a id="s-view-catalog-btn" href="#" target="_blank" style="display: none; width: 100%; padding: 14px 0; background: transparent; border: 2px solid #f59e0b; color: #f59e0b; text-align: center; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.95rem;">Ver todo o catálogo</a>
+                            <!-- Catalog Button -->
+                            <div style="width: 100%; padding: 0 16px; box-sizing: border-box; margin-bottom: 16px;">
+                                <a id="s-view-catalog-btn" href="#" target="_blank" style="display: none; width: 100%; padding: 14px 0; background: transparent; border: 2px solid var(--theme-color-1, #f59e0b); color: var(--theme-color-1, #f59e0b); text-align: center; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.95rem; box-sizing: border-box;">Ver todo o catálogo →</a>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="margin-top: 8px; font-size: 0.65rem; color: rgba(255,255,255,0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">CRIADO COM PAINELBIO</div>
                         </div>
                     </div>
                 `;
