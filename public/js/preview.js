@@ -1274,28 +1274,60 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             <div style="margin-top: 8px; font-size: 0.65rem; color: rgba(255,255,255,0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">CRIADO COM PAINELBIO</div>
                         </div>
 
-                        <!-- Rising Glow (fundo) -->
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 320px; pointer-events: none; z-index: 0; overflow: hidden;">
-                            <div id="s-glow-1" style="position: absolute; bottom: -100px; left: 50%; margin-left: -160px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.22; animation: shopGlowRise 3.2s ease-in-out infinite;"></div>
-                            <div id="s-glow-2" style="position: absolute; bottom: -80px; left: 22%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.13; animation: shopGlowRise 4.1s ease-in-out infinite 0.9s;"></div>
-                            <div id="s-glow-3" style="position: absolute; bottom: -70px; right: 18%; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.13; animation: shopGlowRise 3.7s ease-in-out infinite 1.6s;"></div>
+                        <!-- Névoa + Partículas subindo -->
+                        <div id="s-particles-root" style="position: absolute; bottom: 0; left: 0; right: 0; height: 100%; pointer-events: none; z-index: 1; overflow: hidden;">
+                            <div style="position: absolute; bottom: -30px; left: -15%; width: 130%; height: 110px; border-radius: 50%; background: radial-gradient(ellipse at center, var(--theme-color-1, #f59e0b) 0%, transparent 70%); opacity: 0.14; filter: blur(20px); animation: shopFogPulse 4s ease-in-out infinite;"></div>
+                            <div style="position: absolute; bottom: -10px; left: 15%; width: 70%; height: 65px; border-radius: 50%; background: radial-gradient(ellipse at center, var(--theme-color-1, #f59e0b) 0%, transparent 70%); opacity: 0.10; filter: blur(28px); animation: shopFogPulse 5.5s ease-in-out infinite 2s;"></div>
                         </div>
                     </div>
                 `;
 
-                // Inject keyframes para o brilho subindo (apenas uma vez)
+                // Inject keyframes (névoa + faíscas subindo)
                 if (!document.getElementById('shop-glow-style')) {
                     const glowStyle = document.createElement('style');
                     glowStyle.id = 'shop-glow-style';
                     glowStyle.textContent = `
-                        @keyframes shopGlowRise {
-                            0%   { transform: translateY(0px)   scaleX(1);    opacity: 0.18; }
-                            40%  { transform: translateY(-38px) scaleX(1.12); opacity: 0.45; }
-                            60%  { transform: translateY(-48px) scaleX(1.18); opacity: 0.55; }
-                            100% { transform: translateY(0px)   scaleX(1);    opacity: 0.18; }
+                        @keyframes shopFogPulse {
+                            0%, 100% { opacity: 0.10; transform: scaleX(1); }
+                            50%      { opacity: 0.22; transform: scaleX(1.07); }
+                        }
+                        @keyframes shopSparkRise {
+                            0%   { transform: translateY(0px)   scale(1);   opacity: 0; }
+                            8%   { opacity: 1; }
+                            88%  { opacity: 0.6; }
+                            100% { transform: translateY(-270px) scale(0.4); opacity: 0; }
                         }
                     `;
                     document.head.appendChild(glowStyle);
+                }
+
+                // Gerar faíscas dinamicamente
+                const particlesRoot = document.getElementById('s-particles-root');
+                if (particlesRoot && !particlesRoot._sparksCreated) {
+                    particlesRoot._sparksCreated = true;
+                    const SPARK_COUNT = 16;
+                    for (let i = 0; i < SPARK_COUNT; i++) {
+                        const spark = document.createElement('div');
+                        const size = 1.5 + Math.random() * 3.5;
+                        const left = 3 + Math.random() * 94;
+                        const delay = Math.random() * 7;
+                        const dur   = 3.5 + Math.random() * 5;
+                        const blur  = Math.random() > 0.6 ? '1px' : '0px';
+                        spark.style.cssText = [
+                            'position:absolute',
+                            `bottom:${Math.random() * 20}px`,
+                            `left:${left}%`,
+                            `width:${size}px`,
+                            `height:${size}px`,
+                            'border-radius:50%',
+                            'background:var(--theme-color-1,#f59e0b)',
+                            `box-shadow:0 0 ${size*2.5}px ${size}px var(--theme-color-1,#f59e0b)`,
+                            'opacity:0',
+                            `animation:shopSparkRise ${dur}s ease-in ${delay}s infinite`,
+                            `filter:blur(${blur})`
+                        ].join(';');
+                        particlesRoot.appendChild(spark);
+                    }
                 }
 
             } else if (activeModel === 'vitrine') {
