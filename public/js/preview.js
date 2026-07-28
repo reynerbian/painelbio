@@ -1552,6 +1552,41 @@ function populateFakeDataForModel(activeModel) {
                 if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
                 if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
                 if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+            } else if (activeModel === 'shop') {
+                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300";
+                if (nameInput) nameInput.value = "Boutique Elegance";
+                if (arrobaInput) arrobaInput.value = "boutique.elegance";
+                if (bioInput) bioInput.value = `Roupas importadas e exclusivas.\nEntregamos para todo o Brasil. 🛍️`;
+
+                const p1Img = document.getElementById('input-shop-p1-img');
+                const p1Title = document.getElementById('input-shop-p1-title');
+                const p1Price = document.getElementById('input-shop-p1-price');
+                const p1Url = document.getElementById('input-shop-p1-url');
+                if (p1Img) p1Img.value = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600";
+                if (p1Title) p1Title.value = "Vestido Floral";
+                if (p1Price) p1Price.value = "R$ 199,90";
+                if (p1Url) p1Url.value = "https://wa.me/5511999999999";
+
+                const p2Img = document.getElementById('input-shop-p2-img');
+                const p2Title = document.getElementById('input-shop-p2-title');
+                const p2Price = document.getElementById('input-shop-p2-price');
+                const p2Url = document.getElementById('input-shop-p2-url');
+                if (p2Img) p2Img.value = "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600";
+                if (p2Title) p2Title.value = "Bolsa de Couro";
+                if (p2Price) p2Price.value = "R$ 299,90";
+                if (p2Url) p2Url.value = "https://wa.me/5511999999999";
+
+                const p3Img = document.getElementById('input-shop-p3-img');
+                const p3Title = document.getElementById('input-shop-p3-title');
+                const p3Price = document.getElementById('input-shop-p3-price');
+                const p3Url = document.getElementById('input-shop-p3-url');
+                if (p3Img) p3Img.value = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600";
+                if (p3Title) p3Title.value = "Óculos Sunset";
+                if (p3Price) p3Price.value = "R$ 149,90";
+                if (p3Url) p3Url.value = "https://wa.me/5511999999999";
+
+                const catUrl = document.getElementById('input-shop-catalog-url');
+                if (catUrl) catUrl.value = "https://wa.me/c/5511999999999";
             } else {
                 // MODELO 1: CLASSIC
                 if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
