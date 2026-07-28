@@ -34,7 +34,55 @@ function updateAddonCatalogButtonStates() {
                     }
                 }
             });
+            updateCartSummary();
         }
+
+function updateCartSummary() {
+    const listEl = document.getElementById('cart-addons-list');
+    const totalEl = document.getElementById('cart-total-price');
+    const modelNameEl = document.getElementById('cart-model-name');
+    const modelPriceEl = document.getElementById('cart-model-price');
+    if (!listEl || !totalEl || !modelNameEl || !modelPriceEl) return;
+
+    let basePrice = 9.99;
+    let modelName = 'Modelo Classic';
+    
+    const activeModelBadge = document.querySelector('.template-card.is-selected');
+    if (activeModelBadge) {
+        const template = activeModelBadge.getAttribute('data-template');
+        if (template === 'classic') { basePrice = 9.99; modelName = 'Modelo Classic'; }
+        if (template === 'vitrine') { basePrice = 12.99; modelName = 'Modelo Vitrine'; }
+        if (template === 'carrossel') { basePrice = 14.99; modelName = 'Modelo Carrossel'; }
+    }
+    
+    modelNameEl.textContent = modelName;
+    modelPriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
+
+    let total = basePrice;
+    let addonsHtml = '';
+
+    const addonsList = [
+        { cardId: 'card-addon-topbanner', name: 'Anúncio Flutuante', price: 2.99 },
+        { cardId: 'card-addon-emojirain', name: 'Chuva de Emoji', price: 2.50 },
+        { cardId: 'card-addon-avatarspin', name: 'Rodopio do Avatar', price: 2.50 },
+        { cardId: 'card-addon-audioplayer', name: 'Player de Áudio', price: 2.99 },
+        { cardId: 'card-addon-livechat', name: 'Balão Online', price: 2.99 }
+    ];
+
+    addonsList.forEach(({ cardId, name, price }) => {
+        const card = document.getElementById(cardId);
+        if (card && card.style.display !== 'none') {
+            total += price;
+            addonsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">
+                <span>+ ${name}</span>
+                <span>R$ ${price.toFixed(2).replace('.', ',')}</span>
+            </div>`;
+        }
+    });
+
+    listEl.innerHTML = addonsHtml;
+    totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
 
 function applyAvatarSpinAnimation(duration, spins, activeModel) {
     const totalDeg = spins * 360;
