@@ -53,6 +53,7 @@ function updateCartSummary() {
         if (template === 'classic') { basePrice = 9.99; modelName = 'Modelo Classic'; }
         if (template === 'vitrine') { basePrice = 12.99; modelName = 'Modelo Vitrine'; }
         if (template === 'carrossel') { basePrice = 14.99; modelName = 'Modelo Carrossel'; }
+        if (template === 'shop') { basePrice = 19.99; modelName = 'Modelo Shop'; }
     }
     
     modelNameEl.textContent = modelName;

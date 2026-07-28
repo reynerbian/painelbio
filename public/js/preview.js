@@ -710,6 +710,116 @@ function updatePreviewFromForm() {
                 return;
             }
 
+            
+            // =========================================================================
+            // MODELO: SHOP (Catálogo de Produtos em Carrossel)
+            // =========================================================================
+            if (activeModel === 'shop') {
+                const avatarWrapper = document.getElementById('s-view-avatar-wrapper');
+                const avatarInner = document.getElementById('s-view-avatar-inner');
+                const viewName = document.getElementById('s-view-name');
+                const viewArroba = document.getElementById('s-view-arroba');
+                const viewBio = document.getElementById('s-view-bio');
+                
+                const p1Card = document.getElementById('s-view-p1-card');
+                const p1Img = document.getElementById('s-view-p1-img');
+                const p1Title = document.getElementById('s-view-p1-title');
+                const p1Price = document.getElementById('s-view-p1-price');
+                const p1Btn = document.getElementById('s-view-p1-btn');
+                
+                const p2Card = document.getElementById('s-view-p2-card');
+                const p2Img = document.getElementById('s-view-p2-img');
+                const p2Title = document.getElementById('s-view-p2-title');
+                const p2Price = document.getElementById('s-view-p2-price');
+                const p2Btn = document.getElementById('s-view-p2-btn');
+                
+                const p3Card = document.getElementById('s-view-p3-card');
+                const p3Img = document.getElementById('s-view-p3-img');
+                const p3Title = document.getElementById('s-view-p3-title');
+                const p3Price = document.getElementById('s-view-p3-price');
+                const p3Btn = document.getElementById('s-view-p3-btn');
+
+                const catalogBtn = document.getElementById('s-view-catalog-btn');
+
+                if (!viewName) return;
+
+                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
+                const name = document.getElementById('input-name')?.value.trim() || '';
+                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
+                const bio = document.getElementById('input-bio')?.value.trim() || '';
+
+                if (avatarUrl) {
+                    avatarWrapper.style.display = 'block';
+                    avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+                } else {
+                    avatarWrapper.style.display = 'none';
+                    avatarInner.innerHTML = '';
+                }
+
+                viewName.textContent = name;
+                viewName.style.display = name ? 'block' : 'none';
+
+                if (arroba) {
+                    viewArroba.textContent = '@' + arroba;
+                    viewArroba.href = 'https://instagram.com/' + arroba;
+                    viewArroba.style.display = 'inline-block';
+                } else {
+                    viewArroba.style.display = 'none';
+                }
+
+                viewBio.textContent = bio;
+                viewBio.style.display = bio ? 'block' : 'none';
+                
+                const activeAlignBtn = document.querySelector('.align-btn.active');
+                if (activeAlignBtn) {
+                    viewBio.style.textAlign = activeAlignBtn.getAttribute('data-align');
+                }
+
+                const p1ImgUrl = document.getElementById('input-shop-p1-img')?.value.trim() || '';
+                const p1TitleText = document.getElementById('input-shop-p1-title')?.value.trim() || '';
+                const p1PriceText = document.getElementById('input-shop-p1-price')?.value.trim() || '';
+                const p1Url = document.getElementById('input-shop-p1-url')?.value.trim() || '';
+                if (p1ImgUrl || p1TitleText || p1PriceText) {
+                    p1Card.style.display = 'block';
+                    p1Img.src = p1ImgUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600';
+                    p1Title.textContent = p1TitleText;
+                    p1Price.textContent = p1PriceText;
+                    p1Btn.href = p1Url || '#';
+                } else { p1Card.style.display = 'none'; }
+
+                const p2ImgUrl = document.getElementById('input-shop-p2-img')?.value.trim() || '';
+                const p2TitleText = document.getElementById('input-shop-p2-title')?.value.trim() || '';
+                const p2PriceText = document.getElementById('input-shop-p2-price')?.value.trim() || '';
+                const p2Url = document.getElementById('input-shop-p2-url')?.value.trim() || '';
+                if (p2ImgUrl || p2TitleText || p2PriceText) {
+                    p2Card.style.display = 'block';
+                    p2Img.src = p2ImgUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600';
+                    p2Title.textContent = p2TitleText;
+                    p2Price.textContent = p2PriceText;
+                    p2Btn.href = p2Url || '#';
+                } else { p2Card.style.display = 'none'; }
+
+                const p3ImgUrl = document.getElementById('input-shop-p3-img')?.value.trim() || '';
+                const p3TitleText = document.getElementById('input-shop-p3-title')?.value.trim() || '';
+                const p3PriceText = document.getElementById('input-shop-p3-price')?.value.trim() || '';
+                const p3Url = document.getElementById('input-shop-p3-url')?.value.trim() || '';
+                if (p3ImgUrl || p3TitleText || p3PriceText) {
+                    p3Card.style.display = 'block';
+                    p3Img.src = p3ImgUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
+                    p3Title.textContent = p3TitleText;
+                    p3Price.textContent = p3PriceText;
+                    p3Btn.href = p3Url || '#';
+                } else { p3Card.style.display = 'none'; }
+
+                const catUrl = document.getElementById('input-shop-catalog-url')?.value.trim() || '';
+                if (catUrl) {
+                    catalogBtn.style.display = 'block';
+                    catalogBtn.href = catUrl;
+                } else { catalogBtn.style.display = 'none'; }
+
+                return;
+            }
+            
             // =========================================================================
             // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
             // =========================================================================
@@ -1052,6 +1162,102 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
 
                     </div>
                 `;
+            } else if (activeModel === 'shop') {
+                previewScreen.style.background = '#0f172a';
+                
+                previewScreen.innerHTML = `
+                    <div class="s-live-page" style="width: 100%; min-height: 100%; padding: 24px 0 30px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; background: #0f172a; color: #fff;">
+                        <!-- Profile -->
+                        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; padding: 0 16px;">
+                            <div id="s-view-avatar-wrapper" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 3px solid #f59e0b; margin-bottom: 12px; display: none;">
+                                <div id="s-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
+                            </div>
+                            <h1 id="s-view-name" style="font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0;"></h1>
+                            <a id="s-view-arroba" href="#" target="_blank" style="font-size: 0.85rem; color: #f59e0b; text-decoration: none; font-weight: 600; margin-bottom: 8px;"></a>
+                            <p id="s-view-bio" style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 100%;"></p>
+                        </div>
+
+                        <!-- Carousel -->
+                        <div style="width: 100%; margin-bottom: 24px; display: flex; flex-direction: column;">
+                            <div style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 12px; padding: 0 16px;">Mais Vendidos</div>
+                            <div id="s-view-carousel" style="display: flex; gap: 12px; overflow-x: auto; padding: 0 16px 16px 16px; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;">
+                                <!-- Prod 1 -->
+                                <div id="s-view-p1-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
+                                    <div style="width: 100%; height: 220px; background: #0f172a;">
+                                        <img id="s-view-p1-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'" />
+                                    </div>
+                                    <div style="padding: 14px;">
+                                        <div id="s-view-p1-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                        <div id="s-view-p1-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
+                                        <a id="s-view-p1-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
+                                    </div>
+                                </div>
+                                <!-- Prod 2 -->
+                                <div id="s-view-p2-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
+                                    <div style="width: 100%; height: 220px; background: #0f172a;">
+                                        <img id="s-view-p2-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'" />
+                                    </div>
+                                    <div style="padding: 14px;">
+                                        <div id="s-view-p2-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                        <div id="s-view-p2-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
+                                        <a id="s-view-p2-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
+                                    </div>
+                                </div>
+                                <!-- Prod 3 -->
+                                <div id="s-view-p3-card" style="display: none; flex: 0 0 82%; background: #1e293b; border-radius: 16px; overflow: hidden; scroll-snap-align: center; border: 1px solid rgba(245,158,11,0.2);">
+                                    <div style="width: 100%; height: 220px; background: #0f172a;">
+                                        <img id="s-view-p3-img" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'" />
+                                    </div>
+                                    <div style="padding: 14px;">
+                                        <div id="s-view-p3-title" style="font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+                                        <div id="s-view-p3-price" style="font-size: 1.15rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px;"></div>
+                                        <a id="s-view-p3-btn" href="#" target="_blank" style="display: block; width: 100%; padding: 10px 0; background: #f59e0b; color: #fff; text-align: center; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">Eu quero este</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Catalog Button -->
+                        <div style="width: 100%; padding: 0 16px; box-sizing: border-box; margin-bottom: 24px;">
+                            <a id="s-view-catalog-btn" href="#" target="_blank" style="display: none; width: 100%; padding: 14px 0; background: transparent; border: 2px solid #f59e0b; color: #f59e0b; text-align: center; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.95rem;">Ver todo o catálogo</a>
+                        </div>
+                    </div>
+                `;
+            } else if (activeModel === 'shop') {
+                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300";
+                if (nameInput) nameInput.value = "Boutique Elegance";
+                if (arrobaInput) arrobaInput.value = "boutique.elegance";
+                if (bioInput) bioInput.value = "Roupas importadas e exclusivas.\nEntregamos para todo o Brasil. 🛍️";
+                
+                const p1Img = document.getElementById('input-shop-p1-img');
+                const p1Title = document.getElementById('input-shop-p1-title');
+                const p1Price = document.getElementById('input-shop-p1-price');
+                const p1Url = document.getElementById('input-shop-p1-url');
+                if(p1Img) p1Img.value = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600";
+                if(p1Title) p1Title.value = "Vestido Floral";
+                if(p1Price) p1Price.value = "R$ 199,90";
+                if(p1Url) p1Url.value = "https://wa.me/5511999999999";
+                
+                const p2Img = document.getElementById('input-shop-p2-img');
+                const p2Title = document.getElementById('input-shop-p2-title');
+                const p2Price = document.getElementById('input-shop-p2-price');
+                const p2Url = document.getElementById('input-shop-p2-url');
+                if(p2Img) p2Img.value = "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600";
+                if(p2Title) p2Title.value = "Bolsa de Couro";
+                if(p2Price) p2Price.value = "R$ 299,90";
+                if(p2Url) p2Url.value = "https://wa.me/5511999999999";
+
+                const p3Img = document.getElementById('input-shop-p3-img');
+                const p3Title = document.getElementById('input-shop-p3-title');
+                const p3Price = document.getElementById('input-shop-p3-price');
+                const p3Url = document.getElementById('input-shop-p3-url');
+                if(p3Img) p3Img.value = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600";
+                if(p3Title) p3Title.value = "Óculos Sunset";
+                if(p3Price) p3Price.value = "R$ 149,90";
+                if(p3Url) p3Url.value = "https://wa.me/5511999999999";
+
+                const catUrl = document.getElementById('input-shop-catalog-url');
+                if(catUrl) catUrl.value = "https://wa.me/c/5511999999999";
             } else if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';

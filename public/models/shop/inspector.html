@@ -1,0 +1,120 @@
+<form id="inspector-form" class="inspector-form">
+    <!-- Abas de Navegação no Inspector: Conteúdo vs Add ons -->
+    <div class="inspector-tabs-container" style="display: flex; gap: 8px; margin-bottom: 16px; padding: 4px; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" class="inspector-tab-btn active" data-tab="content" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: #3b82f6; color: #fff; transition: all 0.2s;">🎨 Conteúdo</button>
+        <button type="button" class="inspector-tab-btn" data-tab="addons" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: transparent; color: #94a3b8; transition: all 0.2s;">🌟 Add ons</button>
+    </div>
+
+    <!-- Painel 1: Conteúdo Principal do Site (E Add-ons Ativos do Projeto) -->
+    <div id="panel-content" class="inspector-panel active">
+
+        <!-- Imagem de Perfil -->
+        <div class="form-group">
+            <label for="input-avatar">Imagem de Perfil / Logo:</label>
+            <div class="input-with-button">
+                <input type="text" id="input-avatar" placeholder="URL da imagem (ex: https://...)">
+                <button type="button" id="btn-search-avatar" class="form-button">Buscar</button>
+            </div>
+        </div>
+
+        <!-- Nome do Cliente -->
+        <div class="form-group">
+            <label for="input-name">Nome da Loja:</label>
+            <input type="text" id="input-name" placeholder="Ex: Boutique Elegance">
+        </div>
+
+        <!-- @ do Instagram -->
+        <div class="form-group">
+            <label for="input-arroba">@ do Instagram:</label>
+            <input type="text" id="input-arroba" placeholder="Ex: boutique.elegance">
+        </div>
+
+        <!-- Texto da Bio -->
+        <div class="form-group">
+            <label for="input-bio">Descrição da Loja:</label>
+            <textarea id="input-bio" placeholder="Ex: Roupas importadas e exclusivas. Entregamos para todo o Brasil."></textarea>
+            
+            <div class="align-buttons-container" style="display: flex; gap: 8px; margin-top: 8px;">
+                <button type="button" class="align-btn" data-align="left" aria-label="Alinhar à Esquerda">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+                <button type="button" class="align-btn active" data-align="center" aria-label="Alinhar ao Centro">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="17" y1="12" x2="7" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+                <button type="button" class="align-btn" data-align="right" aria-label="Alinhar à Direita">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="12" x2="9" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <div style="margin: 16px 0; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: #f59e0b;">
+            🛍️ Produtos do Carrossel
+        </div>
+
+        <!-- Produto 1 -->
+        <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <label style="color: #f59e0b;">Produto 1:</label>
+            <input type="text" id="input-shop-p1-img" placeholder="URL da Foto do Produto" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p1-title" placeholder="Nome do Produto (Ex: Vestido Floral)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p1-price" placeholder="Preço (Ex: R$ 199,90)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p1-url" placeholder="Link de Compra (Ex: wa.me/...)">
+        </div>
+
+        <!-- Produto 2 -->
+        <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <label style="color: #f59e0b;">Produto 2:</label>
+            <input type="text" id="input-shop-p2-img" placeholder="URL da Foto do Produto" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p2-title" placeholder="Nome do Produto (Ex: Bolsa de Couro)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p2-price" placeholder="Preço (Ex: R$ 299,90)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p2-url" placeholder="Link de Compra (Ex: wa.me/...)">
+        </div>
+
+        <!-- Produto 3 -->
+        <div class="form-group" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <label style="color: #f59e0b;">Produto 3:</label>
+            <input type="text" id="input-shop-p3-img" placeholder="URL da Foto do Produto" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p3-title" placeholder="Nome do Produto (Ex: Óculos de Sol)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p3-price" placeholder="Preço (Ex: R$ 149,90)" style="margin-bottom: 6px;">
+            <input type="text" id="input-shop-p3-url" placeholder="Link de Compra (Ex: wa.me/...)">
+        </div>
+
+        <div style="margin: 16px 0; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: #f59e0b;">
+            🔗 Ação Final
+        </div>
+
+        <!-- Botão Catálogo Completo -->
+        <div class="form-group">
+            <label for="input-shop-catalog-url">Link "Ver todo o catálogo":</label>
+            <input type="text" id="input-shop-catalog-url" placeholder="Ex: https://wa.me/c/5511999999999">
+        </div>
+
+        <!-- AREA DE ADD-ONS ATIVOS NO PROJETO (Cards Habilitados Vêm Para Cá) -->
+        <div id="active-addons-list" style="margin-top: 16px;">
+        </div>
+    </div>
+
+    <!-- Painel 2: Add ons (Catálogo Limpo de Adição) -->
+    <div id="panel-addons" class="inspector-panel" style="display: none;">
+    </div>
+
+    <!-- Resumo do Orçamento (Carrinho) -->
+    <div style="margin-top: 20px; margin-bottom: 16px;">
+        <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.2); margin-bottom: 12px;">
+        <div id="cart-summary" style="padding: 0 4px;">
+            <!-- Conteúdo será gerado via JS -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 6px;">
+                <span id="cart-model-name">Modelo Shop</span>
+                <span id="cart-model-price">R$ 19,99</span>
+            </div>
+            <div id="cart-addons-list"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+                <span>Total Estimado:</span>
+                <span id="cart-total-price" style="color: #10b981;">R$ 19,99</span>
+            </div>
+        </div>
+        <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.2); margin-top: 12px;">
+    </div>
+
+    <!-- Botão de Salvar -->
+    <button type="submit" id="btn-save-inspector" class="save-button" style="margin-top: 8px;">Salvar Site</button>
+</form>
