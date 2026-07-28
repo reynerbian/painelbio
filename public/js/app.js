@@ -1799,6 +1799,34 @@ const leftIcon = document.querySelector('.left-icon');
         overlay.addEventListener('click', closeAll);
         closeBtns.forEach(btn => btn.addEventListener('click', closeAll));
 
+        // Abas da Gaveta da Esquerda (Modelos vs Sites)
+        const leftTabBtns = document.querySelectorAll('.left-tab-btn');
+        const leftPanels = document.querySelectorAll('.left-panel');
+        leftTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                leftTabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'transparent';
+                    b.style.color = '#94a3b8';
+                });
+                leftPanels.forEach(p => {
+                    p.classList.remove('active');
+                    p.style.display = 'none';
+                });
+                
+                btn.classList.add('active');
+                btn.style.background = '#3b82f6';
+                btn.style.color = '#fff';
+                
+                const targetId = 'left-panel-' + btn.getAttribute('data-tab');
+                const targetPanel = document.getElementById(targetId);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                    targetPanel.style.display = 'block';
+                }
+            });
+        });
+
         // Presets de Degradês Premium (Cores do Tema)
         const GRADIENT_PRESETS = {
             'gray': {

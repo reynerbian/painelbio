@@ -232,8 +232,16 @@
             </button>
         </div>
         <div class="drawer-content">
-            <div class="templates-grid">
-                <!-- Card CLASSIC -->
+            <!-- Abas de Navegação -->
+            <div class="left-tabs-container" style="display: flex; gap: 8px; margin-bottom: 16px; padding: 4px; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                <button type="button" class="left-tab-btn active" data-tab="models" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: #3b82f6; color: #fff; transition: all 0.2s;">📄 Modelos</button>
+                <button type="button" class="left-tab-btn" data-tab="sites" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: transparent; color: #94a3b8; transition: all 0.2s;">🌐 Sites</button>
+            </div>
+
+            <!-- Painel 1: Modelos -->
+            <div id="left-panel-models" class="left-panel active">
+                <div class="templates-grid">
+                    <!-- Card CLASSIC -->
                 <div class="template-card theme-gray" data-template="classic">
                     <div class="template-star">
                         <!-- Estrela outline -->
@@ -311,6 +319,18 @@
                 </div>
 
 
+            </div>
+            </div>
+
+            <!-- Painel 2: Sites (Em breve) -->
+            <div id="left-panel-sites" class="left-panel" style="display: none;">
+                <div style="text-align: center; padding: 40px 20px; color: #8b949e; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;">
+                        <circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <h3 style="color: #f0f6fc; font-size: 1rem; margin-bottom: 8px;">Em Breve!</h3>
+                    <p style="font-size: 0.85rem; line-height: 1.5;">Aqui estarão os templates de sites completos (Landing Pages, VSLs, Lojas), além dos simples links de bio.</p>
+                </div>
             </div>
         </div>
     </div>
