@@ -1273,44 +1273,31 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             <!-- Footer -->
                             <div style="margin-top: 8px; font-size: 0.65rem; color: rgba(255,255,255,0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">CRIADO COM PAINELBIO</div>
                         </div>
+
+                        <!-- Rising Glow (fundo) -->
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 320px; pointer-events: none; z-index: 0; overflow: hidden;">
+                            <div id="s-glow-1" style="position: absolute; bottom: -100px; left: 50%; margin-left: -160px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.22; animation: shopGlowRise 3.2s ease-in-out infinite;"></div>
+                            <div id="s-glow-2" style="position: absolute; bottom: -80px; left: 22%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.13; animation: shopGlowRise 4.1s ease-in-out infinite 0.9s;"></div>
+                            <div id="s-glow-3" style="position: absolute; bottom: -70px; right: 18%; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, var(--theme-color-1, #f59e0b) 0%, transparent 68%); opacity: 0.13; animation: shopGlowRise 3.7s ease-in-out infinite 1.6s;"></div>
+                        </div>
                     </div>
                 `;
-            } else if (activeModel === 'shop') {
-                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300";
-                if (nameInput) nameInput.value = "Boutique Elegance";
-                if (arrobaInput) arrobaInput.value = "boutique.elegance";
-                if (bioInput) bioInput.value = "Roupas importadas e exclusivas.\nEntregamos para todo o Brasil. 🛍️";
-                
-                const p1Img = document.getElementById('input-shop-p1-img');
-                const p1Title = document.getElementById('input-shop-p1-title');
-                const p1Price = document.getElementById('input-shop-p1-price');
-                const p1Url = document.getElementById('input-shop-p1-url');
-                if(p1Img) p1Img.value = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600";
-                if(p1Title) p1Title.value = "Vestido Floral";
-                if(p1Price) p1Price.value = "R$ 199,90";
-                if(p1Url) p1Url.value = "https://wa.me/5511999999999";
-                
-                const p2Img = document.getElementById('input-shop-p2-img');
-                const p2Title = document.getElementById('input-shop-p2-title');
-                const p2Price = document.getElementById('input-shop-p2-price');
-                const p2Url = document.getElementById('input-shop-p2-url');
-                if(p2Img) p2Img.value = "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600";
-                if(p2Title) p2Title.value = "Bolsa de Couro";
-                if(p2Price) p2Price.value = "R$ 299,90";
-                if(p2Url) p2Url.value = "https://wa.me/5511999999999";
 
-                const p3Img = document.getElementById('input-shop-p3-img');
-                const p3Title = document.getElementById('input-shop-p3-title');
-                const p3Price = document.getElementById('input-shop-p3-price');
-                const p3Url = document.getElementById('input-shop-p3-url');
-                if(p3Img) p3Img.value = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600";
-                if(p3Title) p3Title.value = "Óculos Sunset";
-                if(p3Price) p3Price.value = "R$ 149,90";
-                if(p3Url) p3Url.value = "https://wa.me/5511999999999";
+                // Inject keyframes para o brilho subindo (apenas uma vez)
+                if (!document.getElementById('shop-glow-style')) {
+                    const glowStyle = document.createElement('style');
+                    glowStyle.id = 'shop-glow-style';
+                    glowStyle.textContent = `
+                        @keyframes shopGlowRise {
+                            0%   { transform: translateY(0px)   scaleX(1);    opacity: 0.18; }
+                            40%  { transform: translateY(-38px) scaleX(1.12); opacity: 0.45; }
+                            60%  { transform: translateY(-48px) scaleX(1.18); opacity: 0.55; }
+                            100% { transform: translateY(0px)   scaleX(1);    opacity: 0.18; }
+                        }
+                    `;
+                    document.head.appendChild(glowStyle);
+                }
 
-                const catUrl = document.getElementById('input-shop-catalog-url');
-                if(catUrl) catUrl.value = "https://wa.me/c/5511999999999";
-            } else if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';
                 
