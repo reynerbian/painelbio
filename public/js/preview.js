@@ -1568,7 +1568,14 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     erCoverLabelEl.textContent = (backup.addonEmojiRainCoverage || 80) + '%';
                     erCoverInputEl.value = backup.addonEmojiRainCoverage || 80;
                 }
-                
+                if (backup.bioAlign) {
+                    const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
+                    if (alignBtn) alignBtn.click();
+                }
+                if (backup.preset) {
+                    const colorOption = document.querySelector(`.color-option[data-preset="${backup.preset}"]`);
+                    if (colorOption) colorOption.click();
+                }
                 if (fakeDataToggle && fakeDataToggle.checked) {
                     populateFakeDataForModel(activeModel);
                 }

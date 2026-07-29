@@ -754,10 +754,7 @@ const leftIcon = document.querySelector('.left-icon');
             }
         };
 
-        // generateStaticSite é fornecido centralizadamente via js/generator.js
-        if (typeof window.generateStaticSite === 'undefined' && typeof generateStaticSite !== 'undefined') {
-            window.generateStaticSite = generateStaticSite;
-        }
+        // generateStaticSite é carregado a partir do módulo js/generator.js
 
         
 
