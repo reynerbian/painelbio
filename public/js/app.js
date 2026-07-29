@@ -115,8 +115,11 @@ const leftIcon = document.querySelector('.left-icon');
                         btnBadgeText = 'Pendente';
                     }
 
+                    const isRecentlySaved = window.recentlySavedArroba && site.arroba && site.arroba.toLowerCase() === window.recentlySavedArroba.toLowerCase();
+                    const highlightClass = isRecentlySaved ? 'card-blink-highlight' : '';
+
                     html += `
-                        <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: stretch; transition: all 0.2s; min-width: 0; box-sizing: border-box; overflow: hidden;">
+                        <div class="${highlightClass}" style="background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: stretch; transition: all 0.2s; min-width: 0; box-sizing: border-box; overflow: hidden;">
                             
                             <!-- Coluna da Esquerda (Imagem menor) -->
                             <div style="width: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden; background: #000; border: 1px solid #222;">
@@ -2569,6 +2572,8 @@ loadClassicModel();
                         
                         localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
 
+                        window.recentlySavedArroba = cleanArroba;
+
                         if (btnSave) {
                             btnSave.textContent = "Site Salvo! ✓";
                             btnSave.classList.add('saved-success');
@@ -2583,6 +2588,28 @@ loadClassicModel();
                                 btnSave.classList.remove('saved-success');
                             }, 3500);
                         }
+
+                        // Fechar o inspector e alternar diretamente para a Galeria
+                        setTimeout(() => {
+                            const rightDrawer = document.getElementById('right-drawer');
+                            const leftDrawer = document.getElementById('left-drawer');
+                            const drawerOverlay = document.getElementById('drawer-overlay');
+
+                            if (rightDrawer) rightDrawer.classList.remove('active');
+                            if (leftDrawer) leftDrawer.classList.remove('active');
+                            if (drawerOverlay) drawerOverlay.classList.remove('active');
+
+                            const navGallery = document.getElementById('nav-gallery');
+                            if (navGallery) {
+                                navGallery.click();
+                            }
+                        }, 300);
+
+                        // Limpa a indicação do card piscante após a animação
+                        setTimeout(() => {
+                            window.recentlySavedArroba = null;
+                        }, 6000);
+
                     } catch (err) {
                         console.error('Erro ao salvar:', err);
                         if (btnSave) {
