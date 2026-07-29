@@ -752,6 +752,8 @@ const leftIcon = document.querySelector('.left-icon');
                     window.open(waUrl, '_blank');
                 });
             }
+        };
+
         // generateStaticSite é fornecido centralizadamente via js/generator.js
         if (typeof window.generateStaticSite === 'undefined' && typeof generateStaticSite !== 'undefined') {
             window.generateStaticSite = generateStaticSite;
