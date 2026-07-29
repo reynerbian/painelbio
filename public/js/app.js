@@ -503,12 +503,12 @@ const leftIcon = document.querySelector('.left-icon');
                         </div>
                     </div>
 
-                    <!-- Corpo da Prévia (Iframe com troca de moldura) -->
-                    <div id="preview-iframe-container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: hidden; background: #05070a;">
+                    <!-- Corpo da Prévia (Iframe ocupando 100% real da tela) -->
+                    <div id="preview-iframe-container" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: hidden; background: #000; position: relative;">
                         
-                        <!-- Frame do Celular (Padrão) -->
-                        <div id="preview-device-frame" style="width: 100%; max-width: 420px; height: 100%; max-height: 820px; background: #000; border-radius: 32px; border: 8px solid #1e293b; box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,255,255,0.1); overflow: hidden; position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
-                            <iframe id="preview-real-iframe" src="${blobUrl}" style="width: 100%; height: 100%; border: none; background: #000;" title="Prévia do Site"></iframe>
+                        <!-- Frame limpo sem moldura fake de celular -->
+                        <div id="preview-device-frame" style="width: 100%; max-width: 420px; height: 100%; background: #000; overflow: hidden; position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                            <iframe id="preview-real-iframe" src="${blobUrl}" style="width: 100%; height: 100%; border: none; background: #000; display: block;" title="Prévia do Site"></iframe>
                         </div>
 
                     </div>
@@ -534,17 +534,17 @@ const leftIcon = document.querySelector('.left-icon');
                 if (mode === 'desktop') {
                     frame.style.maxWidth = '100%';
                     frame.style.maxHeight = '100%';
-                    frame.style.borderRadius = '12px';
-                    frame.style.borderWidth = '1px';
+                    frame.style.borderRadius = '0';
+                    frame.style.border = 'none';
                     btnDesktop.style.background = '#238636';
                     btnDesktop.style.color = '#fff';
                     btnMobile.style.background = 'transparent';
                     btnMobile.style.color = '#8b949e';
                 } else {
-                    frame.style.maxWidth = '420px';
-                    frame.style.maxHeight = '820px';
-                    frame.style.borderRadius = '32px';
-                    frame.style.borderWidth = '8px';
+                    frame.style.maxWidth = (window.innerWidth <= 600) ? '100%' : '440px';
+                    frame.style.maxHeight = '100%';
+                    frame.style.borderRadius = '0';
+                    frame.style.border = 'none';
                     btnMobile.style.background = '#238636';
                     btnMobile.style.color = '#fff';
                     btnDesktop.style.background = 'transparent';
