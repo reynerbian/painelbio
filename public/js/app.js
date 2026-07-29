@@ -619,6 +619,7 @@ const leftIcon = document.querySelector('.left-icon');
             const cleanSlug = site.arroba.replace('@', '').toLowerCase();
             const currentMonthKey = new Date().toISOString().substring(0, 7);
             const createdDateFormatted = site.createdAt ? new Date(site.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recente';
+            const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site) : { modelName: 'Classic', basePrice: 9.90, activeAddons: [], addonCount: 0, addonTotal: 0, finalPrice: 9.90 };
 
             const modalHtml = `
                 <div id="site-info-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; box-sizing: border-box; overflow-y: auto;">
@@ -698,44 +699,44 @@ const leftIcon = document.querySelector('.left-icon');
                         <!-- Seção 3: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
-                            <div><strong>Modelo Atual:</strong> ${site.model === 'shop' ? 'Shop' : (site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic'))} (${site.preset || 'gray'})</div>
+                            <div><strong>Modelo Atual:</strong> ${priceInfo.modelName} (${site.preset || 'gray'})</div>
                             <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
                         </div>
 
-                        <!-- Seção 4: Financeiro & Pagamento PIX -->
+                        <!-- Seção 4: Financeiro & Cobrança PIX -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <span style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
-                                    💳 Financeiro do Site
+                                    💳 Detalhes do Pagamento
                                 </span>
                                 <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${site.paymentStatus === 'paid' || site.status === 'published' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35);'}">
-                                    ${site.paymentStatus === 'paid' || site.status === 'published' ? '🟢 Pago / Liberado' : '🟡 Pendente de PIX'}
+                                    ${site.paymentStatus === 'paid' || site.status === 'published' ? '🟢 Pago / Liberado' : '🟡 Pendente'}
                                 </span>
                             </div>
                             
-                            <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span>Modelo (${site.model || 'Classic'}):</span>
-                                    <strong style="color: #fff;">R$ ${(typeof calculateSitePrice === 'function' ? calculateSitePrice(site).basePrice : 29.90).toFixed(2)}</strong>
+                            <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>📌 Modelo ${priceInfo.modelName}:</span>
+                                    <strong style="color: #fff;">R$ ${priceInfo.basePrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
-                                ${(typeof calculateSitePrice === 'function' && calculateSitePrice(site).addonCount > 0) ? `
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span>Add-ons (${calculateSitePrice(site).addonCount}x):</span>
-                                    <strong style="color: #60a5fa;">+ R$ ${calculateSitePrice(site).addonTotal.toFixed(2)}</strong>
-                                </div>
-                                ` : ''}
-                                <div style="display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 6px; font-size: 0.9rem; color: #fff;">
-                                    <strong>Valor Total Calculado:</strong>
-                                    <strong style="color: #34d399;">R$ ${(typeof calculateSitePrice === 'function' ? calculateSitePrice(site).finalPrice : 29.90).toFixed(2)}</strong>
+                                ${priceInfo.activeAddons.map(ad => `
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>🧩 ${ad.name}:</span>
+                                        <strong style="color: #60a5fa;">+ R$ ${ad.price.toFixed(2).replace('.', ',')}</strong>
+                                    </div>
+                                `).join('')}
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 4px; font-size: 0.9rem; color: #fff;">
+                                    <strong>💰 Total do Site:</strong>
+                                    <strong style="color: #34d399; font-size: 1.05rem;">R$ ${priceInfo.finalPrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
                             </div>
 
                             <div style="display: flex; gap: 8px;">
-                                <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1; background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); padding: 8px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
-                                    💳 Gerar QR Code PIX
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                                    💳 Gerar QR Code PIX (R$ ${priceInfo.finalPrice.toFixed(2).replace('.', ',')})
                                 </button>
                                 ${site.paymentStatus !== 'paid' && site.status !== 'published' ? `
-                                <button onclick="window.confirmPixPayment('${site.arroba}')" style="flex: 1; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 8px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
+                                <button onclick="window.confirmPixPayment('${site.arroba}')" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
                                     ✅ Liberar Site
                                 </button>
                                 ` : ''}
@@ -2370,7 +2371,7 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 14px;">
                     <div>
                         <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">⚙️ Configurações do Painel</h3>
-                        <span style="font-size: 0.78rem; color: #8b949e;">Gerenciador de PIX, Preços, API e Cupons</span>
+                        <span style="font-size: 0.78rem; color: #8b949e;">Gerenciador de PIX, API e Cupons</span>
                     </div>
                     <button onclick="document.getElementById('pix-settings-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
                 </div>
@@ -2378,7 +2379,7 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                 <!-- Barra de Abas (Tabs) -->
                 <div style="display: flex; gap: 4px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 3px; margin-bottom: 16px;">
                     <button id="tab-btn-pix" onclick="window.switchSettingsTab('pix')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'pix' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
-                        💳 PIX & Preços
+                        💳 Conta PIX
                     </button>
                     <button id="tab-btn-api" onclick="window.switchSettingsTab('api')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'api' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
                         🔑 Chaves API
@@ -2388,17 +2389,17 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                     </button>
                 </div>
 
-                <!-- Conteúdo Aba 1: PIX & Preços -->
+                <!-- Conteúdo Aba 1: Conta PIX -->
                 <div id="tab-content-pix" style="display: ${activeTab === 'pix' ? 'block' : 'none'};">
                     <form id="form-pix-settings" onsubmit="window.savePixSettingsFromForm(event)">
-                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">1. Dados da Sua Conta PIX (0% Taxas)</h4>
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">Dados da Sua Conta PIX (0% Taxas)</h4>
                         
-                        <div style="margin-bottom: 10px;">
+                        <div style="margin-bottom: 12px;">
                             <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Chave PIX (CPF, E-mail, Telefone ou Aleatória):</label>
                             <input type="text" id="pix-input-key" value="${settings.chavePix || ''}" placeholder="ex: 123.456.789-00 ou seu-email@pix.com" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
                         </div>
 
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
                             <div style="flex: 1;">
                                 <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Seu Nome / Empresa:</label>
                                 <input type="text" id="pix-input-name" value="${settings.nomeRecebedor || 'PainelBio'}" placeholder="Nome do Titular" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
@@ -2409,38 +2410,13 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 16px;">
-                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">WhatsApp para Comprovantes (apenas números com DDD):</label>
+                        <div style="margin-bottom: 18px;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">WhatsApp para Comprovantes (números com DDD):</label>
                             <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
                         </div>
 
-                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Tabela de Preços (R$)</h4>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
-                            <div>
-                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Classic (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-classic" value="${settings.classicPrice || 29.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Vitrine (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-vitrine" value="${settings.vitrinePrice || 39.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Carrossel (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-carousel" value="${settings.carouselPrice || 49.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 59.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                            </div>
-                            <div style="grid-column: span 2;">
-                                <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 10.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                            </div>
-                        </div>
-
                         <button type="submit" style="width: 100%; background: #238636; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
-                            💾 Salvar Configurações PIX & Preços
+                            💾 Salvar Configurações PIX
                         </button>
                     </form>
                 </div>
@@ -2580,12 +2556,6 @@ window.savePixSettingsFromForm = function(e) {
     const name = document.getElementById('pix-input-name')?.value.trim() || 'PainelBio';
     const city = document.getElementById('pix-input-city')?.value.trim() || 'SAO PAULO';
     const whatsapp = document.getElementById('pix-input-whatsapp')?.value.trim() || '';
-
-    const classic = parseFloat(document.getElementById('pix-price-classic')?.value || 29.90);
-    const vitrine = parseFloat(document.getElementById('pix-price-vitrine')?.value || 39.90);
-    const carousel = parseFloat(document.getElementById('pix-price-carousel')?.value || 49.90);
-    const shop = parseFloat(document.getElementById('pix-price-shop')?.value || 59.90);
-    const addon = parseFloat(document.getElementById('pix-price-addon')?.value || 10.00);
 
     savePixSettings({
         chavePix: key,

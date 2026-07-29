@@ -59,11 +59,11 @@ const DEFAULT_PIX_SETTINGS = {
     chavePix: '',
     nomeRecebedor: 'PainelBio',
     cidade: 'Sao Paulo',
-    classicPrice: 29.90,
-    vitrinePrice: 39.90,
-    carouselPrice: 49.90,
-    shopPrice: 59.90,
-    addonPrice: 10.00,
+    classicPrice: 9.90,
+    vitrinePrice: 12.90,
+    carouselPrice: 14.90,
+    shopPrice: 19.90,
+    addonPrice: 5.00,
     whatsappNumber: ''
 };
 
@@ -113,27 +113,47 @@ function saveCoupons(couponsArray) {
 
 function calculateSitePrice(siteData) {
     const settings = getPixSettings();
+    const modelKey = (siteData.model || 'classic').toLowerCase().trim();
+
     const modelMap = {
-        'classic': parseFloat(settings.classicPrice || 29.90),
-        'vitrine': parseFloat(settings.vitrinePrice || 39.90),
-        'carousel': parseFloat(settings.carouselPrice || 49.90),
-        'shop': parseFloat(settings.shopPrice || 59.90)
+        'classic': { name: 'Classic', price: parseFloat(settings.classicPrice || 9.90) },
+        'vitrine': { name: 'Vitrine', price: parseFloat(settings.vitrinePrice || 12.90) },
+        'carousel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.90) },
+        'carrossel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.90) },
+        'shop': { name: 'Shop', price: parseFloat(settings.shopPrice || 19.90) }
     };
     
-    let basePrice = modelMap[siteData.model] || modelMap['classic'];
+    const selectedModel = modelMap[modelKey] || modelMap['classic'];
+    const basePrice = selectedModel.price;
+    const modelName = selectedModel.name;
+    const unitAddonPrice = parseFloat(settings.addonPrice || 5.00);
     
-    // Contar add-ons ativos
-    let addonCount = 0;
-    if (siteData.bannerConfig && siteData.bannerConfig.enabled) addonCount++;
-    if (siteData.audioPlayerConfig && siteData.audioPlayerConfig.enabled) addonCount++;
-    if (siteData.chatWidgetConfig && siteData.chatWidgetConfig.enabled) addonCount++;
-    if (siteData.rainConfig && siteData.rainConfig.enabled) addonCount++;
+    // Lista de add-ons ativos detalhados
+    const activeAddons = [];
+    if (siteData.bannerConfig && siteData.bannerConfig.enabled) {
+        activeAddons.push({ name: 'Banner de Ofertas Promocional', price: unitAddonPrice });
+    }
+    if (siteData.audioPlayerConfig && siteData.audioPlayerConfig.enabled) {
+        activeAddons.push({ name: 'Player de Música / Áudio', price: unitAddonPrice });
+    }
+    if (siteData.chatWidgetConfig && siteData.chatWidgetConfig.enabled) {
+        activeAddons.push({ name: 'Widget de Chat WhatsApp', price: unitAddonPrice });
+    }
+    if (siteData.rainConfig && siteData.rainConfig.enabled) {
+        activeAddons.push({ name: 'Chuva de Emojis / Confetes', price: unitAddonPrice });
+    }
+    if (siteData.avatarSpinConfig && siteData.avatarSpinConfig.enabled) {
+        activeAddons.push({ name: 'Efeito 3D Rodopio no Avatar', price: unitAddonPrice });
+    }
 
-    let addonTotal = addonCount * parseFloat(settings.addonPrice || 10.00);
-    let subtotal = basePrice + addonTotal;
+    const addonCount = activeAddons.length;
+    const addonTotal = addonCount * unitAddonPrice;
+    const subtotal = basePrice + addonTotal;
 
     return {
+        modelName,
         basePrice,
+        activeAddons,
         addonCount,
         addonTotal,
         subtotal,
