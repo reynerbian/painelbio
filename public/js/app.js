@@ -2592,34 +2592,84 @@ window.deleteCoupon = function(index) {
     }
 };
 
-window.savePixSettingsFromForm = function(e) {
-    e.preventDefault();
-    const key = document.getElementById('pix-input-key')?.value.trim() || '';
-    const name = document.getElementById('pix-input-name')?.value.trim() || 'PainelBio';
-    const city = document.getElementById('pix-input-city')?.value.trim() || 'SAO PAULO';
-    const whatsapp = document.getElementById('pix-input-whatsapp')?.value.trim() || '';
+// Função para atualizar os selos de preço nos cards de modelo no editor
+window.updateModelCardsPrices = function() {
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
 
-    const classic = parseFloat(document.getElementById('pix-price-classic')?.value || 9.99);
-    const vitrine = parseFloat(document.getElementById('pix-price-vitrine')?.value || 12.99);
-    const carousel = parseFloat(document.getElementById('pix-price-carousel')?.value || 14.99);
-    const shop = parseFloat(document.getElementById('pix-price-shop')?.value || 19.99);
-    const addon = parseFloat(document.getElementById('pix-price-addon')?.value || 5.00);
+    const classicEl = document.querySelector('.template-card[data-template="classic"] .template-card-type span:last-child');
+    if (classicEl) classicEl.textContent = `R$ ${parseFloat(settings.classicPrice || 9.99).toFixed(2).replace('.', ',')}/mês`;
 
-    savePixSettings({
-        chavePix: key,
-        nomeRecebedor: name,
-        cidade: city,
-        whatsappNumber: whatsapp,
-        classicPrice: classic,
-        vitrinePrice: vitrine,
-        carouselPrice: carousel,
-        shopPrice: shop,
-        addonPrice: addon
-    });
+    const vitrineEl = document.querySelector('.template-card[data-template="vitrine"] .template-card-type span:last-child');
+    if (vitrineEl) vitrineEl.textContent = `R$ ${parseFloat(settings.vitrinePrice || 12.99).toFixed(2).replace('.', ',')}/mês`;
 
-    // Atualiza imediatamente os valores visíveis nos cards de modelo no editor
-    if (typeof window.updateModelCardsPrices === 'function') {
-        window.updateModelCardsPrices();
+    const carouselEl = document.querySelector('.template-card[data-template="carousel"] .template-card-type span:last-child');
+    if (carouselEl) carouselEl.textContent = `R$ ${parseFloat(settings.carouselPrice || 14.99).toFixed(2).replace('.', ',')}/mês`;
+
+    const shopEl = document.querySelector('.template-card[data-template="shop"] .template-card-type span:last-child');
+    if (shopEl) shopEl.textContent = `R$ ${parseFloat(settings.shopPrice || 19.99).toFixed(2).replace('.', ',')}/mês`;
+};
+
+// Modal de Configurações Unificado com Abas (PIX, Preços, API e Cupons)
+window.openPixSettingsModal = function(activeTab = 'pix') {
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+    const keys = (typeof getApiKeys === 'function') ? getApiKeys() : [];
+    const activeIndex = (typeof getActiveKeyIndex === 'function') ? getActiveKeyIndex() : 0;
+    const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
+
+    const oldModal = document.getElementById('pix-settings-modal');
+    if (oldModal) oldModal.remove();
+
+    const oldApiOverlay = document.getElementById('api-keys-overlay');
+    if (oldApiOverlay) oldApiOverlay.classList.remove('active');
+    const oldApiModal = document.getElementById('api-keys-modal');
+    if (oldApiModal) oldApiModal.classList.remove('active');
+
+    const modalHtml = `
+        <div id="pix-settings-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            
+            <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
+                
+                <!-- Header do Modal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 14px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">⚙️ Configurações do Painel</h3>
+                        <span style="font-size: 0.78rem; color: #8b949e;">Gerenciador de PIX, Preços, API e Cupons</span>
+                    </div>
+                    <button onclick="document.getElementById('pix-settings-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
+                </div>
+
+                <!-- Barra de Abas (Tabs) -->
+                <div style="display: flex; gap: 4px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 3px; margin-bottom: 16px;">
+                    <button id="tab-btn-pix" onclick="window.switchSettingsTab('pix')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'pix' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        💳 Conta PIX & Preços
+                    </button>
+                    <button id="tab-btn-api" onclick="window.switchSettingsTab('api')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'api' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        🔑 Chaves API
+                    </button>
+                    <button id="tab-btn-coupons" onclick="window.switchSettingsTab('coupons')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'coupons' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        🎟️ Cupons
+                    </button>
+                </div>
+
+                <!-- Conteúdo Aba 1: Conta PIX & Preços -->
+                <div id="tab-content-pix" style="display: ${activeTab === 'pix' ? 'block' : 'none'};">
+                    <form id="form-pix-settings" onsubmit="window.savePixSettingsFromForm(event)">
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">1. Dados da Sua Conta PIX (0% Taxas)</h4>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Chave PIX (CPF, E-mail, Telefone ou Aleatória):</label>
+                            <input type="text" id="pix-input-key" value="${settings.chavePix || ''}" placeholder="ex: 123.456.789-00 ou seu-email@pix.com" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Seu Nome / Empresa:</label>
+                                <input type="text" id="pix-input-name" value="${settings.nomeRecebedor || 'PainelBio'}" placeholder="Nome do Titular" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Cidade:</label>
+                                <input type="text" id="pix-input-city" value="${settings.cidade || 'SAO PAULO'}" placeholder="ex: Sao Paulo" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
                         </div>
 
                         <div style="margin-bottom: 16px;">
@@ -2812,7 +2862,6 @@ window.savePixSettingsFromForm = function(e) {
         addonPrice: addon
     });
 
-    // Atualiza imediatamente os valores visíveis nos cards de modelo no editor
     if (typeof window.updateModelCardsPrices === 'function') {
         window.updateModelCardsPrices();
     }
@@ -2820,7 +2869,7 @@ window.savePixSettingsFromForm = function(e) {
     const modal = document.getElementById('pix-settings-modal');
     if (modal) modal.remove();
 
-    showCustomAlert('Configurações salvas e preços dos modelos atualizados com sucesso!', 'success');
+    showCustomAlert('Configurações salvas e preços atualizados com sucesso!', 'success');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
