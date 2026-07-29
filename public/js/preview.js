@@ -566,10 +566,19 @@ function updatePreviewFromForm() {
                 const fallbackImg2 = 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000';
                 const fallbackImg3 = 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
 
+                if (fakeToggle && fakeToggle.checked) {
+                    const c1Input = document.getElementById('input-carousel1-img');
+                    const c2Input = document.getElementById('input-carousel2-img');
+                    const c3Input = document.getElementById('input-carousel3-img');
+                    if (c1Input && !c1Input.value) c1Input.value = fallbackImg1;
+                    if (c2Input && !c2Input.value) c2Input.value = fallbackImg2;
+                    if (c3Input && !c3Input.value) c3Input.value = fallbackImg3;
+                }
+
                 // Fotos de Fundo
-                let finalImg1 = c1Url;
-                let finalImg2 = c2Url;
-                let finalImg3 = c3Url;
+                let finalImg1 = c1Url || (c1ImgInput ? c1ImgInput.value : '');
+                let finalImg2 = c2Url || (c2ImgInput ? c2ImgInput.value : '');
+                let finalImg3 = c3Url || (c3ImgInput ? c3ImgInput.value : '');
                 if (!finalImg1 && !finalImg2 && !finalImg3 && isFakeOn) {
                     finalImg1 = fallbackImg1;
                     finalImg2 = fallbackImg2;
@@ -1560,13 +1569,8 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     erCoverInputEl.value = backup.addonEmojiRainCoverage || 80;
                 }
                 
-                if (backup.bioAlign) {
-                    const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
-                    if (alignBtn) alignBtn.click();
-                }
-                if (backup.preset) {
-                    const colorOption = document.querySelector(`.color-option[data-preset="${backup.preset}"]`);
-                    if (colorOption) colorOption.click();
+                if (fakeDataToggle && fakeDataToggle.checked) {
+                    populateFakeDataForModel(activeModel);
                 }
                 updatePreviewFromForm();
             } else if (fakeDataToggle && fakeDataToggle.checked) {
@@ -1604,88 +1608,88 @@ function populateFakeDataForModel(activeModel) {
             const c3ImgInput = document.getElementById('input-carousel3-img');
 
             if (activeModel === 'carousel') {
-                if (c1ImgInput) c1ImgInput.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000";
-                if (c2ImgInput) c2ImgInput.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000";
-                if (c3ImgInput) c3ImgInput.value = "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000";
+                if (c1ImgInput && !c1ImgInput.value) c1ImgInput.value = "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1000";
+                if (c2ImgInput && !c2ImgInput.value) c2ImgInput.value = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1000";
+                if (c3ImgInput && !c3ImgInput.value) c3ImgInput.value = "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000";
 
-                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300";
-                if (nameInput) nameInput.value = "Studio Beauty | Estética & Cílios";
-                if (arrobaInput) arrobaInput.value = "studiobeauty.oficial";
-                if (bioInput) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!`;
+                if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300";
+                if (nameInput && !nameInput.value) nameInput.value = "Studio Beauty | Estética & Cílios";
+                if (arrobaInput && !arrobaInput.value) arrobaInput.value = "studiobeauty.oficial";
+                if (bioInput && !bioInput.value) bioInput.value = `Especialista em extensão de cílios & micropigmentação ✨\nAgende seu horário online com praticidade!`;
 
-                if (btn1TitleInput) btn1TitleInput.value = "💬 WhatsApp";
-                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Preços";
-                if (btn2UrlInput) btn2UrlInput.value = "https://wa.me/5511999999999";
+                if (btn1TitleInput && !btn1TitleInput.value) btn1TitleInput.value = "💬 WhatsApp";
+                if (btn1UrlInput && !btn1UrlInput.value) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput && !btn2TitleInput.value) btn2TitleInput.value = "🛍️ Ver Preços";
+                if (btn2UrlInput && !btn2UrlInput.value) btn2UrlInput.value = "https://wa.me/5511999999999";
             } else if (activeModel === 'vitrine') {
-                if (h1ImgInput) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
-                if (h1TitleInput) h1TitleInput.value = "🔥 Coleção de Verão 2026";
-                if (h2ImgInput) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
-                if (h2TitleInput) h2TitleInput.value = "✨ Novidades";
-                if (h3ImgInput) h3ImgInput.value = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
-                if (h3TitleInput) h3TitleInput.value = "💥 Mais Vendido";
+                if (h1ImgInput && !h1ImgInput.value) h1ImgInput.value = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
+                if (h1TitleInput && !h1TitleInput.value) h1TitleInput.value = "🔥 Coleção de Verão 2026";
+                if (h2ImgInput && !h2ImgInput.value) h2ImgInput.value = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500";
+                if (h2TitleInput && !h2TitleInput.value) h2TitleInput.value = "✨ Novidades";
+                if (h3ImgInput && !h3ImgInput.value) h3ImgInput.value = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
+                if (h3TitleInput && !h3TitleInput.value) h3TitleInput.value = "💥 Mais Vendido";
                 
-                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200";
-                if (nameInput) nameInput.value = "Boutique Elegance | Moda Feminina";
-                if (arrobaInput) arrobaInput.value = "boutique.elegance";
-                if (bioInput) bioInput.value = `Moda feminina premium & peças exclusivas.\nEnviamos para todo o Brasil com Frete Grátis! 🛍️`;
+                if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200";
+                if (nameInput && !nameInput.value) nameInput.value = "Boutique Elegance | Moda Feminina";
+                if (arrobaInput && !arrobaInput.value) arrobaInput.value = "boutique.elegance";
+                if (bioInput && !bioInput.value) bioInput.value = `Moda feminina premium & peças exclusivas.\nEnviamos para todo o Brasil com Frete Grátis! 🛍️`;
                 
-                if (btn1TitleInput) btn1TitleInput.value = "💬 Atendimento no WhatsApp";
-                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                if (btn2TitleInput) btn2TitleInput.value = "🛍️ Ver Coleção Completa";
-                if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/boutique.elegance";
-                if (btn3TitleInput) btn3TitleInput.value = "📍 Endereço da Loja Física";
-                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
-                if (btn4TitleInput) btn4TitleInput.value = "💳 Pagamento via PIX";
-                if (btn4UrlInput) btn4UrlInput.value = "https://wa.me/5511999999999";
+                if (btn1TitleInput && !btn1TitleInput.value) btn1TitleInput.value = "💬 Atendimento no WhatsApp";
+                if (btn1UrlInput && !btn1UrlInput.value) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput && !btn2TitleInput.value) btn2TitleInput.value = "🛍️ Ver Coleção Completa";
+                if (btn2UrlInput && !btn2UrlInput.value) btn2UrlInput.value = "https://instagram.com/boutique.elegance";
+                if (btn3TitleInput && !btn3TitleInput.value) btn3TitleInput.value = "📍 Endereço da Loja Física";
+                if (btn3UrlInput && !btn3UrlInput.value) btn3UrlInput.value = "https://maps.google.com";
+                if (btn4TitleInput && !btn4TitleInput.value) btn4TitleInput.value = "💳 Pagamento via PIX";
+                if (btn4UrlInput && !btn4UrlInput.value) btn4UrlInput.value = "https://wa.me/5511999999999";
             } else if (activeModel === 'shop') {
-                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300";
-                if (nameInput) nameInput.value = "Boutique Elegance";
-                if (arrobaInput) arrobaInput.value = "boutique.elegance";
-                if (bioInput) bioInput.value = `Roupas importadas e exclusivas.\nEntregamos para todo o Brasil. 🛍️`;
+                if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300";
+                if (nameInput && !nameInput.value) nameInput.value = "Boutique Elegance";
+                if (arrobaInput && !arrobaInput.value) arrobaInput.value = "boutique.elegance";
+                if (bioInput && !bioInput.value) bioInput.value = `Roupas importadas e exclusivas.\nEntregamos para todo o Brasil. 🛍️`;
 
                 const p1Img = document.getElementById('input-shop-p1-img');
                 const p1Title = document.getElementById('input-shop-p1-title');
                 const p1Price = document.getElementById('input-shop-p1-price');
                 const p1Url = document.getElementById('input-shop-p1-url');
-                if (p1Img) p1Img.value = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600";
-                if (p1Title) p1Title.value = "Vestido Floral";
-                if (p1Price) p1Price.value = "R$ 199,90";
-                if (p1Url) p1Url.value = "https://wa.me/5511999999999";
+                if (p1Img && !p1Img.value) p1Img.value = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600";
+                if (p1Title && !p1Title.value) p1Title.value = "Vestido Floral";
+                if (p1Price && !p1Price.value) p1Price.value = "R$ 199,90";
+                if (p1Url && !p1Url.value) p1Url.value = "https://wa.me/5511999999999";
 
                 const p2Img = document.getElementById('input-shop-p2-img');
                 const p2Title = document.getElementById('input-shop-p2-title');
                 const p2Price = document.getElementById('input-shop-p2-price');
                 const p2Url = document.getElementById('input-shop-p2-url');
-                if (p2Img) p2Img.value = "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600";
-                if (p2Title) p2Title.value = "Bolsa de Couro";
-                if (p2Price) p2Price.value = "R$ 299,90";
-                if (p2Url) p2Url.value = "https://wa.me/5511999999999";
+                if (p2Img && !p2Img.value) p2Img.value = "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600";
+                if (p2Title && !p2Title.value) p2Title.value = "Bolsa de Couro";
+                if (p2Price && !p2Price.value) p2Price.value = "R$ 299,90";
+                if (p2Url && !p2Url.value) p2Url.value = "https://wa.me/5511999999999";
 
                 const p3Img = document.getElementById('input-shop-p3-img');
                 const p3Title = document.getElementById('input-shop-p3-title');
                 const p3Price = document.getElementById('input-shop-p3-price');
                 const p3Url = document.getElementById('input-shop-p3-url');
-                if (p3Img) p3Img.value = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600";
-                if (p3Title) p3Title.value = "Óculos Sunset";
-                if (p3Price) p3Price.value = "R$ 149,90";
-                if (p3Url) p3Url.value = "https://wa.me/5511999999999";
+                if (p3Img && !p3Img.value) p3Img.value = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600";
+                if (p3Title && !p3Title.value) p3Title.value = "Óculos Sunset";
+                if (p3Price && !p3Price.value) p3Price.value = "R$ 149,90";
+                if (p3Url && !p3Url.value) p3Url.value = "https://wa.me/5511999999999";
 
                 const catUrl = document.getElementById('input-shop-catalog-url');
-                if (catUrl) catUrl.value = "https://wa.me/c/5511999999999";
+                if (catUrl && !catUrl.value) catUrl.value = "https://wa.me/c/5511999999999";
             } else {
                 // MODELO 1: CLASSIC
-                if (avatarInput) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
-                if (nameInput) nameInput.value = "Ana Carolina | Semijoias de Luxo";
-                if (arrobaInput) arrobaInput.value = "anacarolina.semijoias";
-                if (bioInput) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
+                if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";
+                if (nameInput && !nameInput.value) nameInput.value = "Ana Carolina | Semijoias de Luxo";
+                if (arrobaInput && !arrobaInput.value) arrobaInput.value = "anacarolina.semijoias";
+                if (bioInput && !bioInput.value) bioInput.value = `Peças exclusivas banhadas a ouro 18k.\nFrete grátis para todo o Brasil. ✨\nEnviamos com amor.`;
                 
-                if (btn1TitleInput) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
-                if (btn1UrlInput) btn1UrlInput.value = "https://wa.me/5511999999999";
-                if (btn2TitleInput) btn2TitleInput.value = "✨ Seguir no Instagram";
-                if (btn2UrlInput) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
-                if (btn3TitleInput) btn3TitleInput.value = "📍 Como Chegar (Localização)";
-                if (btn3UrlInput) btn3UrlInput.value = "https://maps.google.com";
+                if (btn1TitleInput && !btn1TitleInput.value) btn1TitleInput.value = "🛍️ Ver Catálogo no WhatsApp";
+                if (btn1UrlInput && !btn1UrlInput.value) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput && !btn2TitleInput.value) btn2TitleInput.value = "✨ Seguir no Instagram";
+                if (btn2UrlInput && !btn2UrlInput.value) btn2UrlInput.value = "https://instagram.com/anacarolina.semijoias";
+                if (btn3TitleInput && !btn3TitleInput.value) btn3TitleInput.value = "📍 Como Chegar (Localização)";
+                if (btn3UrlInput && !btn3UrlInput.value) btn3UrlInput.value = "https://maps.google.com";
             }
         }
 
