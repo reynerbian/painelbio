@@ -63,7 +63,11 @@ const DEFAULT_PIX_SETTINGS = {
     vitrinePrice: 12.99,
     carouselPrice: 14.99,
     shopPrice: 19.99,
-    addonPrice: 5.00,
+    bannerPrice: 2.99,
+    emojiPrice: 2.50,
+    avatarSpinPrice: 2.50,
+    audioPrice: 2.99,
+    chatPrice: 2.99,
     whatsappNumber: ''
 };
 
@@ -77,7 +81,6 @@ function getPixSettings() {
             merged.classicPrice = 9.99;
             merged.vitrinePrice = 12.99;
             merged.carouselPrice = 14.99;
-            merged.addonPrice = 5.00;
         }
         return merged;
     } catch (e) {
@@ -135,28 +138,27 @@ function calculateSitePrice(siteData) {
     const selectedModel = modelMap[modelKey] || modelMap['classic'];
     const basePrice = selectedModel.price;
     const modelName = selectedModel.name;
-    const unitAddonPrice = parseFloat(settings.addonPrice || 5.00);
     
-    // Lista de add-ons ativos detalhados
+    // Lista de add-ons ativos com preços individuais
     const activeAddons = [];
     if (siteData.bannerConfig && siteData.bannerConfig.enabled) {
-        activeAddons.push({ name: 'Banner de Ofertas Promocional', price: unitAddonPrice });
-    }
-    if (siteData.audioPlayerConfig && siteData.audioPlayerConfig.enabled) {
-        activeAddons.push({ name: 'Player de Música / Áudio', price: unitAddonPrice });
-    }
-    if (siteData.chatWidgetConfig && siteData.chatWidgetConfig.enabled) {
-        activeAddons.push({ name: 'Widget de Chat WhatsApp', price: unitAddonPrice });
+        activeAddons.push({ name: 'Anúncio Flutuante', price: parseFloat(settings.bannerPrice || 2.99) });
     }
     if (siteData.rainConfig && siteData.rainConfig.enabled) {
-        activeAddons.push({ name: 'Chuva de Emojis / Confetes', price: unitAddonPrice });
+        activeAddons.push({ name: 'Chuva de Emoji', price: parseFloat(settings.emojiPrice || 2.50) });
     }
     if (siteData.avatarSpinConfig && siteData.avatarSpinConfig.enabled) {
-        activeAddons.push({ name: 'Efeito 3D Rodopio no Avatar', price: unitAddonPrice });
+        activeAddons.push({ name: 'Rodopio do Avatar', price: parseFloat(settings.avatarSpinPrice || 2.50) });
+    }
+    if (siteData.audioPlayerConfig && siteData.audioPlayerConfig.enabled) {
+        activeAddons.push({ name: 'Player de Áudio', price: parseFloat(settings.audioPrice || 2.99) });
+    }
+    if (siteData.chatWidgetConfig && siteData.chatWidgetConfig.enabled) {
+        activeAddons.push({ name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) });
     }
 
     const addonCount = activeAddons.length;
-    const addonTotal = addonCount * unitAddonPrice;
+    const addonTotal = activeAddons.reduce((sum, item) => sum + item.price, 0);
     const subtotal = basePrice + addonTotal;
 
     return {

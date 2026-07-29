@@ -2432,9 +2432,9 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                             <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
                         </div>
 
-                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Preços dos Modelos & Add-ons (R$)</h4>
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Preços dos Modelos (R$)</h4>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
                             <div>
                                 <label style="font-size: 0.73rem; color: #8b949e;">Modelo Classic (R$):</label>
                                 <input type="number" step="0.01" id="pix-price-classic" value="${settings.classicPrice || 9.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
@@ -2451,9 +2451,30 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                                 <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
                                 <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 19.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
                             </div>
+                        </div>
+
+                        <h4 style="font-size: 0.82rem; color: #60a5fa; margin: 14px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">3. Preços Individuais dos Add-ons (R$)</h4>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">📢 Anúncio Flutuante:</label>
+                                <input type="number" step="0.01" id="pix-price-banner" value="${settings.bannerPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">🎉 Chuva de Emoji:</label>
+                                <input type="number" step="0.01" id="pix-price-emoji" value="${settings.emojiPrice || 2.50}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">🌀 Rodopio do Avatar:</label>
+                                <input type="number" step="0.01" id="pix-price-avatarspin" value="${settings.avatarSpinPrice || 2.50}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">🎵 Player de Áudio:</label>
+                                <input type="number" step="0.01" id="pix-price-audio" value="${settings.audioPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
                             <div style="grid-column: span 2;">
-                                <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 5.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                                <label style="font-size: 0.73rem; color: #8b949e;">💬 Balão Online (LiveChat):</label>
+                                <input type="number" step="0.01" id="pix-price-chat" value="${settings.chatPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
                             </div>
                         </div>
 
@@ -2848,7 +2869,12 @@ window.savePixSettingsFromForm = function(e) {
     const vitrine = parseFloat(document.getElementById('pix-price-vitrine')?.value || 12.99);
     const carousel = parseFloat(document.getElementById('pix-price-carousel')?.value || 14.99);
     const shop = parseFloat(document.getElementById('pix-price-shop')?.value || 19.99);
-    const addon = parseFloat(document.getElementById('pix-price-addon')?.value || 5.00);
+
+    const banner = parseFloat(document.getElementById('pix-price-banner')?.value || 2.99);
+    const emoji = parseFloat(document.getElementById('pix-price-emoji')?.value || 2.50);
+    const avatarSpin = parseFloat(document.getElementById('pix-price-avatarspin')?.value || 2.50);
+    const audio = parseFloat(document.getElementById('pix-price-audio')?.value || 2.99);
+    const chat = parseFloat(document.getElementById('pix-price-chat')?.value || 2.99);
 
     savePixSettings({
         chavePix: key,
@@ -2859,17 +2885,24 @@ window.savePixSettingsFromForm = function(e) {
         vitrinePrice: vitrine,
         carouselPrice: carousel,
         shopPrice: shop,
-        addonPrice: addon
+        bannerPrice: banner,
+        emojiPrice: emoji,
+        avatarSpinPrice: avatarSpin,
+        audioPrice: audio,
+        chatPrice: chat
     });
 
     if (typeof window.updateModelCardsPrices === 'function') {
         window.updateModelCardsPrices();
     }
+    if (typeof updateCartSummary === 'function') {
+        updateCartSummary();
+    }
 
     const modal = document.getElementById('pix-settings-modal');
     if (modal) modal.remove();
 
-    showCustomAlert('Configurações salvas e preços atualizados com sucesso!', 'success');
+    showCustomAlert('Configurações e preços salvos com sucesso!', 'success');
 };
 
 document.addEventListener('DOMContentLoaded', () => {

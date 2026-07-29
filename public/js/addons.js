@@ -44,16 +44,18 @@ function updateCartSummary() {
     const modelPriceEl = document.getElementById('cart-model-price');
     if (!listEl || !totalEl || !modelNameEl || !modelPriceEl) return;
 
-    let basePrice = 9.99;
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+
+    let basePrice = parseFloat(settings.classicPrice || 9.99);
     let modelName = 'Modelo Classic';
     
     const activeModelBadge = document.querySelector('.template-card.is-selected');
     if (activeModelBadge) {
         const template = activeModelBadge.getAttribute('data-template');
-        if (template === 'classic') { basePrice = 9.99; modelName = 'Modelo Classic'; }
-        if (template === 'vitrine') { basePrice = 12.99; modelName = 'Modelo Vitrine'; }
-        if (template === 'carousel' || template === 'carrossel') { basePrice = 14.99; modelName = 'Modelo Carrossel'; }
-        if (template === 'shop') { basePrice = 19.99; modelName = 'Modelo Shop'; }
+        if (template === 'classic') { basePrice = parseFloat(settings.classicPrice || 9.99); modelName = 'Modelo Classic'; }
+        if (template === 'vitrine') { basePrice = parseFloat(settings.vitrinePrice || 12.99); modelName = 'Modelo Vitrine'; }
+        if (template === 'carousel' || template === 'carrossel') { basePrice = parseFloat(settings.carouselPrice || 14.99); modelName = 'Modelo Carrossel'; }
+        if (template === 'shop') { basePrice = parseFloat(settings.shopPrice || 19.99); modelName = 'Modelo Shop'; }
     }
     
     modelNameEl.textContent = modelName;
@@ -63,11 +65,11 @@ function updateCartSummary() {
     let addonsHtml = '';
 
     const addonsList = [
-        { cardId: 'card-addon-topbanner', name: 'Anúncio Flutuante', price: 2.99 },
-        { cardId: 'card-addon-emojirain', name: 'Chuva de Emoji', price: 2.50 },
-        { cardId: 'card-addon-avatarspin', name: 'Rodopio do Avatar', price: 2.50 },
-        { cardId: 'card-addon-audioplayer', name: 'Player de Áudio', price: 2.99 },
-        { cardId: 'card-addon-livechat', name: 'Balão Online', price: 2.99 }
+        { cardId: 'card-addon-topbanner', name: 'Anúncio Flutuante', price: parseFloat(settings.bannerPrice || 2.99) },
+        { cardId: 'card-addon-emojirain', name: 'Chuva de Emoji', price: parseFloat(settings.emojiPrice || 2.50) },
+        { cardId: 'card-addon-avatarspin', name: 'Rodopio do Avatar', price: parseFloat(settings.avatarSpinPrice || 2.50) },
+        { cardId: 'card-addon-audioplayer', name: 'Player de Áudio', price: parseFloat(settings.audioPrice || 2.99) },
+        { cardId: 'card-addon-livechat', name: 'Balão Online', price: parseFloat(settings.chatPrice || 2.99) }
     ];
 
     addonsList.forEach(({ cardId, name, price }) => {
