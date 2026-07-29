@@ -427,20 +427,26 @@ const leftIcon = document.querySelector('.left-icon');
         // Função global para abrir a Prévia Real do Site (Modal em tela cheia com o HTML final, sem abrir o editor)
         window.previewSiteOffline = function(arroba) {
             let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-            const siteData = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+            const siteData = leads.find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
             
             if (!siteData) {
                 showCustomAlert('Site não encontrado na memória.', 'error');
                 return;
             }
 
-            // Gerar o HTML estático real do site usando o gerador oficial
-            const fullHtml = (typeof window.generateStaticSite === 'function') 
-                ? window.generateStaticSite(siteData) 
-                : (typeof generateStaticSite === 'function' ? generateStaticSite(siteData) : '');
+            let fullHtml = '';
+            try {
+                if (typeof window.generateStaticSite === 'function') {
+                    fullHtml = window.generateStaticSite(siteData);
+                } else if (typeof generateStaticSite === 'function') {
+                    fullHtml = generateStaticSite(siteData);
+                }
+            } catch (err) {
+                console.error('[Preview] Erro ao gerar HTML estático:', err);
+            }
 
             if (!fullHtml) {
-                showCustomAlert('Não foi possível gerar a prévia do site.', 'error');
+                showCustomAlert('Não foi possível gerar o HTML do site.', 'error');
                 return;
             }
 
