@@ -424,7 +424,7 @@ const leftIcon = document.querySelector('.left-icon');
             }
         };
 
-        // Função global para carregar o site salvo de volta ao gerador/editor
+        // Função global para abrir a Prévia Real do Site (Modal em tela cheia com o HTML final, sem abrir o editor)
         window.previewSiteOffline = function(arroba) {
             let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
             const siteData = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
@@ -434,28 +434,141 @@ const leftIcon = document.querySelector('.left-icon');
                 return;
             }
 
-            // 1. Carrega os dados do site no editor e na tela do celular
-            loadSiteIntoEditor(siteData);
+            // Gerar o HTML estático real do site usando o gerador oficial
+            const fullHtml = (typeof window.generateStaticSite === 'function') 
+                ? window.generateStaticSite(siteData) 
+                : (typeof generateStaticSite === 'function' ? generateStaticSite(siteData) : '');
 
-            // 2. Fecha a galeria e alterna a barra inferior para o Gerador
-            const navEditor = document.getElementById('nav-editor');
-            const navGallery = document.getElementById('nav-gallery');
-            const galleryOverlay = document.getElementById('gallery-overlay');
-            const topBar = document.querySelector('.top-bar');
-
-            if (navEditor && navGallery && galleryOverlay) {
-                navEditor.classList.add('active');
-                navGallery.classList.remove('active');
-                galleryOverlay.classList.remove('active');
-                if (topBar) topBar.style.display = 'flex';
+            if (!fullHtml) {
+                showCustomAlert('Não foi possível gerar a prévia do site.', 'error');
+                return;
             }
 
-            // 3. Abre a gaveta do Inspector para edição imediata
-            if (typeof openDrawer === 'function' && rightDrawer) {
-                openDrawer(rightDrawer);
-            }
+            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(blob);
 
-            showCustomAlert(`Site ${siteData.arroba} carregado no Gerador!`, 'success');
+            // Remove modal antigo de prévia se existir
+            const oldModal = document.getElementById('site-real-preview-modal');
+            if (oldModal) oldModal.remove();
+
+            const modelNames = {
+                'classic': 'Classic',
+                'vitrine': 'Vitrine',
+                'carousel': 'Carrossel',
+                'shop': 'Shop'
+            };
+            const modelLabel = modelNames[siteData.model] || 'Classic';
+
+            const modalHtml = `
+                <div id="site-real-preview-modal" style="position: fixed; inset: 0; background: rgba(8, 10, 16, 0.95); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 999999; display: flex; flex-direction: column; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    
+                    <!-- Barra Superior de Controle da Prévia -->
+                    <div style="background: #0d1117; border-bottom: 1px solid #21262d; padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-shrink: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                        
+                        <!-- Título e Tag -->
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            <span style="font-size: 1rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                👁️ Prévia Real: ${siteData.arroba}
+                            </span>
+                            <span style="font-size: 0.72rem; font-weight: 700; background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); padding: 2px 8px; border-radius: 10px; white-space: nowrap;">
+                                Modelo: ${modelLabel}
+                            </span>
+                        </div>
+
+                        <!-- Alternador de Dispositivo (Celular / Desktop) -->
+                        <div style="display: flex; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2px; gap: 4px;">
+                            <button id="preview-mode-mobile" onclick="window.setPreviewDevice('mobile')" style="background: #238636; color: #fff; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                📱 Celular
+                            </button>
+                            <button id="preview-mode-desktop" onclick="window.setPreviewDevice('desktop')" style="background: transparent; color: #8b949e; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                💻 Computador
+                            </button>
+                        </div>
+
+                        <!-- Botões de Ação na Direita -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="window.editSiteFromPreview('${siteData.arroba}')" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Editar dados no Gerador">
+                                ✏️ Editar no Gerador
+                            </button>
+                            
+                            <button onclick="window.closeRealPreviewModal()" style="background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                ✖ Fechar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Corpo da Prévia (Iframe com troca de moldura) -->
+                    <div id="preview-iframe-container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: hidden; background: #05070a;">
+                        
+                        <!-- Frame do Celular (Padrão) -->
+                        <div id="preview-device-frame" style="width: 100%; max-width: 420px; height: 100%; max-height: 820px; background: #000; border-radius: 32px; border: 8px solid #1e293b; box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,255,255,0.1); overflow: hidden; position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                            <iframe id="preview-real-iframe" src="${blobUrl}" style="width: 100%; height: 100%; border: none; background: #000;" title="Prévia do Site"></iframe>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Funções globais para interação do modal de prévia real
+            window.closeRealPreviewModal = function() {
+                const modal = document.getElementById('site-real-preview-modal');
+                if (modal) modal.remove();
+                URL.revokeObjectURL(blobUrl);
+            };
+
+            window.setPreviewDevice = function(mode) {
+                const frame = document.getElementById('preview-device-frame');
+                const btnMobile = document.getElementById('preview-mode-mobile');
+                const btnDesktop = document.getElementById('preview-mode-desktop');
+
+                if (!frame || !btnMobile || !btnDesktop) return;
+
+                if (mode === 'desktop') {
+                    frame.style.maxWidth = '100%';
+                    frame.style.maxHeight = '100%';
+                    frame.style.borderRadius = '12px';
+                    frame.style.borderWidth = '1px';
+                    btnDesktop.style.background = '#238636';
+                    btnDesktop.style.color = '#fff';
+                    btnMobile.style.background = 'transparent';
+                    btnMobile.style.color = '#8b949e';
+                } else {
+                    frame.style.maxWidth = '420px';
+                    frame.style.maxHeight = '820px';
+                    frame.style.borderRadius = '32px';
+                    frame.style.borderWidth = '8px';
+                    btnMobile.style.background = '#238636';
+                    btnMobile.style.color = '#fff';
+                    btnDesktop.style.background = 'transparent';
+                    btnDesktop.style.color = '#8b949e';
+                }
+            };
+
+            window.editSiteFromPreview = function(arrobaToEdit) {
+                window.closeRealPreviewModal();
+                
+                // Abre no gerador se o usuário realmente quiser editar
+                loadSiteIntoEditor(siteData);
+
+                const navEditor = document.getElementById('nav-editor');
+                const navGallery = document.getElementById('nav-gallery');
+                const galleryOverlay = document.getElementById('gallery-overlay');
+                const topBar = document.querySelector('.top-bar');
+
+                if (navEditor && navGallery && galleryOverlay) {
+                    navEditor.classList.add('active');
+                    navGallery.classList.remove('active');
+                    galleryOverlay.classList.remove('active');
+                    if (topBar) topBar.style.display = 'flex';
+                }
+
+                if (typeof openDrawer === 'function' && rightDrawer) {
+                    openDrawer(rightDrawer);
+                }
+                showCustomAlert(`Modo Edição ativado para ${siteData.arroba}!`, 'info');
+            };
         };
 
         // =========================================================================
