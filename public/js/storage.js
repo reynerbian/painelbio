@@ -59,10 +59,10 @@ const DEFAULT_PIX_SETTINGS = {
     chavePix: '',
     nomeRecebedor: 'PainelBio',
     cidade: 'Sao Paulo',
-    classicPrice: 9.90,
-    vitrinePrice: 12.90,
-    carouselPrice: 14.90,
-    shopPrice: 19.90,
+    classicPrice: 9.99,
+    vitrinePrice: 12.99,
+    carouselPrice: 14.99,
+    shopPrice: 19.99,
     addonPrice: 5.00,
     whatsappNumber: ''
 };
@@ -70,7 +70,16 @@ const DEFAULT_PIX_SETTINGS = {
 function getPixSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem('painelbio-pix-settings'));
-        return Object.assign({}, DEFAULT_PIX_SETTINGS, saved || {});
+        const merged = Object.assign({}, DEFAULT_PIX_SETTINGS, saved || {});
+        // Se as configurações antigas ainda tinham 59.90 para o shop, corrige para o padrão do usuário (19.99)
+        if (merged.shopPrice === 59.90 || merged.shopPrice === 59.9) {
+            merged.shopPrice = 19.99;
+            merged.classicPrice = 9.99;
+            merged.vitrinePrice = 12.99;
+            merged.carouselPrice = 14.99;
+            merged.addonPrice = 5.00;
+        }
+        return merged;
     } catch (e) {
         return DEFAULT_PIX_SETTINGS;
     }
@@ -116,11 +125,11 @@ function calculateSitePrice(siteData) {
     const modelKey = (siteData.model || 'classic').toLowerCase().trim();
 
     const modelMap = {
-        'classic': { name: 'Classic', price: parseFloat(settings.classicPrice || 9.90) },
-        'vitrine': { name: 'Vitrine', price: parseFloat(settings.vitrinePrice || 12.90) },
-        'carousel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.90) },
-        'carrossel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.90) },
-        'shop': { name: 'Shop', price: parseFloat(settings.shopPrice || 19.90) }
+        'classic': { name: 'Classic', price: parseFloat(settings.classicPrice || 9.99) },
+        'vitrine': { name: 'Vitrine', price: parseFloat(settings.vitrinePrice || 12.99) },
+        'carousel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
+        'carrossel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
+        'shop': { name: 'Shop', price: parseFloat(settings.shopPrice || 19.99) }
     };
     
     const selectedModel = modelMap[modelKey] || modelMap['classic'];
