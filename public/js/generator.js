@@ -399,7 +399,7 @@ export function generateStaticSite(data) {
           display: flex; gap: 12px; overflow-x: auto; width: 100%;
           padding: 0 16px 16px 16px; scroll-snap-type: x mandatory;
           scrollbar-width: none; -ms-overflow-style: none;
-          -webkit-overflow-scrolling: touch; cursor: grab; user-select: none;
+          -webkit-overflow-scrolling: touch;
       }
       .s-carousel::-webkit-scrollbar { display: none; }
       .s-card {
@@ -409,7 +409,7 @@ export function generateStaticSite(data) {
           box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       }
       .s-card-img-wrap { width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden; }
-      .s-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; user-drag: none; }
+      .s-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
       .s-card-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent); }
       .s-card-body { padding: 14px; }
       .s-card-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -481,43 +481,19 @@ export function generateStaticSite(data) {
   </div>
 
   <script>
+    (function() {
       var carousel = document.getElementById('s-carousel-el');
       if (carousel) {
-        var isDown = false, startX = 0, scrollLeft = 0, isDragging = false;
-        carousel.addEventListener('mousedown', function(e) {
-          isDown = true;
-          isDragging = false;
-          carousel.style.cursor = 'grabbing';
-          carousel.style.scrollSnapType = 'none';
-          startX = e.pageX - carousel.offsetLeft;
-          scrollLeft = carousel.scrollLeft;
-        });
-        carousel.addEventListener('mouseleave', function() {
-          isDown = false;
-          carousel.style.cursor = 'grab';
-          carousel.style.scrollSnapType = 'x mandatory';
-        });
-        carousel.addEventListener('mouseup', function() {
-          isDown = false;
-          carousel.style.cursor = 'grab';
-          carousel.style.scrollSnapType = 'x mandatory';
-        });
-        carousel.addEventListener('mousemove', function(e) {
-          if (!isDown) return;
-          var x = e.pageX - carousel.offsetLeft;
-          var walk = (x - startX) * 1.5;
-          if (Math.abs(walk) > 5) isDragging = true;
-          e.preventDefault();
-          carousel.scrollLeft = scrollLeft - walk;
-        });
-        carousel.querySelectorAll('img').forEach(function(img) {
-          img.addEventListener('dragstart', function(e) { e.preventDefault(); });
-        });
-        carousel.querySelectorAll('a').forEach(function(link) {
-          link.addEventListener('click', function(e) {
-            if (isDragging) { e.preventDefault(); e.stopPropagation(); }
-          });
-        });
+        carousel.addEventListener('wheel', function(e) {
+          if (e.deltaY !== 0) {
+            var canScrollRight = carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 4;
+            var canScrollLeft = carousel.scrollLeft > 4;
+            if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
+              e.preventDefault();
+              carousel.scrollLeft += e.deltaY * 1.2;
+            }
+          }
+        }, { passive: false });
       }
     })();
   </script>
