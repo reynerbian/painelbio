@@ -2432,7 +2432,7 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                             <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
                         </div>
 
-                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Preços dos Modelos & Add-ons (R$)</h4>
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">Preços dos Modelos (R$)</h4>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
                             <div>
@@ -2451,9 +2451,29 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                                 <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
                                 <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 19.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
                             </div>
+                        </div>
+
+                        <h4 style="font-size: 0.82rem; color: #f59e0b; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">Preços dos Add-ons (R$)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Anúncio Flutuante (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-banner" value="${settings.bannerPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Chuva de Emoji (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-emoji" value="${settings.emojiPrice || 2.50}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Rodopio do Avatar (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-avatarspin" value="${settings.avatarSpinPrice || 2.50}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Player de Áudio (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-audio" value="${settings.audioPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
                             <div style="grid-column: span 2;">
-                                <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
-                                <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 5.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                                <label style="font-size: 0.73rem; color: #8b949e;">Balão Online (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-chat" value="${settings.chatPrice || 2.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
                             </div>
                         </div>
 
