@@ -123,48 +123,125 @@ function saveCoupons(couponsArray) {
     }
 }
 
-function calculateSitePrice(siteData) {
+// ── ADD-ONS COMPRADOS (ONE-TIME POR @) ──
+
+// Mapa de slugs internos para as chaves de config e nomes legíveis
+const ADDON_DEFINITIONS = [
+    { slug: 'topbanner',    configKey: 'bannerConfig',      priceKey: 'bannerPrice',     defaultPrice: 2.99, name: 'Anúncio Flutuante' },
+    { slug: 'emojirain',    configKey: 'rainConfig',        priceKey: 'emojiPrice',      defaultPrice: 2.50, name: 'Chuva de Emoji' },
+    { slug: 'avatarspin',   configKey: 'avatarSpinConfig',  priceKey: 'avatarSpinPrice', defaultPrice: 2.50, name: 'Rodopio do Avatar' },
+    { slug: 'audioplayer',  configKey: 'audioPlayerConfig', priceKey: 'audioPrice',      defaultPrice: 2.99, name: 'Player de Áudio' },
+    { slug: 'livechat',     configKey: 'chatWidgetConfig',  priceKey: 'chatPrice',       defaultPrice: 2.99, name: 'Balão Online / Chat' }
+];
+
+/**
+ * Retorna o array de slugs de add-ons já comprados para um @ específico.
+ * Exemplo: ['topbanner', 'emojirain']
+ */
+function getPurchasedAddons(arroba) {
+    if (!arroba) return [];
+    try {
+        const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        const lead = leads.find(l => l.arroba && l.arroba.toLowerCase() === arroba.toLowerCase());
+        return Array.isArray(lead?.purchasedAddons) ? lead.purchasedAddons : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Salva/atualiza o array de slugs de add-ons comprados para um @ específico.
+ * Faz merge com os já existentes (nunca remove).
+ */
+function savePurchasedAddons(arroba, newAddons) {
+    if (!arroba) return;
+    try {
+        const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === arroba.toLowerCase());
+        if (idx === -1) return;
+        const existing = Array.isArray(leads[idx].purchasedAddons) ? leads[idx].purchasedAddons : [];
+        // Merge sem duplicatas
+        const merged = [...new Set([...existing, ...newAddons])];
+        leads[idx].purchasedAddons = merged;
+        localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+    } catch (e) {
+        console.error('[Storage] Erro ao salvar purchasedAddons:', e);
+    }
+}
+
+/**
+ * Retorna os add-ons ativos no site que NÃO foram pagos ainda.
+ * Usado no gate de upload e no checkout parcial.
+ */
+function calculateNewAddonsCost(siteData, purchasedAddons) {
+    const settings = getPixSettings();
+    const paid = Array.isArray(purchasedAddons) ? purchasedAddons : [];
+    const newAddons = [];
+
+    ADDON_DEFINITIONS.forEach(def => {
+        const isActive = siteData[def.configKey] && siteData[def.configKey].enabled;
+        const alreadyPaid = paid.includes(def.slug);
+        if (isActive && !alreadyPaid) {
+            newAddons.push({
+                slug: def.slug,
+                name: def.name,
+                price: parseFloat(settings[def.priceKey] || def.defaultPrice)
+            });
+        }
+    });
+
+    const total = newAddons.reduce((sum, a) => sum + a.price, 0);
+    return { newAddons, total };
+}
+
+function calculateSitePrice(siteData, purchasedAddons) {
     const settings = getPixSettings();
     const modelKey = (siteData.model || 'classic').toLowerCase().trim();
 
     const modelMap = {
-        'classic': { name: 'Classic', price: parseFloat(settings.classicPrice || 9.99) },
-        'vitrine': { name: 'Vitrine', price: parseFloat(settings.vitrinePrice || 12.99) },
+        'classic':  { name: 'Classic',   price: parseFloat(settings.classicPrice  || 9.99)  },
+        'vitrine':  { name: 'Vitrine',   price: parseFloat(settings.vitrinePrice  || 12.99) },
         'carousel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
-        'carrossel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
-        'shop': { name: 'Shop', price: parseFloat(settings.shopPrice || 19.99) }
+        'carrossel':{ name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
+        'shop':     { name: 'Shop',      price: parseFloat(settings.shopPrice     || 19.99) }
     };
-    
+
     const selectedModel = modelMap[modelKey] || modelMap['classic'];
     const basePrice = selectedModel.price;
     const modelName = selectedModel.name;
-    
-    // Lista de add-ons ativos com preços individuais
-    const activeAddons = [];
-    if (siteData.bannerConfig && siteData.bannerConfig.enabled) {
-        activeAddons.push({ name: 'Anúncio Flutuante', price: parseFloat(settings.bannerPrice || 2.99) });
-    }
-    if (siteData.rainConfig && siteData.rainConfig.enabled) {
-        activeAddons.push({ name: 'Chuva de Emoji', price: parseFloat(settings.emojiPrice || 2.50) });
-    }
-    if (siteData.avatarSpinConfig && siteData.avatarSpinConfig.enabled) {
-        activeAddons.push({ name: 'Rodopio do Avatar', price: parseFloat(settings.avatarSpinPrice || 2.50) });
-    }
-    if (siteData.audioPlayerConfig && siteData.audioPlayerConfig.enabled) {
-        activeAddons.push({ name: 'Player de Áudio', price: parseFloat(settings.audioPrice || 2.99) });
-    }
-    if (siteData.chatWidgetConfig && siteData.chatWidgetConfig.enabled) {
-        activeAddons.push({ name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) });
-    }
 
-    const addonCount = activeAddons.length;
-    const addonTotal = activeAddons.reduce((sum, item) => sum + item.price, 0);
-    const subtotal = basePrice + addonTotal;
+    // Add-ons já comprados passados como parâmetro (ou busca do lead)
+    const paid = Array.isArray(purchasedAddons)
+        ? purchasedAddons
+        : getPurchasedAddons(siteData.arroba || '');
+
+    const activeAddons   = []; // todos os add-ons ativos no site
+    const includedAddons = []; // já pagos (inclusos, sem custo)
+    const chargedAddons  = []; // novos, a cobrar
+
+    ADDON_DEFINITIONS.forEach(def => {
+        const isActive = siteData[def.configKey] && siteData[def.configKey].enabled;
+        if (!isActive) return;
+        const price = parseFloat(settings[def.priceKey] || def.defaultPrice);
+        const addon = { slug: def.slug, name: def.name, price };
+        activeAddons.push(addon);
+        if (paid.includes(def.slug)) {
+            includedAddons.push(addon);
+        } else {
+            chargedAddons.push(addon);
+        }
+    });
+
+    const addonCount = chargedAddons.length;
+    const addonTotal = chargedAddons.reduce((sum, a) => sum + a.price, 0);
+    const subtotal   = basePrice + addonTotal;
 
     return {
         modelName,
         basePrice,
         activeAddons,
+        includedAddons,
+        chargedAddons,
         addonCount,
         addonTotal,
         subtotal,

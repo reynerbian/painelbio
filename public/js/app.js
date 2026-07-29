@@ -242,8 +242,20 @@ const leftIcon = document.querySelector('.left-icon');
             const isPaid = site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified';
             if (!isPaid) {
                 showCustomAlert('Publicação bloqueada! Confirme o pagamento via PIX para publicar.', 'error');
-                window.openPixCheckoutModal(site.arroba);
+                window.openPixCheckoutModal(site.arroba, 'full');
                 return;
+            }
+
+            // Gate de add-ons: verifica se há add-ons ativos não pagos antes do upload
+            if (typeof calculateNewAddonsCost === 'function' && typeof getPurchasedAddons === 'function') {
+                const purchased = getPurchasedAddons(site.arroba);
+                const { newAddons, total } = calculateNewAddonsCost(site, purchased);
+                if (newAddons.length > 0) {
+                    const addonNames = newAddons.map(a => a.name).join(', ');
+                    showCustomAlert(`Add-on(s) novo(s) detectado(s): ${addonNames}\nPague R$ ${total.toFixed(2).replace('.', ',')} para ativá-lo(s).`, 'info');
+                    window.openPixCheckoutModal(site.arroba, 'addon');
+                    return;
+                }
             }
 
             // Garante que o modelo do site seja mantido se já existir, ou atribuído ao modelo ativo se novo
@@ -619,7 +631,16 @@ const leftIcon = document.querySelector('.left-icon');
             const cleanSlug = site.arroba.replace('@', '').toLowerCase();
             const currentMonthKey = new Date().toISOString().substring(0, 7);
             const createdDateFormatted = site.createdAt ? new Date(site.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recente';
-            const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site) : { modelName: 'Classic', basePrice: 9.90, activeAddons: [], addonCount: 0, addonTotal: 0, finalPrice: 9.90 };
+            const purchasedAddons = (typeof getPurchasedAddons === 'function') ? getPurchasedAddons(arroba) : [];
+            const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site, purchasedAddons) : { modelName: 'Classic', basePrice: 9.90, activeAddons: [], includedAddons: [], chargedAddons: [], addonCount: 0, addonTotal: 0, finalPrice: 9.90 };
+
+            // Formata data de renovação
+            const isPaid = site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified';
+            const renewalDateFormatted = site.renewalDueDate
+                ? new Date(site.renewalDueDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                : null;
+            // Preço de renovação = só o modelo
+            const renewalPrice = priceInfo.basePrice;
 
             const modalHtml = `
                 <div id="site-info-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; box-sizing: border-box; overflow-y: auto;">
@@ -695,12 +716,11 @@ const leftIcon = document.querySelector('.left-icon');
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Seção 3: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
                             <div><strong>Modelo Atual:</strong> ${priceInfo.modelName} (${site.preset || 'gray'})</div>
-                            <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
+                            <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '⚪ Pendente de Upload'}</div>
+                            ${renewalDateFormatted ? `<div style="color: ${isPaid ? '#f59e0b' : '#6e7681'}; font-weight: 600;">📅 Próxima renovação: ${renewalDateFormatted}</div>` : ''}
                         </div>
 
                         <!-- Seção 4: Financeiro & Cobrança PIX -->
@@ -709,38 +729,55 @@ const leftIcon = document.querySelector('.left-icon');
                                 <span style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
                                     💳 Detalhes do Pagamento
                                 </span>
-                                <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${site.paymentStatus === 'paid' || site.status === 'published' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35);'}">
-                                    ${site.paymentStatus === 'paid' || site.status === 'published' ? '🟢 Pago / Liberado' : '🟡 Pendente'}
+                                <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${isPaid ? 'background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4);' : 'background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.35);'}">
+                                    ${isPaid ? '🟢 Pago / Liberado' : '🟡 Pendente'}
                                 </span>
                             </div>
-                            
-                            <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
+
+                            <!-- Breakdown de preços -->
+                            <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>📌 Modelo ${priceInfo.modelName}:</span>
+                                    <span>📌 Modelo ${priceInfo.modelName}${isPaid ? ' <span style="font-size:0.7rem;color:#8b949e;">/mês</span>' : ''}:</span>
                                     <strong style="color: #fff;">R$ ${priceInfo.basePrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
-                                ${priceInfo.activeAddons.map(ad => `
+                                ${(priceInfo.chargedAddons || []).map(ad => `
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>🧩 ${ad.name}:</span>
                                         <strong style="color: #60a5fa;">+ R$ ${ad.price.toFixed(2).replace('.', ',')}</strong>
                                     </div>
                                 `).join('')}
+                                ${(priceInfo.includedAddons || []).map(ad => `
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="text-decoration: line-through; color: #6e7681;">🧩 ${ad.name}:</span>
+                                        <span style="color: #34d399; font-weight: 700; font-size: 0.75rem;">✓ Incluso</span>
+                                    </div>
+                                `).join('')}
                                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 4px; font-size: 0.9rem; color: #fff;">
-                                    <strong>💰 Total do Site:</strong>
-                                    <strong style="color: #34d399; font-size: 1.05rem;">R$ ${priceInfo.finalPrice.toFixed(2).replace('.', ',')}</strong>
+                                    <strong>💰 ${isPaid ? 'Renovação mensal:' : 'Total a pagar:'}</strong>
+                                    <strong style="color: #34d399; font-size: 1.05rem;">R$ ${isPaid ? renewalPrice.toFixed(2).replace('.', ',') : priceInfo.finalPrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
                             </div>
 
+                            <!-- Botões conforme status -->
+                            ${isPaid ? `
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'renewal')" style="width: 100%; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.35); padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    🔄 Cobrar Renovação (R$ ${renewalPrice.toFixed(2).replace('.', ',')})
+                                </button>
+                                <button id="info-btn-send-billing" style="width: 100%; background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.35); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    📲 Enviar Cobrança pelo WhatsApp
+                                </button>
+                            </div>
+                            ` : `
                             <div style="display: flex; gap: 8px;">
-                                <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'full')" style="flex: 1; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35,134,54,0.3);">
                                     💳 Gerar QR Code PIX (R$ ${priceInfo.finalPrice.toFixed(2).replace('.', ',')})
                                 </button>
-                                ${site.paymentStatus !== 'paid' && site.status !== 'published' ? `
-                                <button onclick="window.confirmPixPayment('${site.arroba}')" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
-                                    ✅ Liberar Site
+                                <button onclick="window.confirmPixPayment('${site.arroba}', 'full')" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
+                                    ✅ Liberar
                                 </button>
-                                ` : ''}
                             </div>
+                            `}
                         </div>
 
                         <!-- Ações Rápidas -->
@@ -929,10 +966,53 @@ const leftIcon = document.querySelector('.left-icon');
 
                     const reportMsg = `Olá ${site.name || site.arroba}! 👋\n\nSegue o resumo de acessos do seu *PainelBio* em *${selectedMonthText}*:\n\n👁️ *${views}* visitas na sua Bio\n💬 *${clicks}* contatos iniciados!\n\nSeu Link em destaque no ar: ${window.location.origin}/${cleanSlug}`;
 
-                    const targetPhone = foundPhone ? foundPhone.replace(/[^0-9]/g, '') : '';
+                    const targetPhone = ownerPhoneInput?.value?.replace(/[^0-9]/g, '') || '';
                     const waUrl = targetPhone ? `https://wa.me/${targetPhone}?text=${encodeURIComponent(reportMsg)}` : `https://wa.me/?text=${encodeURIComponent(reportMsg)}`;
                     
                     window.open(waUrl, '_blank');
+                });
+            }
+
+            // Botão Enviar Cobrança pelo WhatsApp (renovação)
+            const btnSendBilling = document.getElementById('info-btn-send-billing');
+            if (btnSendBilling) {
+                btnSendBilling.addEventListener('click', () => {
+                    const clientPhone = ownerPhoneInput?.value?.replace(/[^0-9]/g, '') || '';
+                    const clientName  = ownerNameInput?.value?.trim() || (site.name || site.arroba);
+                    const settings    = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+                    const pixPayload  = (typeof generatePixBRCode === 'function') ? generatePixBRCode({
+                        key:    settings.chavePix || '',
+                        name:   settings.nomeRecebedor || 'PainelBio',
+                        city:   settings.cidade || 'SAO PAULO',
+                        amount: renewalPrice
+                    }) : '';
+
+                    const dueDateStr = renewalDateFormatted || 'em breve';
+                    const billingMsg = [
+                        `Olá ${clientName}! 👋`,
+                        ``,
+                        `Tudo bem? Passando para lembrar que o seu *PainelBio* (${site.arroba}) vence em *${dueDateStr}*.`,
+                        ``,
+                        `💳 *Valor da renovação: R$ ${renewalPrice.toFixed(2).replace('.', ',')}*`,
+                        `(Modelo ${priceInfo.modelName} — mensal)`,
+                        ``,
+                        `Para renovar, basta realizar o PIX no valor acima:`,
+                        `ℹ️ Chave PIX: *${settings.chavePix || '(não configurada)'}*`,
+                        pixPayload ? `\nCódigo Copia e Cola:\n${pixPayload}` : '',
+                        ``,
+                        `Qualquer dúvida estou à disposição! 😊`
+                    ].filter(l => l !== null).join('\n');
+
+                    if (!clientPhone) {
+                        showCustomAlert('Preencha o WhatsApp do cliente no campo acima antes de enviar.', 'error');
+                        return;
+                    }
+                    if (!settings.chavePix) {
+                        showCustomAlert('Configure sua chave PIX nas Configurações primeiro.', 'error');
+                        return;
+                    }
+
+                    window.open(`https://wa.me/${clientPhone}?text=${encodeURIComponent(billingMsg)}`, '_blank');
                 });
             }
         };
@@ -2142,38 +2222,68 @@ document.addEventListener('click', (e) => {
 // MÓDULO DE CHECKOUT E CONFIGURAÇÕES DO PIX (0% TAXAS BACEN)
 // =========================================================================
 
-window.openPixCheckoutModal = function(arroba) {
+// mode: 'full' (padrão), 'renewal' (só modelo), 'addon' (só add-ons novos)
+window.openPixCheckoutModal = function(arroba, mode) {
+    mode = mode || 'full';
     let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
     const siteData = leads.find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
-    
+
     if (!siteData) {
         showCustomAlert('Site não encontrado.', 'error');
         return;
     }
 
     const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
-    const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(siteData) : { subtotal: 29.90, basePrice: 29.90, addonCount: 0, addonTotal: 0 };
-    
+
     if (!settings.chavePix) {
         showCustomAlert('Cadastre a sua Chave PIX nas Configurações ⚙️ para gerar o QR Code.', 'error');
         window.openPixSettingsModal();
         return;
     }
 
-    let appliedDiscount = 0;
-    let appliedCouponCode = siteData.discountCode || '';
-    let finalAmount = priceInfo.subtotal;
+    const purchasedAddons = (typeof getPurchasedAddons === 'function') ? getPurchasedAddons(arroba) : [];
+    const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(siteData, purchasedAddons) : { subtotal: 29.90, basePrice: 29.90, chargedAddons: [], includedAddons: [], addonCount: 0, addonTotal: 0 };
+
+    // Cálculo do valor por modo
+    let modeTitle = '💳 Pagamento via PIX';
+    let modeSubtitle = `Site: ${siteData.arroba}`;
+    let subtotalForMode = 0;
+    let includedAddonsList = priceInfo.includedAddons || [];
+    let chargedAddonsList  = priceInfo.chargedAddons  || [];
+    let showModelLine = true;
+    let confirmMode = mode;
+
+    if (mode === 'renewal') {
+        modeTitle    = '🔄 Renovação Mensal';
+        modeSubtitle = `Renovação: ${siteData.arroba}`;
+        subtotalForMode = priceInfo.basePrice;
+        chargedAddonsList  = []; // add-ons não cobrados na renovação
+        includedAddonsList = priceInfo.activeAddons || [];
+    } else if (mode === 'addon') {
+        // Só add-ons novos
+        modeTitle    = '🧩 Add-ons Novos';
+        modeSubtitle = `Add-ons: ${siteData.arroba}`;
+        showModelLine      = false;
+        chargedAddonsList  = priceInfo.chargedAddons  || [];
+        includedAddonsList = priceInfo.includedAddons || [];
+        subtotalForMode    = priceInfo.addonTotal;
+    } else {
+        subtotalForMode = priceInfo.subtotal;
+    }
+
+    // Cupom de desconto (só no modo 'full')
+    let appliedDiscount   = 0;
+    let appliedCouponCode = mode === 'full' ? (siteData.discountCode || '') : '';
+    let finalAmount       = subtotalForMode;
 
     if (appliedCouponCode) {
         const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
-        const found = coupons.find(c => c.code.toUpperCase() === appliedCouponCode.toUpperCase());
+        const found   = coupons.find(c => c.code.toUpperCase() === appliedCouponCode.toUpperCase());
         if (found) {
-            if (found.type === 'percent') {
-                appliedDiscount = (priceInfo.subtotal * found.value) / 100;
-            } else {
-                appliedDiscount = found.value;
-            }
-            finalAmount = Math.max(0, priceInfo.subtotal - appliedDiscount);
+            appliedDiscount = found.type === 'percent'
+                ? (subtotalForMode * found.value) / 100
+                : found.value;
+            finalAmount = Math.max(0, subtotalForMode - appliedDiscount);
         }
     }
 
@@ -2181,83 +2291,101 @@ window.openPixCheckoutModal = function(arroba) {
     if (oldModal) oldModal.remove();
 
     const pixPayload = (typeof generatePixBRCode === 'function') ? generatePixBRCode({
-        key: settings.chavePix,
-        name: settings.nomeRecebedor || 'PainelBio',
-        city: settings.cidade || 'SAO PAULO',
+        key:    settings.chavePix,
+        name:   settings.nomeRecebedor || 'PainelBio',
+        city:   settings.cidade        || 'SAO PAULO',
         amount: finalAmount
     }) : '';
 
     const qrCodeUrl = (typeof getPixQrCodeUrl === 'function') ? getPixQrCodeUrl(pixPayload) : '';
 
+    // Linhas de resumo: modelo + add-ons cobrados + inclusos
+    const modelLineHtml = showModelLine ? `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span>📌 Modelo ${priceInfo.modelName}</span>
+            <strong>R$ ${priceInfo.basePrice.toFixed(2).replace('.', ',')}</strong>
+        </div>` : '';
+
+    const chargedAddonsHtml = chargedAddonsList.map(a => `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #60a5fa;">
+            <span>🧩 ${a.name}</span>
+            <strong>+ R$ ${a.price.toFixed(2).replace('.', ',')}</strong>
+        </div>`).join('');
+
+    const includedAddonsHtml = includedAddonsList.length > 0 ? includedAddonsList.map(a => `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #6e7681;">
+            <span style="text-decoration: line-through; font-size: 0.78rem;">🧩 ${a.name}</span>
+            <span style="color: #34d399; font-size: 0.78rem; font-weight: 700;">✓ Incluso</span>
+        </div>`).join('') : '';
+
+    const discountHtml = appliedDiscount > 0 ? `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #34d399;">
+            <span>🎟️ Desconto (${appliedCouponCode})</span>
+            <strong>- R$ ${appliedDiscount.toFixed(2).replace('.', ',')}</strong>
+        </div>` : '';
+
+    const couponFieldHtml = mode === 'full' ? `
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <input type="text" id="input-pix-coupon" placeholder="Cupom (ex: PRIMEIRO10)" value="${appliedCouponCode}" style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; text-transform: uppercase;">
+            <button onclick="window.applyPixCoupon('${siteData.arroba}')" style="background: #238636; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">Aplicar</button>
+        </div>` : '';
+
+    const confirmLabel = mode === 'renewal'
+        ? '🔄 Confirmar Renovação'
+        : mode === 'addon'
+            ? '✅ Confirmar Pagamento dos Add-ons'
+            : '✅ Confirmar Pagamento & Liberar Site';
+
     const modalHtml = `
         <div id="pix-checkout-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            
             <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
-                
+
                 <!-- Cabeçalho -->
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 16px;">
                     <div>
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">💳 Pagamento via PIX</h3>
-                        <span style="font-size: 0.78rem; color: #8b949e;">Site: ${siteData.arroba}</span>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">${modeTitle}</h3>
+                        <span style="font-size: 0.78rem; color: #8b949e;">${modeSubtitle}</span>
                     </div>
                     <button onclick="document.getElementById('pix-checkout-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
                 </div>
 
                 <!-- Resumo dos Valores -->
                 <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                        <span>Modelo (${siteData.model || 'Classic'})</span>
-                        <strong>R$ ${priceInfo.basePrice.toFixed(2)}</strong>
-                    </div>
-                    ${priceInfo.addonCount > 0 ? `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #60a5fa;">
-                        <span>Add-ons (${priceInfo.addonCount}x)</span>
-                        <strong>+ R$ ${priceInfo.addonTotal.toFixed(2)}</strong>
-                    </div>
-                    ` : ''}
-                    ${appliedDiscount > 0 ? `
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #34d399;">
-                        <span>Desconto (${appliedCouponCode})</span>
-                        <strong>- R$ ${appliedDiscount.toFixed(2)}</strong>
-                    </div>
-                    ` : ''}
+                    ${modelLineHtml}
+                    ${chargedAddonsHtml}
+                    ${includedAddonsHtml}
+                    ${discountHtml}
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 8px; font-size: 1.05rem; color: #fff;">
                         <strong>Total a Pagar:</strong>
-                        <strong style="color: #34d399;" id="pix-final-amount-label">R$ ${finalAmount.toFixed(2)}</strong>
+                        <strong style="color: #34d399;">R$ ${finalAmount.toFixed(2).replace('.', ',')}</strong>
                     </div>
                 </div>
 
-                <!-- Campo de Cupom de Desconto -->
-                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                    <input type="text" id="input-pix-coupon" placeholder="Cupom (ex: PRIMEIRO10)" value="${appliedCouponCode}" style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; text-transform: uppercase;">
-                    <button onclick="window.applyPixCoupon('${siteData.arroba}')" style="background: #238636; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">Aplicar</button>
-                </div>
+                ${couponFieldHtml}
 
                 <!-- QR Code PIX -->
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; padding: 14px; border-radius: 14px; margin-bottom: 16px;">
+                <div style="display: flex; flex-direction: column; align-items: center; background: #fff; padding: 14px; border-radius: 14px; margin-bottom: 16px;">
                     <img src="${qrCodeUrl}" style="width: 200px; height: 200px; display: block; border-radius: 8px;">
                     <span style="font-size: 0.72rem; color: #333; margin-top: 6px; font-weight: 600;">Escaneie o QR Code no app do seu Banco</span>
                 </div>
 
-                <!-- Código PIX Copia e Cola -->
+                <!-- PIX Copia e Cola -->
                 <div style="margin-bottom: 16px;">
                     <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">PIX Copia e Cola:</label>
                     <div style="display: flex; gap: 6px;">
                         <input type="text" readonly value="${pixPayload}" id="pix-copy-paste-input" style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #8b949e; border-radius: 8px; padding: 8px; font-size: 0.7rem; font-family: monospace;">
-                        <button onclick="window.copyPixCode(this)" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">📋 Copiar</button>
+                        <button onclick="window.copyPixCode(this)" style="background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.4); padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">📋 Copiar</button>
                     </div>
                 </div>
 
-                <!-- Ações de Confirmação -->
+                <!-- Ações -->
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${settings.whatsappNumber ? `
                     <button onclick="window.sendPixReceiptWhatsApp('${siteData.arroba}', '${finalAmount.toFixed(2)}')" style="width: 100%; background: #25D366; color: #000; border: none; padding: 11px 0; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                         📲 Enviar Comprovante no WhatsApp
-                    </button>
-                    ` : ''}
-
-                    <button onclick="window.confirmPixPayment('${siteData.arroba}')" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                        ✅ Confirmar Pagamento & Liberar Site
+                    </button>` : ''}
+                    <button onclick="window.confirmPixPayment('${siteData.arroba}', '${confirmMode}')" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                        ${confirmLabel}
                     </button>
                 </div>
 
@@ -2315,26 +2443,59 @@ window.applyPixCoupon = function(arroba) {
     window.openPixCheckoutModal(arroba);
 };
 
-window.confirmPixPayment = function(arroba) {
+window.confirmPixPayment = function(arroba, mode) {
+    // mode: 'full' (pagamento inicial), 'renewal' (renovação), 'addon' (add-ons avulsos)
     let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
     const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
 
     if (idx === -1) return;
 
+    const site = leads[idx];
+    const now = new Date();
+    const renewalDate = new Date(now);
+    renewalDate.setDate(renewalDate.getDate() + 30);
+
     leads[idx].paymentStatus = 'paid';
+    leads[idx].lastPaidAt    = now.toISOString();
+    leads[idx].renewalDueDate = renewalDate.toISOString();
+
+    // Salvar add-ons ativos como comprados (para modos 'full' e 'addon')
+    if (mode !== 'renewal') {
+        const currentPurchased = Array.isArray(site.purchasedAddons) ? site.purchasedAddons : [];
+        if (typeof ADDON_DEFINITIONS !== 'undefined') {
+            const activeNow = ADDON_DEFINITIONS
+                .filter(def => site[def.configKey] && site[def.configKey].enabled)
+                .map(def => def.slug);
+            const merged = [...new Set([...currentPurchased, ...activeNow])];
+            leads[idx].purchasedAddons = merged;
+        }
+    }
+
     localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
 
-    const modal = document.getElementById('pix-checkout-modal');
-    if (modal) modal.remove();
+    // Fecha modais abertos
+    const checkoutModal = document.getElementById('pix-checkout-modal');
+    if (checkoutModal) checkoutModal.remove();
+    const infoModal = document.getElementById('site-info-modal');
+    if (infoModal) infoModal.remove();
 
-    showCustomAlert(`Pagamento do site ${arroba} confirmado! Publicação liberada.`, 'success');
+    const modeMsg = mode === 'renewal' ? 'Renovação confirmada!' : 'Pagamento confirmado! Publicação liberada.';
+    showCustomAlert(`${modeMsg} Site: ${arroba}`, 'success');
 
+    // Atualiza galeria
     if (typeof window.renderGallery === 'function') {
         let savedLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
         const sites = savedLeads.map(lead => ({ ...lead, previewPath: lead.previewBase64 || null }));
         window.allSitesData = sites;
         window.renderGallery(window.allSitesData);
     }
+
+    // Reabre o modal 'i' atualizado automaticamente
+    setTimeout(() => {
+        if (typeof window.openSiteInfoModal === 'function') {
+            window.openSiteInfoModal(arroba);
+        }
+    }, 300);
 };
 
 window.sendPixReceiptWhatsApp = function(arroba, amount) {
