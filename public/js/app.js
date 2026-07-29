@@ -93,9 +93,11 @@ const leftIcon = document.querySelector('.left-icon');
                     };
                     const themeName = presetMap[site.preset] || 'Básico';
                     
-                    // Configuração do Status do Botão de Upload
-                    // status: 'not_published' (Cinza), 'published' (Verde), 'modified' (Vermelho)
+                    // Configuração do Status do Botão de Upload & PIX
                     const status = site.status || 'not_published';
+                    const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site) : { finalPrice: 29.90 };
+                    const isPaid = site.paymentStatus === 'paid' || status === 'published' || status === 'modified';
+                    
                     let btnStyle = '';
                     let btnTitle = '';
                     let btnBadgeText = '';
@@ -108,11 +110,14 @@ const leftIcon = document.querySelector('.left-icon');
                         btnStyle = 'background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4);';
                         btnTitle = 'Status: Modificado! Clique para atualizar online';
                         btnBadgeText = 'Modificado';
+                    } else if (isPaid) {
+                        btnStyle = 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);';
+                        btnTitle = 'Pagamento Confirmado! Clique para publicar no ar';
+                        btnBadgeText = 'Pago / Liberado';
                     } else {
-                        // not_published / cinza por padrão
-                        btnStyle = 'background: rgba(140, 140, 140, 0.15); color: #a0a0a0; border: 1px solid rgba(160, 160, 160, 0.3);';
-                        btnTitle = 'Status: Não publicado. Clique para publicar no ar!';
-                        btnBadgeText = 'Pendente';
+                        btnStyle = 'background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35);';
+                        btnTitle = 'Aguardando Pagamento PIX. Clique para pagar ou confirmar.';
+                        btnBadgeText = `Pendente (R$ ${priceInfo.finalPrice.toFixed(2)})`;
                     }
 
                     const isRecentlySaved = window.recentlySavedArroba && site.arroba && site.arroba.toLowerCase() === window.recentlySavedArroba.toLowerCase();
@@ -159,12 +164,22 @@ const leftIcon = document.querySelector('.left-icon');
                                 
                                 <!-- Botoes embaixo -->
                                 <div style="display: flex; gap: 6px; margin-top: 12px; width: 100%; box-sizing: border-box;">
-                                    <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; min-width: 0; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia">
+                                    <button onclick="window.previewSiteOffline('${site.arroba}')" style="flex: 1; min-width: 0; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Ver Prévia Real">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
                                     
+                                    ${!isPaid ? `
+                                    <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1.5; min-width: 0; background: rgba(234, 179, 8, 0.18); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); padding: 8px 4px; border-radius: 6px; cursor: pointer; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;" title="Pagar via PIX">
+                                        💳 PIX
+                                    </button>
+                                    ` : ''}
+
                                     <button onclick="window.startUploadSite('${site.arroba}')" style="flex: 1; min-width: 0; ${btnStyle} padding: 8px 0; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="${btnTitle}">
+                                        ${isPaid ? `
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                        ` : `
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                        `}
                                     </button>
 
                                     ${(status === 'published' || status === 'modified') ? `
@@ -220,6 +235,14 @@ const leftIcon = document.querySelector('.left-icon');
             
             if (!site) {
                 showCustomAlert('Dados do site não encontrados!', 'error');
+                return;
+            }
+
+            // Trava de Segurança PIX: Se não estiver pago nem publicado, exige o pagamento PIX primeiro
+            const isPaid = site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified';
+            if (!isPaid) {
+                showCustomAlert('Publicação bloqueada! Confirme o pagamento via PIX para publicar.', 'error');
+                window.openPixCheckoutModal(site.arroba);
                 return;
             }
 
@@ -2073,3 +2096,325 @@ document.addEventListener('click', (e) => {
         return;
     }
 });
+
+// =========================================================================
+// MÓDULO DE CHECKOUT E CONFIGURAÇÕES DO PIX (0% TAXAS BACEN)
+// =========================================================================
+
+window.openPixCheckoutModal = function(arroba) {
+    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+    const siteData = leads.find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+    
+    if (!siteData) {
+        showCustomAlert('Site não encontrado.', 'error');
+        return;
+    }
+
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+    const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(siteData) : { subtotal: 29.90, basePrice: 29.90, addonCount: 0, addonTotal: 0 };
+    
+    if (!settings.chavePix) {
+        showCustomAlert('Cadastre a sua Chave PIX nas Configurações ⚙️ para gerar o QR Code.', 'error');
+        window.openPixSettingsModal();
+        return;
+    }
+
+    let appliedDiscount = 0;
+    let appliedCouponCode = siteData.discountCode || '';
+    let finalAmount = priceInfo.subtotal;
+
+    if (appliedCouponCode) {
+        const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
+        const found = coupons.find(c => c.code.toUpperCase() === appliedCouponCode.toUpperCase());
+        if (found) {
+            if (found.type === 'percent') {
+                appliedDiscount = (priceInfo.subtotal * found.value) / 100;
+            } else {
+                appliedDiscount = found.value;
+            }
+            finalAmount = Math.max(0, priceInfo.subtotal - appliedDiscount);
+        }
+    }
+
+    const oldModal = document.getElementById('pix-checkout-modal');
+    if (oldModal) oldModal.remove();
+
+    const pixPayload = (typeof generatePixBRCode === 'function') ? generatePixBRCode({
+        key: settings.chavePix,
+        name: settings.nomeRecebedor || 'PainelBio',
+        city: settings.cidade || 'SAO PAULO',
+        amount: finalAmount
+    }) : '';
+
+    const qrCodeUrl = (typeof getPixQrCodeUrl === 'function') ? getPixQrCodeUrl(pixPayload) : '';
+
+    const modalHtml = `
+        <div id="pix-checkout-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            
+            <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
+                
+                <!-- Cabeçalho -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">💳 Pagamento via PIX</h3>
+                        <span style="font-size: 0.78rem; color: #8b949e;">Site: ${siteData.arroba}</span>
+                    </div>
+                    <button onclick="document.getElementById('pix-checkout-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
+                </div>
+
+                <!-- Resumo dos Valores -->
+                <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span>Modelo (${siteData.model || 'Classic'})</span>
+                        <strong>R$ ${priceInfo.basePrice.toFixed(2)}</strong>
+                    </div>
+                    ${priceInfo.addonCount > 0 ? `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #60a5fa;">
+                        <span>Add-ons (${priceInfo.addonCount}x)</span>
+                        <strong>+ R$ ${priceInfo.addonTotal.toFixed(2)}</strong>
+                    </div>
+                    ` : ''}
+                    ${appliedDiscount > 0 ? `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #34d399;">
+                        <span>Desconto (${appliedCouponCode})</span>
+                        <strong>- R$ ${appliedDiscount.toFixed(2)}</strong>
+                    </div>
+                    ` : ''}
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 8px; font-size: 1.05rem; color: #fff;">
+                        <strong>Total a Pagar:</strong>
+                        <strong style="color: #34d399;" id="pix-final-amount-label">R$ ${finalAmount.toFixed(2)}</strong>
+                    </div>
+                </div>
+
+                <!-- Campo de Cupom de Desconto -->
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <input type="text" id="input-pix-coupon" placeholder="Cupom (ex: PRIMEIRO10)" value="${appliedCouponCode}" style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; text-transform: uppercase;">
+                    <button onclick="window.applyPixCoupon('${siteData.arroba}')" style="background: #238636; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">Aplicar</button>
+                </div>
+
+                <!-- QR Code PIX -->
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; padding: 14px; border-radius: 14px; margin-bottom: 16px;">
+                    <img src="${qrCodeUrl}" style="width: 200px; height: 200px; display: block; border-radius: 8px;">
+                    <span style="font-size: 0.72rem; color: #333; margin-top: 6px; font-weight: 600;">Escaneie o QR Code no app do seu Banco</span>
+                </div>
+
+                <!-- Código PIX Copia e Cola -->
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">PIX Copia e Cola:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" readonly value="${pixPayload}" id="pix-copy-paste-input" style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #8b949e; border-radius: 8px; padding: 8px; font-size: 0.7rem; font-family: monospace;">
+                        <button onclick="window.copyPixCode(this)" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;">📋 Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Ações de Confirmação -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${settings.whatsappNumber ? `
+                    <button onclick="window.sendPixReceiptWhatsApp('${siteData.arroba}', '${finalAmount.toFixed(2)}')" style="width: 100%; background: #25D366; color: #000; border: none; padding: 11px 0; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        📲 Enviar Comprovante no WhatsApp
+                    </button>
+                    ` : ''}
+
+                    <button onclick="window.confirmPixPayment('${siteData.arroba}')" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        ✅ Confirmar Pagamento & Liberar Site
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.copyPixCode = function(btnEl) {
+    const input = document.getElementById('pix-copy-paste-input');
+    if (!input || !input.value) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(() => {
+            showCustomAlert('Código PIX Copia e Cola copiado com sucesso!', 'success');
+        });
+    } else {
+        input.select();
+        document.execCommand('copy');
+        showCustomAlert('Código PIX Copia e Cola copiado!', 'success');
+    }
+};
+
+window.applyPixCoupon = function(arroba) {
+    const input = document.getElementById('input-pix-coupon');
+    if (!input) return;
+
+    const code = input.value.trim().toUpperCase();
+    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+    const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+    
+    if (idx === -1) return;
+
+    const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
+    const found = coupons.find(c => c.code.toUpperCase() === code);
+
+    if (!code) {
+        leads[idx].discountCode = '';
+        localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+        showCustomAlert('Cupom removido.', 'info');
+        window.openPixCheckoutModal(arroba);
+        return;
+    }
+
+    if (!found) {
+        showCustomAlert('Cupom de desconto inválido ou expirado.', 'error');
+        return;
+    }
+
+    leads[idx].discountCode = code;
+    localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+    showCustomAlert(`Cupom ${code} aplicado com sucesso!`, 'success');
+    window.openPixCheckoutModal(arroba);
+};
+
+window.confirmPixPayment = function(arroba) {
+    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+    const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+
+    if (idx === -1) return;
+
+    leads[idx].paymentStatus = 'paid';
+    localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+
+    const modal = document.getElementById('pix-checkout-modal');
+    if (modal) modal.remove();
+
+    showCustomAlert(`Pagamento do site ${arroba} confirmado! Publicação liberada.`, 'success');
+
+    if (typeof window.renderGallery === 'function') {
+        let savedLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        const sites = savedLeads.map(lead => ({ ...lead, previewPath: lead.previewBase64 || null }));
+        window.allSitesData = sites;
+        window.renderGallery(window.allSitesData);
+    }
+};
+
+window.sendPixReceiptWhatsApp = function(arroba, amount) {
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+    if (!settings.whatsappNumber) return;
+
+    const cleanPhone = settings.whatsappNumber.replace(/\D/g, '');
+    const msg = `Olá! Fiz o pagamento do PIX de R$ ${amount} referente ao site ${arroba}. Segue o comprovante para liberação!`;
+    const url = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+};
+
+// Modal de Configurações do PIX & Tabela de Preços
+window.openPixSettingsModal = function() {
+    const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+
+    const oldModal = document.getElementById('pix-settings-modal');
+    if (oldModal) oldModal.remove();
+
+    const modalHtml = `
+        <div id="pix-settings-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            
+            <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">⚙️ Configurações de PIX & Preços</h3>
+                        <span style="font-size: 0.78rem; color: #8b949e;">0% de Taxa - Direto para o seu Banco</span>
+                    </div>
+                    <button onclick="document.getElementById('pix-settings-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
+                </div>
+
+                <form id="form-pix-settings" onsubmit="window.savePixSettingsFromForm(event)">
+                    
+                    <h4 style="font-size: 0.85rem; color: #38bdf8; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">1. Dados da Sua Conta PIX</h4>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Chave PIX (CPF, E-mail, Telefone ou Aleatória):</label>
+                        <input type="text" id="pix-input-key" value="${settings.chavePix || ''}" placeholder="ex: 123.456.789-00 ou seu-email@pix.com" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Seu Nome / Empresa:</label>
+                            <input type="text" id="pix-input-name" value="${settings.nomeRecebedor || 'PainelBio'}" placeholder="Nome do Titular" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Cidade:</label>
+                            <input type="text" id="pix-input-city" value="${settings.cidade || 'SAO PAULO'}" placeholder="ex: Sao Paulo" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">WhatsApp para Receber Comprovantes (apenas números com DDD):</label>
+                        <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                    </div>
+
+                    <h4 style="font-size: 0.85rem; color: #38bdf8; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Tabela de Preços (R$)</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                        <div>
+                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Classic (R$):</label>
+                            <input type="number" step="0.01" id="pix-price-classic" value="${settings.classicPrice || 29.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Vitrine (R$):</label>
+                            <input type="number" step="0.01" id="pix-price-vitrine" value="${settings.vitrinePrice || 39.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Carrossel (R$):</label>
+                            <input type="number" step="0.01" id="pix-price-carousel" value="${settings.carouselPrice || 49.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
+                            <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 59.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
+                            <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 10.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <button type="submit" style="width: 100%; background: #238636; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                        💾 Salvar Configurações PIX
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.savePixSettingsFromForm = function(e) {
+    e.preventDefault();
+    const key = document.getElementById('pix-input-key')?.value.trim() || '';
+    const name = document.getElementById('pix-input-name')?.value.trim() || 'PainelBio';
+    const city = document.getElementById('pix-input-city')?.value.trim() || 'SAO PAULO';
+    const whatsapp = document.getElementById('pix-input-whatsapp')?.value.trim() || '';
+
+    const classic = parseFloat(document.getElementById('pix-price-classic')?.value || 29.90);
+    const vitrine = parseFloat(document.getElementById('pix-price-vitrine')?.value || 39.90);
+    const carousel = parseFloat(document.getElementById('pix-price-carousel')?.value || 49.90);
+    const shop = parseFloat(document.getElementById('pix-price-shop')?.value || 59.90);
+    const addon = parseFloat(document.getElementById('pix-price-addon')?.value || 10.00);
+
+    savePixSettings({
+        chavePix: key,
+        nomeRecebedor: name,
+        cidade: city,
+        whatsappNumber: whatsapp,
+        classicPrice: classic,
+        vitrinePrice: vitrine,
+        carouselPrice: carousel,
+        shopPrice: shop,
+        addonPrice: addon
+    });
+
+    const modal = document.getElementById('pix-settings-modal');
+    if (modal) modal.remove();
+
+    showCustomAlert('Configurações do PIX e tabela de preços salvas com sucesso!', 'success');
+};
