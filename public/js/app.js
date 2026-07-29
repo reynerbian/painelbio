@@ -149,7 +149,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     </div>
                                     
                                     <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <strong>Modelo:</strong> ${site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic')} / ${themeName}
+                                        <strong>Modelo:</strong> ${site.model === 'shop' ? 'Shop' : (site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic'))} / ${themeName}
                                     </div>
                                     
                                     <div style="font-size: 0.7rem; color: #6e7681;">
@@ -560,7 +560,7 @@ const leftIcon = document.querySelector('.left-icon');
                         <!-- Seção 3: Ficha Técnica -->
                         <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.75rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px;">
                             <div><strong>Criado em:</strong> ${createdDateFormatted}</div>
-                            <div><strong>Modelo Atual:</strong> ${site.model === 'vitrine' ? 'Vitrine' : 'Classic'} (${site.preset || 'gray'})</div>
+                            <div><strong>Modelo Atual:</strong> ${site.model === 'shop' ? 'Shop' : (site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic'))} (${site.preset || 'gray'})</div>
                             <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
                         </div>
 
@@ -764,8 +764,9 @@ const leftIcon = document.querySelector('.left-icon');
             const hasCarouselImages = Boolean(data && (data.carousel1Img || data.carousel2Img || data.carousel3Img));
             const hasHighlightImages = Boolean(data && (data.highlight1Img || data.highlight2Img || data.highlight3Img));
 
-            const isCarousel = modelType === 'carousel' || modelType === 'carrossel' || (modelType === 'classic' && hasCarouselImages);
-            const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel;
+            const isShop = modelType === 'shop';
+            const isCarousel = (modelType === 'carousel' || modelType === 'carrossel' || (modelType === 'classic' && hasCarouselImages)) && !isShop;
+            const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel && !isShop;
             const presetMap = {
                 'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
                 'sunset': { c1: '#ff0844', c2: '#ffb199', text: '#ffffff', bg: '#120508', cardBg: '#1c080d' },
@@ -989,6 +990,265 @@ const leftIcon = document.querySelector('.left-icon');
                     </div>
                 </a>
                 `;
+            }
+
+            // ==========================================
+            // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
+            // ==========================================
+            if (isShop) {
+                const p1Img = data.shopP1Img || '';
+                const p1Title = data.shopP1Title || '';
+                const p1Price = data.shopP1Price || '';
+                const p1Url = data.shopP1Url || '#';
+
+                const p2Img = data.shopP2Img || '';
+                const p2Title = data.shopP2Title || '';
+                const p2Price = data.shopP2Price || '';
+                const p2Url = data.shopP2Url || '#';
+
+                const p3Img = data.shopP3Img || '';
+                const p3Title = data.shopP3Title || '';
+                const p3Price = data.shopP3Price || '';
+                const p3Url = data.shopP3Url || '#';
+
+                const catalogUrl = data.shopCatalogUrl || '';
+                const bgImgUrl = p1Img || p2Img || p3Img || '';
+
+                const p1CardHtml = (p1Img || p1Title || p1Price) ? `
+                    <div class="s-card">
+                        <div class="s-card-img-wrap">
+                            <img src="${p1Img || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'}" alt="${p1Title}">
+                            <div class="s-card-img-overlay"></div>
+                        </div>
+                        <div class="s-card-body">
+                            <div class="s-card-title">${p1Title}</div>
+                            <div class="s-card-price">${p1Price}</div>
+                            <a href="${p1Url}" target="_blank" rel="noopener" class="s-card-btn" onclick="trackAction('click')">Eu quero este 🛍️</a>
+                        </div>
+                    </div>
+                ` : '';
+
+                const p2CardHtml = (p2Img || p2Title || p2Price) ? `
+                    <div class="s-card">
+                        <div class="s-card-img-wrap">
+                            <img src="${p2Img || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'}" alt="${p2Title}">
+                            <div class="s-card-img-overlay"></div>
+                        </div>
+                        <div class="s-card-body">
+                            <div class="s-card-title">${p2Title}</div>
+                            <div class="s-card-price">${p2Price}</div>
+                            <a href="${p2Url}" target="_blank" rel="noopener" class="s-card-btn" onclick="trackAction('click')">Eu quero este 🛍️</a>
+                        </div>
+                    </div>
+                ` : '';
+
+                const p3CardHtml = (p3Img || p3Title || p3Price) ? `
+                    <div class="s-card">
+                        <div class="s-card-img-wrap">
+                            <img src="${p3Img || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'}" alt="${p3Title}">
+                            <div class="s-card-img-overlay"></div>
+                        </div>
+                        <div class="s-card-body">
+                            <div class="s-card-title">${p3Title}</div>
+                            <div class="s-card-price">${p3Price}</div>
+                            <a href="${p3Url}" target="_blank" rel="noopener" class="s-card-btn" onclick="trackAction('click')">Eu quero este 🛍️</a>
+                        </div>
+                    </div>
+                ` : '';
+
+                const catalogBtnHtml = catalogUrl ? `
+                    <div class="s-catalog-wrap">
+                        <a href="${catalogUrl}" target="_blank" rel="noopener" class="s-catalog-btn" onclick="trackAction('click')">Ver todo o catálogo →</a>
+                    </div>
+                ` : '';
+
+                return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>${data.name || data.arroba || 'Shop'}</title>
+  <script>
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => {
+              for (let r of regs) r.unregister();
+          });
+      }
+      function trackAction(type) {
+          try {
+              var cleanSlug = "${cleanArroba}";
+              if (navigator.sendBeacon) {
+                  navigator.sendBeacon('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type);
+              } else {
+                  fetch('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type, { method: 'POST', keepalive: true });
+              }
+          } catch(e){}
+      }
+  </script>
+  <style>
+      :root {
+          --theme-color-1: ${theme.c1};
+          --theme-color-2: ${theme.c2 || theme.c1};
+      }
+      * { box-sizing: border-box; }
+      html, body {
+          margin: 0; padding: 0; width: 100%; min-height: 100%;
+          background: #0f172a; color: #ffffff;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          display: flex; justify-content: center;
+      }
+      .s-container {
+          position: relative; width: 100%; max-width: 440px; min-height: 100vh;
+          padding: 24px 0 30px 0; box-sizing: border-box;
+          display: flex; flex-direction: column; align-items: center;
+          background: #0f172a; color: #fff; overflow: hidden;
+      }
+      .s-bg {
+          position: absolute; top: 0; left: 0; width: 100%; height: 55%;
+          background-size: cover; background-position: center;
+          filter: blur(22px) brightness(0.45); transform: scale(1.1);
+          z-index: 0;
+      }
+      .s-bg-fade {
+          position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+          background: linear-gradient(to bottom, rgba(15,23,42,0) 0%, #0f172a 100%);
+          z-index: 1; pointer-events: none;
+      }
+      .s-content {
+          position: relative; z-index: 2; width: 100%;
+          display: flex; flex-direction: column; align-items: center;
+      }
+      .s-profile {
+          display: flex; flex-direction: column; align-items: center;
+          text-align: center; margin-bottom: 20px; padding: 0 16px;
+      }
+      .s-avatar-wrapper {
+          width: 80px; height: 80px; border-radius: 50%; overflow: hidden;
+          border: 3px solid var(--theme-color-1); margin-bottom: 12px;
+          box-shadow: 0 0 20px ${theme.c1}44;
+      }
+      .s-avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
+      .s-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+      .s-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0; color: #fff; }
+      .s-arroba { font-size: 0.85rem; color: var(--theme-color-1); text-decoration: none; font-weight: 600; margin-bottom: 8px; display: inline-block; }
+      .s-bio { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 100%; text-align: ${bioAlign}; }
+      .s-section-title { font-size: 0.8rem; font-weight: 700; color: var(--theme-color-1); margin-bottom: 10px; padding: 0 16px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; width: 100%; }
+      .s-carousel {
+          display: flex; gap: 12px; overflow-x: auto; width: 100%;
+          padding: 0 16px 16px 16px; scroll-snap-type: x mandatory;
+          scrollbar-width: none; -ms-overflow-style: none;
+          -webkit-overflow-scrolling: touch;
+      }
+      .s-carousel::-webkit-scrollbar { display: none; }
+      .s-card {
+          flex: 0 0 82%; background: rgba(30,41,59,0.85); border-radius: 18px;
+          overflow: hidden; scroll-snap-align: center;
+          border: 1px solid ${theme.c1}33; backdrop-filter: blur(8px);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      }
+      .s-card-img-wrap { width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden; }
+      .s-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+      .s-card-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent); }
+      .s-card-body { padding: 14px; }
+      .s-card-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .s-card-price { font-size: 1.2rem; font-weight: 700; color: var(--theme-color-1); margin-bottom: 12px; }
+      .s-card-btn { display: block; width: 100%; padding: 10px 0; background: var(--theme-color-1); color: #0f172a; text-align: center; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 0.9rem; box-sizing: border-box; }
+      .s-catalog-wrap { width: 100%; padding: 0 16px; box-sizing: border-box; margin-bottom: 16px; }
+      .s-catalog-btn { display: block; width: 100%; padding: 14px 0; background: transparent; border: 2px solid var(--theme-color-1); color: var(--theme-color-1); text-align: center; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.95rem; box-sizing: border-box; }
+      .s-footer { margin-top: 8px; font-size: 0.65rem; color: rgba(255,255,255,0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+      .s-footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+      @keyframes shopFogPulse {
+          0%, 100% { opacity: 0.10; transform: scaleX(1); }
+          50%      { opacity: 0.22; transform: scaleX(1.07); }
+      }
+      @keyframes shopSparkRise {
+          0%   { transform: translateY(0px) scale(1); opacity: 0; }
+          8%   { opacity: 1; }
+          88%  { opacity: 0.6; }
+          100% { transform: translateY(-270px) scale(0.4); opacity: 0; }
+      }
+  </style>
+</head>
+<body>
+  ${topBannerHtml}
+  ${audioPlayerHtml}
+  ${liveChatHtml}
+  <div class="s-container">
+    ${emojiRainHtml}
+
+    ${bgImgUrl ? `
+      <div class="s-bg" style="background-image: url('${bgImgUrl}');"></div>
+      <div class="s-bg-fade"></div>
+    ` : ''}
+
+    <div class="s-content">
+      <div class="s-profile">
+        ${data.avatar ? `
+          <div class="s-avatar-wrapper">
+            <div class="s-avatar-inner">
+              <img src="${data.avatar}" alt="${data.name || ''}">
+            </div>
+          </div>
+        ` : ''}
+        ${data.name ? `<h1 class="s-name">${data.name}</h1>` : ''}
+        ${displayArroba ? `<a href="${instaUrl}" target="_blank" rel="noopener" class="s-arroba">${displayArroba}</a>` : ''}
+        ${data.bio ? `<p class="s-bio">${data.bio}</p>` : ''}
+      </div>
+
+      <div style="width: 100%; margin-bottom: 20px;">
+        <div class="s-section-title">✦ Mais Vendidos</div>
+        <div class="s-carousel" id="s-carousel-el">
+          ${p1CardHtml}
+          ${p2CardHtml}
+          ${p3CardHtml}
+        </div>
+      </div>
+
+      ${catalogBtnHtml}
+
+      <div class="s-footer">
+        CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
+      </div>
+    </div>
+
+    <!-- Névoa + Partículas -->
+    <div id="s-particles-root" style="position: absolute; bottom: 0; left: 0; right: 0; height: 100%; pointer-events: none; z-index: 1; overflow: hidden;">
+      <div style="position: absolute; bottom: -30px; left: -15%; width: 130%; height: 110px; border-radius: 50%; background: radial-gradient(ellipse at center, ${theme.c1} 0%, transparent 70%); opacity: 0.14; filter: blur(20px); animation: shopFogPulse 4s ease-in-out infinite;"></div>
+      <div style="position: absolute; bottom: -10px; left: 15%; width: 70%; height: 65px; border-radius: 50%; background: radial-gradient(ellipse at center, ${theme.c1} 0%, transparent 70%); opacity: 0.10; filter: blur(28px); animation: shopFogPulse 5.5s ease-in-out infinite 2s;"></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var root = document.getElementById('s-particles-root');
+      if (root) {
+        for (var i = 0; i < 16; i++) {
+          var spark = document.createElement('div');
+          var size = 1.5 + Math.random() * 3.5;
+          var left = 3 + Math.random() * 94;
+          var delay = Math.random() * 7;
+          var dur = 3.5 + Math.random() * 5;
+          var blur = Math.random() > 0.6 ? '1px' : '0px';
+          spark.style.cssText = [
+            'position:absolute',
+            'bottom:' + (Math.random() * 20) + 'px',
+            'left:' + left + '%',
+            'width:' + size + 'px',
+            'height:' + size + 'px',
+            'border-radius:50%',
+            'background:${theme.c1}',
+            'box-shadow:0 0 ' + (size * 2.5) + 'px ' + size + 'px ${theme.c1}',
+            'opacity:0',
+            'animation:shopSparkRise ' + dur + 's ease-in ' + delay + 's infinite',
+            'filter:blur(' + blur + ')'
+          ].join(';');
+          root.appendChild(spark);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>`;
             }
 
             if (isCarousel) {

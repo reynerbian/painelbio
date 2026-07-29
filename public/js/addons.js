@@ -52,7 +52,7 @@ function updateCartSummary() {
         const template = activeModelBadge.getAttribute('data-template');
         if (template === 'classic') { basePrice = 9.99; modelName = 'Modelo Classic'; }
         if (template === 'vitrine') { basePrice = 12.99; modelName = 'Modelo Vitrine'; }
-        if (template === 'carrossel') { basePrice = 14.99; modelName = 'Modelo Carrossel'; }
+        if (template === 'carousel' || template === 'carrossel') { basePrice = 14.99; modelName = 'Modelo Carrossel'; }
         if (template === 'shop') { basePrice = 19.99; modelName = 'Modelo Shop'; }
     }
     
@@ -90,8 +90,6 @@ function applyAvatarSpinAnimation(duration, spins, activeModel) {
     const kfName = `pb-spin-${totalDeg}`;
 
     // Gera keyframes SOMENTE com from e to.
-    // O cubic-bezier faz toda a desaceleração numa curva única e contínua,
-    // sem nenhuma "quebra" de velocidade no meio da animação.
     let styleEl = document.getElementById('pb-avatarspin-style');
     if (!styleEl) {
         styleEl = document.createElement('style');
@@ -108,7 +106,6 @@ function applyAvatarSpinAnimation(duration, spins, activeModel) {
     const imgEl = getAvatarImgEl(activeModel);
     if (!imgEl) return;
 
-    // Perspective no PAI direto da imagem para o efeito 3D funcionar
     const parentEl = imgEl.parentElement;
     if (parentEl) {
         parentEl.style.perspective = '500px';
@@ -119,13 +116,11 @@ function applyAvatarSpinAnimation(duration, spins, activeModel) {
     imgEl.style.display = 'block';
     imgEl.style.animation = 'none';
     void imgEl.offsetHeight; // reflow: garante que o browser reseta a animação
-    // cubic-bezier(0.0, 0.0, 0.2, 1) = ease-out forte:
-    // começa na velocidade máxima e desacelera progressivamente até parar.
     imgEl.style.animation = `${kfName} ${duration}s cubic-bezier(0.0, 0.0, 0.2, 1) forwards`;
 }
 
 function removeAvatarSpinAnimation() {
-    const models = ['classic', 'vitrine'];
+    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop'];
     models.forEach(m => {
         const imgEl = getAvatarImgEl(m);
         if (imgEl) {
@@ -149,10 +144,14 @@ function triggerAvatarSpinPreview() {
 
 function getAvatarImgEl(activeModel) {
     if (activeModel === 'vitrine') {
-        // Vitrine: v-view-avatar-inner > img
         return document.querySelector('#v-view-avatar-inner img') || document.getElementById('v-view-avatar-inner');
     }
-    // Classic: view-avatar-inner > img
+    if (activeModel === 'carousel' || activeModel === 'carrossel') {
+        return document.querySelector('#c-view-avatar-inner img') || document.getElementById('c-view-avatar-inner');
+    }
+    if (activeModel === 'shop') {
+        return document.querySelector('#s-view-avatar-inner img') || document.getElementById('s-view-avatar-inner');
+    }
     return document.querySelector('#view-avatar-inner img') || document.getElementById('view-avatar-inner');
 }
 
