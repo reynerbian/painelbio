@@ -847,20 +847,32 @@ function updatePreviewFromForm() {
                 const carousel = document.getElementById('s-view-carousel');
                 if (carousel && !carousel._dragBound) {
                     carousel._dragBound = true;
-                    let isDown = false, startX = 0, scrollLeft = 0;
+                    let isDown = false, startX = 0, scrollLeft = 0, isDragging = false;
                     carousel.addEventListener('mousedown', e => {
                         isDown = true;
+                        isDragging = false;
                         carousel.style.cursor = 'grabbing';
+                        carousel.style.scrollSnapType = 'none';
                         startX = e.pageX - carousel.offsetLeft;
                         scrollLeft = carousel.scrollLeft;
                     });
-                    carousel.addEventListener('mouseleave', () => { isDown = false; carousel.style.cursor = 'grab'; });
-                    carousel.addEventListener('mouseup', () => { isDown = false; carousel.style.cursor = 'grab'; });
+                    carousel.addEventListener('mouseleave', () => { isDown = false; carousel.style.cursor = 'grab'; carousel.style.scrollSnapType = 'x mandatory'; });
+                    carousel.addEventListener('mouseup', () => { isDown = false; carousel.style.cursor = 'grab'; carousel.style.scrollSnapType = 'x mandatory'; });
                     carousel.addEventListener('mousemove', e => {
                         if (!isDown) return;
-                        e.preventDefault();
                         const x = e.pageX - carousel.offsetLeft;
-                        carousel.scrollLeft = scrollLeft - (x - startX);
+                        const walk = (x - startX) * 1.5;
+                        if (Math.abs(walk) > 5) isDragging = true;
+                        e.preventDefault();
+                        carousel.scrollLeft = scrollLeft - walk;
+                    });
+                    carousel.querySelectorAll('img').forEach(img => {
+                        img.addEventListener('dragstart', e => e.preventDefault());
+                    });
+                    carousel.querySelectorAll('a').forEach(link => {
+                        link.addEventListener('click', e => {
+                            if (isDragging) { e.preventDefault(); e.stopPropagation(); }
+                        });
                     });
                 }
 

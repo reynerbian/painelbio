@@ -399,7 +399,7 @@ export function generateStaticSite(data) {
           display: flex; gap: 12px; overflow-x: auto; width: 100%;
           padding: 0 16px 16px 16px; scroll-snap-type: x mandatory;
           scrollbar-width: none; -ms-overflow-style: none;
-          -webkit-overflow-scrolling: touch;
+          -webkit-overflow-scrolling: touch; cursor: grab; user-select: none;
       }
       .s-carousel::-webkit-scrollbar { display: none; }
       .s-card {
@@ -409,7 +409,7 @@ export function generateStaticSite(data) {
           box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       }
       .s-card-img-wrap { width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden; }
-      .s-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+      .s-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; user-drag: none; }
       .s-card-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(15,23,42,0.9), transparent); }
       .s-card-body { padding: 14px; }
       .s-card-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -481,31 +481,43 @@ export function generateStaticSite(data) {
   </div>
 
   <script>
-    (function() {
-      var root = document.getElementById('s-particles-root');
-      if (root) {
-        for (var i = 0; i < 16; i++) {
-          var spark = document.createElement('div');
-          var size = 1.5 + Math.random() * 3.5;
-          var left = 3 + Math.random() * 94;
-          var delay = Math.random() * 7;
-          var dur = 3.5 + Math.random() * 5;
-          var blur = Math.random() > 0.6 ? '1px' : '0px';
-          spark.style.cssText = [
-            'position:absolute',
-            'bottom:' + (Math.random() * 20) + 'px',
-            'left:' + left + '%',
-            'width:' + size + 'px',
-            'height:' + size + 'px',
-            'border-radius:50%',
-            'background:${theme.c1}',
-            'box-shadow:0 0 ' + (size * 2.5) + 'px ' + size + 'px ${theme.c1}',
-            'opacity:0',
-            'animation:shopSparkRise ' + dur + 's ease-in ' + delay + 's infinite',
-            'filter:blur(' + blur + ')'
-          ].join(';');
-          root.appendChild(spark);
-        }
+      var carousel = document.getElementById('s-carousel-el');
+      if (carousel) {
+        var isDown = false, startX = 0, scrollLeft = 0, isDragging = false;
+        carousel.addEventListener('mousedown', function(e) {
+          isDown = true;
+          isDragging = false;
+          carousel.style.cursor = 'grabbing';
+          carousel.style.scrollSnapType = 'none';
+          startX = e.pageX - carousel.offsetLeft;
+          scrollLeft = carousel.scrollLeft;
+        });
+        carousel.addEventListener('mouseleave', function() {
+          isDown = false;
+          carousel.style.cursor = 'grab';
+          carousel.style.scrollSnapType = 'x mandatory';
+        });
+        carousel.addEventListener('mouseup', function() {
+          isDown = false;
+          carousel.style.cursor = 'grab';
+          carousel.style.scrollSnapType = 'x mandatory';
+        });
+        carousel.addEventListener('mousemove', function(e) {
+          if (!isDown) return;
+          var x = e.pageX - carousel.offsetLeft;
+          var walk = (x - startX) * 1.5;
+          if (Math.abs(walk) > 5) isDragging = true;
+          e.preventDefault();
+          carousel.scrollLeft = scrollLeft - walk;
+        });
+        carousel.querySelectorAll('img').forEach(function(img) {
+          img.addEventListener('dragstart', function(e) { e.preventDefault(); });
+        });
+        carousel.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            if (isDragging) { e.preventDefault(); e.stopPropagation(); }
+          });
+        });
       }
     })();
   </script>
