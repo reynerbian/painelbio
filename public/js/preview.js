@@ -843,17 +843,30 @@ function updatePreviewFromForm() {
                     if (bgFade) bgFade.style.display = 'none';
                 }
 
-                // ── Conversão de Scroll de Rodinha de Mouse (Wheel-to-Horizontal Scroll) ──
+                // ── Rolagem por notches da rodinha do mouse (Navegação por produtos) ──
                 const carousel = document.getElementById('s-view-carousel');
                 if (carousel && !carousel._wheelBound) {
                     carousel._wheelBound = true;
+                    let isScrolling = false;
                     carousel.addEventListener('wheel', e => {
                         if (e.deltaY !== 0) {
-                            const canScrollRight = carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 4;
-                            const canScrollLeft = carousel.scrollLeft > 4;
-                            if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
-                                e.preventDefault();
-                                carousel.scrollLeft += e.deltaY * 1.2;
+                            const cards = carousel.querySelectorAll('[id*="-card"]');
+                            const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+                            if (visibleCards.length > 0) {
+                                const step = visibleCards[0].offsetWidth + 12;
+                                const canScrollRight = carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 10;
+                                const canScrollLeft = carousel.scrollLeft > 10;
+                                if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
+                                    e.preventDefault();
+                                    if (!isScrolling) {
+                                        isScrolling = true;
+                                        carousel.scrollBy({
+                                            left: (e.deltaY > 0 ? 1 : -1) * step,
+                                            behavior: 'smooth'
+                                        });
+                                        setTimeout(() => { isScrolling = false; }, 320);
+                                    }
+                                }
                             }
                         }
                     }, { passive: false });

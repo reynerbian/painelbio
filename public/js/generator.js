@@ -484,13 +484,25 @@ export function generateStaticSite(data) {
     (function() {
       var carousel = document.getElementById('s-carousel-el');
       if (carousel) {
+        var isScrolling = false;
         carousel.addEventListener('wheel', function(e) {
           if (e.deltaY !== 0) {
-            var canScrollRight = carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 4;
-            var canScrollLeft = carousel.scrollLeft > 4;
-            if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
-              e.preventDefault();
-              carousel.scrollLeft += e.deltaY * 1.2;
+            var cards = carousel.querySelectorAll('.s-card');
+            if (cards.length > 0) {
+              var step = cards[0].offsetWidth + 12;
+              var canScrollRight = carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 10;
+              var canScrollLeft = carousel.scrollLeft > 10;
+              if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
+                e.preventDefault();
+                if (!isScrolling) {
+                  isScrolling = true;
+                  carousel.scrollBy({
+                    left: (e.deltaY > 0 ? 1 : -1) * step,
+                    behavior: 'smooth'
+                  });
+                  setTimeout(function() { isScrolling = false; }, 320);
+                }
+              }
             }
           }
         }, { passive: false });
