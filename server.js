@@ -4,7 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import multer from 'multer';
 import cors from 'cors';
-import { generateStaticSite } from './functions/shared.js';
+import { generateStaticSite } from './public/js/generator.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;

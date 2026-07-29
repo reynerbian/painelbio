@@ -760,8 +760,9 @@ function updatePreviewFromForm() {
                 viewName.style.display = name ? 'block' : 'none';
 
                 if (arroba) {
-                    viewArroba.textContent = '@' + arroba;
-                    viewArroba.href = 'https://instagram.com/' + arroba;
+                    const cleanArrobaText = '@' + arroba.replace(/^@+/, '');
+                    viewArroba.textContent = cleanArrobaText;
+                    viewArroba.href = 'https://instagram.com/' + arroba.replace(/^@+/, '');
                     viewArroba.style.display = 'inline-block';
                 } else {
                     viewArroba.style.display = 'none';
@@ -1468,6 +1469,19 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-highlight2-title': backup.highlight2Title || '',
                     'input-highlight3-img': backup.highlight3Img || '',
                     'input-highlight3-title': backup.highlight3Title || '',
+                    'input-shop-p1-img': backup.shopP1Img || '',
+                    'input-shop-p1-title': backup.shopP1Title || '',
+                    'input-shop-p1-price': backup.shopP1Price || '',
+                    'input-shop-p1-url': backup.shopP1Url || '',
+                    'input-shop-p2-img': backup.shopP2Img || '',
+                    'input-shop-p2-title': backup.shopP2Title || '',
+                    'input-shop-p2-price': backup.shopP2Price || '',
+                    'input-shop-p2-url': backup.shopP2Url || '',
+                    'input-shop-p3-img': backup.shopP3Img || '',
+                    'input-shop-p3-title': backup.shopP3Title || '',
+                    'input-shop-p3-price': backup.shopP3Price || '',
+                    'input-shop-p3-url': backup.shopP3Url || '',
+                    'input-shop-catalog-url': backup.shopCatalogUrl || '',
                     'input-addon-tb-text1': backup.addonTopbannerText1 || '',
                     'input-addon-tb-text2': backup.addonTopbannerText2 || '',
                     'input-addon-tb-text3': backup.addonTopbannerText3 || '',
