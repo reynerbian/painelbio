@@ -702,6 +702,46 @@ const leftIcon = document.querySelector('.left-icon');
                             <div><strong>Status da Hospedagem:</strong> ${site.status === 'published' ? '🟢 Online no Cloudflare' : site.status === 'modified' ? '🔴 Modificado (Requer Upload)' : '🔘 Pendente de Upload'}</div>
                         </div>
 
+                        <!-- Seção 4: Financeiro & Pagamento PIX -->
+                        <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
+                                    💳 Financeiro do Site
+                                </span>
+                                <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${site.paymentStatus === 'paid' || site.status === 'published' ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35);'}">
+                                    ${site.paymentStatus === 'paid' || site.status === 'published' ? '🟢 Pago / Liberado' : '🟡 Pendente de PIX'}
+                                </span>
+                            </div>
+                            
+                            <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Modelo (${site.model || 'Classic'}):</span>
+                                    <strong style="color: #fff;">R$ ${(typeof calculateSitePrice === 'function' ? calculateSitePrice(site).basePrice : 29.90).toFixed(2)}</strong>
+                                </div>
+                                ${(typeof calculateSitePrice === 'function' && calculateSitePrice(site).addonCount > 0) ? `
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Add-ons (${calculateSitePrice(site).addonCount}x):</span>
+                                    <strong style="color: #60a5fa;">+ R$ ${calculateSitePrice(site).addonTotal.toFixed(2)}</strong>
+                                </div>
+                                ` : ''}
+                                <div style="display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 6px; font-size: 0.9rem; color: #fff;">
+                                    <strong>Valor Total Calculado:</strong>
+                                    <strong style="color: #34d399;">R$ ${(typeof calculateSitePrice === 'function' ? calculateSitePrice(site).finalPrice : 29.90).toFixed(2)}</strong>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1; background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); padding: 8px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
+                                    💳 Gerar QR Code PIX
+                                </button>
+                                ${site.paymentStatus !== 'paid' && site.status !== 'published' ? `
+                                <button onclick="window.confirmPixPayment('${site.arroba}')" style="flex: 1; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 8px 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
+                                    ✅ Liberar Site
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
                         <!-- Ações Rápidas -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <div style="display: flex; gap: 8px;">
@@ -2306,86 +2346,232 @@ window.sendPixReceiptWhatsApp = function(arroba, amount) {
     window.open(url, '_blank');
 };
 
-// Modal de Configurações do PIX & Tabela de Preços
-window.openPixSettingsModal = function() {
+// Modal de Configurações Unificado com Abas (PIX, Preços, API e Cupons)
+window.openPixSettingsModal = function(activeTab = 'pix') {
     const settings = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+    const keys = (typeof getApiKeys === 'function') ? getApiKeys() : [];
+    const activeIndex = (typeof getActiveKeyIndex === 'function') ? getActiveKeyIndex() : 0;
+    const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
 
     const oldModal = document.getElementById('pix-settings-modal');
     if (oldModal) oldModal.remove();
 
+    const oldApiOverlay = document.getElementById('api-keys-overlay');
+    if (oldApiOverlay) oldApiOverlay.classList.remove('active');
+    const oldApiModal = document.getElementById('api-keys-modal');
+    if (oldApiModal) oldApiModal.classList.remove('active');
+
     const modalHtml = `
-        <div id="pix-settings-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <div id="pix-settings-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
             
-            <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
+            <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); color: #c9d1d9; box-sizing: border-box;">
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 16px;">
+                <!-- Header do Modal -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #21262d; padding-bottom: 12px; margin-bottom: 14px;">
                     <div>
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">⚙️ Configurações de PIX & Preços</h3>
-                        <span style="font-size: 0.78rem; color: #8b949e;">0% de Taxa - Direto para o seu Banco</span>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: 700;">⚙️ Configurações do Painel</h3>
+                        <span style="font-size: 0.78rem; color: #8b949e;">Gerenciador de PIX, Preços, API e Cupons</span>
                     </div>
                     <button onclick="document.getElementById('pix-settings-modal').remove()" style="background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">✕</button>
                 </div>
 
-                <form id="form-pix-settings" onsubmit="window.savePixSettingsFromForm(event)">
-                    
-                    <h4 style="font-size: 0.85rem; color: #38bdf8; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">1. Dados da Sua Conta PIX</h4>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Chave PIX (CPF, E-mail, Telefone ou Aleatória):</label>
-                        <input type="text" id="pix-input-key" value="${settings.chavePix || ''}" placeholder="ex: 123.456.789-00 ou seu-email@pix.com" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <div style="flex: 1;">
-                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Seu Nome / Empresa:</label>
-                            <input type="text" id="pix-input-name" value="${settings.nomeRecebedor || 'PainelBio'}" placeholder="Nome do Titular" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                        <div style="flex: 1;">
-                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Cidade:</label>
-                            <input type="text" id="pix-input-city" value="${settings.cidade || 'SAO PAULO'}" placeholder="ex: Sao Paulo" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 16px;">
-                        <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">WhatsApp para Receber Comprovantes (apenas números com DDD):</label>
-                        <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
-                    </div>
-
-                    <h4 style="font-size: 0.85rem; color: #38bdf8; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Tabela de Preços (R$)</h4>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
-                        <div>
-                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Classic (R$):</label>
-                            <input type="number" step="0.01" id="pix-price-classic" value="${settings.classicPrice || 29.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Vitrine (R$):</label>
-                            <input type="number" step="0.01" id="pix-price-vitrine" value="${settings.vitrinePrice || 39.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Carrossel (R$):</label>
-                            <input type="number" step="0.01" id="pix-price-carousel" value="${settings.carouselPrice || 49.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
-                            <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 59.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                        <div style="grid-column: span 2;">
-                            <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
-                            <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 10.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
-                        </div>
-                    </div>
-
-                    <button type="submit" style="width: 100%; background: #238636; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
-                        💾 Salvar Configurações PIX
+                <!-- Barra de Abas (Tabs) -->
+                <div style="display: flex; gap: 4px; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 3px; margin-bottom: 16px;">
+                    <button id="tab-btn-pix" onclick="window.switchSettingsTab('pix')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'pix' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        💳 PIX & Preços
                     </button>
-                </form>
+                    <button id="tab-btn-api" onclick="window.switchSettingsTab('api')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'api' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        🔑 Chaves API
+                    </button>
+                    <button id="tab-btn-coupons" onclick="window.switchSettingsTab('coupons')" style="flex: 1; padding: 8px 0; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; ${activeTab === 'coupons' ? 'background: #238636; color: #fff;' : 'background: transparent; color: #8b949e;'}">
+                        🎟️ Cupons
+                    </button>
+                </div>
+
+                <!-- Conteúdo Aba 1: PIX & Preços -->
+                <div id="tab-content-pix" style="display: ${activeTab === 'pix' ? 'block' : 'none'};">
+                    <form id="form-pix-settings" onsubmit="window.savePixSettingsFromForm(event)">
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">1. Dados da Sua Conta PIX (0% Taxas)</h4>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Chave PIX (CPF, E-mail, Telefone ou Aleatória):</label>
+                            <input type="text" id="pix-input-key" value="${settings.chavePix || ''}" placeholder="ex: 123.456.789-00 ou seu-email@pix.com" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Seu Nome / Empresa:</label>
+                                <input type="text" id="pix-input-name" value="${settings.nomeRecebedor || 'PainelBio'}" placeholder="Nome do Titular" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">Sua Cidade:</label>
+                                <input type="text" id="pix-input-city" value="${settings.cidade || 'SAO PAULO'}" placeholder="ex: Sao Paulo" required style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 0.75rem; color: #8b949e; display: block; margin-bottom: 4px;">WhatsApp para Comprovantes (apenas números com DDD):</label>
+                            <input type="text" id="pix-input-whatsapp" value="${settings.whatsappNumber || ''}" placeholder="ex: 11999998888" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 9px; font-size: 0.85rem; box-sizing: border-box;">
+                        </div>
+
+                        <h4 style="font-size: 0.82rem; color: #34d399; margin: 16px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">2. Tabela de Preços (R$)</h4>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Classic (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-classic" value="${settings.classicPrice || 29.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Vitrine (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-vitrine" value="${settings.vitrinePrice || 39.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Carrossel (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-carousel" value="${settings.carouselPrice || 49.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 59.90}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label style="font-size: 0.73rem; color: #8b949e;">Preço por cada Add-on ativado (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-addon" value="${settings.addonPrice || 10.00}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                        </div>
+
+                        <button type="submit" style="width: 100%; background: #238636; color: #fff; border: none; padding: 12px 0; border-radius: 10px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                            💾 Salvar Configurações PIX & Preços
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Conteúdo Aba 2: Chaves API -->
+                <div id="tab-content-api" style="display: ${activeTab === 'api' ? 'block' : 'none'};">
+                    <h4 style="font-size: 0.82rem; color: #38bdf8; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">🔑 Chaves RapidAPI (Busca de Instagram)</h4>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                        <input type="text" id="input-new-api-key" placeholder="Cole sua nova Chave RapidAPI..." style="flex: 1; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px 12px; font-size: 0.8rem;">
+                        <button id="btn-add-api-key" style="background: #238636; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;">Adicionar</button>
+                    </div>
+
+                    <div id="api-keys-list-container" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto;">
+                        ${(typeof renderApiKeysModal === 'function' && keys.length > 0) ? keys.map((item, idx) => {
+                            const isActive = idx === activeIndex;
+                            let statusBadge = isActive ? '<span style="color: #38bdf8; font-weight: 700; font-size: 0.72rem; background: rgba(56,189,248,0.15); padding: 2px 6px; border-radius: 6px;">Ativa</span>' : '';
+                            if (item.isBlocked) statusBadge += ' <span style="color: #ef4444; font-weight: 700; font-size: 0.72rem; background: rgba(239,68,68,0.15); padding: 2px 6px; border-radius: 6px;">Bloqueada</span>';
+                            
+                            return `
+                                <div style="background: #161b22; border: 1px solid ${isActive ? '#38bdf8' : '#21262d'}; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+                                    <div style="min-width: 0; flex: 1; margin-right: 8px;">
+                                        <div style="font-family: monospace; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.key.substring(0, 16)}...</div>
+                                        <div style="margin-top: 4px;">${statusBadge}</div>
+                                    </div>
+                                    <div style="display: flex; gap: 4px;">
+                                        ${item.isBlocked ? `<button class="btn-unblock-api-key" data-index="${idx}" style="background: rgba(34,197,94,0.15); border: none; border-radius: 4px; color: #22c55e; padding: 4px 8px; font-size: 0.72rem; cursor: pointer;">Desbloquear</button>` : ''}
+                                        ${!isActive ? `<button class="btn-set-active-key" data-index="${idx}" style="background: rgba(56,189,248,0.1); border: none; border-radius: 4px; color: #38bdf8; padding: 4px 8px; font-size: 0.72rem; cursor: pointer;">Usar</button>` : ''}
+                                        <button class="btn-delete-api-key" data-index="${idx}" style="background: rgba(239,68,68,0.1); border: none; border-radius: 4px; color: #ef4444; padding: 4px 8px; font-size: 0.72rem; cursor: pointer;">Excluir</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('') : '<p style="font-size: 0.8rem; color: #8b949e; text-align: center;">Nenhuma chave cadastrada.</p>'}
+                    </div>
+                </div>
+
+                <!-- Conteúdo Aba 3: Cupons -->
+                <div id="tab-content-coupons" style="display: ${activeTab === 'coupons' ? 'block' : 'none'};">
+                    <h4 style="font-size: 0.82rem; color: #c084fc; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">🎟️ Cupons de Desconto Cadastrados</h4>
+                    
+                    <div style="display: flex; gap: 6px; margin-bottom: 14px;">
+                        <input type="text" id="input-new-coupon-code" placeholder="Código (ex: PROMO15)" style="flex: 1.5; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; text-transform: uppercase;">
+                        <select id="input-new-coupon-type" style="background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.78rem;">
+                            <option value="fixed">R$ OFF</option>
+                            <option value="percent">% OFF</option>
+                        </select>
+                        <input type="number" step="1" id="input-new-coupon-value" placeholder="Valor" style="width: 60px; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.78rem;">
+                        <button onclick="window.addNewCouponFromForm()" style="background: #a855f7; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">Criar</button>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
+                        ${coupons.map((c, idx) => `
+                            <div style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                                <div>
+                                    <strong style="color: #c084fc; font-family: monospace;">${c.code}</strong>
+                                    <span style="font-size: 0.72rem; color: #8b949e; margin-left: 8px;">(${c.type === 'percent' ? `${c.value}% de desconto` : `R$ ${c.value},00 de desconto`})</span>
+                                </div>
+                                <button onclick="window.deleteCoupon(${idx})" style="background: rgba(239,68,68,0.1); border: none; border-radius: 4px; color: #ef4444; padding: 4px 8px; font-size: 0.72rem; cursor: pointer;">Excluir</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
 
             </div>
         </div>
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.switchSettingsTab = function(tabName) {
+    const tabs = ['pix', 'api', 'coupons'];
+    tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`tab-content-${t}`);
+        if (btn && content) {
+            if (t === tabName) {
+                btn.style.background = '#238636';
+                btn.style.color = '#fff';
+                content.style.display = 'block';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#8b949e';
+                content.style.display = 'none';
+            }
+        }
+    });
+};
+
+window.openApiKeysModal = function() {
+    window.openPixSettingsModal('api');
+};
+
+window.addNewCouponFromForm = function() {
+    const codeInput = document.getElementById('input-new-coupon-code');
+    const typeSelect = document.getElementById('input-new-coupon-type');
+    const valInput = document.getElementById('input-new-coupon-value');
+
+    if (!codeInput || !valInput) return;
+
+    const code = codeInput.value.trim().toUpperCase();
+    const type = typeSelect ? typeSelect.value : 'fixed';
+    const value = parseFloat(valInput.value || 0);
+
+    if (!code || value <= 0) {
+        showCustomAlert('Preencha o código e um valor de desconto válido!', 'warning');
+        return;
+    }
+
+    let coupons = getCoupons();
+    if (coupons.some(c => c.code === code)) {
+        showCustomAlert('Este código de cupom já existe!', 'warning');
+        return;
+    }
+
+    coupons.push({ code, type, value });
+    saveCoupons(coupons);
+
+    showCustomAlert(`Cupom ${code} criado com sucesso!`, 'success');
+    window.openPixSettingsModal('coupons');
+};
+
+window.deleteCoupon = function(index) {
+    let coupons = getCoupons();
+    if (coupons[index]) {
+        const deletedCode = coupons[index].code;
+        coupons.splice(index, 1);
+        saveCoupons(coupons);
+        showCustomAlert(`Cupom ${deletedCode} excluído!`, 'success');
+        window.openPixSettingsModal('coupons');
+    }
 };
 
 window.savePixSettingsFromForm = function(e) {
