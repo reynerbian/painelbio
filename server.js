@@ -429,6 +429,77 @@ async function startTelegramPolling() {
           }
           
           await sendTelegramMessage(replyText);
+        } else if (text === '/vencidos' || text === 'vencidos') {
+          let replyText = '';
+          try {
+            const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId || 'painelbio-39e1f'}/databases/(default)/documents/leads`;
+            const fbResponse = await fetch(firestoreUrl);
+            
+            if (!fbResponse.ok) {
+              throw new Error('Falha ao conectar com o Firestore');
+            }
+
+            const fbData = await fbResponse.json();
+            const now = new Date();
+            
+            if (!fbData.documents || fbData.documents.length === 0) {
+              replyText = '📊 <b>PAINELBIO - STATUS</b>\n\nNenhum site encontrado no Firebase.';
+            } else {
+              let list = [];
+
+              for (const doc of fbData.documents) {
+                const fields = doc.fields;
+                if (!fields) continue;
+
+                const arroba = fields.arroba && fields.arroba.stringValue ? fields.arroba.stringValue : 'Sem arroba';
+                const ownerName = fields.ownerName && fields.ownerName.stringValue ? fields.ownerName.stringValue : 'Cliente';
+                const ownerPhone = fields.ownerPhone && fields.ownerPhone.stringValue ? fields.ownerPhone.stringValue : '';
+                const renewalDueDateStr = fields.renewalDueDate && fields.renewalDueDate.stringValue ? fields.renewalDueDate.stringValue : '';
+                const model = fields.model && fields.model.stringValue ? fields.model.stringValue : 'classic';
+                const paymentStatus = fields.paymentStatus && fields.paymentStatus.stringValue ? fields.paymentStatus.stringValue : 'pending';
+
+                if (renewalDueDateStr) {
+                  const dueDate = new Date(renewalDueDateStr);
+                  const diffTime = dueDate.getTime() - now.getTime();
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                  // Se a data de vencimento for menor ou igual a hoje (ou se o status de pagamento não for pago)
+                  if (diffDays <= 0 || paymentStatus !== 'paid') {
+                    const valor = model === 'shop' ? 19.90 : (model === 'ebook' ? 14.99 : 9.90);
+                    const cleanPhone = ownerPhone ? ownerPhone.replace(/\D/g, '') : '';
+                    
+                    let statusIcon = diffDays < 0 ? '💀 VENCIDO' : '⚠️ VENCE HOJE';
+                    if (paymentStatus !== 'paid' && diffDays > 0) {
+                      statusIcon = '🟡 PENDENTE';
+                    }
+
+                    const cobrancaMsg = `Olá, ${ownerName}! Passando para lembrar que a mensalidade do seu site de bio (${arroba}) venceu/está vencendo (${dueDate.toLocaleDateString('pt-BR')}). Para manter seu site ativo, você pode realizar o pagamento de R$ ${valor.toFixed(2).replace('.', ',')}. Muito obrigado!`;
+                    const whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(cobrancaMsg)}`;
+
+                    let itemText = `• <b>${arroba}</b> (${ownerName})\n`;
+                    itemText += `  Status: <b>${statusIcon}</b> (Venceu em: ${dueDate.toLocaleDateString('pt-BR')})\n`;
+                    if (cleanPhone) {
+                      itemText += `  <a href="${whatsappUrl}">📲 Enviar Cobrança no WhatsApp</a>\n`;
+                    } else {
+                      itemText += `  <i>Telefone não cadastrado</i>\n`;
+                    }
+                    list.push(itemText);
+                  }
+                }
+              }
+
+              if (list.length > 0) {
+                replyText = `💀 <b>PAINELBIO - CLIENTES INADIMPLENTES</b>\n\n` + list.join('\n');
+              } else {
+                replyText = `🟢 <b>PAINELBIO - STATUS FINANCEIRO</b>\n\nTodos os clientes estão com as mensalidades em dia! Nenhuma cobrança pendente.`;
+              }
+            }
+          } catch (fbErr) {
+            console.error('Erro no comando /vencidos:', fbErr);
+            replyText = '❌ <b>Erro:</b> Não foi possível carregar os dados financeiros do Firebase.';
+          }
+          
+          await sendTelegramMessage(replyText);
         } else if (text === '/start') {
           await sendTelegramMessage('👋 Olá! Eu sou o Bot de Alertas do PainelBio. Envie <b>/sites</b> a qualquer momento para ver o status dos sites criados na galeria!');
         }
