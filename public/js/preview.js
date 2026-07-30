@@ -957,7 +957,7 @@ function updatePreviewFromForm() {
                             width: 100%; 
                             height: 46px; 
                             background: rgba(255,255,255,0.03); 
-                            border: 1.5px solid var(--theme-color-1, #6366f1)25; 
+                            border: 1.5px solid var(--theme-border, rgba(255,255,255,0.1)); 
                             border-radius: 12px; 
                             color: #fff; 
                             text-decoration: none; 
@@ -967,22 +967,21 @@ function updatePreviewFromForm() {
                             align-items: center; 
                             justify-content: center; 
                             transition: all 0.25s ease;
-                            box-shadow: 0 0 10px var(--theme-color-1, #6366f1)05;
                             backdrop-filter: blur(8px);
                             -webkit-backdrop-filter: blur(8px);
                         `;
                         btnEl.textContent = btn.title;
                         
                         btnEl.addEventListener('mouseenter', () => {
-                            btnEl.style.background = 'var(--theme-color-1, #6366f1)15';
-                            btnEl.style.borderColor = 'var(--theme-color-1, #6366f1)88';
-                            btnEl.style.boxShadow = '0 0 14px var(--theme-color-1, #6366f1)33';
+                            btnEl.style.background = 'rgba(255,255,255,0.08)';
+                            btnEl.style.borderColor = 'var(--theme-color-1, #6366f1)';
+                            btnEl.style.boxShadow = '0 0 14px var(--theme-glow, rgba(99,102,241,0.3))';
                             btnEl.style.transform = 'translateY(-1px)';
                         });
                         btnEl.addEventListener('mouseleave', () => {
                             btnEl.style.background = 'rgba(255,255,255,0.03)';
-                            btnEl.style.borderColor = 'var(--theme-color-1, #6366f1)25';
-                            btnEl.style.boxShadow = '0 0 10px var(--theme-color-1, #6366f1)05';
+                            btnEl.style.borderColor = 'var(--theme-border, rgba(255,255,255,0.1))';
+                            btnEl.style.boxShadow = 'none';
                             btnEl.style.transform = 'translateY(0)';
                         });
                         btnEl.addEventListener('click', () => {
