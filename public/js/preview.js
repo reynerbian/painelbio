@@ -1469,30 +1469,62 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 }
 
             } else if (activeModel === 'ebook') {
-                previewScreen.style.background = '#06040a';
+                // Fundo texturizado estilo papel premium
+                previewScreen.style.background = '#0e0b16';
                 
                 previewScreen.innerHTML = `
-                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85)); background-size: 16px 16px, 100% 100%;">
                         
                         <!-- Estilos e Animações locais para o E-book -->
                         <style>
                             @keyframes ebFloat {
-                                0% { transform: translateY(0px); }
-                                50% { transform: translateY(-8px); }
-                                100% { transform: translateY(0px); }
+                                0% { transform: translateY(0px) rotate(0.01deg); }
+                                50% { transform: translateY(-7px) rotate(-0.5deg); }
+                                100% { transform: translateY(0px) rotate(0.01deg); }
                             }
                             .eb-floating-card {
-                                animation: ebFloat 4s ease-in-out infinite;
+                                animation: ebFloat 4.2s ease-in-out infinite;
                             }
                             .eb-glow-bg {
                                 position: absolute;
                                 width: 220px;
                                 height: 220px;
                                 border-radius: 50%;
-                                filter: blur(55px);
-                                opacity: 0.35;
+                                filter: blur(60px);
+                                opacity: 0.3;
                                 pointer-events: none;
                                 z-index: 0;
+                            }
+                            /* Efeito de folhas 3D do livro */
+                            .book-3d-wrapper {
+                                position: relative;
+                                width: 90px;
+                                height: 125px;
+                                flex-shrink: 0;
+                                transform-style: preserve-3d;
+                                perspective: 1000px;
+                            }
+                            .book-page-back {
+                                position: absolute;
+                                inset: 2px 0 2px 4px;
+                                background: #eaeaea;
+                                border-radius: 2px 5px 5px 2px;
+                                border: 1px solid rgba(0,0,0,0.25);
+                                box-shadow: -2px 2px 6px rgba(0,0,0,0.3);
+                                z-index: 1;
+                                transform: rotateY(-8deg) translateZ(-4px);
+                                transform-origin: left center;
+                            }
+                            .book-page-mid {
+                                position: absolute;
+                                inset: 1px 0 1px 2px;
+                                background: #fdfdfd;
+                                border-radius: 2px 5px 5px 2px;
+                                border: 1px solid rgba(0,0,0,0.2);
+                                box-shadow: -2px 2px 6px rgba(0,0,0,0.3);
+                                z-index: 2;
+                                transform: rotateY(-5deg) translateZ(-2px);
+                                transform-origin: left center;
                             }
                         </style>
 
@@ -1523,12 +1555,14 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             </div>
 
                             <div style="display: flex; gap: 16px; align-items: flex-start;">
-                                <!-- Imagem com perspectiva 3D e sombra de livro real -->
-                                <div style="width: 90px; height: 125px; flex-shrink: 0; perspective: 1000px;">
-                                    <img id="eb-view-cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: -6px 6px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12); transform: rotateY(-14deg) rotateX(4deg); display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
+                                <!-- Mockup do Livro com Páginas Físicas por Trás -->
+                                <div class="book-3d-wrapper">
+                                    <div class="book-page-back"></div>
+                                    <div class="book-page-mid"></div>
+                                    <img id="eb-view-cover" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 3px 6px 6px 3px; box-shadow: -4px 4px 12px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15); transform: rotateY(-12deg); transform-origin: left center; z-index: 3; display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
                                 </div>
                                 <!-- Informações do Livro -->
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; z-index: 10;">
                                     <h3 id="eb-view-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.35;"></h3>
                                     <p id="eb-view-desc" style="font-size: 0.72rem; color: #94a3b8; line-height: 1.35; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"></p>
                                     

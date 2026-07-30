@@ -859,7 +859,9 @@ export function generateStaticSite(data) {
                 </div>
 
                 <div class="eb-card-header">
-                    <div class="eb-cover-container">
+                    <div class="book-3d-wrapper">
+                        <div class="book-page-back"></div>
+                        <div class="book-page-mid"></div>
                         <img src="${ebCover}" class="eb-cover" alt="${ebTitle}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
                     </div>
                     <div class="eb-info-container">
@@ -923,7 +925,7 @@ export function generateStaticSite(data) {
         
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #06040a;
+            background-color: #0e0b16;
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; align-items: center; justify-content: center;
@@ -934,6 +936,40 @@ export function generateStaticSite(data) {
             align-items: center; padding: 28px 16px;
             box-sizing: border-box; position: relative;
             overflow-x: hidden;
+            background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85));
+            background-size: 16px 16px, 100% 100%;
+        }
+
+        /* Efeito de folhas 3D do livro */
+        .book-3d-wrapper {
+            position: relative;
+            width: 90px;
+            height: 125px;
+            flex-shrink: 0;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .book-page-back {
+            position: absolute;
+            inset: 2px 0 2px 4px;
+            background: #eaeaea;
+            border-radius: 2px 5px 5px 2px;
+            border: 1px solid rgba(0,0,0,0.25);
+            box-shadow: -2px 2px 6px rgba(0,0,0,0.3);
+            z-index: 1;
+            transform: rotateY(-8deg) translateZ(-4px);
+            transform-origin: left center;
+        }
+        .book-page-mid {
+            position: absolute;
+            inset: 1px 0 1px 2px;
+            background: #fdfdfd;
+            border-radius: 2px 5px 5px 2px;
+            border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: -2px 2px 6px rgba(0,0,0,0.3);
+            z-index: 2;
+            transform: rotateY(-5deg) translateZ(-2px);
+            transform-origin: left center;
         }
 
         /* Luzes de Fundo */
@@ -1000,14 +1036,11 @@ export function generateStaticSite(data) {
 
         .eb-card-header { display: flex; gap: 16px; align-items: flex-start; }
 
-        .eb-cover-container {
-            width: 95px; height: 130px; flex-shrink: 0; perspective: 1000px;
-        }
-
         .eb-cover {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
-            box-shadow: -6px 6px 16px rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.12);
-            transform: rotateY(-14deg) rotateX(4deg); display: block;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; border-radius: 3px 6px 6px 3px;
+            box-shadow: -4px 4px 12px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);
+            transform: rotateY(-12deg); transform-origin: left center; z-index: 3; display: block;
         }
 
         .eb-info-container { flex: 1; display: flex; flex-direction: column; gap: 6px; }
