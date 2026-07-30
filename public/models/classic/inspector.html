@@ -96,8 +96,18 @@
                 <span id="cart-model-price">R$ 9,99</span>
             </div>
             <div id="cart-addons-list"></div>
+            <!-- Taxa de Serviço (mão de obra) -->
+            <div id="cart-service-fee-row" style="display: none; align-items: center; justify-content: space-between; margin-top: 6px; margin-bottom: 2px;">
+                <label style="font-size: 0.78rem; color: #f59e0b; white-space: nowrap;">🔧 Taxa de Serviço:</label>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.78rem; color: #f59e0b;">R$</span>
+                    <input type="number" id="cart-service-fee" min="0" step="0.01" value="0" placeholder="0,00"
+                        style="width: 70px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; border-radius: 6px; padding: 4px 6px; font-size: 0.82rem; text-align: right;"
+                        oninput="if(typeof updateCartSummary==='function') updateCartSummary()" />
+                </div>
+            </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
-                <span>Total Estimado:</span>
+                <span>Total a Cobrar:</span>
                 <span id="cart-total-price" style="color: #10b981;">R$ 9,99</span>
             </div>
         </div>

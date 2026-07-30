@@ -61,27 +61,49 @@ function updateCartSummary() {
     modelNameEl.textContent = modelName;
     modelPriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
 
+    // Obtém arroba atual para checar add-ons pagos
+    const arrobaInput = document.getElementById('input-arroba');
+    const currentArroba = arrobaInput ? arrobaInput.value.trim() : '';
+    const purchased = (typeof getPurchasedAddons === 'function') ? getPurchasedAddons(currentArroba) : [];
+
     let total = basePrice;
     let addonsHtml = '';
 
     const addonsList = [
-        { cardId: 'card-addon-topbanner', name: 'Anúncio Flutuante', price: parseFloat(settings.bannerPrice || 2.99) },
-        { cardId: 'card-addon-emojirain', name: 'Chuva de Emoji', price: parseFloat(settings.emojiPrice || 2.50) },
-        { cardId: 'card-addon-avatarspin', name: 'Rodopio do Avatar', price: parseFloat(settings.avatarSpinPrice || 2.50) },
-        { cardId: 'card-addon-audioplayer', name: 'Player de Áudio', price: parseFloat(settings.audioPrice || 2.99) },
-        { cardId: 'card-addon-livechat', name: 'Balão Online', price: parseFloat(settings.chatPrice || 2.99) }
+        { slug: 'topbanner',    cardId: 'card-addon-topbanner',   name: 'Anúncio Flutuante', price: parseFloat(settings.bannerPrice || 2.99) },
+        { slug: 'emojirain',    cardId: 'card-addon-emojirain',   name: 'Chuva de Emoji',      price: parseFloat(settings.emojiPrice || 2.50) },
+        { slug: 'avatarspin',   cardId: 'card-addon-avatarspin',  name: 'Rodopio do Avatar',   price: parseFloat(settings.avatarSpinPrice || 2.50) },
+        { slug: 'audioplayer',  cardId: 'card-addon-audioplayer', name: 'Player de Áudio',     price: parseFloat(settings.audioPrice || 2.99) },
+        { slug: 'livechat',     cardId: 'card-addon-livechat',     name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) }
     ];
 
-    addonsList.forEach(({ cardId, name, price }) => {
+    addonsList.forEach(({ slug, cardId, name, price }) => {
         const card = document.getElementById(cardId);
         if (card && card.style.display !== 'none') {
-            total += price;
-            addonsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">
-                <span>+ ${name}</span>
-                <span>R$ ${price.toFixed(2).replace('.', ',')}</span>
-            </div>`;
+            const isAlreadyPaid = purchased.includes(slug);
+            if (isAlreadyPaid) {
+                addonsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #6e7681; margin-bottom: 4px;">
+                    <span style="text-decoration: line-through;">+ ${name}</span>
+                    <span style="color: #34d399; font-weight: 700;">✓ Incluso</span>
+                </div>`;
+            } else {
+                total += price;
+                addonsHtml += `<div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">
+                    <span>+ ${name}</span>
+                    <span>R$ ${price.toFixed(2).replace('.', ',')}</span>
+                </div>`;
+            }
         }
     });
+
+    // Soma taxa de serviço manual se o campo estiver ativo e preenchido
+    let serviceFee = 0;
+    const feeInput = document.getElementById('cart-service-fee');
+    const feeRow = document.getElementById('cart-service-fee-row');
+    if (feeInput && feeRow && feeRow.style.display !== 'none') {
+        serviceFee = parseFloat(feeInput.value) || 0;
+        total += serviceFee;
+    }
 
     listEl.innerHTML = addonsHtml;
     totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;

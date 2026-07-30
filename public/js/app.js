@@ -96,13 +96,21 @@ const leftIcon = document.querySelector('.left-icon');
                     // Configuração do Status do Botão de Upload & PIX
                     const status = site.status || 'not_published';
                     const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site) : { finalPrice: 29.90 };
-                    const isPaid = site.paymentStatus === 'paid' || status === 'published' || status === 'modified';
+                    
+                    // Modificação pendente vs pagamento normal
+                    const pendingMod = parseFloat(site.modificationPendingAmount) || 0;
+                    const hasPendingMod = pendingMod > 0;
+                    const isPaid = (site.paymentStatus === 'paid' || status === 'published') && !hasPendingMod;
                     
                     let btnStyle = '';
                     let btnTitle = '';
                     let btnBadgeText = '';
 
-                    if (status === 'published') {
+                    if (hasPendingMod) {
+                        btnStyle = 'background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35);';
+                        btnTitle = 'Modificação travada! Pague a taxa / add-ons para poder publicar.';
+                        btnBadgeText = `Pendente Modif. (R$ ${pendingMod.toFixed(2).replace('.', ',')})`;
+                    } else if (status === 'published') {
                         btnStyle = 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);';
                         btnTitle = 'Status: Publicado e no ar!';
                         btnBadgeText = 'Online';
@@ -168,8 +176,8 @@ const leftIcon = document.querySelector('.left-icon');
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
                                     
-                                    ${!isPaid ? `
-                                    <button onclick="window.openPixCheckoutModal('${site.arroba}')" style="flex: 1.5; min-width: 0; background: rgba(234, 179, 8, 0.18); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); padding: 8px 4px; border-radius: 6px; cursor: pointer; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;" title="Pagar via PIX">
+                                    ${(!isPaid || hasPendingMod) ? `
+                                    <button onclick="window.openPixCheckoutModal('${site.arroba}', '${hasPendingMod ? 'modification' : 'full'}')" style="flex: 1.5; min-width: 0; background: rgba(234, 179, 8, 0.18); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); padding: 8px 4px; border-radius: 6px; cursor: pointer; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s;" title="Pagar via PIX">
                                         💳 PIX
                                     </button>
                                     ` : ''}
@@ -239,23 +247,18 @@ const leftIcon = document.querySelector('.left-icon');
             }
 
             // Trava de Segurança PIX: Se não estiver pago nem publicado, exige o pagamento PIX primeiro
-            const isPaid = site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified';
+            const pendingMod = parseFloat(site.modificationPendingAmount) || 0;
+            const isPaid = (site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified') && pendingMod === 0;
+            
             if (!isPaid) {
-                showCustomAlert('Publicação bloqueada! Confirme o pagamento via PIX para publicar.', 'error');
-                window.openPixCheckoutModal(site.arroba, 'full');
-                return;
-            }
-
-            // Gate de add-ons: verifica se há add-ons ativos não pagos antes do upload
-            if (typeof calculateNewAddonsCost === 'function' && typeof getPurchasedAddons === 'function') {
-                const purchased = getPurchasedAddons(site.arroba);
-                const { newAddons, total } = calculateNewAddonsCost(site, purchased);
-                if (newAddons.length > 0) {
-                    const addonNames = newAddons.map(a => a.name).join(', ');
-                    showCustomAlert(`Add-on(s) novo(s) detectado(s): ${addonNames}\nPague R$ ${total.toFixed(2).replace('.', ',')} para ativá-lo(s).`, 'info');
-                    window.openPixCheckoutModal(site.arroba, 'addon');
-                    return;
+                if (pendingMod > 0) {
+                    showCustomAlert(`Atualização bloqueada! Confirme o pagamento da modificação de R$ ${pendingMod.toFixed(2).replace('.', ',')} para subir.`, 'error');
+                    window.openPixCheckoutModal(site.arroba, 'modification');
+                } else {
+                    showCustomAlert('Publicação bloqueada! Confirme o pagamento via PIX para publicar.', 'error');
+                    window.openPixCheckoutModal(site.arroba, 'full');
                 }
+                return;
             }
 
             // Garante que o modelo do site seja mantido se já existir, ou atribuído ao modelo ativo se novo
@@ -635,7 +638,9 @@ const leftIcon = document.querySelector('.left-icon');
             const priceInfo = (typeof calculateSitePrice === 'function') ? calculateSitePrice(site, purchasedAddons) : { modelName: 'Classic', basePrice: 9.90, activeAddons: [], includedAddons: [], chargedAddons: [], addonCount: 0, addonTotal: 0, finalPrice: 9.90 };
 
             // Formata data de renovação
-            const isPaid = site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified';
+            const pendingMod = parseFloat(site.modificationPendingAmount) || 0;
+            const hasPendingMod = pendingMod > 0;
+            const isPaid = (site.paymentStatus === 'paid' || site.status === 'published' || site.status === 'modified') && !hasPendingMod;
             const renewalDateFormatted = site.renewalDueDate
                 ? new Date(site.renewalDueDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
                 : null;
@@ -729,23 +734,31 @@ const leftIcon = document.querySelector('.left-icon');
                                 <span style="font-size: 0.85rem; font-weight: 700; color: #f0f6fc; display: flex; align-items: center; gap: 6px;">
                                     💳 Detalhes do Pagamento
                                 </span>
-                                <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${isPaid ? 'background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4);' : 'background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.35);'}">
-                                    ${isPaid ? '🟢 Pago / Liberado' : '🟡 Pendente'}
+                                <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; ${hasPendingMod ? 'background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.35);' : isPaid ? 'background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4);' : 'background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.35);'}">
+                                    ${hasPendingMod ? '🟡 Pendente Modif.' : isPaid ? '🟢 Pago / Liberado' : '🟡 Pendente'}
                                 </span>
                             </div>
 
                             <!-- Breakdown de preços -->
                             <div style="font-size: 0.78rem; color: #8b949e; display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; background: #161b22; padding: 10px; border-radius: 8px; border: 1px solid #30363d;">
+                                ${!hasPendingMod ? `
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span>📌 Modelo ${priceInfo.modelName}${isPaid ? ' <span style="font-size:0.7rem;color:#8b949e;">/mês</span>' : ''}:</span>
                                     <strong style="color: #fff;">R$ ${priceInfo.basePrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
+                                ` : ''}
                                 ${(priceInfo.chargedAddons || []).map(ad => `
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <span>🧩 ${ad.name}:</span>
                                         <strong style="color: #60a5fa;">+ R$ ${ad.price.toFixed(2).replace('.', ',')}</strong>
                                     </div>
                                 `).join('')}
+                                ${(hasPendingMod && parseFloat(site.serviceFee) > 0) ? `
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>🔧 Taxa de Serviço:</span>
+                                        <strong style="color: #f59e0b;">+ R$ ${(parseFloat(site.serviceFee) || 0).toFixed(2).replace('.', ',')}</strong>
+                                    </div>
+                                ` : ''}
                                 ${(priceInfo.includedAddons || []).map(ad => `
                                     <div style="display: flex; justify-content: space-between; align-items: center;">
                                         <span style="text-decoration: line-through; color: #6e7681;">🧩 ${ad.name}:</span>
@@ -753,13 +766,22 @@ const leftIcon = document.querySelector('.left-icon');
                                     </div>
                                 `).join('')}
                                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 4px; font-size: 0.9rem; color: #fff;">
-                                    <strong>💰 ${isPaid ? 'Renovação mensal:' : 'Total a pagar:'}</strong>
-                                    <strong style="color: #34d399; font-size: 1.05rem;">R$ ${isPaid ? renewalPrice.toFixed(2).replace('.', ',') : priceInfo.finalPrice.toFixed(2).replace('.', ',')}</strong>
+                                    <strong>💰 ${hasPendingMod ? 'Total da Modificação:' : isPaid ? 'Renovação mensal:' : 'Total a pagar:'}</strong>
+                                    <strong style="color: #34d399; font-size: 1.05rem;">R$ ${hasPendingMod ? pendingMod.toFixed(2).replace('.', ',') : isPaid ? renewalPrice.toFixed(2).replace('.', ',') : priceInfo.finalPrice.toFixed(2).replace('.', ',')}</strong>
                                 </div>
                             </div>
 
                             <!-- Botões conforme status -->
-                            ${isPaid ? `
+                            ${hasPendingMod ? `
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'modification')" style="flex: 1.8; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                                    💳 Pagar Modificação (R$ ${pendingMod.toFixed(2).replace('.', ',')})
+                                </button>
+                                <button onclick="window.confirmPixPayment('${site.arroba}', 'modification')" style="flex: 1; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
+                                    ✅ Liberar
+                                </button>
+                            </div>
+                            ` : isPaid ? `
                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                 <button onclick="window.openPixCheckoutModal('${site.arroba}', 'renewal')" style="width: 100%; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.35); padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                     🔄 Cobrar Renovação (R$ ${renewalPrice.toFixed(2).replace('.', ',')})
@@ -770,7 +792,7 @@ const leftIcon = document.querySelector('.left-icon');
                             </div>
                             ` : `
                             <div style="display: flex; gap: 8px;">
-                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'full')" style="flex: 1; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35,134,54,0.3);">
+                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'full')" style="flex: 1; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
                                     💳 Gerar QR Code PIX (R$ ${priceInfo.finalPrice.toFixed(2).replace('.', ',')})
                                 </button>
                                 <button onclick="window.confirmPixPayment('${site.arroba}', 'full')" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
@@ -1746,7 +1768,13 @@ loadClassicModel();
                         addonLivechatPosition: document.getElementById('select-addon-lc-position')?.value || 'bottom-left',
                         addonLivechatColor: document.getElementById('input-addon-lc-color')?.value || '#22c55e',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
-                        bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center'
+                        bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
+                        serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
+                        bannerConfig: { enabled: document.getElementById('card-addon-topbanner')?.style.display !== 'none' },
+                        rainConfig: { enabled: document.getElementById('card-addon-emojirain')?.style.display !== 'none' },
+                        avatarSpinConfig: { enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none' },
+                        audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
+                        chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');
@@ -1780,14 +1808,44 @@ loadClassicModel();
                         let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
                         const existingLead = leads.find(l => l.arroba.toLowerCase() === cleanArroba.toLowerCase());
 
-                        // Preserva e atualiza o status de publicação
-                        if (existingLead && (existingLead.status === 'published' || existingLead.status === 'modified')) {
-                            // Já foi publicado antes, mas foi alterado agora -> vira MODIFICADO (Vermelho)!
-                            updatedData.status = 'modified';
-                            updatedData.publishedAt = existingLead.publishedAt;
+                        // Preserva e atualiza o status de publicação e pagamento
+                        if (existingLead) {
+                            // Mantém histórico financeiro anterior
+                            updatedData.lastPaidAt = existingLead.lastPaidAt;
+                            updatedData.renewalDueDate = existingLead.renewalDueDate;
+                            updatedData.purchasedAddons = Array.isArray(existingLead.purchasedAddons) ? existingLead.purchasedAddons : [];
+
+                            const isAlreadyActive = existingLead.status === 'published' || existingLead.status === 'modified';
+                            if (isAlreadyActive) {
+                                updatedData.status = 'modified';
+                                updatedData.publishedAt = existingLead.publishedAt;
+
+                                // Calcula custos pendentes da modificação
+                                const purchased = updatedData.purchasedAddons;
+                                const { total: addonsTotal } = (typeof calculateNewAddonsCost === 'function')
+                                    ? calculateNewAddonsCost(updatedData, purchased)
+                                    : { total: 0 };
+                                
+                                const totalPending = (updatedData.serviceFee || 0) + addonsTotal;
+                                if (totalPending > 0) {
+                                    updatedData.paymentStatus = 'pending';
+                                    updatedData.modificationPendingAmount = totalPending;
+                                } else {
+                                    updatedData.paymentStatus = existingLead.paymentStatus || 'paid';
+                                    updatedData.modificationPendingAmount = 0;
+                                }
+                            } else {
+                                // Nunca foi publicado/ativado -> segue fluxo inicial padrão
+                                updatedData.status = 'not_published';
+                                updatedData.paymentStatus = existingLead.paymentStatus || 'pending';
+                                updatedData.modificationPendingAmount = 0;
+                            }
                         } else {
-                            // Nunca foi publicado -> fica NÃO PUBLICADO (Cinza)
+                            // Novo site
                             updatedData.status = 'not_published';
+                            updatedData.paymentStatus = 'pending';
+                            updatedData.modificationPendingAmount = 0;
+                            updatedData.purchasedAddons = [];
                         }
                         
                         // Remove se já existe para atualizar
@@ -2267,6 +2325,14 @@ window.openPixCheckoutModal = function(arroba, mode) {
         chargedAddonsList  = priceInfo.chargedAddons  || [];
         includedAddonsList = priceInfo.includedAddons || [];
         subtotalForMode    = priceInfo.addonTotal;
+    } else if (mode === 'modification') {
+        // Taxa de serviço + add-ons novos
+        modeTitle    = '🛠️ Atualização do Site';
+        modeSubtitle = `Modificação: ${siteData.arroba}`;
+        showModelLine      = false;
+        chargedAddonsList  = priceInfo.chargedAddons  || [];
+        includedAddonsList = priceInfo.includedAddons || [];
+        subtotalForMode    = parseFloat(siteData.modificationPendingAmount) || 0;
     } else {
         subtotalForMode = priceInfo.subtotal;
     }
@@ -2318,6 +2384,13 @@ window.openPixCheckoutModal = function(arroba, mode) {
             <span style="color: #34d399; font-size: 0.78rem; font-weight: 700;">✓ Incluso</span>
         </div>`).join('') : '';
 
+    const serviceFeeVal = parseFloat(siteData.serviceFee) || 0;
+    const serviceFeeLineHtml = (mode === 'modification' && serviceFeeVal > 0) ? `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #f59e0b;">
+            <span>🔧 Taxa de Serviço</span>
+            <strong>+ R$ ${serviceFeeVal.toFixed(2).replace('.', ',')}</strong>
+        </div>` : '';
+
     const discountHtml = appliedDiscount > 0 ? `
         <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #34d399;">
             <span>🎟️ Desconto (${appliedCouponCode})</span>
@@ -2334,7 +2407,9 @@ window.openPixCheckoutModal = function(arroba, mode) {
         ? '🔄 Confirmar Renovação'
         : mode === 'addon'
             ? '✅ Confirmar Pagamento dos Add-ons'
-            : '✅ Confirmar Pagamento & Liberar Site';
+            : mode === 'modification'
+                ? '🛠️ Confirmar Atualização de Modificação'
+                : '✅ Confirmar Pagamento & Liberar Site';
 
     const modalHtml = `
         <div id="pix-checkout-modal" style="position: fixed; inset: 0; background: rgba(5,7,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -2353,6 +2428,7 @@ window.openPixCheckoutModal = function(arroba, mode) {
                 <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem;">
                     ${modelLineHtml}
                     ${chargedAddonsHtml}
+                    ${serviceFeeLineHtml}
                     ${includedAddonsHtml}
                     ${discountHtml}
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 8px; font-size: 1.05rem; color: #fff;">
@@ -2458,17 +2534,20 @@ window.confirmPixPayment = function(arroba, mode) {
     leads[idx].paymentStatus = 'paid';
     leads[idx].lastPaidAt    = now.toISOString();
     leads[idx].renewalDueDate = renewalDate.toISOString();
+    leads[idx].modificationPendingAmount = 0; // zera taxas de modificação após o pagamento
 
-    // Salvar add-ons ativos como comprados (para modos 'full' e 'addon')
+    // Salvar add-ons ativos como comprados (para modos 'full', 'addon' e 'modification')
     if (mode !== 'renewal') {
         const currentPurchased = Array.isArray(site.purchasedAddons) ? site.purchasedAddons : [];
-        if (typeof ADDON_DEFINITIONS !== 'undefined') {
-            const activeNow = ADDON_DEFINITIONS
-                .filter(def => site[def.configKey] && site[def.configKey].enabled)
-                .map(def => def.slug);
-            const merged = [...new Set([...currentPurchased, ...activeNow])];
-            leads[idx].purchasedAddons = merged;
-        }
+        const activeNow = [
+            site.bannerConfig?.enabled ? 'topbanner' : null,
+            site.rainConfig?.enabled ? 'emojirain' : null,
+            site.avatarSpinConfig?.enabled ? 'avatarspin' : null,
+            site.audioPlayerConfig?.enabled ? 'audioplayer' : null,
+            site.chatWidgetConfig?.enabled ? 'livechat' : null
+        ].filter(Boolean);
+        const merged = [...new Set([...currentPurchased, ...activeNow])];
+        leads[idx].purchasedAddons = merged;
     }
 
     localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
