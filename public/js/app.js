@@ -162,7 +162,7 @@ const leftIcon = document.querySelector('.left-icon');
                                     </div>
                                     
                                     <div style="font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <strong>Modelo:</strong> ${site.model === 'shop' ? 'Shop' : (site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic'))} / ${themeName}
+                                        <strong>Modelo:</strong> ${site.model === 'shop' ? 'Shop' : (site.model === 'ebook' ? 'E-book' : (site.model === 'carousel' ? 'Carrossel' : (site.model === 'vitrine' ? 'Vitrine' : 'Classic')))} / ${themeName}
                                     </div>
                                     
                                     <div style="font-size: 0.7rem; color: #6e7681;">
@@ -499,7 +499,8 @@ const leftIcon = document.querySelector('.left-icon');
                 'classic': 'Classic',
                 'vitrine': 'Vitrine',
                 'carousel': 'Carrossel',
-                'shop': 'Shop'
+                'shop': 'Shop',
+                'ebook': 'E-book'
             };
             const modelLabel = modelNames[siteData.model] || 'Classic';
 
@@ -1340,6 +1341,21 @@ const leftIcon = document.querySelector('.left-icon');
                             btn3Url: document.getElementById('input-btn3-url')?.value || '',
                             btn4Title: document.getElementById('input-btn4-title')?.value || '',
                             btn4Url: document.getElementById('input-btn4-url')?.value || '',
+                            ebookCover: document.getElementById('input-ebook-cover')?.value || '',
+                            ebookTitle: document.getElementById('input-ebook-title')?.value || '',
+                            ebookDesc: document.getElementById('input-ebook-desc')?.value || '',
+                            ebookBtnText: document.getElementById('input-ebook-btn-text')?.value || '',
+                            ebookBuyUrl: document.getElementById('input-ebook-buy-url')?.value || '',
+                            ebook2Cover: document.getElementById('input-ebook2-cover')?.value || '',
+                            ebook2Title: document.getElementById('input-ebook2-title')?.value || '',
+                            ebook2Desc: document.getElementById('input-ebook2-desc')?.value || '',
+                            ebook2BtnText: document.getElementById('input-ebook2-btn-text')?.value || '',
+                            ebook2BuyUrl: document.getElementById('input-ebook2-buy-url')?.value || '',
+                            ebook3Cover: document.getElementById('input-ebook3-cover')?.value || '',
+                            ebook3Title: document.getElementById('input-ebook3-title')?.value || '',
+                            ebook3Desc: document.getElementById('input-ebook3-desc')?.value || '',
+                            ebook3BtnText: document.getElementById('input-ebook3-btn-text')?.value || '',
+                            ebook3BuyUrl: document.getElementById('input-ebook3-buy-url')?.value || '',
                             highlight1Img: document.getElementById('input-highlight1-img') ? document.getElementById('input-highlight1-img').value : (window.tempFormBackup?.highlight1Img || ''),
                             highlight1Title: document.getElementById('input-highlight1-title') ? document.getElementById('input-highlight1-title').value : (window.tempFormBackup?.highlight1Title || ''),
                             highlight2Img: document.getElementById('input-highlight2-img') ? document.getElementById('input-highlight2-img').value : (window.tempFormBackup?.highlight2Img || ''),
@@ -1725,10 +1741,11 @@ loadClassicModel();
                 });
             });
 
-            // Evento de Salvar Formulário no Servidor
-            const inspectorForm = document.getElementById('inspector-form');
-            if (inspectorForm) {
-                inspectorForm.addEventListener('submit', async (e) => {
+            // Evento de Salvar Formulário no Servidor (Delegado no inspector-content para suportar trocas dinâmicas de templates)
+            const inspectorContentContainer = document.getElementById('inspector-content');
+            if (inspectorContentContainer) {
+                inspectorContentContainer.addEventListener('submit', async (e) => {
+                    if (!e.target || e.target.id !== 'inspector-form') return;
                     e.preventDefault();
                     
                     const arrobaInput = document.getElementById('input-arroba');
@@ -1772,6 +1789,21 @@ loadClassicModel();
                           shopP3Price: document.getElementById('input-shop-p3-price') ? document.getElementById('input-shop-p3-price').value.trim() : (window.tempFormBackup?.shopP3Price || ''),
                           shopP3Url: document.getElementById('input-shop-p3-url') ? document.getElementById('input-shop-p3-url').value.trim() : (window.tempFormBackup?.shopP3Url || ''),
                           shopCatalogUrl: document.getElementById('input-shop-catalog-url') ? document.getElementById('input-shop-catalog-url').value.trim() : (window.tempFormBackup?.shopCatalogUrl || ''),
+                          ebookCover: document.getElementById('input-ebook-cover') ? document.getElementById('input-ebook-cover').value.trim() : (window.tempFormBackup?.ebookCover || ''),
+                          ebookTitle: document.getElementById('input-ebook-title') ? document.getElementById('input-ebook-title').value.trim() : (window.tempFormBackup?.ebookTitle || ''),
+                          ebookDesc: document.getElementById('input-ebook-desc') ? document.getElementById('input-ebook-desc').value.trim() : (window.tempFormBackup?.ebookDesc || ''),
+                          ebookBtnText: document.getElementById('input-ebook-btn-text') ? document.getElementById('input-ebook-btn-text').value.trim() : (window.tempFormBackup?.ebookBtnText || ''),
+                          ebookBuyUrl: document.getElementById('input-ebook-buy-url') ? document.getElementById('input-ebook-buy-url').value.trim() : (window.tempFormBackup?.ebookBuyUrl || ''),
+                          ebook2Cover: document.getElementById('input-ebook2-cover') ? document.getElementById('input-ebook2-cover').value.trim() : (window.tempFormBackup?.ebook2Cover || ''),
+                          ebook2Title: document.getElementById('input-ebook2-title') ? document.getElementById('input-ebook2-title').value.trim() : (window.tempFormBackup?.ebook2Title || ''),
+                          ebook2Desc: document.getElementById('input-ebook2-desc') ? document.getElementById('input-ebook2-desc').value.trim() : (window.tempFormBackup?.ebook2Desc || ''),
+                          ebook2BtnText: document.getElementById('input-ebook2-btn-text') ? document.getElementById('input-ebook2-btn-text').value.trim() : (window.tempFormBackup?.ebook2BtnText || ''),
+                          ebook2BuyUrl: document.getElementById('input-ebook2-buy-url') ? document.getElementById('input-ebook2-buy-url').value.trim() : (window.tempFormBackup?.ebook2BuyUrl || ''),
+                          ebook3Cover: document.getElementById('input-ebook3-cover') ? document.getElementById('input-ebook3-cover').value.trim() : (window.tempFormBackup?.ebook3Cover || ''),
+                          ebook3Title: document.getElementById('input-ebook3-title') ? document.getElementById('input-ebook3-title').value.trim() : (window.tempFormBackup?.ebook3Title || ''),
+                          ebook3Desc: document.getElementById('input-ebook3-desc') ? document.getElementById('input-ebook3-desc').value.trim() : (window.tempFormBackup?.ebook3Desc || ''),
+                          ebook3BtnText: document.getElementById('input-ebook3-btn-text') ? document.getElementById('input-ebook3-btn-text').value.trim() : (window.tempFormBackup?.ebook3BtnText || ''),
+                          ebook3BuyUrl: document.getElementById('input-ebook3-buy-url') ? document.getElementById('input-ebook3-buy-url').value.trim() : (window.tempFormBackup?.ebook3BuyUrl || ''),
                         btn1Title: document.getElementById('input-btn1-title')?.value.trim() || '',
                         btn1Url: document.getElementById('input-btn1-url')?.value.trim() || '',
                         btn2Title: document.getElementById('input-btn2-title')?.value.trim() || '',
