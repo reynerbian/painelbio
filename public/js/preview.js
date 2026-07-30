@@ -1503,7 +1503,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
 
                         <!-- Header com Avatar Pequeno, Nome e @ -->
                         <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 18px; width: 100%;">
-                            <div id="eb-view-avatar-wrapper" style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--theme-color-1, #6366f1); margin-bottom: 8px; display: none; box-shadow: 0 0 16px var(--theme-color-1, #6366f1)66;">
+                            <div id="eb-view-avatar-wrapper" style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--theme-color-1, #6366f1); margin-bottom: 8px; display: none; box-shadow: 0 0 16px var(--theme-color-1, #6366f1);">
                                 <div id="eb-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
                             </div>
                             <h1 id="eb-view-name" style="font-size: 1.15rem; font-weight: 700; margin: 0 0 2px 0; color: #fff;"></h1>
@@ -1512,16 +1512,41 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         </div>
 
                         <!-- Card de Destaque do E-book (Levitação + Borda Neon + Glassmorphism Premium) -->
-                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.7); border: 1.5px solid var(--theme-color-1, #6366f1)44; border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 25px var(--theme-color-1, #6366f1)15; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, box-shadow 0.3s;">
+                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s;">
+                            
+                            <!-- Badges do Infoproduto -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <span style="background: rgba(99,102,241,0.15); color: var(--theme-color-1, #818cf8); font-size: 0.65rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--theme-color-1, #6366f1)44; text-transform: uppercase; letter-spacing: 0.5px;">🔥 Lançamento</span>
+                                <div style="display: flex; align-items: center; gap: 2px;">
+                                    <span style="color: #fbbf24; font-size: 0.78rem;">★★★★★</span>
+                                    <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 600;">(4.9)</span>
+                                </div>
+                            </div>
+
                             <div style="display: flex; gap: 16px; align-items: flex-start;">
                                 <!-- Imagem com perspectiva 3D e sombra de livro real -->
-                                <div style="width: 88px; height: 120px; flex-shrink: 0; perspective: 1000px;">
+                                <div style="width: 90px; height: 125px; flex-shrink: 0; perspective: 1000px;">
                                     <img id="eb-view-cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: -6px 6px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12); transform: rotateY(-14deg) rotateX(4deg); display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
                                 </div>
                                 <!-- Informações do Livro -->
                                 <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
                                     <h3 id="eb-view-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.35;"></h3>
-                                    <p id="eb-view-desc" style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4; margin: 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                                    <p id="eb-view-desc" style="font-size: 0.72rem; color: #94a3b8; line-height: 1.35; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                                    
+                                    <!-- Pequena Lista de Benefícios (Checklist) -->
+                                    <div style="display: flex; flex-direction: column; gap: 3px; margin-top: 4px;">
+                                        <span style="font-size: 0.68rem; color: #34d399; font-weight: 600;">✓ Acesso Vitalício Imediato</span>
+                                        <span style="font-size: 0.68rem; color: #34d399; font-weight: 600;">✓ Material Complementar Incluso</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Barra de Preço e Desconto (De/Por) -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.04);">
+                                <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-decoration: line-through;">De R$ 97,00</span>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                    <span style="font-size: 0.65rem; color: #34d399; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Super Oferta</span>
+                                    <span style="font-size: 0.95rem; color: #fff; font-weight: 800;">Por apenas R$ 29,90</span>
                                 </div>
                             </div>
 

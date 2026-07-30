@@ -849,6 +849,15 @@ export function generateStaticSite(data) {
     const hasEbookData = Boolean(ebCover || ebTitle);
     const ebookCardHtml = hasEbookData ? `
             <div class="eb-card">
+                <!-- Badges do Infoproduto -->
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
+                    <span style="background: rgba(255,255,255,0.06); color: var(--theme-c1); font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--theme-c1); text-transform: uppercase; letter-spacing: 0.5px;">🔥 Lançamento</span>
+                    <div style="display: flex; align-items: center; gap: 2px;">
+                        <span style="color: #fbbf24; font-size: 0.8rem;">★★★★★</span>
+                        <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 600; margin-left: 2px;">(4.9)</span>
+                    </div>
+                </div>
+
                 <div class="eb-card-header">
                     <div class="eb-cover-container">
                         <img src="${ebCover}" class="eb-cover" alt="${ebTitle}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
@@ -856,8 +865,24 @@ export function generateStaticSite(data) {
                     <div class="eb-info-container">
                         <h3 class="eb-title">${ebTitle}</h3>
                         <p class="eb-desc">${ebDesc}</p>
+                        
+                        <!-- Pequena Lista de Benefícios (Checklist) -->
+                        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
+                            <span style="font-size: 0.68rem; color: #34d399; font-weight: 600;">✓ Acesso Vitalício Imediato</span>
+                            <span style="font-size: 0.68rem; color: #34d399; font-weight: 600;">✓ Material Complementar Incluso</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Barra de Preço e Desconto (De/Por) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.04); box-sizing: border-box; width: 100%;">
+                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 600; text-decoration: line-through;">De R$ 97,00</span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <span style="font-size: 0.65rem; color: #34d399; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Super Oferta</span>
+                        <span style="font-size: 0.95rem; color: #fff; font-weight: 800;">Por apenas R$ 29,90</span>
+                    </div>
+                </div>
+
                 <a href="${ebBuyUrl}" target="_blank" rel="noopener" class="eb-buy-btn" onclick="trackAction('click')">
                     ${ebBtnText}
                 </a>
