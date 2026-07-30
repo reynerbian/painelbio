@@ -377,43 +377,57 @@ async function startTelegramPolling() {
         const text = message.text.trim().toLowerCase();
 
         if (text === '/sites' || text === 'sites') {
-          const sitesDir = path.join(process.cwd(), 'data', 'sites');
           let replyText = '';
-          
-          if (!fs.existsSync(sitesDir)) {
-            replyText = '📊 <b>PAINELBIO - STATUS</b>\n\nNenhum site foi gerado ainda.';
-          } else {
-            const folders = fs.readdirSync(sitesDir);
-            let total = 0;
-            let modelsCount = { classic: 0, ebook: 0, vitrine: 0 };
-            let list = [];
+          try {
+            // Consulta os dados direto da API REST do Firestore
+            const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${config.projectId || 'painelbio-39e1f'}/databases/(default)/documents/leads`;
+            const fbResponse = await fetch(firestoreUrl);
+            
+            if (!fbResponse.ok) {
+              throw new Error('Falha ao conectar com o Firestore');
+            }
 
-            for (const folder of folders) {
-              const dadosPath = path.join(sitesDir, folder, '_dados.json');
-              if (fs.existsSync(dadosPath)) {
-                try {
-                  const site = JSON.parse(fs.readFileSync(dadosPath, 'utf8'));
-                  total++;
-                  const model = site.model || 'classic';
-                  modelsCount[model] = (modelsCount[model] || 0) + 1;
-                  
-                  const savedDate = site.createdAt ? new Date(site.createdAt).toLocaleDateString('pt-BR') : 'Sem data';
-                  list.push(`• <b>${site.arroba}</b> (${model}) - Salvo em ${savedDate}`);
-                } catch(e) {}
+            const fbData = await fbResponse.json();
+            
+            if (!fbData.documents || fbData.documents.length === 0) {
+              replyText = '📊 <b>PAINELBIO - STATUS</b>\n\nNenhum site foi encontrado no Firebase.';
+            } else {
+              let total = 0;
+              let modelsCount = { classic: 0, ebook: 0, vitrine: 0 };
+              let list = [];
+
+              for (const doc of fbData.documents) {
+                const fields = doc.fields;
+                if (!fields) continue;
+
+                total++;
+                // Extrai valores dos campos do formato do Firestore REST
+                const model = fields.model && fields.model.stringValue ? fields.model.stringValue : 'classic';
+                const arroba = fields.arroba && fields.arroba.stringValue ? fields.arroba.stringValue : 'Sem arroba';
+                const createdAtStr = fields.createdAt && fields.createdAt.stringValue ? fields.createdAt.stringValue : '';
+                
+                modelsCount[model] = (modelsCount[model] || 0) + 1;
+                
+                const savedDate = createdAtStr ? new Date(createdAtStr).toLocaleDateString('pt-BR') : 'Sem data';
+                list.push(`• <b>${arroba}</b> (${model}) - Salvo em ${savedDate}`);
+              }
+
+              replyText = `📊 <b>PAINELBIO - STATUS DO FIREBASE</b>\n\n`;
+              replyText += `Total de sites criados: <b>${total}</b>\n\n`;
+              replyText += `<b>Por Modelo:</b>\n`;
+              replyText += `📘 E-books: ${modelsCount.ebook || 0}\n`;
+              replyText += `🔗 Clássico (Links): ${modelsCount.classic || 0}\n`;
+              replyText += `🛍️ Vitrine (Vendas): ${modelsCount.vitrine || 0}\n\n`;
+              
+              if (list.length > 0) {
+                replyText += `<b>Lista de Sites (Últimos 10):</b>\n` + list.slice(-10).join('\n');
               }
             }
-
-            replyText = `📊 <b>PAINELBIO - STATUS DA GALERIA</b>\n\n`;
-            replyText += `Total de sites criados: <b>${total}</b>\n\n`;
-            replyText += `<b>Por Modelo:</b>\n`;
-            replyText += `📘 E-books: ${modelsCount.ebook || 0}\n`;
-            replyText += `🔗 Clássico (Links): ${modelsCount.classic || 0}\n`;
-            replyText += `🛍️ Vitrine (Vendas): ${modelsCount.vitrine || 0}\n\n`;
-            
-            if (list.length > 0) {
-              replyText += `<b>Lista de Sites (Últimos 10):</b>\n` + list.slice(-10).join('\n');
-            }
+          } catch (fbErr) {
+            console.error('Erro ao ler Firestore REST:', fbErr);
+            replyText = '❌ <b>Erro:</b> Não foi possível carregar os dados do Firebase.';
           }
+          
           await sendTelegramMessage(replyText);
         } else if (text === '/start') {
           await sendTelegramMessage('👋 Olá! Eu sou o Bot de Alertas do PainelBio. Envie <b>/sites</b> a qualquer momento para ver o status dos sites criados na galeria!');
