@@ -773,12 +773,17 @@ const leftIcon = document.querySelector('.left-icon');
 
                             <!-- Botões conforme status -->
                             ${hasPendingMod ? `
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="window.openPixCheckoutModal('${site.arroba}', 'modification')" style="flex: 1.8; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
-                                    💳 Pagar Modificação (R$ ${pendingMod.toFixed(2).replace('.', ',')})
-                                </button>
-                                <button onclick="window.confirmPixPayment('${site.arroba}', 'modification')" style="flex: 1; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
-                                    ✅ Liberar
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="window.openPixCheckoutModal('${site.arroba}', 'modification')" style="flex: 1.8; background: #238636; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);">
+                                        💳 Pagar Modificação (R$ ${pendingMod.toFixed(2).replace('.', ',')})
+                                    </button>
+                                    <button onclick="window.confirmPixPayment('${site.arroba}', 'modification')" style="flex: 1; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.78rem; cursor: pointer; white-space: nowrap;">
+                                        ✅ Liberar
+                                    </button>
+                                </div>
+                                <button id="info-btn-send-billing-mod" style="width: 100%; background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.35); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    📲 Enviar Cobrança da Modificação pelo WhatsApp
                                 </button>
                             </div>
                             ` : isPaid ? `
@@ -1023,6 +1028,48 @@ const leftIcon = document.querySelector('.left-icon');
                         pixPayload ? `\nCódigo Copia e Cola:\n${pixPayload}` : '',
                         ``,
                         `Qualquer dúvida estou à disposição! 😊`
+                    ].filter(l => l !== null).join('\n');
+
+                    if (!clientPhone) {
+                        showCustomAlert('Preencha o WhatsApp do cliente no campo acima antes de enviar.', 'error');
+                        return;
+                    }
+                    if (!settings.chavePix) {
+                        showCustomAlert('Configure sua chave PIX nas Configurações primeiro.', 'error');
+                        return;
+                    }
+
+                    window.open(`https://wa.me/${clientPhone}?text=${encodeURIComponent(billingMsg)}`, '_blank');
+                });
+            }
+
+            // Botão Enviar Cobrança da Modificação pelo WhatsApp
+            const btnSendBillingMod = document.getElementById('info-btn-send-billing-mod');
+            if (btnSendBillingMod) {
+                btnSendBillingMod.addEventListener('click', () => {
+                    const clientPhone = ownerPhoneInput?.value?.replace(/[^0-9]/g, '') || '';
+                    const clientName  = ownerNameInput?.value?.trim() || (site.name || site.arroba);
+                    const settings    = (typeof getPixSettings === 'function') ? getPixSettings() : {};
+                    const pixPayload  = (typeof generatePixBRCode === 'function') ? generatePixBRCode({
+                        key:    settings.chavePix || '',
+                        name:   settings.nomeRecebedor || 'PainelBio',
+                        city:   settings.cidade || 'SAO PAULO',
+                        amount: pendingMod
+                    }) : '';
+
+                    const billingMsg = [
+                        `Olá ${clientName}! 👋`,
+                        ``,
+                        `Tudo bem? Passando para avisar que a alteração do seu *PainelBio* (${site.arroba}) está concluída e pronta para subir online!`,
+                        ``,
+                        `💳 *Valor da modificação: R$ ${pendingMod.toFixed(2).replace('.', ',')}*`,
+                        `(Taxa de Serviço / Add-ons)`,
+                        ``,
+                        `Para liberar a publicação online, basta realizar o PIX no valor acima:`,
+                        `ℹ️ Chave PIX: *${settings.chavePix || '(não configurada)'}*`,
+                        pixPayload ? `\nCódigo Copia e Cola:\n${pixPayload}` : '',
+                        ``,
+                        `Assim que fizer o pagamento, me avise para eu atualizar seu site! 😊`
                     ].filter(l => l !== null).join('\n');
 
                     if (!clientPhone) {
