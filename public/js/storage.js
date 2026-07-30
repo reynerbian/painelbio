@@ -63,6 +63,7 @@ const DEFAULT_PIX_SETTINGS = {
     vitrinePrice: 12.99,
     carouselPrice: 14.99,
     shopPrice: 19.99,
+    ebookPrice: 14.99,
     bannerPrice: 2.99,
     emojiPrice: 2.50,
     avatarSpinPrice: 2.50,
@@ -203,7 +204,8 @@ function calculateSitePrice(siteData, purchasedAddons) {
         'vitrine':  { name: 'Vitrine',   price: parseFloat(settings.vitrinePrice  || 12.99) },
         'carousel': { name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
         'carrossel':{ name: 'Carrossel', price: parseFloat(settings.carouselPrice || 14.99) },
-        'shop':     { name: 'Shop',      price: parseFloat(settings.shopPrice     || 19.99) }
+        'shop':     { name: 'Shop',      price: parseFloat(settings.shopPrice     || 19.99) },
+        'ebook':    { name: 'E-book',    price: parseFloat(settings.ebookPrice    || 14.99) }
     };
 
     const selectedModel = modelMap[modelKey] || modelMap['classic'];

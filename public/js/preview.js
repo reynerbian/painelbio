@@ -876,6 +876,100 @@ function updatePreviewFromForm() {
             }
             
             // =========================================================================
+            // MODELO 5: E-BOOK (Infoproduto com Card Flutuante e Capa 3D)
+            // =========================================================================
+            if (activeModel === 'ebook') {
+                const avatarWrapper = document.getElementById('eb-view-avatar-wrapper');
+                const avatarInner = document.getElementById('eb-view-avatar-inner');
+                const viewName = document.getElementById('eb-view-name');
+                const viewArroba = document.getElementById('eb-view-arroba');
+                const viewBio = document.getElementById('eb-view-bio');
+                
+                const card = document.getElementById('eb-view-card');
+                const cover = document.getElementById('eb-view-cover');
+                const title = document.getElementById('eb-view-title');
+                const desc = document.getElementById('eb-view-desc');
+                const buyBtn = document.getElementById('eb-view-buy-btn');
+                const viewButtons = document.getElementById('eb-view-buttons');
+
+                const avatarUrl = document.getElementById('input-avatar')?.value.trim() || '';
+                const name = document.getElementById('input-name')?.value.trim() || '';
+                const arroba = document.getElementById('input-arroba')?.value.trim() || '';
+                const bio = document.getElementById('input-bio')?.value.trim() || '';
+
+                const ebCover = document.getElementById('input-ebook-cover')?.value.trim() || '';
+                const ebTitle = document.getElementById('input-ebook-title')?.value.trim() || '';
+                const ebDesc = document.getElementById('input-ebook-desc')?.value.trim() || '';
+                const ebBtnText = document.getElementById('input-ebook-btn-text')?.value.trim() || 'Comprar E-book 🛒';
+                const ebBuyUrl = document.getElementById('input-ebook-buy-url')?.value.trim() || '#';
+
+                const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
+                const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
+                const btn2Title = document.getElementById('input-btn2-title')?.value.trim() || '';
+                const btn2Url = document.getElementById('input-btn2-url')?.value.trim() || '';
+
+                // Header Profile
+                if (avatarWrapper) {
+                    if (avatarUrl) {
+                        avatarWrapper.style.display = 'block';
+                        if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+                    } else {
+                        avatarWrapper.style.display = 'none';
+                    }
+                }
+                if (viewName) viewName.textContent = name;
+                if (viewArroba) {
+                    viewArroba.textContent = arroba ? `@${arroba.replace('@', '')}` : '';
+                    viewArroba.href = arroba ? `https://instagram.com/${arroba.replace('@', '')}` : '#';
+                }
+                if (viewBio) viewBio.textContent = bio;
+
+                // E-book Card
+                if (card) {
+                    if (ebCover || ebTitle) {
+                        card.style.display = 'flex';
+                        if (cover) cover.src = ebCover || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%23222"/>';
+                        if (title) title.textContent = ebTitle || 'Título do E-book';
+                        if (desc) desc.textContent = ebDesc || 'Descrição do E-book...';
+                        if (buyBtn) {
+                            buyBtn.textContent = ebBtnText;
+                            buyBtn.href = ebBuyUrl;
+                        }
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+
+                // Renderiza os botões extras
+                if (viewButtons) {
+                    viewButtons.innerHTML = '';
+                    const buttons = [
+                        { title: btn1Title, url: btn1Url },
+                        { title: btn2Title, url: btn2Url }
+                    ];
+
+                    buttons.forEach(btn => {
+                        if (!btn.title) return;
+                        const btnEl = document.createElement('a');
+                        btnEl.href = btn.url || '#';
+                        btnEl.target = '_blank';
+                        btnEl.style.cssText = `width: 100%; height: 46px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s;`;
+                        btnEl.textContent = btn.title;
+                        
+                        btnEl.addEventListener('mouseenter', () => btnEl.style.background = 'rgba(255,255,255,0.12)');
+                        btnEl.addEventListener('mouseleave', () => btnEl.style.background = 'rgba(255,255,255,0.06)');
+                        btnEl.addEventListener('click', () => {
+                            btnEl.style.transform = 'scale(0.97)';
+                            setTimeout(() => btnEl.style.transform = 'none', 150);
+                        });
+                        viewButtons.appendChild(btnEl);
+                    });
+                }
+
+                return;
+            }
+
+            // =========================================================================
             // MODELO 2: VITRINE (Sem card interno, fotos no topo soltas, avatar sobreposto)
             // =========================================================================
             if (activeModel === 'vitrine') {
@@ -1348,6 +1442,52 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     }
                 }
 
+            } else if (activeModel === 'ebook') {
+                previewScreen.style.background = 'radial-gradient(circle at 50% 10%, #1e1b4b 0%, #090514 80%)';
+                
+                previewScreen.innerHTML = `
+                    <div class="eb-live-page" style="width: 100%; min-height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        
+                        <!-- Header com Avatar Pequeno, Nome e @ -->
+                        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; width: 100%;">
+                            <div id="eb-view-avatar-wrapper" style="width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--theme-color-1, #6366f1); margin-bottom: 8px; display: none; box-shadow: 0 0 16px rgba(99,102,241,0.3);">
+                                <div id="eb-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
+                            </div>
+                            <h1 id="eb-view-name" style="font-size: 1.15rem; font-weight: 700; margin: 0 0 2px 0; color: #fff;"></h1>
+                            <a id="eb-view-arroba" href="#" target="_blank" style="font-size: 0.82rem; color: var(--theme-color-1, #818cf8); text-decoration: none; font-weight: 600; margin-bottom: 6px; display: inline-block;"></a>
+                            <p id="eb-view-bio" style="font-size: 0.78rem; color: #94a3b8; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 90%;"></p>
+                        </div>
+
+                        <!-- Card de Destaque do E-book (Flutuante 3D Glassmorphism) -->
+                        <div id="eb-view-card" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-bottom: 20px;">
+                            <div style="display: flex; gap: 14px; align-items: flex-start;">
+                                <!-- Imagem com perspectiva 3D (Capa de Livro) -->
+                                <div style="width: 85px; height: 115px; flex-shrink: 0; perspective: 1000px;">
+                                    <img id="eb-view-cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: -5px 5px 12px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); transform: rotateY(-12deg) rotateX(5deg); display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
+                                </div>
+                                <!-- Informações do Livro -->
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                                    <h3 id="eb-view-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.3;"></h3>
+                                    <p id="eb-view-desc" style="font-size: 0.74rem; color: #94a3b8; line-height: 1.35; margin: 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                                </div>
+                            </div>
+
+                            <!-- Botão de Compra Destaque Verde -->
+                            <a id="eb-view-buy-btn" href="#" target="_blank" style="width: 100%; height: 42px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; color: #fff; text-decoration: none; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(16,185,129,0.3); transition: transform 0.2s; text-align: center;">
+                                Comprar E-book 🛒
+                            </a>
+                        </div>
+
+                        <!-- Botões Extras Linktree -->
+                        <div id="eb-view-buttons" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+
+                        <!-- Rodapé Criado com PainelBio -->
+                        <div id="eb-view-footer" style="margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            CRIADO COM <a href="#" style="color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700;">PAINELBIO</a>
+                        </div>
+
+                    </div>
+                `;
             } else if (activeModel === 'vitrine') {
                 // Fundo limpo fosco sem luzes borradas
                 previewScreen.style.background = '#0e110d';
@@ -1711,6 +1851,28 @@ function populateFakeDataForModel(activeModel) {
 
                 const catUrl = document.getElementById('input-shop-catalog-url');
                 if (catUrl && !catUrl.value) catUrl.value = "https://wa.me/c/5511999999999";
+            } else if (activeModel === 'ebook') {
+                if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200";
+                if (nameInput && !nameInput.value) nameInput.value = "Bruna Silva | Infoprodutora";
+                if (arrobaInput && !arrobaInput.value) arrobaInput.value = "bruna.infomarketing";
+                if (bioInput && !bioInput.value) bioInput.value = `Ajudo iniciantes a faturar no digital de forma descomplicada. 🚀\nMais de 10.000 alunos transformados!`;
+
+                const ebCover = document.getElementById('input-ebook-cover');
+                const ebTitle = document.getElementById('input-ebook-title');
+                const ebDesc = document.getElementById('input-ebook-desc');
+                const ebBtnText = document.getElementById('input-ebook-btn-text');
+                const ebBuyUrl = document.getElementById('input-ebook-buy-url');
+
+                if (ebCover && !ebCover.value) ebCover.value = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600";
+                if (ebTitle && !ebTitle.value) ebTitle.value = "Descomplicando o Marketing Digital";
+                if (ebDesc && !ebDesc.value) ebDesc.value = "O passo a passo definitivo para você faturar seus primeiros R$ 10.000 como produtor de conteúdo trabalhando de casa.";
+                if (ebBtnText && !ebBtnText.value) ebBtnText.value = "Comprar E-book por R$ 29,90 🛒";
+                if (ebBuyUrl && !ebBuyUrl.value) ebBuyUrl.value = "https://pay.hotmart.com";
+
+                if (btn1TitleInput && !btn1TitleInput.value) btn1TitleInput.value = "💬 Falar no WhatsApp (Suporte)";
+                if (btn1UrlInput && !btn1UrlInput.value) btn1UrlInput.value = "https://wa.me/5511999999999";
+                if (btn2TitleInput && !btn2TitleInput.value) btn2TitleInput.value = "🌐 Meu Site Oficial";
+                if (btn2UrlInput && !btn2UrlInput.value) btn2UrlInput.value = "https://meusite.com";
             } else {
                 // MODELO 1: CLASSIC
                 if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200";

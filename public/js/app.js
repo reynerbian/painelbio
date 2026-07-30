@@ -2651,6 +2651,9 @@ window.updateModelCardsPrices = function() {
 
     const shopEl = document.querySelector('.template-card[data-template="shop"] .template-card-type span:last-child');
     if (shopEl) shopEl.textContent = `R$ ${parseFloat(settings.shopPrice || 19.99).toFixed(2).replace('.', ',')}/mês`;
+
+    const ebookEl = document.querySelector('.template-card[data-template="ebook"] .template-card-type span:last-child');
+    if (ebookEl) ebookEl.textContent = `R$ ${parseFloat(settings.ebookPrice || 14.99).toFixed(2).replace('.', ',')}/mês`;
 };
 
 // Modal de Configurações Unificado com Abas (PIX, Preços, API e Cupons)
@@ -2739,6 +2742,10 @@ window.openPixSettingsModal = function(activeTab = 'pix') {
                             <div>
                                 <label style="font-size: 0.73rem; color: #8b949e;">Modelo Shop (R$):</label>
                                 <input type="number" step="0.01" id="pix-price-shop" value="${settings.shopPrice || 19.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.73rem; color: #8b949e;">Modelo E-book (R$):</label>
+                                <input type="number" step="0.01" id="pix-price-ebook" value="${settings.ebookPrice || 14.99}" style="width: 100%; background: #090d16; border: 1px solid #30363d; color: #fff; border-radius: 8px; padding: 8px; font-size: 0.85rem; box-sizing: border-box;">
                             </div>
                         </div>
 
@@ -2912,6 +2919,7 @@ window.savePixSettingsFromForm = function(e) {
     const vitrine = parseFloat(document.getElementById('pix-price-vitrine')?.value || 12.99);
     const carousel = parseFloat(document.getElementById('pix-price-carousel')?.value || 14.99);
     const shop = parseFloat(document.getElementById('pix-price-shop')?.value || 19.99);
+    const ebook = parseFloat(document.getElementById('pix-price-ebook')?.value || 14.99);
 
     const banner = parseFloat(document.getElementById('pix-price-banner')?.value || 2.99);
     const emoji = parseFloat(document.getElementById('pix-price-emoji')?.value || 2.50);
@@ -2928,6 +2936,7 @@ window.savePixSettingsFromForm = function(e) {
         vitrinePrice: vitrine,
         carouselPrice: carousel,
         shopPrice: shop,
+        ebookPrice: ebook,
         bannerPrice: banner,
         emojiPrice: emoji,
         avatarSpinPrice: avatarSpin,

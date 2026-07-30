@@ -56,6 +56,7 @@ function updateCartSummary() {
         if (template === 'vitrine') { basePrice = parseFloat(settings.vitrinePrice || 12.99); modelName = 'Modelo Vitrine'; }
         if (template === 'carousel' || template === 'carrossel') { basePrice = parseFloat(settings.carouselPrice || 14.99); modelName = 'Modelo Carrossel'; }
         if (template === 'shop') { basePrice = parseFloat(settings.shopPrice || 19.99); modelName = 'Modelo Shop'; }
+        if (template === 'ebook') { basePrice = parseFloat(settings.ebookPrice || 14.99); modelName = 'Modelo E-book'; }
     }
     
     // Obtém arroba atual para checar se o site já existe

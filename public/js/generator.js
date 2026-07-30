@@ -9,8 +9,9 @@ export function generateStaticSite(data) {
   const hasHighlightImages = Boolean(data && (data.highlight1Img || data.highlight2Img || data.highlight3Img));
 
   const isShop = modelType === 'shop';
-  const isCarousel = (modelType === 'carousel' || modelType === 'carrossel' || (modelType === 'classic' && hasCarouselImages)) && !isShop;
-  const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel && !isShop;
+  const isEbook = modelType === 'ebook';
+  const isCarousel = (modelType === 'carousel' || modelType === 'carrossel' || (modelType === 'classic' && hasCarouselImages)) && !isShop && !isEbook;
+  const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel && !isShop && !isEbook;
 
   const presetMap = {
     'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
@@ -819,6 +820,189 @@ export function generateStaticSite(data) {
             <div class="v-footer">
                 CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
             </div>
+        </div>
+    </div>
+</body>
+</html>`;
+  }
+
+  // ==========================================
+  // MODELO 5: E-BOOK (Infoproduto com Card Flutuante e Capa 3D)
+  // ==========================================
+  if (isEbook) {
+    const avatarHtml = data.avatar ? `
+            <div class="eb-avatar-wrapper">
+                <div class="eb-avatar-inner">
+                    <img src="${data.avatar}" alt="${data.name || ''}">
+                </div>
+            </div>` : '';
+
+    const bioHtml = data.bio ? `<p class="eb-bio">${data.bio}</p>` : '';
+    
+    // Card do Ebook
+    const ebCover = data.ebookCover || '';
+    const ebTitle = data.ebookTitle || 'E-book';
+    const ebDesc = data.ebookDesc || '';
+    const ebBtnText = data.ebookBtnText || 'Comprar E-book 🛒';
+    const ebBuyUrl = data.ebookBuyUrl || '#';
+
+    const hasEbookData = Boolean(ebCover || ebTitle);
+    const ebookCardHtml = hasEbookData ? `
+            <div class="eb-card">
+                <div class="eb-card-header">
+                    <div class="eb-cover-container">
+                        <img src="${ebCover}" class="eb-cover" alt="${ebTitle}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
+                    </div>
+                    <div class="eb-info-container">
+                        <h3 class="eb-title">${ebTitle}</h3>
+                        <p class="eb-desc">${ebDesc}</p>
+                    </div>
+                </div>
+                <a href="${ebBuyUrl}" target="_blank" rel="noopener" class="eb-buy-btn" onclick="trackAction('click')">
+                    ${ebBtnText}
+                </a>
+            </div>` : '';
+
+    // Links adicionais
+    const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="eb-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
+    const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="eb-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
+
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>${data.name || data.arroba || 'E-book'}</title>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                for (let r of regs) r.unregister();
+            });
+        }
+        function trackAction(type) {
+            try {
+                var cleanSlug = "${cleanArroba}";
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type);
+                } else {
+                    fetch('/api/track?slug=' + encodeURIComponent(cleanSlug) + '&type=' + type, { method: 'POST', keepalive: true });
+                }
+            } catch(e){}
+        }
+    </script>
+    <style>
+        :root {
+            --theme-c1: ${theme.c1};
+            --theme-c2: ${theme.c2};
+        }
+        
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #090514 80%);
+            color: #ffffff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .eb-page {
+            width: 100%; min-height: 100%; display: flex; flex-direction: column;
+            align-items: center; padding: 28px 16px;
+            box-sizing: border-box; position: relative;
+        }
+
+        .eb-header {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; margin-bottom: 24px; width: 100%; max-width: 420px;
+        }
+
+        .eb-avatar-wrapper {
+            width: 76px; height: 76px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--theme-c1), var(--theme-c2));
+            padding: 3px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 12px; box-shadow: 0 0 20px rgba(99,102,241,0.25);
+        }
+
+        .eb-avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #000; overflow: hidden; }
+        .eb-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .eb-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; text-align: center; }
+        .eb-arroba { font-size: 0.88rem; color: var(--theme-c1); text-decoration: none; margin-bottom: 8px; text-align: center; display: inline-block; font-weight: 600; }
+        .eb-bio { font-size: 0.88rem; color: #94a3b8; text-align: center; line-height: 1.45; margin: 0; width: 90%; word-break: break-word; }
+
+        .eb-card {
+            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); position: relative;
+            z-index: 10; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-bottom: 20px;
+        }
+
+        .eb-card-header { display: flex; gap: 16px; align-items: flex-start; }
+
+        .eb-cover-container {
+            width: 95px; height: 130px; flex-shrink: 0; perspective: 1000px;
+        }
+
+        .eb-cover {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
+            box-shadow: -6px 6px 14px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
+            transform: rotateY(-12deg) rotateX(5deg); display: block;
+        }
+
+        .eb-info-container { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .eb-title { font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.35; }
+        .eb-desc { font-size: 0.78rem; color: #94a3b8; line-height: 1.4; margin: 0; }
+
+        .eb-buy-btn {
+            width: 100%; height: 48px; background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700;
+            font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.3); transition: transform 0.2s, background 0.3s;
+            text-align: center; border: none; cursor: pointer;
+        }
+
+        .eb-buy-btn:active { transform: scale(0.97); }
+
+        .eb-buttons-container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        
+        .eb-link-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.08);
+            color: #ffffff; padding: 15px 20px; border-radius: 14px; text-decoration: none;
+            font-size: 0.9rem; font-weight: 600; display: flex; align-items: center;
+            justify-content: center; width: 100%; box-sizing: border-box;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .eb-link-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .eb-link-btn:active { transform: scale(0.98); }
+
+        .footer { margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+    ${topBannerHtml}
+    ${audioPlayerHtml}
+    ${liveChatHtml}
+    <div class="eb-page">
+        ${emojiRainHtml}
+        
+        <div class="eb-header">
+            ${avatarHtml}
+            <h2 class="eb-name">${data.name || ''}</h2>
+            <a href="${instaUrl}" target="_blank" rel="noopener" class="eb-arroba">${displayArroba}</a>
+            ${bioHtml}
+        </div>
+
+        ${ebookCardHtml}
+
+        <div class="eb-buttons-container">
+            ${btn1Html}
+            ${btn2Html}
+        </div>
+
+        <div class="footer">
+            CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
         </div>
     </div>
 </body>
