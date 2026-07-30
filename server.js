@@ -331,13 +331,25 @@ async function sendTelegramMessage(text, replyMarkup = null) {
 let lastTelegramUpdateId = 0;
 
 async function startTelegramPolling() {
+  console.log('[Telegram Polling] Iniciando escuta de comandos...');
   const configPath = path.join(process.cwd(), 'data', 'telegram_config.json');
-  if (!fs.existsSync(configPath)) return;
+  console.log('[Telegram Polling] Caminho do config:', configPath);
+  
+  if (!fs.existsSync(configPath)) {
+    console.warn('[Telegram Polling] Arquivo telegram_config.json nao encontrado!');
+    return;
+  }
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  if (!config.botToken || !config.chatId) return;
+  console.log('[Telegram Polling] Config do bot lida com sucesso. Chat ID:', config.chatId);
+  
+  if (!config.botToken || !config.chatId) {
+    console.warn('[Telegram Polling] Token ou ChatID vazios no json!');
+    return;
+  }
 
-  const url = `https://api.telegram.org/bot${config.botToken}/getUpdates?offset=${lastTelegramUpdateId + 1}&timeout=10`;
+  const offsetParam = lastTelegramUpdateId > 0 ? `offset=${lastTelegramUpdateId + 1}&` : '';
+  const url = `https://api.telegram.org/bot${config.botToken}/getUpdates?${offsetParam}timeout=10`;
 
   try {
     const response = await fetch(url);
@@ -348,13 +360,19 @@ async function startTelegramPolling() {
 
     const data = await response.json();
     if (data.ok && data.result.length > 0) {
+      console.log(`[Telegram Polling] Recebidas ${data.result.length} novas atualizações.`);
       for (const update of data.result) {
         lastTelegramUpdateId = update.update_id;
 
         const message = update.message;
         if (!message || !message.text) continue;
 
-        if (String(message.chat.id) !== String(config.chatId)) continue;
+        console.log(`[Telegram Polling] Mensagem de Chat ID ${message.chat.id}: "${message.text}"`);
+
+        if (String(message.chat.id) !== String(config.chatId)) {
+          console.warn(`[Telegram Polling] Chat ID ${message.chat.id} não corresponde ao configurado (${config.chatId}). Ignorando.`);
+          continue;
+        }
 
         const text = message.text.trim().toLowerCase();
 
@@ -402,7 +420,7 @@ async function startTelegramPolling() {
         }
       }
     }
-    setTimeout(startTelegramPolling, 1000);
+    setTimeout(startTelegramPolling, 3000);
   } catch (err) {
     console.error('Erro no polling do Telegram:', err);
     setTimeout(startTelegramPolling, 5000);
