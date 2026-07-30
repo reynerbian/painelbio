@@ -1662,7 +1662,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         </div>
 
                         <!-- Card de Destaque do E-book (Levitação + Borda Neon + Glassmorphism Premium) -->
-                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, opacity 0.25s, transform 0.25s; overflow: hidden;">
+                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, opacity 0.25s, transform 0.25s;">
                             
                             <!-- Badges do Infoproduto -->
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
