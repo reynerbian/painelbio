@@ -13,8 +13,14 @@ app.use(cors()); // Allow requests from any origin (Cloudflare Pages, etc)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Serve arquivos estáticos da pasta 'public'
-app.use(express.static('public'));
+// Serve arquivos estáticos da pasta 'public' sem cache para desenvolvimento
+app.use(express.static('public', {
+  etag: false,
+  maxAge: 0,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  }
+}));
 
 // Configuração do multer para upload de imagens
 const storage = multer.diskStorage({
@@ -280,6 +286,237 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ success: false, error: 'Erro de formatação no JSON enviado.' });
   }
   res.status(500).json({ success: false, error: err.message || 'Erro interno no servidor' });
+});
+
+// =========================================================================
+// MÓDULO DE ALERTAS FINANCEIROS VIA TELEGRAM BOT (node-cron)
+// =========================================================================
+import cron from 'node-cron';
+
+// Função auxiliar para enviar mensagem ao Telegram
+async function sendTelegramMessage(text, replyMarkup = null) {
+  const configPath = path.join(process.cwd(), 'data', 'telegram_config.json');
+  if (!fs.existsSync(configPath)) return { success: false, error: 'Arquivo de configuração do telegram não existe.' };
+  
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  if (!config.botToken || !config.chatId) {
+    return { success: false, error: 'Credenciais do bot do Telegram não configuradas no json.' };
+  }
+
+  const url = `https://api.telegram.org/bot${config.botToken}/sendMessage`;
+  const body = {
+    chat_id: config.chatId,
+    text: text,
+    parse_mode: 'HTML'
+  };
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (response.ok) {
+    return { success: true };
+  } else {
+    const errText = await response.text();
+    return { success: false, error: errText };
+  }
+}
+
+// Polling de Comandos do Telegram
+let lastTelegramUpdateId = 0;
+
+async function startTelegramPolling() {
+  const configPath = path.join(process.cwd(), 'data', 'telegram_config.json');
+  if (!fs.existsSync(configPath)) return;
+
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  if (!config.botToken || !config.chatId) return;
+
+  const url = `https://api.telegram.org/bot${config.botToken}/getUpdates?offset=${lastTelegramUpdateId + 1}&timeout=10`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      setTimeout(startTelegramPolling, 5000);
+      return;
+    }
+
+    const data = await response.json();
+    if (data.ok && data.result.length > 0) {
+      for (const update of data.result) {
+        lastTelegramUpdateId = update.update_id;
+
+        const message = update.message;
+        if (!message || !message.text) continue;
+
+        if (String(message.chat.id) !== String(config.chatId)) continue;
+
+        const text = message.text.trim().toLowerCase();
+
+        if (text === '/sites' || text === 'sites') {
+          const sitesDir = path.join(process.cwd(), 'data', 'sites');
+          let replyText = '';
+          
+          if (!fs.existsSync(sitesDir)) {
+            replyText = '📊 <b>PAINELBIO - STATUS</b>\n\nNenhum site foi gerado ainda.';
+          } else {
+            const folders = fs.readdirSync(sitesDir);
+            let total = 0;
+            let modelsCount = { classic: 0, ebook: 0, vitrine: 0 };
+            let list = [];
+
+            for (const folder of folders) {
+              const dadosPath = path.join(sitesDir, folder, '_dados.json');
+              if (fs.existsSync(dadosPath)) {
+                try {
+                  const site = JSON.parse(fs.readFileSync(dadosPath, 'utf8'));
+                  total++;
+                  const model = site.model || 'classic';
+                  modelsCount[model] = (modelsCount[model] || 0) + 1;
+                  
+                  const savedDate = site.createdAt ? new Date(site.createdAt).toLocaleDateString('pt-BR') : 'Sem data';
+                  list.push(`• <b>${site.arroba}</b> (${model}) - Salvo em ${savedDate}`);
+                } catch(e) {}
+              }
+            }
+
+            replyText = `📊 <b>PAINELBIO - STATUS DA GALERIA</b>\n\n`;
+            replyText += `Total de sites criados: <b>${total}</b>\n\n`;
+            replyText += `<b>Por Modelo:</b>\n`;
+            replyText += `📘 E-books: ${modelsCount.ebook || 0}\n`;
+            replyText += `🔗 Clássico (Links): ${modelsCount.classic || 0}\n`;
+            replyText += `🛍️ Vitrine (Vendas): ${modelsCount.vitrine || 0}\n\n`;
+            
+            if (list.length > 0) {
+              replyText += `<b>Lista de Sites (Últimos 10):</b>\n` + list.slice(-10).join('\n');
+            }
+          }
+          await sendTelegramMessage(replyText);
+        } else if (text === '/start') {
+          await sendTelegramMessage('👋 Olá! Eu sou o Bot de Alertas do PainelBio. Envie <b>/sites</b> a qualquer momento para ver o status dos sites criados na galeria!');
+        }
+      }
+    }
+    setTimeout(startTelegramPolling, 1000);
+  } catch (err) {
+    console.error('Erro no polling do Telegram:', err);
+    setTimeout(startTelegramPolling, 5000);
+  }
+}
+
+setTimeout(startTelegramPolling, 3000);
+
+// Rota de Teste para o Telegram
+app.get('/api/test-telegram', async (req, res) => {
+  try {
+    const result = await sendTelegramMessage('🔔 <b>PainelBio Alertas:</b> Conexão de teste efetuada com sucesso! Seu bot está ativo e pronto para te alertar sobre cobranças.');
+    if (result.success) {
+      res.json({ success: true, message: 'Mensagem de teste enviada com sucesso para o Telegram!' });
+    } else {
+      res.status(400).json({ success: false, error: result.error });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Função para buscar e alertar clientes vencidos
+async function checkVencimentosAndAlert() {
+  try {
+    const sitesDir = path.join(process.cwd(), 'data', 'sites');
+    if (!fs.existsSync(sitesDir)) return;
+
+    const folders = fs.readdirSync(sitesDir);
+    const now = new Date();
+    
+    let alertText = `🔔 <b>PAINELBIO - COBRANÇAS DO DIA</b>\n\n`;
+    let count = 0;
+
+    for (const folder of folders) {
+      const dadosPath = path.join(sitesDir, folder, '_dados.json');
+      if (fs.existsSync(dadosPath)) {
+        const site = JSON.parse(fs.readFileSync(dadosPath, 'utf8'));
+        if (site.renewalDueDate && site.paymentStatus === 'paid') {
+          const dueDate = new Date(site.renewalDueDate);
+          
+          // Calcula diferença de dias
+          const diffTime = dueDate.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          const valor = site.model === 'shop' ? 19.90 : (site.model === 'ebook' ? 14.99 : 9.90);
+          const cleanPhone = site.ownerPhone ? site.ownerPhone.replace(/\D/g, '') : '';
+          const clientName = site.ownerName || 'Cliente';
+
+          // Mensagem pré-formatada para enviar ao cliente no WhatsApp
+          const cobrancaMsg = `Olá, ${clientName}! Passando para lembrar que a mensalidade do seu site de bio (${site.arroba}) está próxima do vencimento (${dueDate.toLocaleDateString('pt-BR')}). Para manter seu site online, você pode realizar a renovação no valor de R$ ${valor.toFixed(2).replace('.', ',')}. Muito obrigado!`;
+          const whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(cobrancaMsg)}`;
+
+          if (diffDays === 3) {
+            alertText += `⚠️ <b>Aviso (Faltam 3 dias):</b>\n`;
+            alertText += `• Cliente: ${clientName} (${site.arroba})\n`;
+            alertText += `• Telefone: ${site.ownerPhone || 'Não cadastrado'}\n`;
+            alertText += `• Vence em: ${dueDate.toLocaleDateString('pt-BR')}\n`;
+            if (cleanPhone) {
+              alertText += `<a href="${whatsappUrl}">📲 Enviar Lembrete no WhatsApp</a>\n`;
+            }
+            alertText += `\n`;
+            count++;
+          } else if (diffDays === 0) {
+            alertText += `🚨 <b>VENCE HOJE:</b>\n`;
+            alertText += `• Cliente: ${clientName} (${site.arroba})\n`;
+            alertText += `• Telefone: ${site.ownerPhone || 'Não cadastrado'}\n`;
+            if (cleanPhone) {
+              alertText += `<a href="${whatsappUrl}">📲 Cobrar via WhatsApp</a>\n`;
+            }
+            alertText += `\n`;
+            count++;
+          } else if (diffDays < 0) {
+            // Vencido há dias
+            alertText += `💀 <b>VENCIDO (Atrás em ${Math.abs(diffDays)} dias):</b>\n`;
+            alertText += `• Cliente: ${clientName} (${site.arroba})\n`;
+            alertText += `• Telefone: ${site.ownerPhone || 'Não cadastrado'}\n`;
+            if (cleanPhone) {
+              alertText += `<a href="${whatsappUrl}">📲 Cobrar Urgente no WhatsApp</a>\n`;
+            }
+            alertText += `\n`;
+            count++;
+          }
+        }
+      }
+    }
+
+    if (count > 0) {
+      await sendTelegramMessage(alertText);
+      console.log(`[Telegram Cron] Relatório enviado com sucesso contendo ${count} alertas!`);
+    } else {
+      console.log(`[Telegram Cron] Nenhuma cobrança pendente para hoje.`);
+    }
+
+  } catch (err) {
+    console.error('Erro na verificação de cobranças do cron Telegram:', err);
+  }
+}
+
+// Agendamento diário do Cron: Todo dia às 09:00 da manhã
+// Formato cron: minuto(0) hora(9) dia-do-mes(*) mes(*) dia-da-semana(*)
+cron.schedule('0 9 * * *', () => {
+  console.log('[Cron] Iniciando verificação diária de vencimentos de cobrança...');
+  checkVencimentosAndAlert();
+});
+
+// Adiciona rota secreta para rodar a verificação na hora via navegador para teste do operador
+app.get('/api/trigger-alert', async (req, res) => {
+  try {
+    await checkVencimentosAndAlert();
+    res.json({ success: true, message: 'Verificação disparada com sucesso! Verifique seu bot do Telegram.' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
