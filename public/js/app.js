@@ -1804,7 +1804,7 @@ loadClassicModel();
                         // Fix for invalid date
                         updatedData.createdAt = new Date().toISOString();
 
-                        // SERVERLESS: Salva tudo no LocalStorage
+                    // SERVERLESS: Salva tudo no LocalStorage
                         let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
                         const existingLead = leads.find(l => l.arroba.toLowerCase() === cleanArroba.toLowerCase());
 
@@ -1815,9 +1815,11 @@ loadClassicModel();
                             updatedData.renewalDueDate = existingLead.renewalDueDate;
                             updatedData.purchasedAddons = Array.isArray(existingLead.purchasedAddons) ? existingLead.purchasedAddons : [];
 
-                            const isAlreadyActive = existingLead.status === 'published' || existingLead.status === 'modified';
-                            if (isAlreadyActive) {
-                                updatedData.status = 'modified';
+                            const isAlreadyPaidOrActive = existingLead.paymentStatus === 'paid' || existingLead.status === 'published' || existingLead.status === 'modified';
+                            if (isAlreadyPaidOrActive) {
+                                // Se já foi publicado, mantém status modificado. Se foi apenas pago mas não publicado, mantém not_published
+                                const wasPublished = existingLead.status === 'published' || existingLead.status === 'modified';
+                                updatedData.status = wasPublished ? 'modified' : 'not_published';
                                 updatedData.publishedAt = existingLead.publishedAt;
 
                                 // Calcula custos pendentes da modificação
