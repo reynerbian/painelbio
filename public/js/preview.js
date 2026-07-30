@@ -2085,7 +2085,7 @@ function populateFakeDataForModel(activeModel) {
                 if (avatarInput && !avatarInput.value) avatarInput.value = "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200";
                 if (nameInput && !nameInput.value) nameInput.value = "Bruna Silva | Infoprodutora";
                 if (arrobaInput && !arrobaInput.value) arrobaInput.value = "bruna.infomarketing";
-                if (bioInput && !bioInput.value) bioInput.value = `Ajudo iniciantes a faturar no digital de forma descomplicada. 🚀\nMais de 10.000 alunos transformados!`;
+                if (bioInput && !bioInput.value) bioInput.value = "Ajudo iniciantes a faturar no digital de forma descomplicada. 🚀\nMais de 10.000 alunos transformados!";
 
                 const ebCover = document.getElementById('input-ebook-cover');
                 const ebTitle = document.getElementById('input-ebook-title');
@@ -2098,6 +2098,32 @@ function populateFakeDataForModel(activeModel) {
                 if (ebDesc && !ebDesc.value) ebDesc.value = "O passo a passo definitivo para você faturar seus primeiros R$ 10.000 como produtor de conteúdo trabalhando de casa.";
                 if (ebBtnText && !ebBtnText.value) ebBtnText.value = "Comprar E-book por R$ 29,90 🛒";
                 if (ebBuyUrl && !ebBuyUrl.value) ebBuyUrl.value = "https://pay.hotmart.com";
+
+                // E-book 2
+                const eb2Cover = document.getElementById('input-ebook2-cover');
+                const eb2Title = document.getElementById('input-ebook2-title');
+                const eb2Desc = document.getElementById('input-ebook2-desc');
+                const eb2BtnText = document.getElementById('input-ebook2-btn-text');
+                const eb2BuyUrl = document.getElementById('input-ebook2-buy-url');
+
+                if (eb2Cover && !eb2Cover.value) eb2Cover.value = "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600";
+                if (eb2Title && !eb2Title.value) eb2Title.value = "Copywriting Pro: Textos que Vendem";
+                if (eb2Desc && !eb2Desc.value) eb2Desc.value = "Aprenda a criar roteiros, posts e páginas de vendas altamente persuasivas usando gatilhos mentais testados.";
+                if (eb2BtnText && !eb2BtnText.value) eb2BtnText.value = "Garantir Copywriting Pro 🛒";
+                if (eb2BuyUrl && !eb2BuyUrl.value) eb2BuyUrl.value = "https://pay.hotmart.com";
+
+                // E-book 3
+                const eb3Cover = document.getElementById('input-ebook3-cover');
+                const eb3Title = document.getElementById('input-ebook3-title');
+                const eb3Desc = document.getElementById('input-ebook3-desc');
+                const eb3BtnText = document.getElementById('input-ebook3-btn-text');
+                const eb3BuyUrl = document.getElementById('input-ebook3-buy-url');
+
+                if (eb3Cover && !eb3Cover.value) eb3Cover.value = "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=600";
+                if (eb3Title && !eb3Title.value) eb3Title.value = "Manual das Vendas nos Stories";
+                if (eb3Desc && !eb3Desc.value) eb3Desc.value = "O roteiro diário exato de postagens para transformar seguidores frios em compradores em menos de 24 horas.";
+                if (eb3BtnText && !eb3BtnText.value) eb3BtnText.value = "Acessar Manual do Stories 🛒";
+                if (eb3BuyUrl && !eb3BuyUrl.value) eb3BuyUrl.value = "https://pay.hotmart.com";
 
                 if (btn1TitleInput && !btn1TitleInput.value) btn1TitleInput.value = "💬 Falar no WhatsApp (Suporte)";
                 if (btn1UrlInput && !btn1UrlInput.value) btn1UrlInput.value = "https://wa.me/5511999999999";
