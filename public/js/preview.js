@@ -953,11 +953,38 @@ function updatePreviewFromForm() {
                         const btnEl = document.createElement('a');
                         btnEl.href = btn.url || '#';
                         btnEl.target = '_blank';
-                        btnEl.style.cssText = `width: 100%; height: 46px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s;`;
+                        btnEl.style.cssText = `
+                            width: 100%; 
+                            height: 46px; 
+                            background: rgba(255,255,255,0.03); 
+                            border: 1.5px solid var(--theme-color-1, #6366f1)25; 
+                            border-radius: 12px; 
+                            color: #fff; 
+                            text-decoration: none; 
+                            font-weight: 600; 
+                            font-size: 0.85rem; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            transition: all 0.25s ease;
+                            box-shadow: 0 0 10px var(--theme-color-1, #6366f1)05;
+                            backdrop-filter: blur(8px);
+                            -webkit-backdrop-filter: blur(8px);
+                        `;
                         btnEl.textContent = btn.title;
                         
-                        btnEl.addEventListener('mouseenter', () => btnEl.style.background = 'rgba(255,255,255,0.12)');
-                        btnEl.addEventListener('mouseleave', () => btnEl.style.background = 'rgba(255,255,255,0.06)');
+                        btnEl.addEventListener('mouseenter', () => {
+                            btnEl.style.background = 'var(--theme-color-1, #6366f1)15';
+                            btnEl.style.borderColor = 'var(--theme-color-1, #6366f1)88';
+                            btnEl.style.boxShadow = '0 0 14px var(--theme-color-1, #6366f1)33';
+                            btnEl.style.transform = 'translateY(-1px)';
+                        });
+                        btnEl.addEventListener('mouseleave', () => {
+                            btnEl.style.background = 'rgba(255,255,255,0.03)';
+                            btnEl.style.borderColor = 'var(--theme-color-1, #6366f1)25';
+                            btnEl.style.boxShadow = '0 0 10px var(--theme-color-1, #6366f1)05';
+                            btnEl.style.transform = 'translateY(0)';
+                        });
                         btnEl.addEventListener('click', () => {
                             btnEl.style.transform = 'scale(0.97)';
                             setTimeout(() => btnEl.style.transform = 'none', 150);
@@ -1443,14 +1470,40 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 }
 
             } else if (activeModel === 'ebook') {
-                previewScreen.style.background = 'radial-gradient(circle at 50% 10%, #1e1b4b 0%, #090514 80%)';
+                previewScreen.style.background = '#06040a';
                 
                 previewScreen.innerHTML = `
-                    <div class="eb-live-page" style="width: 100%; min-height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                         
+                        <!-- Estilos e Animações locais para o E-book -->
+                        <style>
+                            @keyframes ebFloat {
+                                0% { transform: translateY(0px); }
+                                50% { transform: translateY(-8px); }
+                                100% { transform: translateY(0px); }
+                            }
+                            .eb-floating-card {
+                                animation: ebFloat 4s ease-in-out infinite;
+                            }
+                            .eb-glow-bg {
+                                position: absolute;
+                                width: 220px;
+                                height: 220px;
+                                border-radius: 50%;
+                                filter: blur(55px);
+                                opacity: 0.35;
+                                pointer-events: none;
+                                z-index: 0;
+                            }
+                        </style>
+
+                        <!-- Luzes de Fundo Suaves (Acompanham a cor do site) -->
+                        <div class="eb-glow-bg" style="top: -30px; left: -30px; background: radial-gradient(circle, var(--theme-color-1, #6366f1) 0%, transparent 70%);"></div>
+                        <div class="eb-glow-bg" style="bottom: -30px; right: -30px; background: radial-gradient(circle, var(--theme-color-2, #a8ff78) 0%, transparent 70%);"></div>
+
                         <!-- Header com Avatar Pequeno, Nome e @ -->
-                        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; width: 100%;">
-                            <div id="eb-view-avatar-wrapper" style="width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--theme-color-1, #6366f1); margin-bottom: 8px; display: none; box-shadow: 0 0 16px rgba(99,102,241,0.3);">
+                        <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 18px; width: 100%;">
+                            <div id="eb-view-avatar-wrapper" style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--theme-color-1, #6366f1); margin-bottom: 8px; display: none; box-shadow: 0 0 16px var(--theme-color-1, #6366f1)66;">
                                 <div id="eb-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
                             </div>
                             <h1 id="eb-view-name" style="font-size: 1.15rem; font-weight: 700; margin: 0 0 2px 0; color: #fff;"></h1>
@@ -1458,31 +1511,31 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             <p id="eb-view-bio" style="font-size: 0.78rem; color: #94a3b8; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 90%;"></p>
                         </div>
 
-                        <!-- Card de Destaque do E-book (Flutuante 3D Glassmorphism) -->
-                        <div id="eb-view-card" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-bottom: 20px;">
-                            <div style="display: flex; gap: 14px; align-items: flex-start;">
-                                <!-- Imagem com perspectiva 3D (Capa de Livro) -->
-                                <div style="width: 85px; height: 115px; flex-shrink: 0; perspective: 1000px;">
-                                    <img id="eb-view-cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: -5px 5px 12px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); transform: rotateY(-12deg) rotateX(5deg); display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
+                        <!-- Card de Destaque do E-book (Levitação + Borda Neon + Glassmorphism Premium) -->
+                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.7); border: 1.5px solid var(--theme-color-1, #6366f1)44; border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 25px var(--theme-color-1, #6366f1)15; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, box-shadow 0.3s;">
+                            <div style="display: flex; gap: 16px; align-items: flex-start;">
+                                <!-- Imagem com perspectiva 3D e sombra de livro real -->
+                                <div style="width: 88px; height: 120px; flex-shrink: 0; perspective: 1000px;">
+                                    <img id="eb-view-cover" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; box-shadow: -6px 6px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.12); transform: rotateY(-14deg) rotateX(4deg); display: block;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'" />
                                 </div>
                                 <!-- Informações do Livro -->
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                                    <h3 id="eb-view-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.3;"></h3>
-                                    <p id="eb-view-desc" style="font-size: 0.74rem; color: #94a3b8; line-height: 1.35; margin: 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                                    <h3 id="eb-view-title" style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.35;"></h3>
+                                    <p id="eb-view-desc" style="font-size: 0.74rem; color: #94a3b8; line-height: 1.4; margin: 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"></p>
                                 </div>
                             </div>
 
-                            <!-- Botão de Compra Destaque Verde -->
-                            <a id="eb-view-buy-btn" href="#" target="_blank" style="width: 100%; height: 42px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; color: #fff; text-decoration: none; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(16,185,129,0.3); transition: transform 0.2s; text-align: center;">
+                            <!-- Botão de Compra Verde Vibrante Gradiente -->
+                            <a id="eb-view-buy-btn" href="#" target="_blank" style="width: 100%; height: 44px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(16,185,129,0.35); text-align: center; border: 1px solid rgba(255,255,255,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                                 Comprar E-book 🛒
                             </a>
                         </div>
 
-                        <!-- Botões Extras Linktree -->
-                        <div id="eb-view-buttons" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+                        <!-- Botões Extras Linktree (Com Brilhos Suaves combinando com o tema) -->
+                        <div id="eb-view-buttons" style="position: relative; z-index: 1; width: 100%; display: flex; flex-direction: column; gap: 11px; margin-bottom: 20px;"></div>
 
                         <!-- Rodapé Criado com PainelBio -->
-                        <div id="eb-view-footer" style="margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div id="eb-view-footer" style="position: relative; z-index: 1; margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                             CRIADO COM <a href="#" style="color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700;">PAINELBIO</a>
                         </div>
 

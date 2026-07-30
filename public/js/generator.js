@@ -898,7 +898,7 @@ export function generateStaticSite(data) {
         
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #090514 80%);
+            background-color: #06040a;
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; align-items: center; justify-content: center;
@@ -908,9 +908,25 @@ export function generateStaticSite(data) {
             width: 100%; min-height: 100%; display: flex; flex-direction: column;
             align-items: center; padding: 28px 16px;
             box-sizing: border-box; position: relative;
+            overflow-x: hidden;
         }
 
+        /* Luzes de Fundo */
+        .eb-glow-bg {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .eb-glow-top { top: -80px; left: -80px; background: radial-gradient(circle, var(--theme-c1) 0%, transparent 70%); }
+        .eb-glow-bottom { bottom: -80px; right: -80px; background: radial-gradient(circle, var(--theme-c2) 0%, transparent 70%); }
+
         .eb-header {
+            position: relative; z-index: 10;
             display: flex; flex-direction: column; align-items: center;
             text-align: center; margin-bottom: 24px; width: 100%; max-width: 420px;
         }
@@ -929,12 +945,32 @@ export function generateStaticSite(data) {
         .eb-arroba { font-size: 0.88rem; color: var(--theme-c1); text-decoration: none; margin-bottom: 8px; text-align: center; display: inline-block; font-weight: 600; }
         .eb-bio { font-size: 0.88rem; color: #94a3b8; text-align: center; line-height: 1.45; margin: 0; width: 90%; word-break: break-word; }
 
+        @keyframes ebFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
         .eb-card {
-            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); position: relative;
-            z-index: 10; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-bottom: 20px;
+            width: 100%; max-width: 420px; background: rgba(13, 10, 24, 0.7);
+            border: 1.5px solid rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.06);
+            border-image: linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(255,255,255,0.01)) 1;
+            border-radius: 24px; padding: 18px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99,102,241,0.08); 
+            position: relative; z-index: 10; box-sizing: border-box; 
+            display: flex; flex-direction: column; gap: 16px;
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); 
+            margin-bottom: 22px;
+            animation: ebFloat 4s ease-in-out infinite;
+        }
+
+        /* Hack de borda arredondada + gradiente */
+        .eb-card::before {
+            content: ""; position: absolute; inset: 0; border-radius: 24px; padding: 1.5px;
+            background: linear-gradient(145deg, var(--theme-c1) 40%, var(--theme-c2) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            pointer-events: none; opacity: 0.28;
         }
 
         .eb-card-header { display: flex; gap: 16px; align-items: flex-start; }
@@ -945,8 +981,8 @@ export function generateStaticSite(data) {
 
         .eb-cover {
             width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
-            box-shadow: -6px 6px 14px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
-            transform: rotateY(-12deg) rotateX(5deg); display: block;
+            box-shadow: -6px 6px 16px rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.12);
+            transform: rotateY(-14deg) rotateX(4deg); display: block;
         }
 
         .eb-info-container { flex: 1; display: flex; flex-direction: column; gap: 6px; }
@@ -957,26 +993,48 @@ export function generateStaticSite(data) {
             width: 100%; height: 48px; background: linear-gradient(135deg, #10b981, #059669);
             border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700;
             font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 16px rgba(16,185,129,0.3); transition: transform 0.2s, background 0.3s;
-            text-align: center; border: none; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.35); transition: transform 0.2s, filter 0.2s;
+            text-align: center; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
         }
 
+        .eb-buy-btn:hover { filter: brightness(1.08); }
         .eb-buy-btn:active { transform: scale(0.97); }
 
-        .eb-buttons-container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .eb-buttons-container { position: relative; z-index: 10; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
         
         .eb-link-btn {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1.5px solid rgba(255, 255, 255, 0.05);
             color: #ffffff; padding: 15px 20px; border-radius: 14px; text-decoration: none;
             font-size: 0.9rem; font-weight: 600; display: flex; align-items: center;
             justify-content: center; width: 100%; box-sizing: border-box;
-            transition: background 0.2s, transform 0.15s;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            position: relative;
         }
 
-        .eb-link-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        /* Borda de gradiente do tema no link */
+        .eb-link-btn::before {
+            content: ""; position: absolute; inset: 0; border-radius: 14px; padding: 1.5px;
+            background: linear-gradient(135deg, var(--theme-c1), var(--theme-c2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            pointer-events: none; opacity: 0.15; transition: opacity 0.25s;
+        }
+
+        .eb-link-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 16px rgba(255,255,255,0.05);
+            transform: translateY(-1px);
+        }
+        .eb-link-btn:hover::before {
+            opacity: 0.55;
+        }
         .eb-link-btn:active { transform: scale(0.98); }
 
-        .footer { margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .footer { position: relative; z-index: 10; margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700; }
     </style>
 </head>
@@ -986,6 +1044,9 @@ export function generateStaticSite(data) {
     ${liveChatHtml}
     <div class="eb-page">
         ${emojiRainHtml}
+        
+        <div class="eb-glow-bg eb-glow-top"></div>
+        <div class="eb-glow-bg eb-glow-bottom"></div>
         
         <div class="eb-header">
             ${avatarHtml}
