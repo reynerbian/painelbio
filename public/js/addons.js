@@ -58,12 +58,25 @@ function updateCartSummary() {
         if (template === 'shop') { basePrice = parseFloat(settings.shopPrice || 19.99); modelName = 'Modelo Shop'; }
     }
     
-    modelNameEl.textContent = modelName;
-    modelPriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
-
-    // Obtém arroba atual para checar add-ons pagos
+    // Obtém arroba atual para checar se o site já existe
     const arrobaInput = document.getElementById('input-arroba');
     const currentArroba = arrobaInput ? arrobaInput.value.trim() : '';
+    
+    // Verifica existência no LocalStorage
+    const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+    const siteExists = leads.some(l => l.arroba && l.arroba.toLowerCase() === currentArroba.toLowerCase());
+
+    if (siteExists) {
+        modelNameEl.innerHTML = `<span style="text-decoration: line-through; color: #6e7681;">${modelName}</span> <span style="color: #34d399; font-weight: 700; font-size: 0.75rem; margin-left: 4px;">✓ Já Pago</span>`;
+        modelPriceEl.textContent = 'Grátis';
+        modelPriceEl.style.color = '#34d399';
+        basePrice = 0; // zera no total
+    } else {
+        modelNameEl.textContent = modelName;
+        modelPriceEl.textContent = `R$ ${basePrice.toFixed(2).replace('.', ',')}`;
+        modelPriceEl.style.color = '';
+    }
+
     const purchased = (typeof getPurchasedAddons === 'function') ? getPurchasedAddons(currentArroba) : [];
 
     let total = basePrice;
