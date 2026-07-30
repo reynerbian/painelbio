@@ -197,7 +197,7 @@ function closeLoadSiteModal() {
         }
 
 function renderLoadSiteList() {
-            const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+            const leads = window.allSitesData || [];
             if (leads.length === 0) {
                 loadSiteList.innerHTML = '<p style="text-align: center; color: #888; font-size: 0.9rem; padding: 20px;">Nenhum site salvo ainda.</p>';
                 return;

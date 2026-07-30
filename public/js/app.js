@@ -22,6 +22,23 @@ const leftIcon = document.querySelector('.left-icon');
 
         const topBar = document.querySelector('.top-bar');
 
+        // Inicializa o Listener de Banco de Dados Unificado (Firebase Firestore / LocalStorage Fallback)
+        if (typeof window.db !== 'undefined' && typeof window.db.subscribeLeads === 'function') {
+            window.db.subscribeLeads((leads) => {
+                const sites = leads.map(lead => ({
+                    ...lead,
+                    previewPath: lead.previewBase64 || null
+                }));
+                window.allSitesData = sites;
+                
+                // Se a galeria estiver ativa/aberta, atualiza na tela em tempo real
+                const galleryOverlay = document.getElementById('gallery-overlay');
+                if (galleryOverlay && galleryOverlay.classList.contains('active')) {
+                    window.renderGallery(window.allSitesData);
+                }
+            });
+        }
+
         if (navEditor && navGallery && galleryOverlay) {
             navEditor.addEventListener('click', () => {
                 navEditor.classList.add('active');
@@ -40,21 +57,9 @@ const leftIcon = document.querySelector('.left-icon');
                 galleryContent.innerHTML = '<div style="display: flex; justify-content: center; width: 100%;"><div class="loader" style="width: 30px; height: 30px; border: 2px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite;"></div></div>';
                 
                 try {
-                    // SERVERLESS: Read from LocalStorage instead of /api/gallery
-                    let savedLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-                    
-                    // Emulate the expected API format: { sites: [ { arroba: "@foo", name: "Foo", previewBase64: "...", ... } ] }
-                    // Actually, the previous backend returned { sites: [ { arroba: "...", name: "...", previewPath: "..." } ] }
-                    // Since we save the whole object in LocalStorage, we can just use it directly!
-                    const sites = savedLeads.map(lead => {
-                        return {
-                            ...lead,
-                            previewPath: lead.previewBase64 || null // Use the base64 preview directly
-                        };
-                    });
-                    
-                    window.allSitesData = sites;
-                    window.renderGallery(window.allSitesData);
+                    // SERVERLESS: Carrega diretamente da memoria reativa sincronizada pelo db.js
+                    const sites = window.allSitesData || [];
+                    window.renderGallery(sites);
                 } catch (err) {
                     galleryContent.innerHTML = '<p style="text-align: center; color: #ff6b6b; width: 100%;">Erro ao carregar galeria.</p>';
                 }
@@ -238,8 +243,7 @@ const leftIcon = document.querySelector('.left-icon');
 
         // Função global para fazer upload do site com modal de progresso
         window.startUploadSite = async function(arroba) {
-            let savedLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-            const site = savedLeads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+            const site = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
             
             if (!site) {
                 showCustomAlert('Dados do site não encontrados!', 'error');
@@ -352,13 +356,11 @@ const leftIcon = document.querySelector('.left-icon');
                         scraperBadge.className = 'notification-badge success';
                     }
 
-                    // Atualiza status do site no LocalStorage
+                    // Atualiza status do site no Banco de Dados
                     site.status = 'published';
                     site.publishedAt = new Date().toISOString();
                     
-                    const updatedLeads = savedLeads.map(l => l.arroba.toLowerCase() === arroba.toLowerCase() ? site : l);
-                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(updatedLeads));
-                    window.allSitesData = updatedLeads;
+                    await window.db.saveLead(site);
 
                     const cleanSlug = site.arroba.replace('@', '').toLowerCase();
                     const fullUrl = `${window.location.origin}/${cleanSlug}`;
@@ -446,11 +448,8 @@ const leftIcon = document.querySelector('.left-icon');
                         console.warn('Não foi possível conectar ao Cloudflare para deletar remoto:', netErr);
                     }
 
-                    // Remove do LocalStorage local
-                    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-                    leads = leads.filter(l => l.arroba.toLowerCase() !== arroba.toLowerCase());
-                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
-                    window.allSitesData = leads;
+                    // Remove do Banco de Dados
+                    await window.db.deleteLead(arroba);
 
                     showCustomAlert(`Site ${arroba} deletado com sucesso!`, 'success');
                     
@@ -464,8 +463,7 @@ const leftIcon = document.querySelector('.left-icon');
 
         // Função global para abrir a Prévia Real do Site (Modal em tela cheia com o HTML final, sem abrir o editor)
         window.previewSiteOffline = function(arroba) {
-            let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-            const siteData = leads.find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+            const siteData = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
             
             if (!siteData) {
                 showCustomAlert('Site não encontrado na memória.', 'error');
@@ -620,8 +618,7 @@ const leftIcon = document.querySelector('.left-icon');
         // MODAL (i) - FICHA COMPLETA DO CLIENTE, RELATÓRIO MENSAL E CRM DE PAGAMENTO
         // =========================================================================
         window.openSiteInfoModal = async function(arroba) {
-            let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-            const site = leads.find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+            const site = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
 
             if (!site) {
                 showCustomAlert('Dados do site não encontrados!', 'error');
@@ -866,15 +863,12 @@ const leftIcon = document.querySelector('.left-icon');
             refreshWhatsappLink();
 
             // Salva nome e telefone no LocalStorage ao digitar
-            const saveContactInfo = () => {
-                let allLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-                const itemIdx = allLeads.findIndex(l => l.arroba.toLowerCase() === site.arroba.toLowerCase());
-                if (itemIdx !== -1) {
-                    allLeads[itemIdx].ownerName = ownerNameInput ? ownerNameInput.value.trim() : '';
-                    allLeads[itemIdx].ownerPhone = ownerPhoneInput ? ownerPhoneInput.value.replace(/[^0-9]/g, '') : '';
-                    localStorage.setItem('painelbio-insta-leads', JSON.stringify(allLeads));
-                    window.allSitesData = allLeads;
-
+            const saveContactInfo = async () => {
+                const siteData = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === site.arroba.toLowerCase());
+                if (siteData) {
+                    siteData.ownerName = ownerNameInput ? ownerNameInput.value.trim() : '';
+                    siteData.ownerPhone = ownerPhoneInput ? ownerPhoneInput.value.replace(/[^0-9]/g, '') : '';
+                    await window.db.saveLead(siteData);
                     refreshWhatsappLink();
 
                     const badge = document.getElementById('info-contact-saved-badge');
@@ -1884,8 +1878,7 @@ loadClassicModel();
                         updatedData.createdAt = new Date().toISOString();
 
                     // SERVERLESS: Salva tudo no LocalStorage
-                        let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-                        const existingLead = leads.find(l => l.arroba.toLowerCase() === cleanArroba.toLowerCase());
+                        const existingLead = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === cleanArroba.toLowerCase());
 
                         // Preserva e atualiza o status de publicação e pagamento
                         if (existingLead) {
@@ -1929,13 +1922,8 @@ loadClassicModel();
                             updatedData.purchasedAddons = [];
                         }
                         
-                        // Remove se já existe para atualizar
-                        leads = leads.filter(l => l.arroba.toLowerCase() !== cleanArroba.toLowerCase());
-                        
-                        // Add at the beginning
-                        leads.unshift(updatedData);
-                        
-                        localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+                        // Salva no Banco de Dados
+                        await window.db.saveLead(updatedData);
 
                         window.recentlySavedArroba = cleanArroba;
 
@@ -2364,8 +2352,7 @@ document.addEventListener('click', (e) => {
 // mode: 'full' (padrão), 'renewal' (só modelo), 'addon' (só add-ons novos)
 window.openPixCheckoutModal = function(arroba, mode) {
     mode = mode || 'full';
-    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-    const siteData = leads.find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+    const siteData = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
 
     if (!siteData) {
         showCustomAlert('Site não encontrado.', 'error');
@@ -2568,22 +2555,18 @@ window.copyPixCode = function(btnEl) {
     }
 };
 
-window.applyPixCoupon = function(arroba) {
-    const input = document.getElementById('input-pix-coupon');
-    if (!input) return;
-
-    const code = input.value.trim().toUpperCase();
-    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-    const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+window.applyPixCoupon = async function(arroba) {
+    const code = document.getElementById('input-pix-coupon')?.value.trim().toUpperCase() || '';
+    const site = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
     
-    if (idx === -1) return;
+    if (!site) return;
 
     const coupons = (typeof getCoupons === 'function') ? getCoupons() : [];
     const found = coupons.find(c => c.code.toUpperCase() === code);
 
     if (!code) {
-        leads[idx].discountCode = '';
-        localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+        site.discountCode = '';
+        await window.db.saveLead(site);
         showCustomAlert('Cupom removido.', 'info');
         window.openPixCheckoutModal(arroba);
         return;
@@ -2594,28 +2577,26 @@ window.applyPixCoupon = function(arroba) {
         return;
     }
 
-    leads[idx].discountCode = code;
-    localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+    site.discountCode = code;
+    await window.db.saveLead(site);
     showCustomAlert(`Cupom ${code} aplicado com sucesso!`, 'success');
     window.openPixCheckoutModal(arroba);
 };
 
-window.confirmPixPayment = function(arroba, mode) {
+window.confirmPixPayment = async function(arroba, mode) {
     // mode: 'full' (pagamento inicial), 'renewal' (renovação), 'addon' (add-ons avulsos)
-    let leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-    const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+    const site = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
 
-    if (idx === -1) return;
+    if (!site) return;
 
-    const site = leads[idx];
     const now = new Date();
     const renewalDate = new Date(now);
     renewalDate.setDate(renewalDate.getDate() + 30);
 
-    leads[idx].paymentStatus = 'paid';
-    leads[idx].lastPaidAt    = now.toISOString();
-    leads[idx].renewalDueDate = renewalDate.toISOString();
-    leads[idx].modificationPendingAmount = 0; // zera taxas de modificação após o pagamento
+    site.paymentStatus = 'paid';
+    site.lastPaidAt    = now.toISOString();
+    site.renewalDueDate = renewalDate.toISOString();
+    site.modificationPendingAmount = 0; // zera taxas de modificação após o pagamento
 
     // Salvar add-ons ativos como comprados (para modos 'full', 'addon' e 'modification')
     if (mode !== 'renewal') {
@@ -2628,10 +2609,10 @@ window.confirmPixPayment = function(arroba, mode) {
             site.chatWidgetConfig?.enabled ? 'livechat' : null
         ].filter(Boolean);
         const merged = [...new Set([...currentPurchased, ...activeNow])];
-        leads[idx].purchasedAddons = merged;
+        site.purchasedAddons = merged;
     }
 
-    localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+    await window.db.saveLead(site);
 
     // Fecha modais abertos
     const checkoutModal = document.getElementById('pix-checkout-modal');
@@ -2641,14 +2622,6 @@ window.confirmPixPayment = function(arroba, mode) {
 
     const modeMsg = mode === 'renewal' ? 'Renovação confirmada!' : 'Pagamento confirmado! Publicação liberada.';
     showCustomAlert(`${modeMsg} Site: ${arroba}`, 'success');
-
-    // Atualiza galeria
-    if (typeof window.renderGallery === 'function') {
-        let savedLeads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-        const sites = savedLeads.map(lead => ({ ...lead, previewPath: lead.previewBase64 || null }));
-        window.allSitesData = sites;
-        window.renderGallery(window.allSitesData);
-    }
 
     // Reabre o modal 'i' atualizado automaticamente
     setTimeout(() => {

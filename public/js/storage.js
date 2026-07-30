@@ -33,7 +33,7 @@ function saveProfileCache(arroba, data) {
 }
 
 function getLeads() {
-    return JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+    return window.allSitesData || JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
 }
 
 function getSearchHistory() {
@@ -142,7 +142,7 @@ const ADDON_DEFINITIONS = [
 function getPurchasedAddons(arroba) {
     if (!arroba) return [];
     try {
-        const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
+        const leads = window.allSitesData || JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
         const lead = leads.find(l => l.arroba && l.arroba.toLowerCase() === arroba.toLowerCase());
         return Array.isArray(lead?.purchasedAddons) ? lead.purchasedAddons : [];
     } catch (e) {
@@ -154,17 +154,16 @@ function getPurchasedAddons(arroba) {
  * Salva/atualiza o array de slugs de add-ons comprados para um @ específico.
  * Faz merge com os já existentes (nunca remove).
  */
-function savePurchasedAddons(arroba, newAddons) {
+async function savePurchasedAddons(arroba, newAddons) {
     if (!arroba) return;
     try {
-        const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-        const idx = leads.findIndex(l => l.arroba && l.arroba.toLowerCase() === arroba.toLowerCase());
-        if (idx === -1) return;
-        const existing = Array.isArray(leads[idx].purchasedAddons) ? leads[idx].purchasedAddons : [];
+        const lead = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === arroba.toLowerCase());
+        if (!lead) return;
+        const existing = Array.isArray(lead.purchasedAddons) ? lead.purchasedAddons : [];
         // Merge sem duplicatas
         const merged = [...new Set([...existing, ...newAddons])];
-        leads[idx].purchasedAddons = merged;
-        localStorage.setItem('painelbio-insta-leads', JSON.stringify(leads));
+        lead.purchasedAddons = merged;
+        await window.db.saveLead(lead);
     } catch (e) {
         console.error('[Storage] Erro ao salvar purchasedAddons:', e);
     }
