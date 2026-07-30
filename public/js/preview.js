@@ -1592,7 +1592,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = '#0e0b16';
                 
                 previewScreen.innerHTML = `
-                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: max(32px, env(safe-area-inset-top, 24px)) 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85)); background-size: 16px 16px, 100% 100%;">
+                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: max(32px, env(safe-area-inset-top, 24px)) 14px 80px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #fff; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85)); background-size: 16px 16px, 100% 100%;">
                         
                         <!-- Estilos e Animações locais para o E-book -->
                         <style>
