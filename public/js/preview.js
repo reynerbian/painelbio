@@ -1588,11 +1588,11 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     populateFakeDataForModel(activeModel);
                 }
 
-                // Habilita taxa de serviço se for um site existente
+                // Habilita taxa de serviço se for um site existente e pago anteriormente
                 const feeRow = document.getElementById('cart-service-fee-row');
                 if (feeRow) {
                     const leads = (typeof getLeads === 'function') ? getLeads() : (JSON.parse(localStorage.getItem('painelbio-insta-leads')) || []);
-                    const exists = leads.some(l => l.arroba && l.arroba.toLowerCase() === (backup.arroba || '').toLowerCase());
+                    const exists = leads.some(l => l.arroba && l.arroba.toLowerCase() === (backup.arroba || '').toLowerCase() && l.lastPaidAt);
                     feeRow.style.display = exists ? 'flex' : 'none';
                     // Restaura valor da taxa se houver
                     const feeInput = document.getElementById('cart-service-fee');

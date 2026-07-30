@@ -1815,8 +1815,8 @@ loadClassicModel();
                             updatedData.renewalDueDate = existingLead.renewalDueDate;
                             updatedData.purchasedAddons = Array.isArray(existingLead.purchasedAddons) ? existingLead.purchasedAddons : [];
 
-                            const isAlreadyPaidOrActive = existingLead.paymentStatus === 'paid' || existingLead.status === 'published' || existingLead.status === 'modified';
-                            if (isAlreadyPaidOrActive) {
+                            const wasEverPaid = existingLead.lastPaidAt ? true : false;
+                            if (wasEverPaid) {
                                 // Se já foi publicado, mantém status modificado. Se foi apenas pago mas não publicado, mantém not_published
                                 const wasPublished = existingLead.status === 'published' || existingLead.status === 'modified';
                                 updatedData.status = wasPublished ? 'modified' : 'not_published';
@@ -1833,13 +1833,13 @@ loadClassicModel();
                                     updatedData.paymentStatus = 'pending';
                                     updatedData.modificationPendingAmount = totalPending;
                                 } else {
-                                    updatedData.paymentStatus = existingLead.paymentStatus || 'paid';
+                                    updatedData.paymentStatus = 'paid';
                                     updatedData.modificationPendingAmount = 0;
                                 }
                             } else {
-                                // Nunca foi publicado/ativado -> segue fluxo inicial padrão
+                                // Nunca foi pago de verdade -> segue fluxo inicial padrão (exige primeiro pagamento completo)
                                 updatedData.status = 'not_published';
-                                updatedData.paymentStatus = existingLead.paymentStatus || 'pending';
+                                updatedData.paymentStatus = 'pending';
                                 updatedData.modificationPendingAmount = 0;
                             }
                         } else {

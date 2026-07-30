@@ -62,9 +62,9 @@ function updateCartSummary() {
     const arrobaInput = document.getElementById('input-arroba');
     const currentArroba = arrobaInput ? arrobaInput.value.trim() : '';
     
-    // Verifica existência no LocalStorage
+    // Verifica existência e pagamento anterior no LocalStorage
     const leads = JSON.parse(localStorage.getItem('painelbio-insta-leads')) || [];
-    const siteExists = leads.some(l => l.arroba && l.arroba.toLowerCase() === currentArroba.toLowerCase());
+    const siteExists = leads.some(l => l.arroba && l.arroba.toLowerCase() === currentArroba.toLowerCase() && l.lastPaidAt);
 
     if (siteExists) {
         modelNameEl.innerHTML = `<span style="text-decoration: line-through; color: #6e7681;">${modelName}</span> <span style="color: #34d399; font-weight: 700; font-size: 0.75rem; margin-left: 4px;">✓ Já Pago</span>`;
