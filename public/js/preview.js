@@ -1592,7 +1592,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = '#0e0b16';
                 
                 previewScreen.innerHTML = `
-                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: 24px 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85)); background-size: 16px 16px, 100% 100%;">
+                    <div class="eb-live-page" style="position: relative; width: 100%; height: 100%; padding: max(32px, env(safe-area-inset-top, 24px)) 14px 30px 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; color: #fff; overflow-y: auto; overflow-x: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85)); background-size: 16px 16px, 100% 100%;">
                         
                         <!-- Estilos e Animações locais para o E-book -->
                         <style>
@@ -1662,7 +1662,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         </div>
 
                         <!-- Card de Destaque do E-book (Levitação + Borda Neon + Glassmorphism Premium) -->
-                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, opacity 0.25s, transform 0.25s;">
+                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, opacity 0.25s, transform 0.25s; overflow: hidden;">
                             
                             <!-- Badges do Infoproduto -->
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">

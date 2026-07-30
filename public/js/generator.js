@@ -977,20 +977,20 @@ export function generateStaticSite(data) {
         }
         
         html, body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; width: 100%; min-height: 100%;
             background-color: #0e0b16;
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; align-items: center; justify-content: center;
         }
 
         .eb-page {
-            width: 100%; min-height: 100%; display: flex; flex-direction: column;
-            align-items: center; padding: 28px 16px;
+            width: 100%; min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: max(32px, env(safe-area-inset-top, 32px)) 16px 40px 16px;
             box-sizing: border-box; position: relative;
             overflow-x: hidden;
             background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85));
             background-size: 16px 16px, 100% 100%;
+            justify-content: flex-start;
         }
 
         /* Efeito de folhas 3D do livro */
@@ -1066,16 +1066,16 @@ export function generateStaticSite(data) {
         }
 
         .eb-card {
-            width: 100%; max-width: 420px; background: rgba(13, 10, 24, 0.7);
-            border: 1.5px solid rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.06);
-            border-image: linear-gradient(to bottom right, rgba(255,255,255,0.12), rgba(255,255,255,0.01)) 1;
+            width: 100%; max-width: 420px; background: rgba(13, 10, 24, 0.75);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px; padding: 18px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99,102,241,0.08); 
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99,102,241,0.05); 
             position: relative; z-index: 10; box-sizing: border-box; 
             display: flex; flex-direction: column; gap: 16px;
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); 
             margin-bottom: 22px;
             animation: ebFloat 4s ease-in-out infinite;
+            overflow: hidden;
         }
 
         /* Hack de borda arredondada + gradiente */
@@ -1085,6 +1085,7 @@ export function generateStaticSite(data) {
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
             pointer-events: none; opacity: 0.28;
+            z-index: 0;
         }
 
         .eb-card-header { display: flex; gap: 16px; align-items: flex-start; }
