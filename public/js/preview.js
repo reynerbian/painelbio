@@ -1606,6 +1606,13 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
             } else {
                 updatePreviewFromForm();
             }
+
+            // Atualiza catálogo de add-ons e resumo do carrinho após injetar os inputs novos
+            if (typeof updateAddonCatalogButtonStates === 'function') {
+                updateAddonCatalogButtonStates();
+            } else if (typeof updateCartSummary === 'function') {
+                updateCartSummary();
+            }
         }
 
 function populateFakeDataForModel(activeModel) {
