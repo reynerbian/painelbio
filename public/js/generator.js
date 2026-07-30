@@ -839,16 +839,68 @@ export function generateStaticSite(data) {
 
     const bioHtml = data.bio ? `<p class="eb-bio">${data.bio}</p>` : '';
     
-    // Card do Ebook
-    const ebCover = data.ebookCover || '';
-    const ebTitle = data.ebookTitle || 'E-book';
-    const ebDesc = data.ebookDesc || '';
-    const ebBtnText = data.ebookBtnText || 'Comprar E-book 🛒';
-    const ebBuyUrl = data.ebookBuyUrl || '#';
+    // Coleta os e-books cadastrados
+    const ebooks = [];
+    if (data.ebookCover || data.ebookTitle) {
+      ebooks.push({
+        cover: data.ebookCover,
+        title: data.ebookTitle || 'E-book',
+        desc: data.ebookDesc || '',
+        btnText: data.ebookBtnText || 'Comprar E-book 🛒',
+        buyUrl: data.ebookBuyUrl || '#'
+      });
+    }
+    if (data.ebook2Cover || data.ebook2Title) {
+      ebooks.push({
+        cover: data.ebook2Cover,
+        title: data.ebook2Title || 'E-book 2',
+        desc: data.ebook2Desc || '',
+        btnText: data.ebook2BtnText || 'Garantir E-book 🛒',
+        buyUrl: data.ebook2BuyUrl || '#'
+      });
+    }
+    if (data.ebook3Cover || data.ebook3Title) {
+      ebooks.push({
+        cover: data.ebook3Cover,
+        title: data.ebook3Title || 'E-book 3',
+        desc: data.ebook3Desc || '',
+        btnText: data.ebook3BtnText || 'Acessar Guia 🛒',
+        buyUrl: data.ebook3BuyUrl || '#'
+      });
+    }
 
-    const hasEbookData = Boolean(ebCover || ebTitle);
-    const ebookCardHtml = hasEbookData ? `
-            <div class="eb-card">
+    let ebookCardHtml = '';
+    let storiesNavHtml = '';
+
+    if (ebooks.length > 0) {
+      // Se tiver mais de 1 e-book, gera as bolinhas dos Stories
+      if (ebooks.length > 1) {
+        let bubbles = '';
+        ebooks.forEach((eb, idx) => {
+          bubbles += `
+            <div class="eb-story-bubble ${idx === 0 ? 'active' : ''}" onclick="selectEbookSlide(${idx})" style="
+                width: 52px; height: 52px; border-radius: 50%; padding: 2px;
+                background: ${idx === 0 ? 'linear-gradient(135deg, var(--theme-c1), var(--theme-c2))' : 'rgba(255,255,255,0.1)'};
+                border: 1.5px solid ${idx === 0 ? 'transparent' : 'rgba(255,255,255,0.08)'};
+                cursor: pointer; transition: all 0.3s ease;
+                box-shadow: ${idx === 0 ? '0 0 12px var(--theme-c1)' : 'none'};
+            ">
+                <div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #111;">
+                    <img src="${eb.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100'}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+            </div>`;
+        });
+        
+        storiesNavHtml = `
+          <div id="eb-stories-nav" style="display: flex; justify-content: center; gap: 14px; margin-bottom: 16px; width: 100%; position: relative; z-index: 10;">
+             ${bubbles}
+          </div>`;
+      }
+
+      // Card inicial com o primeiro e-book
+      const firstEb = ebooks[0];
+      ebookCardHtml = `
+            <div id="eb-card" class="eb-card">
                 <!-- Badges do Infoproduto -->
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box;">
                     <span style="background: rgba(255,255,255,0.06); color: var(--theme-c1); font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--theme-c1); text-transform: uppercase; letter-spacing: 0.5px;">🔥 Lançamento</span>
@@ -862,11 +914,11 @@ export function generateStaticSite(data) {
                     <div class="book-3d-wrapper">
                         <div class="book-page-back"></div>
                         <div class="book-page-mid"></div>
-                        <img src="${ebCover}" class="eb-cover" alt="${ebTitle}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
+                        <img id="eb-cover-img" src="${firstEb.cover}" class="eb-cover" alt="${firstEb.title}" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400'">
                     </div>
                     <div class="eb-info-container">
-                        <h3 class="eb-title">${ebTitle}</h3>
-                        <p class="eb-desc">${ebDesc}</p>
+                        <h3 id="eb-title-txt" class="eb-title">${firstEb.title}</h3>
+                        <p id="eb-desc-txt" class="eb-desc">${firstEb.desc}</p>
                         
                         <!-- Pequena Lista de Benefícios (Checklist) -->
                         <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
@@ -885,10 +937,11 @@ export function generateStaticSite(data) {
                     </div>
                 </div>
 
-                <a href="${ebBuyUrl}" target="_blank" rel="noopener" class="eb-buy-btn" onclick="trackAction('click')">
-                    ${ebBtnText}
+                <a id="eb-buy-link" href="${firstEb.buyUrl}" target="_blank" rel="noopener" class="eb-buy-btn" onclick="trackAction('click')">
+                    ${firstEb.btnText}
                 </a>
-            </div>` : '';
+            </div>`;
+    }
 
     // Links adicionais
     const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="eb-link-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
@@ -1113,6 +1166,7 @@ export function generateStaticSite(data) {
             ${bioHtml}
         </div>
 
+        ${storiesNavHtml}
         ${ebookCardHtml}
 
         <div class="eb-buttons-container">
@@ -1124,6 +1178,77 @@ export function generateStaticSite(data) {
             CRIADO COM <a href="/" onclick="trackAction('referral')">PAINELBIO</a>
         </div>
     </div>
+
+    <!-- Script de Navegação dos E-books (Slideshow Stories) -->
+    <script>
+        (function() {
+            var ebooks = ${JSON.stringify(ebooks)};
+            if (ebooks.length <= 1) return;
+
+            var currentIdx = 0;
+            var intervalId = null;
+            var card = document.getElementById('eb-card');
+            var coverImg = document.getElementById('eb-cover-img');
+            var titleTxt = document.getElementById('eb-title-txt');
+            var descTxt = document.getElementById('eb-desc-txt');
+            var buyLink = document.getElementById('eb-buy-link');
+            var bubbles = document.querySelectorAll('.eb-story-bubble');
+
+            window.selectEbookSlide = function(index) {
+                currentIdx = index;
+                var activeEb = ebooks[index];
+                if (!activeEb || !card) return;
+
+                // Efeito fade-out rápido
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px) scale(0.98)';
+
+                setTimeout(function() {
+                    if (coverImg) coverImg.src = activeEb.cover;
+                    if (titleTxt) titleTxt.textContent = activeEb.title;
+                    if (descTxt) descTxt.textContent = activeEb.desc;
+                    if (buyLink) {
+                        buyLink.href = activeEb.buyUrl;
+                        buyLink.textContent = activeEb.btnText;
+                    }
+
+                    // Acende o Story Bubble correto
+                    bubbles.forEach(function(b, idx) {
+                        if (idx === index) {
+                            b.style.background = 'linear-gradient(135deg, var(--theme-c1), var(--theme-c2))';
+                            b.style.borderColor = 'transparent';
+                            b.style.boxShadow = '0 0 12px var(--theme-c1)';
+                        } else {
+                            b.style.background = 'rgba(255,255,255,0.1)';
+                            b.style.borderColor = 'rgba(255,255,255,0.08)';
+                            b.style.boxShadow = 'none';
+                        }
+                    });
+
+                    // Fade-in de volta
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0) scale(1)';
+                }, 220);
+
+                resetInterval();
+            };
+
+            function resetInterval() {
+                if (intervalId) clearInterval(intervalId);
+                intervalId = setInterval(function() {
+                    var next = (currentIdx + 1) % ebooks.length;
+                    selectEbookSlide(next);
+                }, 5000);
+            }
+
+            // Inicializa as transições de CSS no card
+            if (card) {
+                card.style.transition = 'border-color 0.3s, opacity 0.25s, transform 0.25s';
+            }
+
+            resetInterval();
+        })();
+    </script>
 </body>
 </html>`;
   }

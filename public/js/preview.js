@@ -897,11 +897,35 @@ function updatePreviewFromForm() {
                 const arroba = document.getElementById('input-arroba')?.value.trim() || '';
                 const bio = document.getElementById('input-bio')?.value.trim() || '';
 
-                const ebCover = document.getElementById('input-ebook-cover')?.value.trim() || '';
-                const ebTitle = document.getElementById('input-ebook-title')?.value.trim() || '';
-                const ebDesc = document.getElementById('input-ebook-desc')?.value.trim() || '';
-                const ebBtnText = document.getElementById('input-ebook-btn-text')?.value.trim() || 'Comprar E-book 🛒';
-                const ebBuyUrl = document.getElementById('input-ebook-buy-url')?.value.trim() || '#';
+                // Coleta dados dos 3 E-books
+                const ebooks = [];
+                
+                const eb1Cover = document.getElementById('input-ebook-cover')?.value.trim() || '';
+                const eb1Title = document.getElementById('input-ebook-title')?.value.trim() || '';
+                const eb1Desc = document.getElementById('input-ebook-desc')?.value.trim() || '';
+                const eb1BtnText = document.getElementById('input-ebook-btn-text')?.value.trim() || 'Comprar E-book 🛒';
+                const eb1BuyUrl = document.getElementById('input-ebook-buy-url')?.value.trim() || '#';
+                if (eb1Cover || eb1Title) {
+                    ebooks.push({ cover: eb1Cover, title: eb1Title, desc: eb1Desc, btnText: eb1BtnText, buyUrl: eb1BuyUrl });
+                }
+
+                const eb2Cover = document.getElementById('input-ebook2-cover')?.value.trim() || '';
+                const eb2Title = document.getElementById('input-ebook2-title')?.value.trim() || '';
+                const eb2Desc = document.getElementById('input-ebook2-desc')?.value.trim() || '';
+                const eb2BtnText = document.getElementById('input-ebook2-btn-text')?.value.trim() || 'Garantir E-book 🛒';
+                const eb2BuyUrl = document.getElementById('input-ebook2-buy-url')?.value.trim() || '#';
+                if (eb2Cover || eb2Title) {
+                    ebooks.push({ cover: eb2Cover, title: eb2Title, desc: eb2Desc, btnText: eb2BtnText, buyUrl: eb2BuyUrl });
+                }
+
+                const eb3Cover = document.getElementById('input-ebook3-cover')?.value.trim() || '';
+                const eb3Title = document.getElementById('input-ebook3-title')?.value.trim() || '';
+                const eb3Desc = document.getElementById('input-ebook3-desc')?.value.trim() || '';
+                const eb3BtnText = document.getElementById('input-ebook3-btn-text')?.value.trim() || 'Acessar Guia 🛒';
+                const eb3BuyUrl = document.getElementById('input-ebook3-buy-url')?.value.trim() || '#';
+                if (eb3Cover || eb3Title) {
+                    ebooks.push({ cover: eb3Cover, title: eb3Title, desc: eb3Desc, btnText: eb3BtnText, buyUrl: eb3BuyUrl });
+                }
 
                 const btn1Title = document.getElementById('input-btn1-title')?.value.trim() || '';
                 const btn1Url = document.getElementById('input-btn1-url')?.value.trim() || '';
@@ -924,20 +948,115 @@ function updatePreviewFromForm() {
                 }
                 if (viewBio) viewBio.textContent = bio;
 
-                // E-book Card
-                if (card) {
-                    if (ebCover || ebTitle) {
-                        card.style.display = 'flex';
-                        if (cover) cover.src = ebCover || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%23222"/>';
-                        if (title) title.textContent = ebTitle || 'Título do E-book';
-                        if (desc) desc.textContent = ebDesc || 'Descrição do E-book...';
-                        if (buyBtn) {
-                            buyBtn.textContent = ebBtnText;
-                            buyBtn.href = ebBuyUrl;
-                        }
-                    } else {
-                        card.style.display = 'none';
+                // Gerencia o Slideshow dos E-books
+                if (ebooks.length > 0) {
+                    if (card) card.style.display = 'flex';
+                    
+                    // Injeta a Barra de Stories
+                    let storiesNav = document.getElementById('eb-view-stories-nav');
+                    if (!storiesNav) {
+                        storiesNav = document.createElement('div');
+                        storiesNav.id = 'eb-view-stories-nav';
+                        storiesNav.style.cssText = 'position: relative; z-index: 10; display: flex; justify-content: center; gap: 14px; margin-bottom: 16px; width: 100%;';
+                        card.parentNode.insertBefore(storiesNav, card);
                     }
+
+                    // Renderiza as miniaturas (Stories)
+                    storiesNav.innerHTML = '';
+                    if (ebooks.length > 1) {
+                        storiesNav.style.display = 'flex';
+                        ebooks.forEach((eb, idx) => {
+                            const bubble = document.createElement('div');
+                            bubble.className = `eb-story-bubble ${idx === 0 ? 'active' : ''}`;
+                            bubble.style.cssText = `
+                                width: 52px; height: 52px; border-radius: 50%; padding: 2px;
+                                background: ${idx === 0 ? 'linear-gradient(135deg, var(--theme-color-1, #6366f1), var(--theme-color-2, #a8ff78))' : 'rgba(255,255,255,0.1)'};
+                                border: 1.5px solid ${idx === 0 ? 'transparent' : 'rgba(255,255,255,0.08)'};
+                                cursor: pointer; transition: all 0.3s ease; box-shadow: ${idx === 0 ? '0 0 12px var(--theme-color-1, #6366f1)55' : 'none'};
+                            `;
+                            bubble.innerHTML = `<div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #111;"><img src="${eb.cover || 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'%23222\'/>'}" style="width:100%; height:100%; object-fit:cover;"></div>`;
+                            
+                            // Evento de clique para mudar manualmente
+                            bubble.addEventListener('click', () => {
+                                selectEbookSlide(idx);
+                            });
+                            storiesNav.appendChild(bubble);
+                        });
+                    } else {
+                        storiesNav.style.display = 'none';
+                    }
+
+                    // Função para mudar o slide ativo do e-book
+                    window.currentEbookIdx = 0;
+                    function selectEbookSlide(index) {
+                        window.currentEbookIdx = index;
+                        const activeEb = ebooks[index];
+                        if (!activeEb) return;
+
+                        // Efeito de transição rápida no card (Fade out)
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(10px) scale(0.98)';
+                        
+                        setTimeout(() => {
+                            if (cover) cover.src = activeEb.cover || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23222"/>';
+                            if (title) title.textContent = activeEb.title || 'E-book';
+                            if (desc) desc.textContent = activeEb.desc || 'Descrição...';
+                            if (buyBtn) {
+                                buyBtn.textContent = activeEb.btnText;
+                                buyBtn.href = activeEb.buyUrl;
+                            }
+
+                            // Acende o Story Bubble correspondente
+                            const bubbles = document.querySelectorAll('.eb-story-bubble');
+                            bubbles.forEach((b, bIdx) => {
+                                if (bIdx === index) {
+                                    b.style.background = 'linear-gradient(135deg, var(--theme-color-1, #6366f1), var(--theme-color-2, #a8ff78))';
+                                    b.style.borderColor = 'transparent';
+                                    b.style.boxShadow = '0 0 12px var(--theme-color-1, #6366f1)55';
+                                } else {
+                                    b.style.background = 'rgba(255,255,255,0.1)';
+                                    b.style.borderColor = 'rgba(255,255,255,0.08)';
+                                    b.style.boxShadow = 'none';
+                                }
+                            });
+
+                            // Fade in de volta
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0) scale(1)';
+                        }, 220);
+
+                        // Resetar interval se foi clique manual
+                        resetEbookInterval();
+                    }
+
+                    // Inicia o loop do Stories
+                    if (window.ebookIntervalId) clearInterval(window.ebookIntervalId);
+                    
+                    function resetEbookInterval() {
+                        if (window.ebookIntervalId) clearInterval(window.ebookIntervalId);
+                        if (ebooks.length > 1) {
+                            window.ebookIntervalId = setInterval(() => {
+                                const nextIdx = (window.currentEbookIdx + 1) % ebooks.length;
+                                selectEbookSlide(nextIdx);
+                            }, 5000); // 5 segundos por e-book
+                        }
+                    }
+                    
+                    // Inicializa os dados do primeiro slide
+                    if (cover) cover.src = ebooks[0].cover;
+                    if (title) title.textContent = ebooks[0].title;
+                    if (desc) desc.textContent = ebooks[0].desc;
+                    if (buyBtn) {
+                        buyBtn.textContent = ebooks[0].btnText;
+                        buyBtn.href = ebooks[0].buyUrl;
+                    }
+                    
+                    resetEbookInterval();
+                } else {
+                    if (card) card.style.display = 'none';
+                    const storiesNav = document.getElementById('eb-view-stories-nav');
+                    if (storiesNav) storiesNav.style.display = 'none';
+                    if (window.ebookIntervalId) clearInterval(window.ebookIntervalId);
                 }
 
                 // Renderiza os botões extras
@@ -1543,7 +1662,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         </div>
 
                         <!-- Card de Destaque do E-book (Levitação + Borda Neon + Glassmorphism Premium) -->
-                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s;">
+                        <div id="eb-view-card" class="eb-floating-card" style="position: relative; z-index: 1; width: 100%; background: rgba(13, 10, 24, 0.75); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px; box-sizing: border-box; display: none; flex-direction: column; gap: 14px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); margin-bottom: 22px; transition: border-color 0.3s, opacity 0.25s, transform 0.25s;">
                             
                             <!-- Badges do Infoproduto -->
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
