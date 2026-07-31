@@ -1840,6 +1840,16 @@ loadClassicModel();
                         addonLivechatUrl: document.getElementById('input-addon-lc-url')?.value.trim() || 'https://wa.me/5511999999999',
                         addonLivechatPosition: document.getElementById('select-addon-lc-position')?.value || 'bottom-left',
                         addonLivechatColor: document.getElementById('input-addon-lc-color')?.value || '#22c55e',
+                        addonBgdotsActive: document.getElementById('card-addon-bgdots')?.style.display !== 'none',
+                        addonBgdotsCount: parseInt(document.getElementById('input-addon-bd-count')?.value || '50', 10),
+                        addonBgdotsColor: document.getElementById('input-addon-bd-color')?.value || '#ffffff',
+                        addonBgdotsOpacity: parseFloat(document.getElementById('input-addon-bd-opacity')?.value || '0.3'),
+                        addonBgdotsStyle: document.getElementById('select-addon-bd-style')?.value || 'floating',
+                        addonBgdotsSpeed: document.getElementById('select-addon-bd-speed')?.value || 'normal',
+                        addonBgdotsGlow: document.getElementById('input-addon-bd-glow')?.checked || false,
+                        addonBgdotsTrail: document.getElementById('input-addon-bd-trail')?.checked || false,
+                        addonBgdotsInteractive: document.getElementById('input-addon-bd-interactive')?.checked || false,
+                        addonBgdotsClickExplode: document.getElementById('input-addon-bd-click-explode')?.checked || false,
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
@@ -1847,7 +1857,8 @@ loadClassicModel();
                         rainConfig: { enabled: document.getElementById('card-addon-emojirain')?.style.display !== 'none' },
                         avatarSpinConfig: { enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none' },
                         audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
-                        chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' }
+                        chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
+                        bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');

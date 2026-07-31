@@ -519,6 +519,61 @@ function updatePreviewFromForm() {
                 phoneLiveChat.style.display = 'none';
             }
 
+            // =========================================================================
+            // ADD-ON 6: BOLINHAS NO BACKGROUND (PREVIEW EM TEMPO REAL COM CANVAS)
+            // =========================================================================
+            const cardBgdotsCheck = document.getElementById('card-addon-bgdots');
+            const isBgdotsActive = cardBgdotsCheck && cardBgdotsCheck.style.display !== 'none';
+            let phoneBgdots = document.getElementById('phone-bgdots-canvas');
+
+            if (isBgdotsActive) {
+                const bdCount = parseInt(document.getElementById('input-addon-bd-count')?.value || '50', 10);
+                const bdColor = document.getElementById('input-addon-bd-color')?.value || '#ffffff';
+                const bdOpacity = parseFloat(document.getElementById('input-addon-bd-opacity')?.value || '0.3');
+                const bdStyle = document.getElementById('select-addon-bd-style')?.value || 'floating';
+                const bdSpeed = document.getElementById('select-addon-bd-speed')?.value || 'normal';
+                const bdGlow = document.getElementById('input-addon-bd-glow')?.checked || false;
+                const bdTrail = document.getElementById('input-addon-bd-trail')?.checked || false;
+                const bdInteractive = document.getElementById('input-addon-bd-interactive')?.checked || false;
+                const bdClickExplode = document.getElementById('input-addon-bd-click-explode')?.checked || false;
+
+                if (phoneScreen) {
+                    if (!phoneBgdots) {
+                        phoneBgdots = document.createElement('canvas');
+                        phoneBgdots.id = 'phone-bgdots-canvas';
+                        phoneBgdots.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;';
+                        phoneScreen.prepend(phoneBgdots);
+                    } else {
+                        phoneBgdots.style.display = 'block';
+                    }
+
+                    phoneBgdots.style.pointerEvents = (bdInteractive || bdClickExplode) ? 'auto' : 'none';
+
+                    const currentConfigKey = `${bdCount}_${bdColor}_${bdOpacity}_${bdStyle}_${bdSpeed}_${bdGlow}_${bdTrail}_${bdInteractive}_${bdClickExplode}`;
+                    if (window.phoneBdConfigKey !== currentConfigKey) {
+                        window.phoneBdConfigKey = currentConfigKey;
+                        initParticlesEngine(phoneBgdots, {
+                            count: bdCount,
+                            color: bdColor,
+                            opacity: bdOpacity,
+                            style: bdStyle,
+                            speed: bdSpeed,
+                            glow: bdGlow,
+                            trail: bdTrail,
+                            interactive: bdInteractive,
+                            clickExplode: bdClickExplode
+                        });
+                    }
+                }
+            } else if (phoneBgdots) {
+                phoneBgdots.style.display = 'none';
+                if (window.phoneBdLoopId) {
+                    cancelAnimationFrame(window.phoneBdLoopId);
+                    window.phoneBdLoopId = null;
+                }
+                window.phoneBdConfigKey = null;
+            }
+
 
 
             // =========================================================================
@@ -1895,7 +1950,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-ap-label': backup.addonAudioPlayerLabel || 'Música da Loja',
                     'select-addon-ap-position': backup.addonAudioPlayerPosition || 'bottom-right',
                     'input-addon-ap-color': backup.addonAudioPlayerColor || '#ec4899',
-                    'input-addon-ap-wave-color': backup.addonAudioPlayerWaveColor || '#ffffff'
+                    'input-addon-ap-wave-color': backup.addonAudioPlayerWaveColor || '#ffffff',
+                    'input-addon-bd-count': backup.addonBgdotsCount || 50,
+                    'input-addon-bd-color': backup.addonBgdotsColor || '#ffffff',
+                    'input-addon-bd-opacity': backup.addonBgdotsOpacity || 0.3
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -1943,6 +2001,44 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 if (backup.addonAudioPlayerActive) {
                     const cardAp = document.getElementById('card-addon-audioplayer');
                     if (cardAp) cardAp.style.display = 'block';
+                }
+
+                if (backup.addonBgdotsActive) {
+                    const cardBd = document.getElementById('card-addon-bgdots');
+                    if (cardBd) cardBd.style.display = 'block';
+                }
+
+                const bgdotsGlowEl = document.getElementById('input-addon-bd-glow');
+                if (bgdotsGlowEl && backup.addonBgdotsGlow !== undefined) {
+                    bgdotsGlowEl.checked = Boolean(backup.addonBgdotsGlow);
+                }
+                const bgdotsTrailEl = document.getElementById('input-addon-bd-trail');
+                if (bgdotsTrailEl && backup.addonBgdotsTrail !== undefined) {
+                    bgdotsTrailEl.checked = Boolean(backup.addonBgdotsTrail);
+                }
+                const bgdotsInteractiveEl = document.getElementById('input-addon-bd-interactive');
+                if (bgdotsInteractiveEl && backup.addonBgdotsInteractive !== undefined) {
+                    bgdotsInteractiveEl.checked = Boolean(backup.addonBgdotsInteractive);
+                }
+                const bgdotsClickExplodeEl = document.getElementById('input-addon-bd-click-explode');
+                if (bgdotsClickExplodeEl && backup.addonBgdotsClickExplode !== undefined) {
+                    bgdotsClickExplodeEl.checked = Boolean(backup.addonBgdotsClickExplode);
+                }
+                const bgdotsStyleEl = document.getElementById('select-addon-bd-style');
+                if (bgdotsStyleEl && backup.addonBgdotsStyle) {
+                    bgdotsStyleEl.value = backup.addonBgdotsStyle;
+                }
+                const bgdotsSpeedEl = document.getElementById('select-addon-bd-speed');
+                if (bgdotsSpeedEl && backup.addonBgdotsSpeed) {
+                    bgdotsSpeedEl.value = backup.addonBgdotsSpeed;
+                }
+                const bgdotsCountLabel = document.getElementById('label-addon-bd-count');
+                if (bgdotsCountLabel && backup.addonBgdotsCount !== undefined) {
+                    bgdotsCountLabel.textContent = backup.addonBgdotsCount;
+                }
+                const bgdotsOpacityLabel = document.getElementById('label-addon-bd-opacity');
+                if (bgdotsOpacityLabel && backup.addonBgdotsOpacity !== undefined) {
+                    bgdotsOpacityLabel.textContent = backup.addonBgdotsOpacity;
                 }
 
                 const erSpeedEl = document.getElementById('select-addon-er-speed');
@@ -2165,5 +2261,274 @@ async function loadClassicModel() {
     } catch (e) {
         console.error("Erro ao carregar o modelo Classic:", e);
     }
+}
+
+function initParticlesEngine(canvas, config) {
+    if (window.phoneBdLoopId) {
+        cancelAnimationFrame(window.phoneBdLoopId);
+    }
+    const ctx = canvas.getContext('2d');
+    
+    function resize() {
+        canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 360;
+        canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : 640;
+    }
+    resize();
+    
+    if (window.phoneBdResizeObserver) {
+        window.phoneBdResizeObserver.disconnect();
+    }
+    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
+        window.phoneBdResizeObserver = new ResizeObserver(() => {
+            resize();
+        });
+        window.phoneBdResizeObserver.observe(canvas.parentElement);
+    }
+
+    const particles = [];
+    const count = config.count || 50;
+    const color = config.color || '#ffffff';
+    const opacity = config.opacity || 0.3;
+    const style = config.style || 'floating';
+    const speedSetting = config.speed || 'normal';
+    const glow = config.glow || false;
+    const trail = config.trail || false;
+    const interactive = config.interactive || false;
+    const clickExplode = config.clickExplode || false;
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 255, g: 255, b: 255 };
+    }
+    const rgb = hexToRgb(color);
+
+    let speedMult = 1;
+    if (speedSetting === 'slow') speedMult = 0.4;
+    if (speedSetting === 'fast') speedMult = 2.2;
+
+    class Particle {
+        constructor(x, y, isExplosion = false) {
+            this.x = x !== undefined ? x : Math.random() * canvas.width;
+            this.y = y !== undefined ? y : Math.random() * canvas.height;
+            this.baseSize = (1.5 + Math.random() * 4);
+            this.size = this.baseSize;
+            
+            this.vx = (Math.random() - 0.5) * 1.5 * speedMult;
+            this.vy = (Math.random() - 0.5) * 1.5 * speedMult;
+            
+            if (style === 'rain') {
+                this.vx = (Math.random() - 0.5) * 0.5 * speedMult;
+                this.vy = (1.5 + Math.random() * 2) * speedMult;
+            }
+            
+            if (isExplosion) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = (1 + Math.random() * 4) * speedMult;
+                this.vx = Math.cos(angle) * spd;
+                this.vy = Math.sin(angle) * spd;
+                this.life = 1.0;
+                this.decay = 0.02 + Math.random() * 0.03;
+            }
+
+            this.opacity = (0.2 + Math.random() * 0.8) * opacity;
+            this.pulseDir = Math.random() > 0.5 ? 1 : -1;
+            
+            this.orbitAngle = Math.random() * Math.PI * 2;
+            this.orbitRadius = 50 + Math.random() * 150;
+            this.orbitSpeed = (0.005 + Math.random() * 0.015) * speedMult;
+
+            this.vAngle = Math.random() * Math.PI * 2;
+            this.history = [];
+        }
+
+        update(mouse) {
+            if (this.life !== undefined) {
+                this.life -= this.decay;
+                if (this.life <= 0) return false;
+            }
+
+            if (trail) {
+                this.history.push({ x: this.x, y: this.y });
+                if (this.history.length > 5) this.history.shift();
+            } else {
+                this.history = [];
+            }
+
+            if (interactive && mouse.x !== null) {
+                const dx = this.x - mouse.x;
+                const dy = this.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                    const force = (80 - dist) / 80;
+                    const angle = Math.atan2(dy, dx);
+                    this.x += Math.cos(angle) * force * 5;
+                    this.y += Math.sin(angle) * force * 5;
+                }
+            }
+
+            if (style === 'orbit') {
+                const cx = canvas.width / 2;
+                const cy = canvas.height * 0.35;
+                this.orbitAngle += this.orbitSpeed;
+                this.x = cx + Math.cos(this.orbitAngle) * this.orbitRadius;
+                this.y = cy + Math.sin(this.orbitAngle) * this.orbitRadius;
+            } else if (style === 'vagalume') {
+                this.vAngle += (Math.random() - 0.5) * 0.5;
+                this.x += Math.cos(this.vAngle) * 0.8 * speedMult;
+                this.y += Math.sin(this.vAngle) * 0.8 * speedMult;
+                
+                this.size += this.pulseDir * 0.05;
+                if (this.size > this.baseSize * 1.5 || this.size < this.baseSize * 0.5) {
+                    this.pulseDir *= -1;
+                }
+
+                if (this.x < 0 || this.x > canvas.width) this.vAngle = Math.PI - this.vAngle;
+                if (this.y < 0 || this.y > canvas.height) this.vAngle = -this.vAngle;
+            } else if (style === 'twinkle') {
+                this.opacity += this.pulseDir * 0.02;
+                if (this.opacity > opacity || this.opacity < 0.05) {
+                    this.pulseDir *= -1;
+                }
+                this.x += this.vx * 0.2;
+                this.y += this.vy * 0.2;
+            } else {
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            if (style === 'rain') {
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+            } else if (style !== 'orbit') {
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            return true;
+        }
+
+        draw() {
+            const currentOpacity = this.life !== undefined ? this.opacity * this.life : this.opacity;
+            
+            if (trail && this.history.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(this.history[0].x, this.history[0].y);
+                for (let i = 1; i < this.history.length; i++) {
+                    ctx.lineTo(this.history[i].x, this.history[i].y);
+                }
+                ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${currentOpacity * 0.3})`;
+                ctx.lineWidth = this.size * 0.5;
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${currentOpacity})`;
+            
+            if (glow) {
+                ctx.shadowBlur = this.size * 3;
+                ctx.shadowColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1.0)`;
+            } else {
+                ctx.shadowBlur = 0;
+            }
+            
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+    }
+
+    const mouse = { x: null, y: null };
+    
+    function getMousePos(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        mouse.x = clientX - rect.left;
+        mouse.y = clientY - rect.top;
+    }
+
+    if (interactive || clickExplode) {
+        canvas.addEventListener('mousemove', getMousePos);
+        canvas.addEventListener('touchmove', getMousePos, { passive: true });
+        
+        canvas.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+        canvas.addEventListener('touchend', () => {
+            mouse.x = null;
+            mouse.y = null;
+        }, { passive: true });
+    }
+
+    if (clickExplode) {
+        canvas.addEventListener('click', (evt) => {
+            getMousePos(evt);
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle(mouse.x, mouse.y, true));
+            }
+        });
+        canvas.addEventListener('touchstart', (evt) => {
+            getMousePos(evt);
+            for (let i = 0; i < 12; i++) {
+                particles.push(new Particle(mouse.x, mouse.y, true));
+            }
+        }, { passive: true });
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (style === 'constellation') {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p1 = particles[i];
+                    const p2 = particles[j];
+                    if (p1.life !== undefined && p1.life <= 0) continue;
+                    if (p2.life !== undefined && p2.life <= 0) continue;
+
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 60) {
+                        const lineOpacity = (1 - dist / 60) * opacity * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${lineOpacity})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            const alive = p.update(mouse);
+            if (!alive) {
+                particles.splice(i, 1);
+            } else {
+                p.draw();
+            }
+        }
+
+        window.phoneBdLoopId = requestAnimationFrame(loop);
+    }
+    
+    loop();
 }
 

@@ -11,7 +11,8 @@ function updateAddonCatalogButtonStates() {
                 { btnId: 'btn-enable-emojirain-addon', cardId: 'card-addon-emojirain' },
                 { btnId: 'btn-enable-avatarspin-addon', cardId: 'card-addon-avatarspin' },
                 { btnId: 'btn-enable-audioplayer-addon', cardId: 'card-addon-audioplayer' },
-                { btnId: 'btn-enable-livechat-addon', cardId: 'card-addon-livechat' }
+                { btnId: 'btn-enable-livechat-addon', cardId: 'card-addon-livechat' },
+                { btnId: 'btn-enable-bgdots-addon', cardId: 'card-addon-bgdots' }
             ];
 
             addons.forEach(({ btnId, cardId }) => {
@@ -88,7 +89,8 @@ function updateCartSummary() {
         { slug: 'emojirain',    cardId: 'card-addon-emojirain',   name: 'Chuva de Emoji',      price: parseFloat(settings.emojiPrice || 2.50) },
         { slug: 'avatarspin',   cardId: 'card-addon-avatarspin',  name: 'Rodopio do Avatar',   price: parseFloat(settings.avatarSpinPrice || 2.50) },
         { slug: 'audioplayer',  cardId: 'card-addon-audioplayer', name: 'Player de Áudio',     price: parseFloat(settings.audioPrice || 2.99) },
-        { slug: 'livechat',     cardId: 'card-addon-livechat',     name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) }
+        { slug: 'livechat',     cardId: 'card-addon-livechat',     name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) },
+        { slug: 'bgdots',       cardId: 'card-addon-bgdots',       name: 'Bolinhas no Background', price: parseFloat(settings.bgdotsPrice || 2.50) }
     ];
 
     addonsList.forEach(({ slug, cardId, name, price }) => {
