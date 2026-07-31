@@ -708,6 +708,7 @@ export function generateStaticSite(data) {
   const aurC3 = data.addonAuroraC3 || '#090514';
   const aurSpeed = data.addonAuroraSpeed || 'normal';
   const aurBlur = parseInt(data.addonAuroraBlur || 60, 10);
+  const aurPulsate = Boolean(data.addonAuroraPulsate);
 
   let auroraHtml = '';
   if (hasAurora) {
@@ -788,6 +789,11 @@ export function generateStaticSite(data) {
                   ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
                   ctx.fill();
               });
+
+              if (${aurPulsate}) {
+                  const dynamicBlur = ${aurBlur} + Math.sin(Date.now() / 1500) * 15;
+                  canvas.style.filter = 'blur(' + dynamicBlur + 'px)';
+              }
 
               requestAnimationFrame(loop);
           }

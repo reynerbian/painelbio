@@ -1987,6 +1987,7 @@ loadClassicModel();
                         addonAuroraC3: document.getElementById('input-addon-aurora-c3')?.value || '#090514',
                         addonAuroraSpeed: document.getElementById('select-addon-aurora-speed')?.value || 'normal',
                         addonAuroraBlur: parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10),
+                        addonAuroraPulsate: document.getElementById('input-addon-aurora-pulsate')?.checked || false,
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,

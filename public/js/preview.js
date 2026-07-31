@@ -653,6 +653,7 @@ function updatePreviewFromForm() {
                 const aurC3 = document.getElementById('input-addon-aurora-c3')?.value || '#090514';
                 const aurSpeed = document.getElementById('select-addon-aurora-speed')?.value || 'normal';
                 const aurBlur = parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10);
+                const aurPulsate = document.getElementById('input-addon-aurora-pulsate')?.checked || false;
 
                 if (phoneScreen) {
                     let targetContainer = phoneScreen.querySelector('.s-container') ||
@@ -672,10 +673,12 @@ function updatePreviewFromForm() {
                         targetContainer.prepend(phoneAurora);
                     } else {
                         phoneAurora.style.display = 'block';
-                        phoneAurora.style.filter = `blur(${aurBlur}px)`;
+                        if (!aurPulsate) {
+                            phoneAurora.style.filter = `blur(${aurBlur}px)`;
+                        }
                     }
 
-                    const currentConfigKey = `${aurPalette}_${aurC1}_${aurC2}_${aurC3}_${aurSpeed}_${aurBlur}`;
+                    const currentConfigKey = `${aurPalette}_${aurC1}_${aurC2}_${aurC3}_${aurSpeed}_${aurBlur}_${aurPulsate}`;
                     if (window.phoneAurConfigKey !== currentConfigKey) {
                         window.phoneAurConfigKey = currentConfigKey;
                         initAuroraEngine(phoneAurora, {
@@ -684,7 +687,8 @@ function updatePreviewFromForm() {
                             c2: aurC2,
                             c3: aurC3,
                             speed: aurSpeed,
-                            blur: aurBlur
+                            blur: aurBlur,
+                            pulsate: aurPulsate
                         });
                     }
                 }
@@ -2255,6 +2259,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     const aurBlurLabel = document.getElementById('label-addon-aurora-blur');
                     if (aurBlurLabel) aurBlurLabel.textContent = backup.addonAuroraBlur;
                 }
+                const aurPulsateEl = document.getElementById('input-addon-aurora-pulsate');
+                if (aurPulsateEl && backup.addonAuroraPulsate !== undefined) {
+                    aurPulsateEl.checked = Boolean(backup.addonAuroraPulsate);
+                }
 
                 const glitchNameEl = document.getElementById('input-addon-glitch-name');
                 if (glitchNameEl && backup.addonGlitchName !== undefined) {
@@ -2961,6 +2969,11 @@ function initAuroraEngine(canvas, config) {
             ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
             ctx.fill();
         });
+
+        if (config.pulsate) {
+            const dynamicBlur = config.blur + Math.sin(Date.now() / 1500) * 15;
+            canvas.style.filter = `blur(${dynamicBlur}px)`;
+        }
 
         window.phoneAurLoopId = requestAnimationFrame(loop);
     }
