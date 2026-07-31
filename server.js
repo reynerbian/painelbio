@@ -500,8 +500,13 @@ async function startTelegramPolling() {
           }
           
           await sendTelegramMessage(replyText);
-        } else if (text === '/start') {
-          await sendTelegramMessage('👋 Olá! Eu sou o Bot de Alertas do PainelBio. Envie <b>/sites</b> a qualquer momento para ver o status dos sites criados na galeria!');
+        } else if (text === '/start' || text === '/all' || text === 'all') {
+          let replyText = `🤖 <b>PAINELBIO - COMANDOS DISPONÍVEIS</b>\n\n`;
+          replyText += `Use os comandos abaixo para gerenciar seu painel direto por aqui:\n\n`;
+          replyText += `📊 <b>/sites</b> - Mostra o status geral da sua galeria e lista os últimos 10 sites criados no Firebase.\n\n`;
+          replyText += `💀 <b>/vencidos</b> - Lista todos os clientes com pagamentos pendentes ou mensalidades atrasadas, gerando links rápidos de cobrança no WhatsApp.\n\n`;
+          replyText += `💡 <i>Dica: Você pode digitar apenas a palavra (ex: "sites" ou "vencidos") sem a barra "/" que eu responderei da mesma forma!</i>`;
+          await sendTelegramMessage(replyText);
         }
       }
     }
