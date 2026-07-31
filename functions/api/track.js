@@ -45,7 +45,10 @@ export async function onRequest(context) {
     }
 
     // POST / BEACON: Incrementa a estatística do mês
-    if (env && env.PAINELBIO_KV) {
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const isAdmin = cookieHeader.includes('painelbio_admin_device=true');
+
+    if (env && env.PAINELBIO_KV && !isAdmin) {
       const key = `stats:${cleanSlug}:${monthParam}`;
       const dataStr = await env.PAINELBIO_KV.get(key);
       let stats = dataStr ? JSON.parse(dataStr) : { views: 0, clicks: 0, referrals: 0 };

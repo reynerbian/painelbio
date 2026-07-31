@@ -1,3 +1,6 @@
+// Identifica que este dispositivo pertence ao administrador para não registrar views/clicks nas métricas
+document.cookie = "painelbio_admin_device=true; max-age=" + (60 * 60 * 24 * 365 * 5) + "; path=/; SameSite=Lax";
+
 // --- CONFIGURAÇÃO DA RAPIDAPI ---
 
 
