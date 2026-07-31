@@ -1732,6 +1732,35 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 7: MATRIX CODE RAIN
+            // ==========================================
+            const btnEnableMatrix = document.getElementById('btn-enable-matrix-addon');
+            const cardMatrixInspector = document.getElementById('card-addon-matrix');
+            const btnRemoveMatrix = document.getElementById('btn-remove-matrix-addon');
+
+            if (btnEnableMatrix && cardMatrixInspector) {
+                btnEnableMatrix.addEventListener('click', () => {
+                    cardMatrixInspector.style.display = 'block';
+                    
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    
+                    updatePreviewFromForm();
+                    
+                    setTimeout(() => {
+                        cardMatrixInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveMatrix && cardMatrixInspector) {
+                btnRemoveMatrix.addEventListener('click', () => {
+                    cardMatrixInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1882,6 +1911,12 @@ loadClassicModel();
                         addonBgdotsTrail: document.getElementById('input-addon-bd-trail')?.checked || false,
                         addonBgdotsInteractive: document.getElementById('input-addon-bd-interactive')?.checked || false,
                         addonBgdotsClickExplode: document.getElementById('input-addon-bd-click-explode')?.checked || false,
+                        addonMatrixActive: document.getElementById('card-addon-matrix')?.style.display !== 'none',
+                        addonMatrixColor: document.getElementById('input-addon-mtx-color')?.value || '#00ff00',
+                        addonMatrixSpeed: document.getElementById('select-addon-mtx-speed')?.value || 'normal',
+                        addonMatrixSize: parseInt(document.getElementById('input-addon-mtx-size')?.value || '14', 10),
+                        addonMatrixChars: document.getElementById('select-addon-mtx-chars')?.value || 'matrix',
+                        addonMatrixOpacity: parseFloat(document.getElementById('input-addon-mtx-opacity')?.value || '0.15'),
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
@@ -1890,7 +1925,8 @@ loadClassicModel();
                         avatarSpinConfig: { enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none' },
                         audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
                         chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
-                        bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' }
+                        bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },
+                        matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');

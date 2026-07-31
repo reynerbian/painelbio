@@ -534,6 +534,108 @@ export function generateStaticSite(data) {
       `;
   }
 
+  // ADD-ON 7: MATRIX CODE RAIN
+  const hasMatrix = Boolean(data.addonMatrixActive);
+  const mtxColor = data.addonMatrixColor || '#00ff00';
+  const mtxSpeed = data.addonMatrixSpeed || 'normal';
+  const mtxSize = parseInt(data.addonMatrixSize || 14, 10);
+  const mtxChars = data.addonMatrixChars || 'matrix';
+  const mtxOpacity = parseFloat(data.addonMatrixOpacity || 0.15);
+
+  let matrixHtml = '';
+  if (hasMatrix) {
+      matrixHtml = `
+      <canvas id="pb-matrix-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"></canvas>
+      <script>
+      (function() {
+          const canvas = document.getElementById('pb-matrix-canvas');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          
+          function resize() {
+              canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth;
+              canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight;
+          }
+          resize();
+          window.addEventListener('resize', resize);
+          
+          const color = '${mtxColor}';
+          const speedSetting = '${mtxSpeed}';
+          const fontSize = ${mtxSize};
+          const charType = '${mtxChars}';
+          const opacity = ${mtxOpacity};
+
+          function hexToRgb(hex) {
+              const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+              return result ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16)
+              } : { r: 0, g: 255, b: 0 };
+          }
+          const rgb = hexToRgb(color);
+
+          let chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890XYZ";
+          if (charType === 'binary') {
+              chars = "01";
+          } else if (charType === 'alphabet') {
+              chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          }
+          const charArray = chars.split("");
+
+          let speedMult = 1;
+          if (speedSetting === 'slow') speedMult = 0.4;
+          if (speedSetting === 'fast') speedMult = 2.2;
+
+          const columnsCount = Math.floor(canvas.width / fontSize) + 1;
+          const columns = [];
+          for (let x = 0; x < columnsCount; x++) {
+              columns.push({
+                  x: x,
+                  y: Math.random() * -100,
+                  length: 8 + Math.floor(Math.random() * 12),
+                  speed: (0.4 + Math.random() * 0.8)
+              });
+          }
+
+          function loop() {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.font = "bold " + fontSize + "px monospace";
+              ctx.textAlign = 'center';
+
+              columns.forEach(col => {
+                  col.y += col.speed * speedMult * 0.4;
+                  if (col.y - col.length > canvas.height / fontSize) {
+                      col.y = -col.length;
+                      col.length = 8 + Math.floor(Math.random() * 12);
+                      col.speed = (0.4 + Math.random() * 0.8);
+                  }
+
+                  for (let i = 0; i < col.length; i++) {
+                      const charY = Math.floor(col.y - i);
+                      if (charY < 0 || charY * fontSize > canvas.height) continue;
+
+                      let alpha = (1 - (i / col.length)) * opacity;
+                      if (i === 0) {
+                          ctx.fillStyle = 'rgba(255, 255, 255, ' + (opacity * 1.5) + ')';
+                      } else {
+                          ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + alpha + ')';
+                      }
+
+                      const char = charArray[Math.floor(Math.random() * charArray.length)];
+                      ctx.fillText(char, col.x * fontSize + fontSize / 2, charY * fontSize);
+                  }
+              });
+
+              requestAnimationFrame(loop);
+          }
+          
+          loop();
+      })();
+      </script>
+      `;
+  }
+
   // ==========================================
   // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
   // ==========================================
@@ -718,6 +820,7 @@ export function generateStaticSite(data) {
   <div class="s-container">
     ${emojiRainHtml}
     ${bgdotsHtml}
+    ${matrixHtml}
 
     ${bgImgUrl ? `
       <div class="s-bg" style="background-image: url('${bgImgUrl}');"></div>
@@ -882,6 +985,7 @@ export function generateStaticSite(data) {
   <div class="c-fullscreen-page">
       ${emojiRainHtml}
       ${bgdotsHtml}
+      ${matrixHtml}
       <div class="c-slider">
           <div class="c-slide active" id="c-s-0"><img src="${c1Img}"></div>
           <div class="c-slide" id="c-s-1"><img src="${c2Img}"></div>
@@ -1064,6 +1168,7 @@ export function generateStaticSite(data) {
     <div class="v-container">
         ${emojiRainHtml}
         ${bgdotsHtml}
+        ${matrixHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
             ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
@@ -1439,6 +1544,7 @@ export function generateStaticSite(data) {
     <div class="eb-page">
         ${emojiRainHtml}
         ${bgdotsHtml}
+        ${matrixHtml}
 
         
         <div class="eb-header">
@@ -1644,6 +1750,7 @@ export function generateStaticSite(data) {
     <div class="preview-bio-page">
         ${emojiRainHtml}
         ${bgdotsHtml}
+        ${matrixHtml}
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
         

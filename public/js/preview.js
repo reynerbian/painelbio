@@ -584,6 +584,61 @@ function updatePreviewFromForm() {
                 window.phoneBdConfigKey = null;
             }
 
+            // =========================================================================
+            // ADD-ON 7: MATRIX CODE RAIN (PREVIEW EM TEMPO REAL COM CANVAS)
+            // =========================================================================
+            const cardMatrixCheck = document.getElementById('card-addon-matrix');
+            const isMatrixActive = cardMatrixCheck && cardMatrixCheck.style.display !== 'none';
+            let phoneMatrix = document.getElementById('phone-matrix-canvas');
+
+            if (isMatrixActive) {
+                const mtxColor = document.getElementById('input-addon-mtx-color')?.value || '#00ff00';
+                const mtxSpeed = document.getElementById('select-addon-mtx-speed')?.value || 'normal';
+                const mtxSize = parseInt(document.getElementById('input-addon-mtx-size')?.value || '14', 10);
+                const mtxChars = document.getElementById('select-addon-mtx-chars')?.value || 'matrix';
+                const mtxOpacity = parseFloat(document.getElementById('input-addon-mtx-opacity')?.value || '0.15');
+
+                if (phoneScreen) {
+                    let targetContainer = phoneScreen.querySelector('.s-container') ||
+                                          phoneScreen.querySelector('.c-fullscreen-page') ||
+                                          phoneScreen.querySelector('.eb-page') ||
+                                          phoneScreen.querySelector('.v-container') ||
+                                          phoneScreen.querySelector('.preview-bio-page') ||
+                                          phoneScreen;
+
+                    if (!phoneMatrix || phoneMatrix.parentNode !== targetContainer) {
+                        if (phoneMatrix && phoneMatrix.parentNode) {
+                            phoneMatrix.parentNode.removeChild(phoneMatrix);
+                        }
+                        phoneMatrix = document.createElement('canvas');
+                        phoneMatrix.id = 'phone-matrix-canvas';
+                        phoneMatrix.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;';
+                        targetContainer.prepend(phoneMatrix);
+                    } else {
+                        phoneMatrix.style.display = 'block';
+                    }
+
+                    const currentConfigKey = `${mtxColor}_${mtxSpeed}_${mtxSize}_${mtxChars}_${mtxOpacity}`;
+                    if (window.phoneMtxConfigKey !== currentConfigKey) {
+                        window.phoneMtxConfigKey = currentConfigKey;
+                        initMatrixEngine(phoneMatrix, {
+                            color: mtxColor,
+                            speed: mtxSpeed,
+                            size: mtxSize,
+                            chars: mtxChars,
+                            opacity: mtxOpacity
+                        });
+                    }
+                }
+            } else if (phoneMatrix) {
+                phoneMatrix.style.display = 'none';
+                if (window.phoneMtxLoopId) {
+                    cancelAnimationFrame(window.phoneMtxLoopId);
+                    window.phoneMtxLoopId = null;
+                }
+                window.phoneMtxConfigKey = null;
+            }
+
 
 
             // =========================================================================
@@ -1963,7 +2018,12 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-ap-wave-color': backup.addonAudioPlayerWaveColor || '#ffffff',
                     'input-addon-bd-count': backup.addonBgdotsCount || 50,
                     'input-addon-bd-color': backup.addonBgdotsColor || '#ffffff',
-                    'input-addon-bd-opacity': backup.addonBgdotsOpacity || 0.3
+                    'input-addon-bd-opacity': backup.addonBgdotsOpacity || 0.3,
+                    'input-addon-mtx-color': backup.addonMatrixColor || '#00ff00',
+                    'select-addon-mtx-speed': backup.addonMatrixSpeed || 'normal',
+                    'input-addon-mtx-size': backup.addonMatrixSize || 14,
+                    'select-addon-mtx-chars': backup.addonMatrixChars || 'matrix',
+                    'input-addon-mtx-opacity': backup.addonMatrixOpacity || 0.15
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2016,6 +2076,24 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 if (backup.addonBgdotsActive) {
                     const cardBd = document.getElementById('card-addon-bgdots');
                     if (cardBd) cardBd.style.display = 'block';
+                }
+
+                if (backup.addonMatrixActive) {
+                    const cardMtx = document.getElementById('card-addon-matrix');
+                    if (cardMtx) cardMtx.style.display = 'block';
+                }
+
+                const mtxSizeEl = document.getElementById('input-addon-mtx-size');
+                if (mtxSizeEl && backup.addonMatrixSize !== undefined) {
+                    mtxSizeEl.value = backup.addonMatrixSize;
+                    const mtxSizeLabel = document.getElementById('label-addon-mtx-size');
+                    if (mtxSizeLabel) mtxSizeLabel.textContent = backup.addonMatrixSize;
+                }
+                const mtxOpacityEl = document.getElementById('input-addon-mtx-opacity');
+                if (mtxOpacityEl && backup.addonMatrixOpacity !== undefined) {
+                    mtxOpacityEl.value = backup.addonMatrixOpacity;
+                    const mtxOpacityLabel = document.getElementById('label-addon-mtx-opacity');
+                    if (mtxOpacityLabel) mtxOpacityLabel.textContent = backup.addonMatrixOpacity;
                 }
 
                 const bgdotsGlowEl = document.getElementById('input-addon-bd-glow');
@@ -2539,6 +2617,92 @@ function initParticlesEngine(canvas, config) {
         window.phoneBdLoopId = requestAnimationFrame(loop);
     }
     
+    loop();
+}
+
+function initMatrixEngine(canvas, config) {
+    if (window.phoneMtxLoopId) {
+        cancelAnimationFrame(window.phoneMtxLoopId);
+    }
+    const ctx = canvas.getContext('2d');
+    
+    function resize() {
+        canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 360;
+        canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : 640;
+    }
+    resize();
+
+    const color = config.color || '#00ff00';
+    const speedSetting = config.speed || 'normal';
+    const fontSize = config.size || 14;
+    const charType = config.chars || 'matrix';
+    const opacity = config.opacity || 0.15;
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : { r: 0, g: 255, b: 0 };
+    }
+    const rgb = hexToRgb(color);
+
+    let chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890XYZ";
+    if (charType === 'binary') {
+        chars = "01";
+    } else if (charType === 'alphabet') {
+        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    }
+    const charArray = chars.split("");
+
+    let speedMult = 1;
+    if (speedSetting === 'slow') speedMult = 0.4;
+    if (speedSetting === 'fast') speedMult = 2.2;
+
+    const columnsCount = Math.floor(canvas.width / fontSize) + 1;
+    const columns = [];
+    for (let x = 0; x < columnsCount; x++) {
+        columns.push({
+            x: x,
+            y: Math.random() * -100,
+            length: 8 + Math.floor(Math.random() * 12),
+            speed: (0.4 + Math.random() * 0.8)
+        });
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold " + fontSize + "px monospace";
+        ctx.textAlign = 'center';
+
+        columns.forEach(col => {
+            col.y += col.speed * speedMult * 0.4;
+            if (col.y - col.length > canvas.height / fontSize) {
+                col.y = -col.length;
+                col.length = 8 + Math.floor(Math.random() * 12);
+                col.speed = (0.4 + Math.random() * 0.8);
+            }
+
+            for (let i = 0; i < col.length; i++) {
+                const charY = Math.floor(col.y - i);
+                if (charY < 0 || charY * fontSize > canvas.height) continue;
+
+                let alpha = (1 - (i / col.length)) * opacity;
+                if (i === 0) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 1.5})`;
+                } else {
+                    ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+                }
+
+                const char = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(char, col.x * fontSize + fontSize / 2, charY * fontSize);
+            }
+        });
+
+        window.phoneMtxLoopId = requestAnimationFrame(loop);
+    }
+
     loop();
 }
 
