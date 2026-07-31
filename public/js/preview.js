@@ -693,28 +693,9 @@ function updatePreviewFromForm() {
                     }
                 `;
 
-                if (phoneScreen) {
-                    const names = phoneScreen.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name');
-                    names.forEach(nameEl => {
-                        if (glitchName) nameEl.classList.add('pb-glitch-name-target');
-                        else nameEl.classList.remove('pb-glitch-name-target');
-                    });
-
-                    const btns = phoneScreen.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn');
-                    btns.forEach(btnEl => {
-                        if (glitchButtons) btnEl.classList.add('pb-glitch-btn-target');
-                        else btnEl.classList.remove('pb-glitch-btn-target');
-                    });
-                }
             } else {
                 if (phoneGlitchStyle) {
                     phoneGlitchStyle.remove();
-                }
-                if (phoneScreen) {
-                    const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
-                    elements.forEach(el => {
-                        el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target');
-                    });
                 }
             }
 
@@ -1576,6 +1557,30 @@ function updatePreviewFromForm() {
             viewLinks.innerHTML = buttonsHtml;
 
             viewFooter.style.display = "flex";
+
+            // Aplica ou remove classes dos elementos de glitch após todos os templates renderizarem
+            const cardGlitchActiveCheck = document.getElementById('card-addon-glitch');
+            if (cardGlitchActiveCheck && cardGlitchActiveCheck.style.display !== 'none' && phoneScreen) {
+                const glitchName = document.getElementById('input-addon-glitch-name')?.checked || false;
+                const glitchButtons = document.getElementById('input-addon-glitch-buttons')?.checked || false;
+
+                const names = phoneScreen.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name, .s-name, .v-name');
+                names.forEach(nameEl => {
+                    if (glitchName) nameEl.classList.add('pb-glitch-name-target');
+                    else nameEl.classList.remove('pb-glitch-name-target');
+                });
+
+                const btns = phoneScreen.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn, .btn, a.link-btn');
+                btns.forEach(btnEl => {
+                    if (glitchButtons) btnEl.classList.add('pb-glitch-btn-target');
+                    else btnEl.classList.remove('pb-glitch-btn-target');
+                });
+            } else if (phoneScreen) {
+                const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
+                elements.forEach(el => {
+                    el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target');
+                });
+            }
         }
 
 async function loadTemplatePreview(templateId, dataToFill = null) {
