@@ -538,11 +538,21 @@ function updatePreviewFromForm() {
                 const bdClickExplode = document.getElementById('input-addon-bd-click-explode')?.checked || false;
 
                 if (phoneScreen) {
-                    if (!phoneBgdots) {
+                    let targetContainer = phoneScreen.querySelector('.s-container') ||
+                                          phoneScreen.querySelector('.c-fullscreen-page') ||
+                                          phoneScreen.querySelector('.eb-page') ||
+                                          phoneScreen.querySelector('.v-container') ||
+                                          phoneScreen.querySelector('.preview-bio-page') ||
+                                          phoneScreen;
+
+                    if (!phoneBgdots || phoneBgdots.parentNode !== targetContainer) {
+                        if (phoneBgdots && phoneBgdots.parentNode) {
+                            phoneBgdots.parentNode.removeChild(phoneBgdots);
+                        }
                         phoneBgdots = document.createElement('canvas');
                         phoneBgdots.id = 'phone-bgdots-canvas';
                         phoneBgdots.style.cssText = 'position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;';
-                        phoneScreen.prepend(phoneBgdots);
+                        targetContainer.prepend(phoneBgdots);
                     } else {
                         phoneBgdots.style.display = 'block';
                     }
