@@ -640,6 +640,64 @@ function updatePreviewFromForm() {
             }
 
             // =========================================================================
+            // ADD-ON 9: AURORA BOREAL FLUIDA (PREVIEW EM TEMPO REAL COM CANVAS)
+            // =========================================================================
+            const cardAuroraCheck = document.getElementById('card-addon-aurora');
+            const isAuroraActive = cardAuroraCheck && cardAuroraCheck.style.display !== 'none';
+            let phoneAurora = document.getElementById('phone-aurora-canvas');
+
+            if (isAuroraActive) {
+                const aurPalette = document.getElementById('select-addon-aurora-palette')?.value || 'arctic';
+                const aurC1 = document.getElementById('input-addon-aurora-c1')?.value || '#00f2fe';
+                const aurC2 = document.getElementById('input-addon-aurora-c2')?.value || '#4facfe';
+                const aurC3 = document.getElementById('input-addon-aurora-c3')?.value || '#090514';
+                const aurSpeed = document.getElementById('select-addon-aurora-speed')?.value || 'normal';
+                const aurBlur = parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10);
+
+                if (phoneScreen) {
+                    let targetContainer = phoneScreen.querySelector('.s-container') ||
+                                          phoneScreen.querySelector('.c-fullscreen-page') ||
+                                          phoneScreen.querySelector('.eb-page') ||
+                                          phoneScreen.querySelector('.v-container') ||
+                                          phoneScreen.querySelector('.preview-bio-page') ||
+                                          phoneScreen;
+
+                    if (!phoneAurora || phoneAurora.parentNode !== targetContainer) {
+                        if (phoneAurora && phoneAurora.parentNode) {
+                            phoneAurora.parentNode.removeChild(phoneAurora);
+                        }
+                        phoneAurora = document.createElement('canvas');
+                        phoneAurora.id = 'phone-aurora-canvas';
+                        phoneAurora.style.cssText = `position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; filter: blur(${aurBlur}px);`;
+                        targetContainer.prepend(phoneAurora);
+                    } else {
+                        phoneAurora.style.display = 'block';
+                        phoneAurora.style.filter = `blur(${aurBlur}px)`;
+                    }
+
+                    const currentConfigKey = `${aurPalette}_${aurC1}_${aurC2}_${aurC3}_${aurSpeed}_${aurBlur}`;
+                    if (window.phoneAurConfigKey !== currentConfigKey) {
+                        window.phoneAurConfigKey = currentConfigKey;
+                        initAuroraEngine(phoneAurora, {
+                            palette: aurPalette,
+                            c1: aurC1,
+                            c2: aurC2,
+                            c3: aurC3,
+                            speed: aurSpeed,
+                            blur: aurBlur
+                        });
+                    }
+                }
+            } else if (phoneAurora) {
+                phoneAurora.style.display = 'none';
+                if (window.phoneAurLoopId) {
+                    cancelAnimationFrame(window.phoneAurLoopId);
+                    window.phoneAurLoopId = null;
+                }
+                window.phoneAurConfigKey = null;
+            }
+
+            // =========================================================================
             // ADD-ON 8: CYBERPUNK TEXT GLITCH (PREVIEW EM TEMPO REAL)
             // =========================================================================
             const cardGlitchCheck = document.getElementById('card-addon-glitch');
@@ -2109,7 +2167,13 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'select-addon-mtx-chars': backup.addonMatrixChars || 'matrix',
                     'input-addon-mtx-opacity': backup.addonMatrixOpacity || 0.15,
                     'select-addon-glitch-intensity': backup.addonGlitchIntensity || 'normal',
-                    'select-addon-glitch-speed': backup.addonGlitchSpeed || 'normal'
+                    'select-addon-glitch-speed': backup.addonGlitchSpeed || 'normal',
+                    'select-addon-aurora-palette': backup.addonAuroraPalette || 'arctic',
+                    'input-addon-aurora-c1': backup.addonAuroraC1 || '#00f2fe',
+                    'input-addon-aurora-c2': backup.addonAuroraC2 || '#4facfe',
+                    'input-addon-aurora-c3': backup.addonAuroraC3 || '#090514',
+                    'select-addon-aurora-speed': backup.addonAuroraSpeed || 'normal',
+                    'input-addon-aurora-blur': backup.addonAuroraBlur || 60
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2172,6 +2236,24 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 if (backup.addonGlitchActive) {
                     const cardGlt = document.getElementById('card-addon-glitch');
                     if (cardGlt) cardGlt.style.display = 'block';
+                }
+
+                if (backup.addonAuroraActive) {
+                    const cardAur = document.getElementById('card-addon-aurora');
+                    if (cardAur) {
+                        cardAur.style.display = 'block';
+                        // Aciona toggle das cores customizadas se for preset customizado
+                        const palVal = backup.addonAuroraPalette || 'arctic';
+                        const cCont = document.getElementById('container-aurora-custom-colors');
+                        if (cCont) cCont.style.display = (palVal === 'custom') ? 'flex' : 'none';
+                    }
+                }
+
+                const aurBlurEl = document.getElementById('input-addon-aurora-blur');
+                if (aurBlurEl && backup.addonAuroraBlur !== undefined) {
+                    aurBlurEl.value = backup.addonAuroraBlur;
+                    const aurBlurLabel = document.getElementById('label-addon-aurora-blur');
+                    if (aurBlurLabel) aurBlurLabel.textContent = backup.addonAuroraBlur;
                 }
 
                 const glitchNameEl = document.getElementById('input-addon-glitch-name');
@@ -2801,6 +2883,86 @@ function initMatrixEngine(canvas, config) {
         });
 
         window.phoneMtxLoopId = requestAnimationFrame(loop);
+    }
+
+    loop();
+}
+
+function initAuroraEngine(canvas, config) {
+    if (window.phoneAurLoopId) {
+        cancelAnimationFrame(window.phoneAurLoopId);
+    }
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+        canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 360;
+        canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : 640;
+    }
+    resize();
+
+    const palette = config.palette || 'arctic';
+    let speedSetting = config.speed || 'normal';
+
+    let c1 = '#00f2fe';
+    let c2 = '#4facfe';
+    let c3 = '#090514';
+
+    if (palette === 'arctic') {
+        c1 = '#059669'; // Emerald
+        c2 = '#0284c7'; // Sky Blue
+        c3 = '#0f172a'; // Slate Dark
+    } else if (palette === 'sunset') {
+        c1 = '#7c3aed'; // Purple
+        c2 = '#db2777'; // Pink
+        c3 = '#ea580c'; // Orange
+    } else if (palette === 'synthwave') {
+        c1 = '#2563eb'; // Blue
+        c2 = '#c084fc'; // Violet
+        c3 = '#f43f5e'; // Rose
+    } else if (palette === 'custom') {
+        c1 = config.c1 || '#00f2fe';
+        c2 = config.c2 || '#4facfe';
+        c3 = config.c3 || '#090514';
+    }
+
+    let speedMult = 1;
+    if (speedSetting === 'slow') speedMult = 0.4;
+    if (speedSetting === 'fast') speedMult = 2.5;
+
+    const blobs = [
+        { x: canvas.width * 0.2, y: canvas.height * 0.2, vx: 0.5, vy: 0.3, radius: canvas.width * 0.6, color: c1 },
+        { x: canvas.width * 0.8, y: canvas.height * 0.4, vx: -0.4, vy: 0.5, radius: canvas.width * 0.7, color: c2 },
+        { x: canvas.width * 0.5, y: canvas.height * 0.8, vx: 0.3, vy: -0.4, radius: canvas.width * 0.8, color: c3 }
+    ];
+
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = c3;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        blobs.forEach(b => {
+            b.x += b.vx * speedMult;
+            b.y += b.vy * speedMult;
+
+            if (b.x - b.radius < -canvas.width * 0.3 || b.x + b.radius > canvas.width * 1.3) {
+                b.vx *= -1;
+            }
+            if (b.y - b.radius < -canvas.height * 0.3 || b.y + b.radius > canvas.height * 1.3) {
+                b.vy *= -1;
+            }
+
+            const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius);
+            grad.addColorStop(0, b.color);
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        window.phoneAurLoopId = requestAnimationFrame(loop);
     }
 
     loop();

@@ -700,6 +700,104 @@ export function generateStaticSite(data) {
       `;
   }
 
+  // ADD-ON 9: AURORA BOREAL FLUIDA
+  const hasAurora = Boolean(data.addonAuroraActive);
+  const aurPalette = data.addonAuroraPalette || 'arctic';
+  const aurC1 = data.addonAuroraC1 || '#00f2fe';
+  const aurC2 = data.addonAuroraC2 || '#4facfe';
+  const aurC3 = data.addonAuroraC3 || '#090514';
+  const aurSpeed = data.addonAuroraSpeed || 'normal';
+  const aurBlur = parseInt(data.addonAuroraBlur || 60, 10);
+
+  let auroraHtml = '';
+  if (hasAurora) {
+      let c1 = '#00f2fe';
+      let c2 = '#4facfe';
+      let c3 = '#090514';
+
+      if (aurPalette === 'arctic') {
+          c1 = '#059669'; // Emerald
+          c2 = '#0284c7'; // Sky Blue
+          c3 = '#0f172a'; // Slate Dark
+      } else if (aurPalette === 'sunset') {
+          c1 = '#7c3aed'; // Purple
+          c2 = '#db2777'; // Pink
+          c3 = '#ea580c'; // Orange
+      } else if (aurPalette === 'synthwave') {
+          c1 = '#2563eb'; // Blue
+          c2 = '#c084fc'; // Violet
+          c3 = '#f43f5e'; // Rose
+      } else if (aurPalette === 'custom') {
+          c1 = aurC1;
+          c2 = aurC2;
+          c3 = aurC3;
+      }
+
+      let speedMult = 1;
+      if (aurSpeed === 'slow') speedMult = 0.4;
+      if (aurSpeed === 'fast') speedMult = 2.5;
+
+      auroraHtml = `
+      <canvas id="pb-aurora-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; filter: blur(${aurBlur}px);"></canvas>
+      <script>
+      (function() {
+          const canvas = document.getElementById('pb-aurora-canvas');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d');
+          
+          function resize() {
+              canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth;
+              canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight;
+          }
+          resize();
+          window.addEventListener('resize', resize);
+
+          const c1 = '${c1}';
+          const c2 = '${c2}';
+          const c3 = '${c3}';
+          const speedMult = ${speedMult};
+
+          const blobs = [
+              { x: canvas.width * 0.2, y: canvas.height * 0.2, vx: 0.5, vy: 0.3, radius: canvas.width * 0.6, color: c1 },
+              { x: canvas.width * 0.8, y: canvas.height * 0.4, vx: -0.4, vy: 0.5, radius: canvas.width * 0.7, color: c2 },
+              { x: canvas.width * 0.5, y: canvas.height * 0.8, vx: 0.3, vy: -0.4, radius: canvas.width * 0.8, color: c3 }
+          ];
+
+          function loop() {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.fillStyle = c3;
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+              blobs.forEach(b => {
+                  b.x += b.vx * speedMult;
+                  b.y += b.vy * speedMult;
+
+                  if (b.x - b.radius < -canvas.width * 0.3 || b.x + b.radius > canvas.width * 1.3) {
+                      b.vx *= -1;
+                  }
+                  if (b.y - b.radius < -canvas.height * 0.3 || b.y + b.radius > canvas.height * 1.3) {
+                      b.vy *= -1;
+                  }
+
+                  const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius);
+                  grad.addColorStop(0, b.color);
+                  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                  
+                  ctx.fillStyle = grad;
+                  ctx.beginPath();
+                  ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                  ctx.fill();
+              });
+
+              requestAnimationFrame(loop);
+          }
+          
+          loop();
+      })();
+      </script>
+      `;
+  }
+
   // ==========================================
   // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
   // ==========================================
@@ -886,6 +984,7 @@ export function generateStaticSite(data) {
     ${bgdotsHtml}
     ${matrixHtml}
     ${glitchHtml}
+    ${auroraHtml}
 
     ${bgImgUrl ? `
       <div class="s-bg" style="background-image: url('${bgImgUrl}');"></div>
@@ -1052,6 +1151,7 @@ export function generateStaticSite(data) {
       ${bgdotsHtml}
       ${matrixHtml}
       ${glitchHtml}
+      ${auroraHtml}
       <div class="c-slider">
           <div class="c-slide active" id="c-s-0"><img src="${c1Img}"></div>
           <div class="c-slide" id="c-s-1"><img src="${c2Img}"></div>
@@ -1236,6 +1336,7 @@ export function generateStaticSite(data) {
         ${bgdotsHtml}
         ${matrixHtml}
         ${glitchHtml}
+        ${auroraHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
             ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
@@ -1613,6 +1714,7 @@ export function generateStaticSite(data) {
         ${bgdotsHtml}
         ${matrixHtml}
         ${glitchHtml}
+        ${auroraHtml}
 
         
         <div class="eb-header">
@@ -1820,6 +1922,7 @@ export function generateStaticSite(data) {
         ${bgdotsHtml}
         ${matrixHtml}
         ${glitchHtml}
+        ${auroraHtml}
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
         

@@ -1790,6 +1790,35 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 9: AURORA BOREAL FLUIDA
+            // ==========================================
+            const btnEnableAurora = document.getElementById('btn-enable-aurora-addon');
+            const cardAuroraInspector = document.getElementById('card-addon-aurora');
+            const btnRemoveAurora = document.getElementById('btn-remove-aurora-addon');
+
+            if (btnEnableAurora && cardAuroraInspector) {
+                btnEnableAurora.addEventListener('click', () => {
+                    cardAuroraInspector.style.display = 'block';
+                    
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    
+                    updatePreviewFromForm();
+                    
+                    setTimeout(() => {
+                        cardAuroraInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveAurora && cardAuroraInspector) {
+                btnRemoveAurora.addEventListener('click', () => {
+                    cardAuroraInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1951,6 +1980,13 @@ loadClassicModel();
                         addonGlitchSpeed: document.getElementById('select-addon-glitch-speed')?.value || 'normal',
                         addonGlitchName: document.getElementById('input-addon-glitch-name')?.checked || false,
                         addonGlitchButtons: document.getElementById('input-addon-glitch-buttons')?.checked || false,
+                        addonAuroraActive: document.getElementById('card-addon-aurora')?.style.display !== 'none',
+                        addonAuroraPalette: document.getElementById('select-addon-aurora-palette')?.value || 'arctic',
+                        addonAuroraC1: document.getElementById('input-addon-aurora-c1')?.value || '#00f2fe',
+                        addonAuroraC2: document.getElementById('input-addon-aurora-c2')?.value || '#4facfe',
+                        addonAuroraC3: document.getElementById('input-addon-aurora-c3')?.value || '#090514',
+                        addonAuroraSpeed: document.getElementById('select-addon-aurora-speed')?.value || 'normal',
+                        addonAuroraBlur: parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10),
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
@@ -1961,7 +1997,8 @@ loadClassicModel();
                         chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
                         bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },
                         matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' },
-                        glitchConfig: { enabled: document.getElementById('card-addon-glitch')?.style.display !== 'none' }
+                        glitchConfig: { enabled: document.getElementById('card-addon-glitch')?.style.display !== 'none' },
+                        auroraConfig: { enabled: document.getElementById('card-addon-aurora')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');

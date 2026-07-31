@@ -14,7 +14,8 @@ function updateAddonCatalogButtonStates() {
                 { btnId: 'btn-enable-livechat-addon', cardId: 'card-addon-livechat' },
                 { btnId: 'btn-enable-bgdots-addon', cardId: 'card-addon-bgdots' },
                 { btnId: 'btn-enable-matrix-addon', cardId: 'card-addon-matrix' },
-                { btnId: 'btn-enable-glitch-addon', cardId: 'card-addon-glitch' }
+                { btnId: 'btn-enable-glitch-addon', cardId: 'card-addon-glitch' },
+                { btnId: 'btn-enable-aurora-addon', cardId: 'card-addon-aurora' }
             ];
 
             addons.forEach(({ btnId, cardId }) => {
@@ -94,7 +95,8 @@ function updateCartSummary() {
         { slug: 'livechat',     cardId: 'card-addon-livechat',     name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) },
         { slug: 'bgdots',       cardId: 'card-addon-bgdots',       name: 'Bolinhas no Background', price: parseFloat(settings.bgdotsPrice || 2.50) },
         { slug: 'matrix',       cardId: 'card-addon-matrix',       name: 'Matrix Code Rain', price: parseFloat(settings.matrixPrice || 3.00) },
-        { slug: 'glitch',       cardId: 'card-addon-glitch',       name: 'Cyberpunk Text Glitch', price: parseFloat(settings.glitchPrice || 2.50) }
+        { slug: 'glitch',       cardId: 'card-addon-glitch',       name: 'Cyberpunk Text Glitch', price: parseFloat(settings.glitchPrice || 2.50) },
+        { slug: 'aurora',       cardId: 'card-addon-aurora',       name: 'Aurora Boreal Fluida', price: parseFloat(settings.auroraPrice || 3.50) }
     ];
 
     addonsList.forEach(({ slug, cardId, name, price }) => {
