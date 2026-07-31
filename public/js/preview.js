@@ -2822,6 +2822,16 @@ function initMatrixEngine(canvas, config) {
     }
     resize();
 
+    if (window.phoneMtxResizeObserver) {
+        window.phoneMtxResizeObserver.disconnect();
+    }
+    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
+        window.phoneMtxResizeObserver = new ResizeObserver(() => {
+            resize();
+        });
+        window.phoneMtxResizeObserver.observe(canvas.parentElement);
+    }
+
     const color = config.color || '#00ff00';
     const speedSetting = config.speed || 'normal';
     const fontSize = config.size || 14;
@@ -2907,6 +2917,16 @@ function initAuroraEngine(canvas, config) {
         canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : 640;
     }
     resize();
+
+    if (window.phoneAurResizeObserver) {
+        window.phoneAurResizeObserver.disconnect();
+    }
+    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
+        window.phoneAurResizeObserver = new ResizeObserver(() => {
+            resize();
+        });
+        window.phoneAurResizeObserver.observe(canvas.parentElement);
+    }
 
     const palette = config.palette || 'arctic';
     let speedSetting = config.speed || 'normal';
