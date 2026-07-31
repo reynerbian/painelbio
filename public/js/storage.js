@@ -126,13 +126,16 @@ function saveCoupons(couponsArray) {
 
 // ── ADD-ONS COMPRADOS (ONE-TIME POR @) ──
 
-// Mapa de slugs internos para as chaves de config e nomes legíveis
 const ADDON_DEFINITIONS = [
     { slug: 'topbanner',    configKey: 'bannerConfig',      priceKey: 'bannerPrice',     defaultPrice: 2.99, name: 'Anúncio Flutuante' },
     { slug: 'emojirain',    configKey: 'rainConfig',        priceKey: 'emojiPrice',      defaultPrice: 2.50, name: 'Chuva de Emoji' },
     { slug: 'avatarspin',   configKey: 'avatarSpinConfig',  priceKey: 'avatarSpinPrice', defaultPrice: 2.50, name: 'Rodopio do Avatar' },
     { slug: 'audioplayer',  configKey: 'audioPlayerConfig', priceKey: 'audioPrice',      defaultPrice: 2.99, name: 'Player de Áudio' },
-    { slug: 'livechat',     configKey: 'chatWidgetConfig',  priceKey: 'chatPrice',       defaultPrice: 2.99, name: 'Balão Online / Chat' }
+    { slug: 'livechat',     configKey: 'chatWidgetConfig',  priceKey: 'chatPrice',       defaultPrice: 2.99, name: 'Balão Online / Chat' },
+    { slug: 'bgdots',       configKey: 'bgdotsConfig',      priceKey: 'bgdotsPrice',     defaultPrice: 2.50, name: 'Bolinhas no Background' },
+    { slug: 'matrix',       configKey: 'matrixConfig',      priceKey: 'matrixPrice',     defaultPrice: 3.00, name: 'Matrix Code Rain' },
+    { slug: 'glitch',       configKey: 'glitchConfig',      priceKey: 'glitchPrice',     defaultPrice: 2.50, name: 'Cyberpunk Text Glitch' },
+    { slug: 'aurora',       configKey: 'auroraConfig',      priceKey: 'auroraPrice',     defaultPrice: 3.50, name: 'Aurora Boreal Fluida' }
 ];
 
 /**
