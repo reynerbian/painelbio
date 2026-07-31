@@ -1700,6 +1700,35 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 6: BOLINHAS NO BACKGROUND
+            // ==========================================
+            const btnEnableBgdots = document.getElementById('btn-enable-bgdots-addon');
+            const cardBgdotsInspector = document.getElementById('card-addon-bgdots');
+            const btnRemoveBgdots = document.getElementById('btn-remove-bgdots-addon');
+
+            if (btnEnableBgdots && cardBgdotsInspector) {
+                btnEnableBgdots.addEventListener('click', () => {
+                    cardBgdotsInspector.style.display = 'block';
+                    
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    
+                    updatePreviewFromForm();
+                    
+                    setTimeout(() => {
+                        cardBgdotsInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveBgdots && cardBgdotsInspector) {
+                btnRemoveBgdots.addEventListener('click', () => {
+                    cardBgdotsInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
