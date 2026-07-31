@@ -1761,6 +1761,35 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 8: CYBERPUNK TEXT GLITCH
+            // ==========================================
+            const btnEnableGlitch = document.getElementById('btn-enable-glitch-addon');
+            const cardGlitchInspector = document.getElementById('card-addon-glitch');
+            const btnRemoveGlitch = document.getElementById('btn-remove-glitch-addon');
+
+            if (btnEnableGlitch && cardGlitchInspector) {
+                btnEnableGlitch.addEventListener('click', () => {
+                    cardGlitchInspector.style.display = 'block';
+                    
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    
+                    updatePreviewFromForm();
+                    
+                    setTimeout(() => {
+                        cardGlitchInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveGlitch && cardGlitchInspector) {
+                btnRemoveGlitch.addEventListener('click', () => {
+                    cardGlitchInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1917,6 +1946,11 @@ loadClassicModel();
                         addonMatrixSize: parseInt(document.getElementById('input-addon-mtx-size')?.value || '14', 10),
                         addonMatrixChars: document.getElementById('select-addon-mtx-chars')?.value || 'matrix',
                         addonMatrixOpacity: parseFloat(document.getElementById('input-addon-mtx-opacity')?.value || '0.15'),
+                        addonGlitchActive: document.getElementById('card-addon-glitch')?.style.display !== 'none',
+                        addonGlitchIntensity: document.getElementById('select-addon-glitch-intensity')?.value || 'normal',
+                        addonGlitchSpeed: document.getElementById('select-addon-glitch-speed')?.value || 'normal',
+                        addonGlitchName: document.getElementById('input-addon-glitch-name')?.checked || false,
+                        addonGlitchButtons: document.getElementById('input-addon-glitch-buttons')?.checked || false,
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
@@ -1926,7 +1960,8 @@ loadClassicModel();
                         audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
                         chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
                         bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },
-                        matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' }
+                        matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' },
+                        glitchConfig: { enabled: document.getElementById('card-addon-glitch')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');

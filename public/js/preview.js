@@ -639,6 +639,85 @@ function updatePreviewFromForm() {
                 window.phoneMtxConfigKey = null;
             }
 
+            // =========================================================================
+            // ADD-ON 8: CYBERPUNK TEXT GLITCH (PREVIEW EM TEMPO REAL)
+            // =========================================================================
+            const cardGlitchCheck = document.getElementById('card-addon-glitch');
+            const isGlitchActive = cardGlitchCheck && cardGlitchCheck.style.display !== 'none';
+            let phoneGlitchStyle = document.getElementById('phone-glitch-style');
+
+            if (isGlitchActive) {
+                const glitchIntensity = document.getElementById('select-addon-glitch-intensity')?.value || 'normal';
+                const glitchSpeed = document.getElementById('select-addon-glitch-speed')?.value || 'normal';
+                const glitchName = document.getElementById('input-addon-glitch-name')?.checked || false;
+                const glitchButtons = document.getElementById('input-addon-glitch-buttons')?.checked || false;
+
+                if (!phoneGlitchStyle) {
+                    phoneGlitchStyle = document.createElement('style');
+                    phoneGlitchStyle.id = 'phone-glitch-style';
+                    document.head.appendChild(phoneGlitchStyle);
+                }
+
+                let dist = 2;
+                let scale = 1;
+                if (glitchIntensity === 'low') { dist = 1; scale = 0.5; }
+                if (glitchIntensity === 'high') { dist = 4; scale = 2; }
+
+                phoneGlitchStyle.textContent = `
+                    @keyframes pb-glitch-normal {
+                        0%, 80%, 100% { text-shadow: none; transform: none; }
+                        82% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-2deg); }
+                        84% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
+                        86% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist}px 0 #00ffaa; transform: translate(0px, 0px) skew(-1deg); }
+                        88%, 98% { text-shadow: none; transform: none; }
+                    }
+                    @keyframes pb-glitch-slow {
+                        0%, 90%, 100% { text-shadow: none; transform: none; }
+                        92% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-1deg); }
+                        94% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(2deg); }
+                        96%, 98% { text-shadow: none; transform: none; }
+                    }
+                    @keyframes pb-glitch-fast {
+                        0%, 100% { text-shadow: ${dist/2}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale/2}px); }
+                        20% { text-shadow: -${dist}px ${dist/2}px 0 #ff0055, ${dist}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale}px, ${scale/2}px) skew(-1deg); }
+                        40% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale}px) skew(2deg); }
+                        60% { text-shadow: -${dist/2}px ${dist}px 0 #ff0055, ${dist/2}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale/2}px, ${scale/2}px); }
+                        80% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale/2}px) skew(-2deg); }
+                    }
+                    
+                    .pb-glitch-name-target {
+                        animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+                    }
+                    .pb-glitch-btn-target {
+                        animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+                    }
+                `;
+
+                if (phoneScreen) {
+                    const names = phoneScreen.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name');
+                    names.forEach(nameEl => {
+                        if (glitchName) nameEl.classList.add('pb-glitch-name-target');
+                        else nameEl.classList.remove('pb-glitch-name-target');
+                    });
+
+                    const btns = phoneScreen.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn');
+                    btns.forEach(btnEl => {
+                        if (glitchButtons) btnEl.classList.add('pb-glitch-btn-target');
+                        else btnEl.classList.remove('pb-glitch-btn-target');
+                    });
+                }
+            } else {
+                if (phoneGlitchStyle) {
+                    phoneGlitchStyle.remove();
+                }
+                if (phoneScreen) {
+                    const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
+                    elements.forEach(el => {
+                        el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target');
+                    });
+                }
+            }
+
 
 
             // =========================================================================
@@ -2023,7 +2102,9 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'select-addon-mtx-speed': backup.addonMatrixSpeed || 'normal',
                     'input-addon-mtx-size': backup.addonMatrixSize || 14,
                     'select-addon-mtx-chars': backup.addonMatrixChars || 'matrix',
-                    'input-addon-mtx-opacity': backup.addonMatrixOpacity || 0.15
+                    'input-addon-mtx-opacity': backup.addonMatrixOpacity || 0.15,
+                    'select-addon-glitch-intensity': backup.addonGlitchIntensity || 'normal',
+                    'select-addon-glitch-speed': backup.addonGlitchSpeed || 'normal'
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2081,6 +2162,20 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 if (backup.addonMatrixActive) {
                     const cardMtx = document.getElementById('card-addon-matrix');
                     if (cardMtx) cardMtx.style.display = 'block';
+                }
+
+                if (backup.addonGlitchActive) {
+                    const cardGlt = document.getElementById('card-addon-glitch');
+                    if (cardGlt) cardGlt.style.display = 'block';
+                }
+
+                const glitchNameEl = document.getElementById('input-addon-glitch-name');
+                if (glitchNameEl && backup.addonGlitchName !== undefined) {
+                    glitchNameEl.checked = Boolean(backup.addonGlitchName);
+                }
+                const glitchBtnsEl = document.getElementById('input-addon-glitch-buttons');
+                if (glitchBtnsEl && backup.addonGlitchButtons !== undefined) {
+                    glitchBtnsEl.checked = Boolean(backup.addonGlitchButtons);
                 }
 
                 const mtxSizeEl = document.getElementById('input-addon-mtx-size');

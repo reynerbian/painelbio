@@ -13,7 +13,8 @@ function updateAddonCatalogButtonStates() {
                 { btnId: 'btn-enable-audioplayer-addon', cardId: 'card-addon-audioplayer' },
                 { btnId: 'btn-enable-livechat-addon', cardId: 'card-addon-livechat' },
                 { btnId: 'btn-enable-bgdots-addon', cardId: 'card-addon-bgdots' },
-                { btnId: 'btn-enable-matrix-addon', cardId: 'card-addon-matrix' }
+                { btnId: 'btn-enable-matrix-addon', cardId: 'card-addon-matrix' },
+                { btnId: 'btn-enable-glitch-addon', cardId: 'card-addon-glitch' }
             ];
 
             addons.forEach(({ btnId, cardId }) => {
@@ -92,7 +93,8 @@ function updateCartSummary() {
         { slug: 'audioplayer',  cardId: 'card-addon-audioplayer', name: 'Player de Áudio',     price: parseFloat(settings.audioPrice || 2.99) },
         { slug: 'livechat',     cardId: 'card-addon-livechat',     name: 'Balão Online / Chat', price: parseFloat(settings.chatPrice || 2.99) },
         { slug: 'bgdots',       cardId: 'card-addon-bgdots',       name: 'Bolinhas no Background', price: parseFloat(settings.bgdotsPrice || 2.50) },
-        { slug: 'matrix',       cardId: 'card-addon-matrix',       name: 'Matrix Code Rain', price: parseFloat(settings.matrixPrice || 3.00) }
+        { slug: 'matrix',       cardId: 'card-addon-matrix',       name: 'Matrix Code Rain', price: parseFloat(settings.matrixPrice || 3.00) },
+        { slug: 'glitch',       cardId: 'card-addon-glitch',       name: 'Cyberpunk Text Glitch', price: parseFloat(settings.glitchPrice || 2.50) }
     ];
 
     addonsList.forEach(({ slug, cardId, name, price }) => {

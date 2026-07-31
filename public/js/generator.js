@@ -636,6 +636,70 @@ export function generateStaticSite(data) {
       `;
   }
 
+  // ADD-ON 8: CYBERPUNK TEXT GLITCH
+  const hasGlitch = Boolean(data.addonGlitchActive);
+  const glitchIntensity = data.addonGlitchIntensity || 'normal';
+  const glitchSpeed = data.addonGlitchSpeed || 'normal';
+  const glitchName = Boolean(data.addonGlitchName !== undefined ? data.addonGlitchName : true);
+  const glitchButtons = Boolean(data.addonGlitchButtons !== undefined ? data.addonGlitchButtons : true);
+
+  let glitchHtml = '';
+  if (hasGlitch) {
+      let dist = 2;
+      let scale = 1;
+      if (glitchIntensity === 'low') { dist = 1; scale = 0.5; }
+      if (glitchIntensity === 'high') { dist = 4; scale = 2; }
+
+      glitchHtml = `
+      <style>
+          @keyframes pb-glitch-normal {
+              0%, 80%, 100% { text-shadow: none; transform: none; }
+              82% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-2deg); }
+              84% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
+              86% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist}px 0 #00ffaa; transform: translate(0px, 0px) skew(-1deg); }
+              88%, 98% { text-shadow: none; transform: none; }
+          }
+          @keyframes pb-glitch-slow {
+              0%, 90%, 100% { text-shadow: none; transform: none; }
+              92% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-1deg); }
+              94% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(2deg); }
+              96%, 98% { text-shadow: none; transform: none; }
+          }
+          @keyframes pb-glitch-fast {
+              0%, 100% { text-shadow: ${dist/2}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale/2}px); }
+              20% { text-shadow: -${dist}px ${dist/2}px 0 #ff0055, ${dist}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale}px, ${scale/2}px) skew(-1deg); }
+              40% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale}px) skew(2deg); }
+              60% { text-shadow: -${dist/2}px ${dist}px 0 #ff0055, ${dist/2}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale/2}px, ${scale/2}px); }
+              80% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale/2}px) skew(-2deg); }
+          }
+          
+          .pb-glitch-name-target {
+              animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+          }
+          .pb-glitch-btn-target {
+              animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+          }
+      </style>
+      <script>
+      (function() {
+          document.addEventListener('DOMContentLoaded', function() {
+              const glitchName = ${glitchName};
+              const glitchButtons = ${glitchButtons};
+              
+              if (glitchName) {
+                  const names = document.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name, .s-name, .v-name');
+                  names.forEach(n => n.classList.add('pb-glitch-name-target'));
+              }
+              if (glitchButtons) {
+                  const btns = document.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn, .btn, a.link-btn');
+                  btns.forEach(b => b.classList.add('pb-glitch-btn-target'));
+              }
+          });
+      })();
+      </script>
+      `;
+  }
+
   // ==========================================
   // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
   // ==========================================
@@ -821,6 +885,7 @@ export function generateStaticSite(data) {
     ${emojiRainHtml}
     ${bgdotsHtml}
     ${matrixHtml}
+    ${glitchHtml}
 
     ${bgImgUrl ? `
       <div class="s-bg" style="background-image: url('${bgImgUrl}');"></div>
@@ -986,6 +1051,7 @@ export function generateStaticSite(data) {
       ${emojiRainHtml}
       ${bgdotsHtml}
       ${matrixHtml}
+      ${glitchHtml}
       <div class="c-slider">
           <div class="c-slide active" id="c-s-0"><img src="${c1Img}"></div>
           <div class="c-slide" id="c-s-1"><img src="${c2Img}"></div>
@@ -1169,6 +1235,7 @@ export function generateStaticSite(data) {
         ${emojiRainHtml}
         ${bgdotsHtml}
         ${matrixHtml}
+        ${glitchHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
             ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
@@ -1545,6 +1612,7 @@ export function generateStaticSite(data) {
         ${emojiRainHtml}
         ${bgdotsHtml}
         ${matrixHtml}
+        ${glitchHtml}
 
         
         <div class="eb-header">
@@ -1751,6 +1819,7 @@ export function generateStaticSite(data) {
         ${emojiRainHtml}
         ${bgdotsHtml}
         ${matrixHtml}
+        ${glitchHtml}
         <div class="bg-glow bg-glow-top"></div>
         <div class="bg-glow bg-glow-bottom"></div>
         
