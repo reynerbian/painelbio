@@ -988,8 +988,8 @@ export function generateStaticSite(data) {
             align-items: center; padding: max(32px, env(safe-area-inset-top, 32px)) 16px 40px 16px;
             box-sizing: border-box; position: relative;
             overflow-x: hidden;
-            background-image: radial-gradient(rgba(255,255,255,0.015) 1px, transparent 0), linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85));
-            background-size: 16px 16px, 100% 100%;
+            background-image: linear-gradient(to bottom, rgba(13,10,24,0.4), rgba(6,4,10,0.85));
+            background-size: 100% 100%;
             justify-content: flex-start;
         }
 
@@ -1156,9 +1156,7 @@ export function generateStaticSite(data) {
     ${liveChatHtml}
     <div class="eb-page">
         ${emojiRainHtml}
-        
-        <div class="eb-glow-bg eb-glow-top"></div>
-        <div class="eb-glow-bg eb-glow-bottom"></div>
+
         
         <div class="eb-header">
             ${avatarHtml}
