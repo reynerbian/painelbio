@@ -573,26 +573,18 @@ export function generateStaticSite(data) {
 
       if (ytId) {
           audioPlayerHtml = `
-      <style>
-          @keyframes apWave { 0% { height: 25%; } 100% { height: 100%; } }
-      </style>
-      <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; gap: 9px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.92)); color: #ffffff; padding: 7px 16px 7px 8px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px ${apColor}44; cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; opacity: 0.92;">
-          <div class="ap-icon-circle" style="width: 28px; height: 28px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
-              <svg class="ap-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(15, 23, 42, 0.85); color: #ffffff; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease; user-select: none; opacity: 0.7;">
+          <div class="ap-icon-circle" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+              <svg class="ap-icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
               </svg>
-              <svg class="ap-icon-pause" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
-                  <rect x="5" y="3" width="4" height="18" rx="1"></rect>
-                  <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+              <svg class="ap-icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
               </svg>
           </div>
-          <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2.5px; height: 12px;">
-              <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
-          </div>
-          <span style="letter-spacing: 0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
           <div id="pb-youtube-player-container" style="display: none;"></div>
       </div>
       <script>
@@ -600,23 +592,25 @@ export function generateStaticSite(data) {
               var player = document.getElementById('pb-static-audio-player');
               if (!player) return;
 
-              var playIcon = player.querySelector('.ap-icon-play');
-              var pauseIcon = player.querySelector('.ap-icon-pause');
-              var wbars = player.querySelectorAll('.ap-wbar');
+              var playIcon = player.querySelector('.ap-icon-unmuted');
+              var pauseIcon = player.querySelector('.ap-icon-muted');
 
-              function updateUI(playing) {
-                  if (playing) {
-                      if (playIcon) playIcon.style.display = 'none';
-                      if (pauseIcon) pauseIcon.style.display = 'block';
-                      player.style.opacity = '1';
-                      player.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77';
-                      wbars.forEach(function(bar, idx) { bar.style.animation = 'apWave 0.75s ease-in-out infinite ' + (idx * 0.18) + 's alternate'; });
-                  } else {
-                      if (playIcon) playIcon.style.display = 'block';
-                      if (pauseIcon) pauseIcon.style.display = 'none';
-                      player.style.opacity = '0.85';
-                      player.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33';
-                      wbars.forEach(function(bar) { bar.style.animation = 'none'; });
+              var isPlaying = false;
+              var isMuted = false;
+
+              function updateUI() {
+                  if (playIcon && pauseIcon) {
+                      if (isPlaying && !isMuted) {
+                          playIcon.style.display = 'block';
+                          pauseIcon.style.display = 'none';
+                          player.style.opacity = '1';
+                          player.style.boxShadow = '0 8px 24px rgba(0,0,0,0.55), 0 0 15px rgba(255,255,255,0.15)';
+                      } else {
+                          playIcon.style.display = 'none';
+                          pauseIcon.style.display = 'block';
+                          player.style.opacity = '0.7';
+                          player.style.boxShadow = '0 4px 12px rgba(0,0,0,0.35)';
+                      }
                   }
               }
 
@@ -648,46 +642,30 @@ export function generateStaticSite(data) {
                       events: {
                           'onReady': function(event) {
                               audioLoaded = true;
-                              if (${apAutoplay} || playRequested) {
+                              if (${apAutoplay}) {
                                   ytPlayer.playVideo();
+                                  playRequested = true;
                               }
                           },
                           'onStateChange': function(event) {
                               if (event.data === YT.PlayerState.PLAYING) {
-                                  updateUI(true);
+                                  isPlaying = true;
+                                  isMuted = ytPlayer.isMuted();
                               } else {
-                                  updateUI(false);
+                                  isPlaying = false;
                               }
+                              updateUI();
                           }
                       }
                   });
               };
 
-              var audioEngine = {
-                  play: function() {
-                      playRequested = true;
-                      if (audioLoaded && ytPlayer) {
-                          ytPlayer.playVideo();
-                      }
-                  },
-                  pause: function() {
-                      playRequested = false;
-                      if (audioLoaded && ytPlayer) {
-                          ytPlayer.pauseVideo();
-                      }
-                  },
-                  isPaused: function() {
-                      if (audioLoaded && ytPlayer && ytPlayer.getPlayerState) {
-                          return ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING;
-                      }
-                      return !playRequested;
-                  }
-              };
-
               function setupInteractionPlay() {
                   function playOnFirstInteraction() {
-                      if (audioEngine.isPaused()) {
-                          audioEngine.play();
+                      if (!isPlaying && ytPlayer) {
+                          ytPlayer.unMute();
+                          ytPlayer.playVideo();
+                          playRequested = true;
                       }
                       window.removeEventListener('pointerdown', playOnFirstInteraction);
                       window.removeEventListener('touchstart', playOnFirstInteraction);
@@ -700,7 +678,12 @@ export function generateStaticSite(data) {
 
               if (${apAutoplay}) {
                   setTimeout(function() {
-                      if (audioEngine.isPaused()) {
+                      if (!isPlaying && ytPlayer) {
+                          ytPlayer.mute();
+                          ytPlayer.playVideo();
+                          isMuted = true;
+                          isPlaying = true;
+                          updateUI();
                           setupInteractionPlay();
                       }
                   }, 1200);
@@ -708,37 +691,42 @@ export function generateStaticSite(data) {
 
               player.addEventListener('click', function(e) {
                   e.stopPropagation();
-                  if (audioEngine.isPaused()) {
-                      audioEngine.play();
-                  } else {
-                      audioEngine.pause();
+                  if (ytPlayer) {
+                      if (!isPlaying) {
+                          ytPlayer.unMute();
+                          ytPlayer.playVideo();
+                          playRequested = true;
+                          isPlaying = true;
+                          isMuted = false;
+                      } else {
+                          if (ytPlayer.isMuted()) {
+                              ytPlayer.unMute();
+                              isMuted = false;
+                          } else {
+                              ytPlayer.mute();
+                              isMuted = true;
+                          }
+                      }
+                      updateUI();
                   }
               });
           })();
       </script>`;
       } else {
           audioPlayerHtml = `
-      <style>
-          @keyframes apWave { 0% { height: 25%; } 100% { height: 100%; } }
-      </style>
-      <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; gap: 9px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.92)); color: #ffffff; padding: 7px 16px 7px 8px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px ${apColor}44; cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; opacity: 0.92;">
-          <div class="ap-icon-circle" style="width: 28px; height: 28px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
-              <svg class="ap-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(15, 23, 42, 0.85); color: #ffffff; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease; user-select: none; opacity: 0.7;">
+          <div class="ap-icon-circle" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+              <svg class="ap-icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
               </svg>
-              <svg class="ap-icon-pause" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
-                  <rect x="5" y="3" width="4" height="18" rx="1"></rect>
-                  <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+              <svg class="ap-icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="23" y1="9" x2="17" y2="15"></line>
+                  <line x1="17" y1="9" x2="23" y2="15"></line>
               </svg>
           </div>
-          <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2.5px; height: 12px;">
-              <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.75s ease-in-out infinite alternate; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.75s ease-in-out infinite 0.18s alternate; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.75s ease-in-out infinite 0.36s alternate; opacity: 0.9;"></span>
-              <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: apWave 0.75s ease-in-out infinite 0.54s alternate; opacity: 0.9;"></span>
-          </div>
-          <span style="letter-spacing: 0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
-          <audio id="pb-static-audio-el" src="${apUrl}" loop ${apAutoplay ? 'autoplay' : ''}></audio>
+          <audio id="pb-static-audio-el" src="${apUrl}" loop></audio>
       </div>
       <script>
           (function() {
@@ -746,52 +734,77 @@ export function generateStaticSite(data) {
               var audio = document.getElementById('pb-static-audio-el');
               if (!player || !audio) return;
 
-              var playIcon = player.querySelector('.ap-icon-play');
-              var pauseIcon = player.querySelector('.ap-icon-pause');
-              var wbars = player.querySelectorAll('.ap-wbar');
+              var playIcon = player.querySelector('.ap-icon-unmuted');
+              var pauseIcon = player.querySelector('.ap-icon-muted');
 
-              function updateUI(playing) {
-                  if (playing) {
-                      if (playIcon) playIcon.style.display = 'none';
-                      if (pauseIcon) pauseIcon.style.display = 'block';
-                      player.style.opacity = '1';
-                      player.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77';
-                      wbars.forEach(function(bar, idx) { bar.style.animation = 'apWave 0.75s ease-in-out infinite ' + (idx * 0.18) + 's alternate'; });
-                  } else {
-                      if (playIcon) playIcon.style.display = 'block';
-                      if (pauseIcon) pauseIcon.style.display = 'none';
-                      player.style.opacity = '0.85';
-                      player.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33';
-                      wbars.forEach(function(bar) { bar.style.animation = 'none'; });
+              function updateUI() {
+                  var isPlaying = !audio.paused;
+                  var isMuted = audio.muted;
+
+                  if (playIcon && pauseIcon) {
+                      if (isPlaying && !isMuted) {
+                          playIcon.style.display = 'block';
+                          pauseIcon.style.display = 'none';
+                          player.style.opacity = '1';
+                          player.style.boxShadow = '0 8px 24px rgba(0,0,0,0.55), 0 0 15px rgba(255,255,255,0.15)';
+                      } else {
+                          playIcon.style.display = 'none';
+                          pauseIcon.style.display = 'block';
+                          player.style.opacity = '0.7';
+                          player.style.boxShadow = '0 4px 12px rgba(0,0,0,0.35)';
+                      }
                   }
               }
 
               function tryAutoplay() {
+                  audio.muted = false;
                   var promise = audio.play();
                   if (promise !== undefined) {
-                      promise.then(function() { updateUI(true); }).catch(function() {
-                          updateUI(false);
-                          function playOnFirstInteraction() {
-                              if (audio.paused) { audio.play().then(function() { updateUI(true); }).catch(function(){}); }
-                              window.removeEventListener('pointerdown', playOnFirstInteraction);
-                              window.removeEventListener('touchstart', playOnFirstInteraction);
-                              window.removeEventListener('click', playOnFirstInteraction);
-                          }
-                          window.addEventListener('pointerdown', playOnFirstInteraction, { once: true });
-                          window.addEventListener('touchstart', playOnFirstInteraction, { once: true });
-                          window.addEventListener('click', playOnFirstInteraction, { once: true });
+                      promise.then(function() { 
+                          updateUI(); 
+                      }).catch(function() {
+                          audio.muted = true;
+                          audio.play().then(function() {
+                              updateUI();
+                              setupInteractionPlay();
+                          }).catch(function() {
+                              updateUI();
+                              setupInteractionPlay();
+                          });
                       });
                   }
               }
-              tryAutoplay();
+
+              function setupInteractionPlay() {
+                  function playOnFirstInteraction() {
+                      if (audio.paused) {
+                          audio.muted = false;
+                          audio.play().then(function() { updateUI(); }).catch(function(){});
+                      } else if (audio.muted) {
+                          audio.muted = false;
+                          updateUI();
+                      }
+                      window.removeEventListener('pointerdown', playOnFirstInteraction);
+                      window.removeEventListener('touchstart', playOnFirstInteraction);
+                      window.removeEventListener('click', playOnFirstInteraction);
+                  }
+                  window.addEventListener('pointerdown', playOnFirstInteraction, { once: true });
+                  window.addEventListener('touchstart', playOnFirstInteraction, { once: true });
+                  window.addEventListener('click', playOnFirstInteraction, { once: true });
+              }
+
+              if (${apAutoplay}) {
+                  tryAutoplay();
+              }
 
               player.addEventListener('click', function(e) {
                   e.stopPropagation();
                   if (audio.paused) {
-                      audio.play().then(function() { updateUI(true); }).catch(function(){});
+                      audio.muted = false;
+                      audio.play().then(function() { updateUI(); }).catch(function(){});
                   } else {
-                      audio.pause();
-                      updateUI(false);
+                      audio.muted = !audio.muted;
+                      updateUI();
                   }
               });
           })();

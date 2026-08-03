@@ -428,10 +428,7 @@ function updatePreviewFromForm() {
 
             if (isAudioPlayerActive) {
                 const apUrl = document.getElementById('input-addon-ap-url')?.value.trim() || 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3';
-                const apLabel = document.getElementById('input-addon-ap-label')?.value.trim() || 'Música da Loja';
                 const apPosition = document.getElementById('select-addon-ap-position')?.value || 'bottom-right';
-                const apColor = document.getElementById('input-addon-ap-color')?.value || '#ec4899';
-                const apWaveColor = document.getElementById('input-addon-ap-wave-color')?.value || '#ffffff';
 
                 if (phoneScreen) {
                     if (!phoneAudioPlayer) {
@@ -452,14 +449,34 @@ function updatePreviewFromForm() {
                     };
                     const ytId = getYoutubeId(apUrl);
 
-                    const isPlaying = window._phoneAudioPlaying || false;
+                    const updatePlayerUI = () => {
+                        const playIcon = phoneAudioPlayer.querySelector('.ap-icon-unmuted');
+                        const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-muted');
+                        const isPlaying = window._phoneAudioPlaying || false;
+                        const isMuted = window._phoneAudioMuted || false;
 
-                    phoneAudioPlayer.style.cssText = `position: absolute; ${posCss} z-index: 999; display: flex; align-items: center; gap: 9px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.92)); color: #ffffff; padding: 6px 14px 6px 7px; border-radius: 40px; font-size: 0.74rem; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px ${apColor}44; cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; opacity: ${isPlaying ? '1' : '0.88'};`;
+                        if (playIcon && pauseIcon) {
+                            if (isPlaying && !isMuted) {
+                                playIcon.style.display = 'block';
+                                pauseIcon.style.display = 'none';
+                                phoneAudioPlayer.style.opacity = '1';
+                                phoneAudioPlayer.style.boxShadow = `0 8px 24px rgba(0,0,0,0.55), 0 0 15px rgba(255,255,255,0.15)`;
+                            } else {
+                                playIcon.style.display = 'none';
+                                pauseIcon.style.display = 'block';
+                                phoneAudioPlayer.style.opacity = '0.7';
+                                phoneAudioPlayer.style.boxShadow = `0 4px 12px rgba(0,0,0,0.35)`;
+                            }
+                        }
+                    };
+
+                    phoneAudioPlayer.style.cssText = `position: absolute; ${posCss} z-index: 999; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(15, 23, 42, 0.85); color: #ffffff; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease; user-select: none;`;
 
                     // Só reconstrói o player se a URL mudou
                     if (window._phoneLastAudioUrl !== apUrl) {
                         window._phoneLastAudioUrl = apUrl;
                         window._phoneAudioPlaying = false;
+                        window._phoneAudioMuted = false;
                         
                         // Limpa players anteriores
                         if (window.phoneYtPlayer) {
@@ -473,22 +490,17 @@ function updatePreviewFromForm() {
 
                         if (ytId) {
                             phoneAudioPlayer.innerHTML = `
-                                <div class="ap-icon-circle" style="width: 26px; height: 26px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
-                                    <svg class="ap-icon-play" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px; display: block;">
-                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                <div class="ap-icon-circle" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <svg class="ap-icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                                     </svg>
-                                    <svg class="ap-icon-pause" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
-                                        <rect x="5" y="3" width="4" height="18" rx="1"></rect>
-                                        <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+                                    <svg class="ap-icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                                        <line x1="17" y1="9" x2="23" y2="15"></line>
                                     </svg>
                                 </div>
-                                <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2px; height: 11px;">
-                                    <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                </div>
-                                <span class="ap-label-el" style="letter-spacing: 0.3px; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
                                 <div id="phone-yt-player-container" style="display: none;"></div>
                             `;
 
@@ -510,28 +522,13 @@ function updatePreviewFromForm() {
                                     },
                                     events: {
                                         'onStateChange': (event) => {
-                                            const playIcon = phoneAudioPlayer.querySelector('.ap-icon-play');
-                                            const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-pause');
-                                            const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
                                             if (event.data === YT.PlayerState.PLAYING) {
                                                 window._phoneAudioPlaying = true;
-                                                if (playIcon) playIcon.style.display = 'none';
-                                                if (pauseIcon) pauseIcon.style.display = 'block';
-                                                phoneAudioPlayer.style.opacity = '1';
-                                                phoneAudioPlayer.style.boxShadow = `0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77`;
-                                                wbars.forEach((bar, idx) => {
-                                                    bar.style.animation = `apWave 0.75s ease-in-out infinite ${idx * 0.18}s alternate`;
-                                                });
+                                                window._phoneAudioMuted = window.phoneYtPlayer.isMuted();
                                             } else {
                                                 window._phoneAudioPlaying = false;
-                                                if (playIcon) playIcon.style.display = 'block';
-                                                if (pauseIcon) pauseIcon.style.display = 'none';
-                                                phoneAudioPlayer.style.opacity = '0.85';
-                                                phoneAudioPlayer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33`;
-                                                wbars.forEach(bar => {
-                                                    bar.style.animation = 'none';
-                                                });
                                             }
+                                            updatePlayerUI();
                                         }
                                     }
                                 });
@@ -553,88 +550,60 @@ function updatePreviewFromForm() {
                             }
                         } else {
                             phoneAudioPlayer.innerHTML = `
-                                <div class="ap-icon-circle" style="width: 26px; height: 26px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
-                                    <svg class="ap-icon-play" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px; display: block;">
-                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                <div class="ap-icon-circle" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <svg class="ap-icon-unmuted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                                     </svg>
-                                    <svg class="ap-icon-pause" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
-                                        <rect x="5" y="3" width="4" height="18" rx="1"></rect>
-                                        <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+                                    <svg class="ap-icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                                        <line x1="17" y1="9" x2="23" y2="15"></line>
                                     </svg>
                                 </div>
-                                <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2px; height: 11px;">
-                                    <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                    <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
-                                </div>
-                                <span class="ap-label-el" style="letter-spacing: 0.3px; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
                                 <audio id="phone-audio-el" src="${apUrl}" loop></audio>
                             `;
                         }
-                    } else {
-                        const lbl = phoneAudioPlayer.querySelector('.ap-label-el');
-                        if (lbl) lbl.textContent = apLabel;
-                        const circle = phoneAudioPlayer.querySelector('.ap-icon-circle');
-                        if (circle) {
-                            circle.style.background = apColor;
-                            circle.style.boxShadow = `0 0 12px ${apColor}bb`;
-                        }
-                        const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
-                        wbars.forEach(bar => {
-                            bar.style.background = apWaveColor;
-                        });
                     }
 
+                    updatePlayerUI();
                     phoneAudioPlayer.style.display = 'flex';
-
-                    let waveStyle = document.getElementById('phone-ap-wave-style');
-                    if (!waveStyle) {
-                        waveStyle = document.createElement('style');
-                        waveStyle.id = 'phone-ap-wave-style';
-                        waveStyle.textContent = `@keyframes apWave { 0% { height: 25%; } 100% { height: 100%; } }`;
-                        document.head.appendChild(waveStyle);
-                    }
 
                     phoneAudioPlayer.onclick = (e) => {
                         e.stopPropagation();
                         if (ytId) {
                             if (window.phoneYtPlayer && window.phoneYtPlayer.getPlayerState) {
                                 const state = window.phoneYtPlayer.getPlayerState();
-                                if (state === YT.PlayerState.PLAYING) {
-                                    window.phoneYtPlayer.pauseVideo();
-                                } else {
+                                if (state !== YT.PlayerState.PLAYING) {
+                                    window.phoneYtPlayer.unMute();
                                     window.phoneYtPlayer.playVideo();
+                                    window._phoneAudioPlaying = true;
+                                    window._phoneAudioMuted = false;
+                                } else {
+                                    if (window.phoneYtPlayer.isMuted()) {
+                                        window.phoneYtPlayer.unMute();
+                                        window._phoneAudioMuted = false;
+                                    } else {
+                                        window.phoneYtPlayer.mute();
+                                        window._phoneAudioMuted = true;
+                                    }
                                 }
+                                updatePlayerUI();
                             }
                         } else {
                             const audioEl = document.getElementById('phone-audio-el');
-                            const playIcon = phoneAudioPlayer.querySelector('.ap-icon-play');
-                            const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-pause');
-                            const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
-
                             if (audioEl) {
                                 if (audioEl.paused) {
+                                    audioEl.muted = false;
                                     audioEl.play().then(() => {
                                         window._phoneAudioPlaying = true;
-                                        if (playIcon) playIcon.style.display = 'none';
-                                        if (pauseIcon) pauseIcon.style.display = 'block';
-                                        phoneAudioPlayer.style.opacity = '1';
-                                        phoneAudioPlayer.style.boxShadow = `0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77`;
-                                        wbars.forEach((bar, idx) => {
-                                            bar.style.animation = `apWave 0.75s ease-in-out infinite ${idx * 0.18}s alternate`;
-                                        });
+                                        window._phoneAudioMuted = false;
+                                        updatePlayerUI();
                                     }).catch(() => {});
                                 } else {
-                                    audioEl.pause();
-                                    window._phoneAudioPlaying = false;
-                                    if (playIcon) playIcon.style.display = 'block';
-                                    if (pauseIcon) pauseIcon.style.display = 'none';
-                                    phoneAudioPlayer.style.opacity = '0.85';
-                                    phoneAudioPlayer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33`;
-                                    wbars.forEach(bar => {
-                                        bar.style.animation = 'none';
-                                    });
+                                    audioEl.muted = !audioEl.muted;
+                                    window._phoneAudioMuted = audioEl.muted;
+                                    updatePlayerUI();
                                 }
                             }
                         }
