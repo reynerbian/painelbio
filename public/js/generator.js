@@ -340,7 +340,7 @@ export function generateStaticSite(data) {
               stColor = baseColor;
               stActive = true;
           } else {
-              // Simulado Inteligente
+              // Simulado Inteligente (Horário Comercial)
               try {
                   const now = new Date();
                   const curMin = now.getHours() * 60 + now.getMinutes();
@@ -350,30 +350,12 @@ export function generateStaticSite(data) {
                   const endMin = (eh !== undefined && !isNaN(eh) ? eh : 18) * 60 + (em !== undefined && !isNaN(em) ? em : 0);
                   
                   if (curMin >= startMin && curMin <= endMin) {
-                      const seed = Math.floor(now.getTime() / 600000) % 100;
-                      if (seed < 85) {
-                          stText = 'Online agora';
-                          stColor = baseColor;
-                          stActive = true;
-                      } else {
-                          const minAgo = 2 + (seed % 8);
-                          stText = 'visto há ' + minAgo + ' min';
-                          stColor = '#94a3b8';
-                          stActive = false;
-                      }
+                      stText = 'Online agora';
+                      stColor = baseColor;
+                      stActive = true;
                   } else {
-                      const seed = Math.floor(now.getTime() / 86400000) % 10;
-                      const diffMin = 3 + (seed % 15);
-                      let lastH = eh !== undefined && !isNaN(eh) ? eh : 18;
-                      let lastM = (em !== undefined && !isNaN(em) ? em : 0) - diffMin;
-                      if (lastM < 0) {
-                          lastH--;
-                          lastM += 60;
-                      }
-                      if (lastH < 0) lastH += 24;
-                      const pad = (n) => String(n).padStart(2, '0');
-                      stText = 'visto às ' + pad(lastH) + ':' + pad(lastM);
-                      stColor = '#64748b';
+                      stText = 'Fora de expediente';
+                      stColor = '#94a3b8';
                       stActive = false;
                   }
               } catch (e) {

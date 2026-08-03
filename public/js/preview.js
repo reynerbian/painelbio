@@ -705,7 +705,7 @@ function updatePreviewFromForm() {
                     statusColor = lcColor;
                     statusActive = true;
                 } else {
-                    // Simulado Inteligente
+                    // Simulado Inteligente (Horário Comercial)
                     try {
                         const now = new Date();
                         const curMin = now.getHours() * 60 + now.getMinutes();
@@ -715,30 +715,12 @@ function updatePreviewFromForm() {
                         const endMin = (eh !== undefined && !isNaN(eh) ? eh : 18) * 60 + (em !== undefined && !isNaN(em) ? em : 0);
 
                         if (curMin >= startMin && curMin <= endMin) {
-                            const seed = Math.floor(now.getTime() / 600000) % 100;
-                            if (seed < 85) {
-                                statusText = 'Online agora';
-                                statusColor = lcColor;
-                                statusActive = true;
-                            } else {
-                                const minAgo = 2 + (seed % 8);
-                                statusText = `visto há ${minAgo} min`;
-                                statusColor = '#94a3b8';
-                                statusActive = false;
-                            }
+                            statusText = 'Online agora';
+                            statusColor = lcColor;
+                            statusActive = true;
                         } else {
-                            const seed = Math.floor(now.getTime() / 86400000) % 10;
-                            const diffMin = 3 + (seed % 15);
-                            let lastH = eh !== undefined && !isNaN(eh) ? eh : 18;
-                            let lastM = (em !== undefined && !isNaN(em) ? em : 0) - diffMin;
-                            if (lastM < 0) {
-                                lastH--;
-                                lastM += 60;
-                            }
-                            if (lastH < 0) lastH += 24;
-                            const pad = (n) => String(n).padStart(2, '0');
-                            statusText = `visto às ${pad(lastH)}:${pad(lastM)}`;
-                            statusColor = '#64748b';
+                            statusText = 'Fora de expediente';
+                            statusColor = '#94a3b8';
                             statusActive = false;
                         }
                     } catch (e) {
