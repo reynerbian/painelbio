@@ -1983,10 +1983,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = 'radial-gradient(circle at 50% 10%, #1e293b 0%, #0f172a 70%)';
                 
                 previewScreen.innerHTML = `
+                    <div class="bg-glow bg-glow-top"></div>
+                    <div class="bg-glow bg-glow-bottom"></div>
+                    
                     <div class="preview-bio-page">
-                        <div class="bg-glow bg-glow-top"></div>
-                        <div class="bg-glow bg-glow-bottom"></div>
-                        
                         <div class="preview-card" id="view-card" style="display: none;">
                             <div class="preview-avatar-glow" id="view-avatar-container">
                                 <div class="preview-avatar-inner" id="view-avatar-inner"></div>

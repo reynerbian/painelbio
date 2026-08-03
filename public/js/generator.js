@@ -1951,6 +1951,7 @@ export function generateStaticSite(data) {
             overflow: hidden; overscroll-behavior: none;
             background-color: #121214; color: #fff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            position: relative;
         }
         
         .preview-bio-page {
@@ -2008,15 +2009,17 @@ export function generateStaticSite(data) {
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
+    
+    <!-- Elementos de fundo posicionados de forma absoluta no body (fora do scroll) -->
+    ${emojiRainHtml}
+    ${bgdotsHtml}
+    ${matrixHtml}
+    ${glitchHtml}
+    ${auroraHtml}
+    <div class="bg-glow bg-glow-top"></div>
+    <div class="bg-glow bg-glow-bottom"></div>
+
     <div class="preview-bio-page">
-        ${emojiRainHtml}
-        ${bgdotsHtml}
-        ${matrixHtml}
-        ${glitchHtml}
-        ${auroraHtml}
-        <div class="bg-glow bg-glow-top"></div>
-        <div class="bg-glow bg-glow-bottom"></div>
-        
         <div class="preview-card">
             ${avatarHtml}
             <h2 class="preview-name">${data.name || ''}</h2>
