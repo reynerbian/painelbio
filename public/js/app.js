@@ -1831,16 +1831,51 @@ loadClassicModel();
                 });
             });
 
-            // Clique no botão buscar imagem
+            // Clique no botão buscar imagem (abre galeria local/câmera e faz upload)
             const btnSearchAvatar = document.getElementById('btn-search-avatar');
             if (btnSearchAvatar) {
                 btnSearchAvatar.addEventListener('click', () => {
-                    const url = prompt("Insira a URL da imagem de perfil:", "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200");
-                    if (url) {
-                        const avatarInput = document.getElementById('input-avatar');
-                        if (avatarInput) avatarInput.value = url;
-                        updatePreviewFromForm();
-                    }
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    
+                    fileInput.addEventListener('change', async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        const originalText = btnSearchAvatar.textContent;
+                        btnSearchAvatar.textContent = 'Enviando...';
+                        btnSearchAvatar.disabled = true;
+                        
+                        try {
+                            const formData = new FormData();
+                            formData.append('logo', file); // O backend do server.js espera 'logo' para imagem de perfil
+                            
+                            const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            const data = await response.json();
+                            if (data.success && data.urls && data.urls.logo) {
+                                const avatarInput = document.getElementById('input-avatar');
+                                if (avatarInput) {
+                                    avatarInput.value = window.location.origin + data.urls.logo;
+                                }
+                                updatePreviewFromForm();
+                            } else {
+                                alert('Erro ao fazer upload da imagem de perfil.');
+                            }
+                        } catch (err) {
+                            console.error('Erro ao fazer upload:', err);
+                            alert('Erro de conexão ao fazer upload.');
+                        } finally {
+                            btnSearchAvatar.textContent = originalText;
+                            btnSearchAvatar.disabled = false;
+                        }
+                    });
+                    
+                    fileInput.click();
                 });
             }
 
