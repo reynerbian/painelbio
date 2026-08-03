@@ -563,7 +563,161 @@ export function generateStaticSite(data) {
       if (apPosition === 'bottom-left') posCss = 'bottom: 20px; left: 20px;';
       if (apPosition === 'top-right') posCss = 'top: 20px; right: 20px;';
 
-      audioPlayerHtml = `
+      const getYoutubeId = (url) => {
+          if (!url) return null;
+          const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+          const match = url.match(regExp);
+          return (match && match[2].length === 11) ? match[2] : null;
+      };
+      const ytId = getYoutubeId(apUrl);
+
+      if (ytId) {
+          audioPlayerHtml = `
+      <style>
+          @keyframes apWave { 0% { height: 25%; } 100% { height: 100%; } }
+      </style>
+      <div id="pb-static-audio-player" style="position: fixed; ${posCss} z-index: 99999; display: flex; align-items: center; gap: 9px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.92)); color: #ffffff; padding: 7px 16px 7px 8px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px ${apColor}44; cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; opacity: 0.92;">
+          <div class="ap-icon-circle" style="width: 28px; height: 28px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
+              <svg class="ap-icon-play" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <svg class="ap-icon-pause" width="11" height="11" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
+                  <rect x="5" y="3" width="4" height="18" rx="1"></rect>
+                  <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+              </svg>
+          </div>
+          <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2.5px; height: 12px;">
+              <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
+              <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
+              <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
+              <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; opacity: 0.9;"></span>
+          </div>
+          <span style="letter-spacing: 0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
+          <div id="pb-youtube-player-container" style="display: none;"></div>
+      </div>
+      <script>
+          (function() {
+              var player = document.getElementById('pb-static-audio-player');
+              if (!player) return;
+
+              var playIcon = player.querySelector('.ap-icon-play');
+              var pauseIcon = player.querySelector('.ap-icon-pause');
+              var wbars = player.querySelectorAll('.ap-wbar');
+
+              function updateUI(playing) {
+                  if (playing) {
+                      if (playIcon) playIcon.style.display = 'none';
+                      if (pauseIcon) pauseIcon.style.display = 'block';
+                      player.style.opacity = '1';
+                      player.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77';
+                      wbars.forEach(function(bar, idx) { bar.style.animation = 'apWave 0.75s ease-in-out infinite ' + (idx * 0.18) + 's alternate'; });
+                  } else {
+                      if (playIcon) playIcon.style.display = 'block';
+                      if (pauseIcon) pauseIcon.style.display = 'none';
+                      player.style.opacity = '0.85';
+                      player.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33';
+                      wbars.forEach(function(bar) { bar.style.animation = 'none'; });
+                  }
+              }
+
+              var ytPlayer;
+              var audioLoaded = false;
+              var playRequested = false;
+
+              var tag = document.createElement('script');
+              tag.src = "https://www.youtube.com/iframe_api";
+              var firstScriptTag = document.getElementsByTagName('script')[0];
+              firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+              window.onYouTubeIframeAPIReady = function() {
+                  ytPlayer = new YT.Player('pb-youtube-player-container', {
+                      height: '0',
+                      width: '0',
+                      videoId: '${ytId}',
+                      playerVars: {
+                          'autoplay': ${apAutoplay ? 1 : 0},
+                          'loop': 1,
+                          'playlist': '${ytId}',
+                          'controls': 0,
+                          'disablekb': 1,
+                          'fs': 0,
+                          'modestbranding': 1,
+                          'rel': 0,
+                          'showinfo': 0
+                      },
+                      events: {
+                          'onReady': function(event) {
+                              audioLoaded = true;
+                              if (${apAutoplay} || playRequested) {
+                                  ytPlayer.playVideo();
+                              }
+                          },
+                          'onStateChange': function(event) {
+                              if (event.data === YT.PlayerState.PLAYING) {
+                                  updateUI(true);
+                              } else {
+                                  updateUI(false);
+                              }
+                          }
+                      }
+                  });
+              };
+
+              var audioEngine = {
+                  play: function() {
+                      playRequested = true;
+                      if (audioLoaded && ytPlayer) {
+                          ytPlayer.playVideo();
+                      }
+                  },
+                  pause: function() {
+                      playRequested = false;
+                      if (audioLoaded && ytPlayer) {
+                          ytPlayer.pauseVideo();
+                      }
+                  },
+                  isPaused: function() {
+                      if (audioLoaded && ytPlayer && ytPlayer.getPlayerState) {
+                          return ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING;
+                      }
+                      return !playRequested;
+                  }
+              };
+
+              function setupInteractionPlay() {
+                  function playOnFirstInteraction() {
+                      if (audioEngine.isPaused()) {
+                          audioEngine.play();
+                      }
+                      window.removeEventListener('pointerdown', playOnFirstInteraction);
+                      window.removeEventListener('touchstart', playOnFirstInteraction);
+                      window.removeEventListener('click', playOnFirstInteraction);
+                  }
+                  window.addEventListener('pointerdown', playOnFirstInteraction, { once: true });
+                  window.addEventListener('touchstart', playOnFirstInteraction, { once: true });
+                  window.addEventListener('click', playOnFirstInteraction, { once: true });
+              }
+
+              if (${apAutoplay}) {
+                  setTimeout(function() {
+                      if (audioEngine.isPaused()) {
+                          setupInteractionPlay();
+                      }
+                  }, 1200);
+              }
+
+              player.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  if (audioEngine.isPaused()) {
+                      audioEngine.play();
+                  } else {
+                      audioEngine.pause();
+                  }
+              });
+          })();
+      </script>`;
+      } else {
+          audioPlayerHtml = `
       <style>
           @keyframes apWave { 0% { height: 25%; } 100% { height: 100%; } }
       </style>
@@ -642,6 +796,7 @@ export function generateStaticSite(data) {
               });
           })();
       </script>`;
+      }
   }
 
   // ADD-ON 6: BOLINHAS NO BACKGROUND

@@ -1,4 +1,4 @@
-﻿// --- PREVIEW MODULE ---
+// --- PREVIEW MODULE ---
 
 function updatePreviewFromForm() {
             const activeModel = window.currentActiveModel || 'classic';
@@ -444,30 +444,148 @@ function updatePreviewFromForm() {
                     if (apPosition === 'bottom-left') posCss = 'bottom: 16px; left: 16px;';
                     if (apPosition === 'top-right') posCss = 'top: 60px; right: 16px;';
 
-                    const existingAudio = document.getElementById('phone-audio-el');
-                    const isPlaying = existingAudio && !existingAudio.paused;
+                    const getYoutubeId = (url) => {
+                        if (!url) return null;
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                        const match = url.match(regExp);
+                        return (match && match[2].length === 11) ? match[2] : null;
+                    };
+                    const ytId = getYoutubeId(apUrl);
+
+                    const isPlaying = window._phoneAudioPlaying || false;
 
                     phoneAudioPlayer.style.cssText = `position: absolute; ${posCss} z-index: 999; display: flex; align-items: center; gap: 9px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.92)); color: #ffffff; padding: 6px 14px 6px 7px; border-radius: 40px; font-size: 0.74rem; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; border: 1px solid rgba(255, 255, 255, 0.18); border-top: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 18px ${apColor}44; cursor: pointer; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); user-select: none; opacity: ${isPlaying ? '1' : '0.88'};`;
 
-                    phoneAudioPlayer.innerHTML = `
-                        <div class="ap-icon-circle" style="width: 26px; height: 26px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
-                            <svg class="ap-icon-play" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px; display: ${isPlaying ? 'none' : 'block'};">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            <svg class="ap-icon-pause" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="display: ${isPlaying ? 'block' : 'none'};">
-                                <rect x="5" y="3" width="4" height="18" rx="1"></rect>
-                                <rect x="15" y="3" width="4" height="18" rx="1"></rect>
-                            </svg>
-                        </div>
-                        <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2px; height: 11px;">
-                            <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: ${isPlaying ? 'apWave 0.75s ease-in-out infinite alternate' : 'none'}; opacity: 0.9;"></span>
-                            <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: ${isPlaying ? 'apWave 0.75s ease-in-out infinite 0.18s alternate' : 'none'}; opacity: 0.9;"></span>
-                            <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: ${isPlaying ? 'apWave 0.75s ease-in-out infinite 0.36s alternate' : 'none'}; opacity: 0.9;"></span>
-                            <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: ${isPlaying ? 'apWave 0.75s ease-in-out infinite 0.54s alternate' : 'none'}; opacity: 0.9;"></span>
-                        </div>
-                        <span style="letter-spacing: 0.3px; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
-                        <audio id="phone-audio-el" src="${apUrl}" loop></audio>
-                    `;
+                    // Só reconstrói o player se a URL mudou
+                    if (window._phoneLastAudioUrl !== apUrl) {
+                        window._phoneLastAudioUrl = apUrl;
+                        window._phoneAudioPlaying = false;
+                        
+                        // Limpa players anteriores
+                        if (window.phoneYtPlayer) {
+                            try { window.phoneYtPlayer.destroy(); } catch(e){}
+                            window.phoneYtPlayer = null;
+                        }
+                        const oldAudio = document.getElementById('phone-audio-el');
+                        if (oldAudio) {
+                            try { oldAudio.pause(); } catch(e){}
+                        }
+
+                        if (ytId) {
+                            phoneAudioPlayer.innerHTML = `
+                                <div class="ap-icon-circle" style="width: 26px; height: 26px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
+                                    <svg class="ap-icon-play" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px; display: block;">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    <svg class="ap-icon-pause" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
+                                        <rect x="5" y="3" width="4" height="18" rx="1"></rect>
+                                        <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+                                    </svg>
+                                </div>
+                                <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2px; height: 11px;">
+                                    <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                </div>
+                                <span class="ap-label-el" style="letter-spacing: 0.3px; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
+                                <div id="phone-yt-player-container" style="display: none;"></div>
+                            `;
+
+                            const initYt = () => {
+                                window.phoneYtPlayer = new YT.Player('phone-yt-player-container', {
+                                    height: '0',
+                                    width: '0',
+                                    videoId: ytId,
+                                    playerVars: {
+                                        'autoplay': 0,
+                                        'loop': 1,
+                                        'playlist': ytId,
+                                        'controls': 0,
+                                        'disablekb': 1,
+                                        'fs': 0,
+                                        'modestbranding': 1,
+                                        'rel': 0,
+                                        'showinfo': 0
+                                    },
+                                    events: {
+                                        'onStateChange': (event) => {
+                                            const playIcon = phoneAudioPlayer.querySelector('.ap-icon-play');
+                                            const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-pause');
+                                            const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
+                                            if (event.data === YT.PlayerState.PLAYING) {
+                                                window._phoneAudioPlaying = true;
+                                                if (playIcon) playIcon.style.display = 'none';
+                                                if (pauseIcon) pauseIcon.style.display = 'block';
+                                                phoneAudioPlayer.style.opacity = '1';
+                                                phoneAudioPlayer.style.boxShadow = `0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77`;
+                                                wbars.forEach((bar, idx) => {
+                                                    bar.style.animation = `apWave 0.75s ease-in-out infinite ${idx * 0.18}s alternate`;
+                                                });
+                                            } else {
+                                                window._phoneAudioPlaying = false;
+                                                if (playIcon) playIcon.style.display = 'block';
+                                                if (pauseIcon) pauseIcon.style.display = 'none';
+                                                phoneAudioPlayer.style.opacity = '0.85';
+                                                phoneAudioPlayer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33`;
+                                                wbars.forEach(bar => {
+                                                    bar.style.animation = 'none';
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            };
+
+                            if (!window.YT || !window.YT.Player) {
+                                if (!document.getElementById('yt-iframe-api-script')) {
+                                    const tag = document.createElement('script');
+                                    tag.id = 'yt-iframe-api-script';
+                                    tag.src = "https://www.youtube.com/iframe_api";
+                                    const firstScriptTag = document.getElementsByTagName('script')[0];
+                                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                                }
+                                window.onYouTubeIframeAPIReady = () => {
+                                    initYt();
+                                };
+                            } else {
+                                initYt();
+                            }
+                        } else {
+                            phoneAudioPlayer.innerHTML = `
+                                <div class="ap-icon-circle" style="width: 26px; height: 26px; border-radius: 50%; background: ${apColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 12px ${apColor}bb; transition: transform 0.2s;">
+                                    <svg class="ap-icon-play" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px; display: block;">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                    </svg>
+                                    <svg class="ap-icon-pause" width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" style="display: none;">
+                                        <rect x="5" y="3" width="4" height="18" rx="1"></rect>
+                                        <rect x="15" y="3" width="4" height="18" rx="1"></rect>
+                                    </svg>
+                                </div>
+                                <div class="ap-wave-bars" style="display: flex; align-items: flex-end; gap: 2px; height: 11px;">
+                                    <span class="ap-wbar" style="width: 2.5px; height: 100%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 60%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 85%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                    <span class="ap-wbar" style="width: 2.5px; height: 45%; background: ${apWaveColor}; border-radius: 2px; animation: none; opacity: 0.9;"></span>
+                                </div>
+                                <span class="ap-label-el" style="letter-spacing: 0.3px; max-width: 105px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">${apLabel}</span>
+                                <audio id="phone-audio-el" src="${apUrl}" loop></audio>
+                            `;
+                        }
+                    } else {
+                        const lbl = phoneAudioPlayer.querySelector('.ap-label-el');
+                        if (lbl) lbl.textContent = apLabel;
+                        const circle = phoneAudioPlayer.querySelector('.ap-icon-circle');
+                        if (circle) {
+                            circle.style.background = apColor;
+                            circle.style.boxShadow = `0 0 12px ${apColor}bb`;
+                        }
+                        const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
+                        wbars.forEach(bar => {
+                            bar.style.background = apWaveColor;
+                        });
+                    }
+
                     phoneAudioPlayer.style.display = 'flex';
 
                     let waveStyle = document.getElementById('phone-ap-wave-style');
@@ -478,40 +596,64 @@ function updatePreviewFromForm() {
                         document.head.appendChild(waveStyle);
                     }
 
-                    // Toggle play/pause ao clicar no player do mockup
                     phoneAudioPlayer.onclick = (e) => {
                         e.stopPropagation();
-                        const audioEl = document.getElementById('phone-audio-el');
-                        const playIcon = phoneAudioPlayer.querySelector('.ap-icon-play');
-                        const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-pause');
-                        const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
+                        if (ytId) {
+                            if (window.phoneYtPlayer && window.phoneYtPlayer.getPlayerState) {
+                                const state = window.phoneYtPlayer.getPlayerState();
+                                if (state === YT.PlayerState.PLAYING) {
+                                    window.phoneYtPlayer.pauseVideo();
+                                } else {
+                                    window.phoneYtPlayer.playVideo();
+                                }
+                            }
+                        } else {
+                            const audioEl = document.getElementById('phone-audio-el');
+                            const playIcon = phoneAudioPlayer.querySelector('.ap-icon-play');
+                            const pauseIcon = phoneAudioPlayer.querySelector('.ap-icon-pause');
+                            const wbars = phoneAudioPlayer.querySelectorAll('.ap-wbar');
 
-                        if (audioEl) {
-                            if (audioEl.paused) {
-                                audioEl.play().then(() => {
-                                    if (playIcon) playIcon.style.display = 'none';
-                                    if (pauseIcon) pauseIcon.style.display = 'block';
-                                    phoneAudioPlayer.style.opacity = '1';
-                                    phoneAudioPlayer.style.boxShadow = `0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77`;
-                                    wbars.forEach((bar, idx) => {
-                                        bar.style.animation = `apWave 0.75s ease-in-out infinite ${idx * 0.18}s alternate`;
+                            if (audioEl) {
+                                if (audioEl.paused) {
+                                    audioEl.play().then(() => {
+                                        window._phoneAudioPlaying = true;
+                                        if (playIcon) playIcon.style.display = 'none';
+                                        if (pauseIcon) pauseIcon.style.display = 'block';
+                                        phoneAudioPlayer.style.opacity = '1';
+                                        phoneAudioPlayer.style.boxShadow = `0 10px 30px rgba(0,0,0,0.65), 0 0 22px ${apColor}77`;
+                                        wbars.forEach((bar, idx) => {
+                                            bar.style.animation = `apWave 0.75s ease-in-out infinite ${idx * 0.18}s alternate`;
+                                        });
+                                    }).catch(() => {});
+                                } else {
+                                    audioEl.pause();
+                                    window._phoneAudioPlaying = false;
+                                    if (playIcon) playIcon.style.display = 'block';
+                                    if (pauseIcon) pauseIcon.style.display = 'none';
+                                    phoneAudioPlayer.style.opacity = '0.85';
+                                    phoneAudioPlayer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33`;
+                                    wbars.forEach(bar => {
+                                        bar.style.animation = 'none';
                                     });
-                                }).catch(() => {});
-                            } else {
-                                audioEl.pause();
-                                if (playIcon) playIcon.style.display = 'block';
-                                if (pauseIcon) pauseIcon.style.display = 'none';
-                                phoneAudioPlayer.style.opacity = '0.85';
-                                phoneAudioPlayer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.45), 0 0 12px ${apColor}33`;
-                                wbars.forEach(bar => {
-                                    bar.style.animation = 'none';
-                                });
+                                }
                             }
                         }
                     };
                 }
-            } else if (phoneAudioPlayer) {
-                phoneAudioPlayer.style.display = 'none';
+            } else {
+                if (phoneAudioPlayer) {
+                    phoneAudioPlayer.style.display = 'none';
+                }
+                if (window.phoneYtPlayer) {
+                    try { window.phoneYtPlayer.destroy(); } catch(e){}
+                    window.phoneYtPlayer = null;
+                }
+                const oldAudio = document.getElementById('phone-audio-el');
+                if (oldAudio) {
+                    try { oldAudio.pause(); } catch(e){}
+                }
+                window._phoneLastAudioUrl = null;
+                window._phoneAudioPlaying = false;
             }
 
             // =========================================================================
