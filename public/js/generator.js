@@ -319,23 +319,52 @@ export function generateStaticSite(data) {
   const erSpeed = data.addonEmojiRainSpeed || 'normal';
   const erCoverage = Math.min(Math.max(parseInt(data.addonEmojiRainCoverage || 100, 10), 10), 100);
   const erRotate = Boolean(data.addonEmojiRainRotate);
+  const erSway = Boolean(data.addonEmojiRainSway);
+  const erOpacity = data.addonEmojiRainOpacity || 'normal';
+  const erOutlineActive = Boolean(data.addonEmojiRainOutlineActive);
+  const erOutlineColor = data.addonEmojiRainOutlineColor || '#7c3aed';
+  
   const erDurMap = { slow: 6, normal: 5, fast: 3 };
   const erBase = erDurMap[erSpeed] || 3.5;
+  const opacityMap = { 'ultra-suave': 0.15, suave: 0.30, normal: 0.45, destacado: 0.70, solido: 1.0 };
+  const opacityVal = opacityMap[erOpacity] || 0.45;
+  
   let emojiRainHtml = '';
   if (hasEmojiRain) {
       let particles = '';
       const emojiArray = Array.from(erEmoji);
+      const outlineStyle = erOutlineActive ? `drop-shadow(1.5px 0 0 ${erOutlineColor}) drop-shadow(-1.5px 0 0 ${erOutlineColor}) drop-shadow(0 1.5px 0 ${erOutlineColor}) drop-shadow(0 -1.5px 0 ${erOutlineColor}) ` : '';
+      
       for (let i = 0; i < erCount; i++) {
           const emoji = emojiArray[i % emojiArray.length] || '🌸';
-          const sz  = (1.2 + Math.random() * 1.5).toFixed(2);
+          const sz  = (1.0 + Math.random() * 1.4).toFixed(2); // De 1.0rem a 2.4rem
           const lft = (Math.random() * 90).toFixed(1);
-          const dur = (erBase * (0.8 + Math.random() * 0.4)).toFixed(2);
+          
+          // Efeito 3D Depth of Field (Opção 1)
+          const szVal = parseFloat(sz);
+          let blurVal = 1.5;
+          let speedMultiplier = 1.0;
+          if (szVal > 1.9) {
+              blurVal = 0.3; // Nítido (Frente)
+              speedMultiplier = 0.75; // Rápido
+          } else if (szVal < 1.4) {
+              blurVal = 3.5; // Desfocado (Fundo)
+              speedMultiplier = 1.35; // Lento
+          }
+
+          const dur = (erBase * speedMultiplier * (0.8 + Math.random() * 0.4)).toFixed(2);
           const dly = (i * (erBase / erCount) * 0.8).toFixed(2);
           let animName = 'pb-emojifall';
           if (erRotate) animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
-          particles += `<span style="position:absolute;top:-80px;opacity:0;left:${lft}%;font-size:${sz}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite backwards;">${emoji}</span>`;
+          
+          // Balanço Lateral (Opção 2)
+          const swayDur = (2.0 + Math.random() * 1.5).toFixed(2);
+          const swayDelay = (Math.random() * 2).toFixed(2);
+          const swayAnim = erSway ? `, pb-emojisway ${swayDur}s ease-in-out ${swayDelay}s infinite alternate` : '';
+          
+          particles += `<span style="position:absolute;top:-80px;opacity:0;left:${lft}%;font-size:${sz}rem;filter:${outlineStyle}blur(${blurVal}px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite backwards${swayAnim};">${emoji}</span>`;
       }
-      emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:.38}90%{opacity:.38}100%{top:100%;transform:rotate(-540deg);opacity:0}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
+      emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(-540deg);opacity:0}}@keyframes pb-emojisway{0%{margin-left:-12px}100%{margin-left:12px}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
   }
 
   // ADD-ON 4: PLAYER DE ÁUDIO FLUTUANTE

@@ -221,10 +221,17 @@ function updatePreviewFromForm() {
                 const erSpeed = document.getElementById('select-addon-er-speed')?.value || 'normal';
                 const erCoverage = parseInt(document.getElementById('input-addon-er-coverage')?.value || '100', 10);
                 const erRotate = document.getElementById('input-addon-er-rotate')?.checked || false;
+                const erSway = document.getElementById('input-addon-er-sway')?.checked || false;
+                const erOpacity = document.getElementById('select-addon-er-opacity')?.value || 'normal';
+                const erOutlineActive = document.getElementById('input-addon-er-outline-active')?.checked || false;
+                const erOutlineColor = document.getElementById('input-addon-er-outline-color')?.value || '#7c3aed';
+                
                 const durationMap = { slow: 6, normal: 5, fast: 3 };
                 const baseDuration = durationMap[erSpeed] || 3.5;
+                const opacityMap = { 'ultra-suave': 0.15, suave: 0.30, normal: 0.45, destacado: 0.70, solido: 1.0 };
+                const opacityVal = opacityMap[erOpacity] || 0.45;
 
-                const configKey = `${erEmoji}_${erCount}_${erSpeed}_${erCoverage}_${erRotate}`;
+                const configKey = `${erEmoji}_${erCount}_${erSpeed}_${erCoverage}_${erRotate}_${erSway}_${erOpacity}_${erOutlineActive}_${erOutlineColor}`;
                 if (window.phoneErConfigKey !== configKey) {
                     window.phoneErConfigKey = configKey;
 
@@ -252,26 +259,49 @@ function updatePreviewFromForm() {
                         document.head.appendChild(styleEl);
                     }
                     styleEl.textContent = `
-                        @keyframes pb-emojifall    { 0%{top:-80px;opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;opacity:0} }
-                        @keyframes pb-emojifall-cw { 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;transform:rotate(540deg);opacity:0} }
-                        @keyframes pb-emojifall-ccw{ 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:.38} 90%{opacity:.38} 100%{top:100%;transform:rotate(-540deg);opacity:0} }
+                        @keyframes pb-emojifall    { 0%{top:-80px;opacity:0} 10%{opacity:${opacityVal}} 90%{opacity:${opacityVal}} 100%{top:100%;opacity:0} }
+                        @keyframes pb-emojifall-cw { 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:${opacityVal}} 90%{opacity:${opacityVal}} 100%{top:100%;transform:rotate(540deg);opacity:0} }
+                        @keyframes pb-emojifall-ccw{ 0%{top:-80px;transform:rotate(0deg);opacity:0} 10%{opacity:${opacityVal}} 90%{opacity:${opacityVal}} 100%{top:100%;transform:rotate(-540deg);opacity:0} }
+                        @keyframes pb-emojisway { 0% { margin-left: -12px; } 100% { margin-left: 12px; } }
                     `;
 
                     const count = Math.min(Math.max(erCount, 1), 20);
                     const emojiArray = Array.from(erEmoji);
+                    const outlineStyle = erOutlineActive ? `drop-shadow(1.5px 0 0 ${erOutlineColor}) drop-shadow(-1.5px 0 0 ${erOutlineColor}) drop-shadow(0 1.5px 0 ${erOutlineColor}) drop-shadow(0 -1.5px 0 ${erOutlineColor}) ` : '';
+                    
                     for (let i = 0; i < count; i++) {
                         const span = document.createElement('span');
                         const emoji = emojiArray[i % emojiArray.length] || '🌸';
-                        const size = (1.2 + Math.random() * 1.2).toFixed(2);
+                        const size = (1.0 + Math.random() * 1.4).toFixed(2); // Variabilidade maior de 1.0rem a 2.4rem
                         const left = (Math.random() * 90).toFixed(1);
-                        const duration = (baseDuration * (0.8 + Math.random() * 0.4)).toFixed(2);
+                        
+                        // Efeito 3D Depth of Field (Opção 1)
+                        const szVal = parseFloat(size);
+                        let blurVal = 1.5;
+                        let speedMultiplier = 1.0;
+                        if (szVal > 1.9) {
+                            blurVal = 0.3; // Fica bem nítido pois está perto
+                            speedMultiplier = 0.75; // Fica mais rápido pela perspectiva (mais perto)
+                        } else if (szVal < 1.4) {
+                            blurVal = 3.5; // Fica bem borrado no fundo
+                            speedMultiplier = 1.35; // Fica mais lento
+                        }
+                        
+                        const duration = (baseDuration * speedMultiplier * (0.8 + Math.random() * 0.4)).toFixed(2);
                         const delay = (i * (baseDuration / count) * 0.8).toFixed(2);
+                        
                         let animName = 'pb-emojifall';
                         if (erRotate) {
                             animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
                         }
+                        
+                        // Balanço Lateral (Opção 2)
+                        const swayDur = (2.0 + Math.random() * 1.5).toFixed(2);
+                        const swayDelay = (Math.random() * 2).toFixed(2);
+                        const swayAnim = erSway ? `, pb-emojisway ${swayDur}s ease-in-out ${swayDelay}s infinite alternate` : '';
+                        
                         span.textContent = emoji;
-                        span.style.cssText = `position:absolute;top:-80px;opacity:0;left:${left}%;font-size:${size}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${duration}s linear ${delay}s infinite backwards;`;
+                        span.style.cssText = `position:absolute;top:-80px;opacity:0;left:${left}%;font-size:${size}rem;filter:${outlineStyle}blur(${blurVal}px);pointer-events:none;animation:${animName} ${duration}s linear ${delay}s infinite backwards${swayAnim};`;
                         phoneEmojiRain.appendChild(span);
                     }
                 }
@@ -2113,6 +2143,8 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
                     'input-addon-er-count': backup.addonEmojiRainCount || 8,
                     'input-addon-er-coverage': backup.addonEmojiRainCoverage || 100,
+                    'select-addon-er-opacity': backup.addonEmojiRainOpacity || 'normal',
+                    'input-addon-er-outline-color': backup.addonEmojiRainOutlineColor || '#7c3aed',
                     'input-addon-ap-url': backup.addonAudioPlayerUrl || '',
                     'input-addon-ap-label': backup.addonAudioPlayerLabel || 'Música da Loja',
                     'select-addon-ap-position': backup.addonAudioPlayerPosition || 'bottom-right',
@@ -2282,6 +2314,18 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 const erRotateEl = document.getElementById('input-addon-er-rotate');
                 if (erRotateEl && backup.addonEmojiRainRotate !== undefined) {
                     erRotateEl.checked = Boolean(backup.addonEmojiRainRotate);
+                }
+                const erSwayEl = document.getElementById('input-addon-er-sway');
+                if (erSwayEl && backup.addonEmojiRainSway !== undefined) {
+                    erSwayEl.checked = Boolean(backup.addonEmojiRainSway);
+                }
+                const erOutlineActiveEl = document.getElementById('input-addon-er-outline-active');
+                if (erOutlineActiveEl && backup.addonEmojiRainOutlineActive !== undefined) {
+                    erOutlineActiveEl.checked = Boolean(backup.addonEmojiRainOutlineActive);
+                    const erOutlineColorContainer = document.getElementById('container-addon-er-outline-color');
+                    if (erOutlineColorContainer) {
+                        erOutlineColorContainer.style.display = erOutlineActiveEl.checked ? 'flex' : 'none';
+                    }
                 }
                 const erCoverLabelEl = document.getElementById('label-addon-er-coverage');
                 const erCoverInputEl = document.getElementById('input-addon-er-coverage');

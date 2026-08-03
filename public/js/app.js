@@ -1649,6 +1649,46 @@ loadClassicModel();
                 });
             }
 
+            // Sway checkbox: rebuild ao mudar
+            const erSwayInput = document.getElementById('input-addon-er-sway');
+            if (erSwayInput) {
+                erSwayInput.addEventListener('change', () => {
+                    window.phoneErConfigKey = null;
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Opacity select: rebuild ao mudar
+            const erOpacitySelect = document.getElementById('select-addon-er-opacity');
+            if (erOpacitySelect) {
+                erOpacitySelect.addEventListener('change', () => {
+                    window.phoneErConfigKey = null;
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Outline active checkbox: show/hide container and rebuild
+            const erOutlineActiveInput = document.getElementById('input-addon-er-outline-active');
+            const erOutlineColorContainer = document.getElementById('container-addon-er-outline-color');
+            if (erOutlineActiveInput) {
+                erOutlineActiveInput.addEventListener('change', () => {
+                    if (erOutlineColorContainer) {
+                        erOutlineColorContainer.style.display = erOutlineActiveInput.checked ? 'flex' : 'none';
+                    }
+                    window.phoneErConfigKey = null;
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Outline color picker: rebuild on input
+            const erOutlineColorInput = document.getElementById('input-addon-er-outline-color');
+            if (erOutlineColorInput) {
+                erOutlineColorInput.addEventListener('input', () => {
+                    window.phoneErConfigKey = null;
+                    updatePreviewFromForm();
+                });
+            }
+
             // ==========================================
             // ADD-ON 3: RODOPIO DO AVATAR
             // ==========================================
@@ -2032,8 +2072,12 @@ loadClassicModel();
                         addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value.trim() || '',
                         addonEmojiRainCount: parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10),
                         addonEmojiRainSpeed: document.getElementById('select-addon-er-speed')?.value || 'normal',
-                        addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10),
+                        addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '100', 10),
                         addonEmojiRainRotate: document.getElementById('input-addon-er-rotate')?.checked || false,
+                        addonEmojiRainSway: document.getElementById('input-addon-er-sway')?.checked || false,
+                        addonEmojiRainOpacity: document.getElementById('select-addon-er-opacity')?.value || 'normal',
+                        addonEmojiRainOutlineActive: document.getElementById('input-addon-er-outline-active')?.checked || false,
+                        addonEmojiRainOutlineColor: document.getElementById('input-addon-er-outline-color')?.value || '#7c3aed',
                         addonAvatarSpinActive: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
                         addonAvatarSpinDuration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
                         addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),

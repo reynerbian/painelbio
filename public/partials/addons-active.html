@@ -91,6 +91,39 @@
                         </select>
                     </div>
                 </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="form-group" style="flex: 1.2; margin-bottom: 0;">
+                        <label for="select-addon-er-opacity">Visibilidade/Opacidade:</label>
+                        <select id="select-addon-er-opacity" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #a78bfa; border: 1px solid #334155; cursor: pointer; box-sizing: border-box;">
+                            <option value="ultra-suave">💧 Muito Discreto (15%)</option>
+                            <option value="suave">💧 Suave (30%)</option>
+                            <option value="normal" selected>✨ Normal (45%)</option>
+                            <option value="destacado">🌟 Destacado (70%)</option>
+                            <option value="solido">💎 Sólido (100%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <label for="input-addon-er-sway" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer; padding: 10px 0; margin-bottom: 0;">
+                            <input type="checkbox" id="input-addon-er-sway" style="width: 18px; height: 18px; cursor: pointer; accent-color: #7c3aed; margin: 0;">
+                            🍃 Balanço (Vento)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Contorno nos Emojis -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.25); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <label for="input-addon-er-outline-active" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer; margin-bottom: 0;">
+                            <input type="checkbox" id="input-addon-er-outline-active" style="width: 18px; height: 18px; cursor: pointer; accent-color: #7c3aed; margin: 0;">
+                            🎨 Contorno nos Emojis
+                        </label>
+                    </div>
+                    <div id="container-addon-er-outline-color" style="display: none; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.08);">
+                        <label for="input-addon-er-outline-color" style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 0;">Cor do Contorno:</label>
+                        <input type="color" id="input-addon-er-outline-color" value="#7c3aed" style="width: 50px; height: 28px; border: none; border-radius: 6px; cursor: pointer; background: transparent; padding: 0;">
+                    </div>
+                </div>
 
                 <!-- Alcance da Chuva -->
                 <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
