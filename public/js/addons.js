@@ -1,7 +1,7 @@
 // --- ADDONS MODULE ---
 
 function updateAddonFields() {
-                        if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
+                        if (containerPause) containerPause.style.display = (['fade', 'slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
                         if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
                     }
 

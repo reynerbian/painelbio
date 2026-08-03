@@ -1369,6 +1369,7 @@ const leftIcon = document.querySelector('.left-icon');
                             addonTopbannerMarqueeSpeed: document.getElementById('input-addon-tb-marquee-speed')?.value || '5',
                             addonTopbannerMarqueePause: document.getElementById('input-addon-tb-marquee-pause')?.value || '3',
                             addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
+                            addonTopbannerPauseBetween: parseInt(document.getElementById('input-addon-tb-pause-between')?.value || '1', 10),
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
                         };
@@ -1449,7 +1450,7 @@ loadClassicModel();
             const containerMarquee = document.getElementById('container-addon-tb-marquee-settings');
             if (effectSelect) {
                 function updateAddonFields() {
-                    if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
+                    if (containerPause) containerPause.style.display = (['fade', 'slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
                     if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
                 }
                 updateAddonFields();
@@ -1968,6 +1969,9 @@ loadClassicModel();
                         addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                         addonTopbannerEffect: document.getElementById('select-addon-tb-effect')?.value || 'fade',
                         addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
+                        addonTopbannerPauseBetween: parseInt(document.getElementById('input-addon-tb-pause-between')?.value || '1', 10),
+                        addonTopbannerMarqueeSpeed: parseInt(document.getElementById('input-addon-tb-marquee-speed')?.value || '5', 10),
+                        addonTopbannerMarqueePause: parseInt(document.getElementById('input-addon-tb-marquee-pause')?.value || '3', 10),
                         addonEmojiRainActive: document.getElementById('card-addon-emojirain')?.style.display !== 'none',
                         addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value.trim() || '',
                         addonEmojiRainCount: parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10),

@@ -85,6 +85,9 @@ function updatePreviewFromForm() {
                             } else if (effect === 'fade') {
                                 txtEl.style.transition = 'opacity 0.3s';
                                 if (texts.length > 1) {
+                                    const isLastText = window.phoneTbIdx === window.phoneTbTexts.length - 1;
+                                    const delay = (isLastText ? pauseSec : pauseBetweenSec) * 1000;
+                                    
                                     window.phoneTbInterval = safeSetTimeout(() => {
                                         txtEl.style.opacity = '0';
                                         safeSetTimeout(() => {
@@ -93,7 +96,7 @@ function updatePreviewFromForm() {
                                             txtEl.style.opacity = '1';
                                             runLiveEffectCycle();
                                         }, 300);
-                                    }, pauseBetweenSec * 1000);
+                                    }, delay);
                                 }
                             } else if (effect === 'marquee') {
                                 txtEl.style.whiteSpace = 'nowrap';
@@ -2154,6 +2157,9 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-tb-bg': backup.addonTopbannerBg || '#0f172a',
                     'input-addon-tb-color': backup.addonTopbannerColor || '#38bdf8',
                     'input-addon-tb-pause': backup.addonTopbannerPause || 2,
+                    'input-addon-tb-pause-between': backup.addonTopbannerPauseBetween || 1,
+                    'input-addon-tb-marquee-speed': backup.addonTopbannerMarqueeSpeed || 5,
+                    'input-addon-tb-marquee-pause': backup.addonTopbannerMarqueePause || 3,
                     'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
                     'input-addon-er-count': backup.addonEmojiRainCount || 8,
                     'input-addon-er-coverage': backup.addonEmojiRainCoverage || 80,
@@ -2200,7 +2206,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     if (mqPauseInput) mqPauseInput.value = backup.addonTopbannerMarqueePause || '3';
                     
                     function updateAddonFields() {
-                        if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
+                        if (containerPause) containerPause.style.display = (['fade', 'slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
                         if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
                     }
                     updateAddonFields();

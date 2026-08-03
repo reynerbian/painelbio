@@ -42,6 +42,7 @@ export function generateStaticSite(data) {
   const effect = data.addonTopbannerEffect || 'fade';
   const isSlide = effect === 'slide' || effect === 'marquee';
   const pauseSec = parseInt(data.addonTopbannerPause || 2, 10);
+  const pauseBetweenSec = parseInt(data.addonTopbannerPauseBetween || 1, 10);
 
   const topBannerHtml = hasTopBanner ? `
     <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s; ${isSlide ? 'transform: translateY(-100%); opacity: 0;' : 'transform: translateY(0); opacity: 1;'}">
@@ -52,6 +53,7 @@ export function generateStaticSite(data) {
             var texts = ${JSON.stringify(tbTexts)};
             var isSlide = ${isSlide};
             var pauseMs = ${pauseSec} * 1000;
+            var pauseBetweenMs = ${pauseBetweenSec} * 1000;
             var idx = 0;
             var banner = document.getElementById('pb-top-banner');
             var textEl = document.getElementById('pb-tb-text');
@@ -71,19 +73,26 @@ export function generateStaticSite(data) {
                             textEl.textContent = texts[idx];
                             runSlideCycle();
                         }, pauseMs);
-                    }, 3500);
+                    }, pauseBetweenMs);
                 }
                 setTimeout(runSlideCycle, 500);
             } else {
                 if (texts.length > 1) {
-                    setInterval(function() {
-                        textEl.style.opacity = '0';
+                    function runFadeCycle() {
+                        var isLastText = idx === texts.length - 1;
+                        var delay = isLastText ? pauseMs : pauseBetweenMs;
+                        
                         setTimeout(function() {
-                            idx = (idx + 1) % texts.length;
-                            textEl.textContent = texts[idx];
-                            textEl.style.opacity = '1';
-                        }, 300);
-                    }, 3500);
+                            textEl.style.opacity = '0';
+                            setTimeout(function() {
+                                idx = (idx + 1) % texts.length;
+                                textEl.textContent = texts[idx];
+                                textEl.style.opacity = '1';
+                                runFadeCycle();
+                            }, 300);
+                        }, delay);
+                    }
+                    runFadeCycle();
                 }
             }
         })();
