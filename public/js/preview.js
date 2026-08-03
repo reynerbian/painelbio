@@ -66,6 +66,10 @@ function updatePreviewFromForm() {
                             const txtEl = document.getElementById('phone-tb-live-text');
                             if (!txtEl) return;
                             
+                            // Garante que todo novo ciclo comece do índice 0 e do primeiro texto
+                            window.phoneTbIdx = 0;
+                            txtEl.textContent = window.phoneTbTexts[0];
+                            
                             if (effect === 'slide') {
                                 phoneTopBanner.style.transform = 'translateY(-100%)';
                                 phoneTopBanner.style.opacity = '0';
@@ -152,7 +156,7 @@ function updatePreviewFromForm() {
                                         }
                                         safeSetTimeout(() => {
                                             txtEl.style.transform = 'scale(0)';
-                                            setTimeout(() => {
+                                            safeSetTimeout(() => {
                                                 currentIdx++;
                                                 window.phoneTbIdx = currentIdx;
                                                 txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
@@ -170,7 +174,7 @@ function updatePreviewFromForm() {
                                 phoneTopBanner.style.height = '0px';
                                 phoneTopBanner.style.padding = '0px';
                                 
-                                setTimeout(() => {
+                                safeSetTimeout(() => {
                                     phoneTopBanner.style.height = 'auto';
                                     phoneTopBanner.style.padding = '8px 10px';
                                     txtEl.style.transform = 'rotateX(0deg)';
@@ -178,16 +182,16 @@ function updatePreviewFromForm() {
                                     let currentIdx = 0;
                                     function playNext() {
                                         if (currentIdx >= texts.length - 1) {
-                                            setTimeout(() => {
+                                            safeSetTimeout(() => {
                                                 phoneTopBanner.style.height = '0px';
                                                 phoneTopBanner.style.padding = '0px';
-                                                setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
+                                                safeSetTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
                                             }, pauseBetweenSec * 1000);
                                             return;
                                         }
-                                        setTimeout(() => {
+                                        safeSetTimeout(() => {
                                             txtEl.style.transform = 'rotateX(90deg)';
-                                            setTimeout(() => {
+                                            safeSetTimeout(() => {
                                                 currentIdx++;
                                                 window.phoneTbIdx = currentIdx;
                                                 txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
@@ -204,24 +208,24 @@ function updatePreviewFromForm() {
                                 phoneTopBanner.style.height = '0px';
                                 phoneTopBanner.style.padding = '0px';
                                 
-                                setTimeout(() => {
+                                safeSetTimeout(() => {
                                     phoneTopBanner.style.height = 'auto';
                                     phoneTopBanner.style.padding = '8px 10px';
                                     
                                     let currentIdx = 0;
                                     function playNext() {
                                         if (currentIdx >= texts.length - 1) {
-                                            setTimeout(() => {
+                                            safeSetTimeout(() => {
                                                 phoneTopBanner.style.height = '0px';
                                                 phoneTopBanner.style.padding = '0px';
-                                                setTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
+                                                safeSetTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
                                             }, pauseBetweenSec * 1000);
                                             return;
                                         }
-                                        setTimeout(() => {
+                                        safeSetTimeout(() => {
                                             phoneTopBanner.style.height = '0px';
                                             phoneTopBanner.style.padding = '0px';
-                                            setTimeout(() => {
+                                            safeSetTimeout(() => {
                                                 currentIdx++;
                                                 window.phoneTbIdx = currentIdx;
                                                 txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
