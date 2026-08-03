@@ -746,6 +746,7 @@
             border-radius: 50% !important;
             object-fit: cover !important;
             display: block !important;
+            transform: scale(1.08) !important;
         }
 
         .preview-name {

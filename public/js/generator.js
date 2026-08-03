@@ -1317,7 +1317,7 @@ export function generateStaticSite(data) {
           box-shadow: 0 0 20px ${theme.c1}44;
       }
       .s-avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
-      .s-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+      .s-avatar-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
       .s-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0; color: #fff; }
       .s-arroba { font-size: 0.85rem; color: var(--theme-color-1); text-decoration: none; font-weight: 600; margin-bottom: 8px; display: inline-block; }
       .s-bio { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin: 0; white-space: pre-wrap; width: 100%; text-align: ${bioAlign}; }
@@ -1357,7 +1357,7 @@ export function generateStaticSite(data) {
           100% { transform: translateY(-270px) scale(0.4); opacity: 0; }
       }
   </style>
-$
+${avatarSpinHtml}
 </head>
 <body>
   ${topBannerHtml}
@@ -1515,7 +1515,7 @@ $
       .c-header { position: absolute; top: 26px; left: 14px; right: 14px; display: flex; align-items: flex-start; gap: 10px; z-index: 10; }
       .c-avatar-wrapper { width: 48px; height: 48px; border-radius: 50%; padding: 2.5px; background: linear-gradient(135deg, ${theme.c1}, #ec4899); flex-shrink: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
       .c-avatar-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #000; }
-      .c-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+      .c-avatar-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
       .c-profile-card { flex: 1; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 14px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
       .c-name { font-size: 0.92rem; font-weight: 700; color: #ffffff; margin: 0 0 2px 0; }
       .c-arroba { font-size: 0.76rem; color: ${theme.c1}; text-decoration: none; font-weight: 600; margin-bottom: 4px; display: inline-block; }
@@ -1525,7 +1525,7 @@ $
       .c-footer { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.4); z-index: 10; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
       .c-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700; }
   </style>
-$
+${avatarSpinHtml}
 </head>
 <body>
   ${topBannerHtml}
@@ -1699,7 +1699,7 @@ $
         }
 
         .v-avatar-overlap-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #111; }
-        .v-avatar-overlap-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .v-avatar-overlap-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
 
         .v-info { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .v-title { font-family: Georgia, "Times New Roman", serif; font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 0 0 6px 0; line-height: 1.25; text-align: center; }
@@ -1711,7 +1711,7 @@ $
         .v-footer { margin-top: 35px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); display: flex; align-items: center; gap: 6px; }
         .v-footer a { color: rgba(255, 255, 255, 0.55); text-decoration: none; font-weight: 700; text-transform: uppercase; }
     </style>
-$
+${avatarSpinHtml}
 </head>
 <body>
     ${topBannerHtml}
@@ -1994,7 +1994,7 @@ $
         }
 
         .eb-avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #000; overflow: hidden; }
-        .eb-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .eb-avatar-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
         
         .eb-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; text-align: center; }
         .eb-arroba { font-size: 0.88rem; color: var(--theme-c1); text-decoration: none; margin-bottom: 8px; text-align: center; display: inline-block; font-weight: 600; }
@@ -2090,7 +2090,7 @@ $
         .footer { position: relative; z-index: 10; margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700; }
     </style>
-$
+${avatarSpinHtml}
 </head>
 <body>
     ${topBannerHtml}
@@ -2293,7 +2293,7 @@ $
         }
 
         .preview-avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #111111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .preview-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-avatar-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
         .preview-name { font-size: 1.2rem; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; text-align: center; }
         .preview-arroba { font-size: 0.85rem; color: var(--theme-c1); text-decoration: none; margin-bottom: 14px; text-align: center; display: inline-block; font-weight: 600; }
         .preview-bio { font-size: 0.88rem; color: rgba(255, 255, 255, 0.8); text-align: ${bioAlign}; line-height: 1.5; margin-bottom: 24px; width: 95%; word-break: break-word; }
@@ -2302,7 +2302,7 @@ $
         .footer { margin-top: 25px; font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
         .footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase; }
     </style>
-$
+${avatarSpinHtml}
 </head>
 <body>
     ${topBannerHtml}

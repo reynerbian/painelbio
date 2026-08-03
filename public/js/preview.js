@@ -1,4 +1,4 @@
-// --- PREVIEW MODULE ---
+﻿// --- PREVIEW MODULE ---
 
 function updatePreviewFromForm() {
             const activeModel = window.currentActiveModel || 'classic';
@@ -965,7 +965,7 @@ function updatePreviewFromForm() {
                     if (avatarUrl) {
                         avatarWrapper.style.display = 'flex';
                         avatarWrapper.style.background = `linear-gradient(135deg, ${themeBorderColor}, #ec4899)`;
-                        avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                        avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.08);">`;
                     } else {
                         avatarWrapper.style.display = 'none';
                         avatarInner.innerHTML = '';
@@ -1060,7 +1060,7 @@ function updatePreviewFromForm() {
 
                 if (avatarUrl) {
                     avatarWrapper.style.display = 'block';
-                    avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+                    avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.08);" />`;
                 } else {
                     avatarWrapper.style.display = 'none';
                     avatarInner.innerHTML = '';
@@ -1237,7 +1237,7 @@ function updatePreviewFromForm() {
                 if (avatarWrapper) {
                     if (avatarUrl) {
                         avatarWrapper.style.display = 'block';
-                        if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+                        if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.08);" />`;
                     } else {
                         avatarWrapper.style.display = 'none';
                     }
@@ -1524,7 +1524,7 @@ function updatePreviewFromForm() {
                         avatarWrapper.style.border = '4px solid #0e110d';
                         avatarWrapper.style.boxShadow = `0 0 20px ${themeBorderColor}66`;
                     }
-                    if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    if (avatarInner) avatarInner.innerHTML = `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transform: scale(1.08);">`;
                     if (avatarWrapper) avatarWrapper.style.display = 'flex';
                 } else {
                     if (avatarInner) avatarInner.innerHTML = '';
@@ -1631,7 +1631,7 @@ function updatePreviewFromForm() {
             viewCard.style.display = "flex";
 
             if (avatarUrl) {
-                viewAvatarInner.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">`;
+                viewAvatarInner.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; transform: scale(1.08);">`;
                 viewAvatarContainer.style.display = "flex";
             } else {
                 viewAvatarInner.innerHTML = "";
