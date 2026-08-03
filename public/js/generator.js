@@ -1948,16 +1948,16 @@ export function generateStaticSite(data) {
         
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow-x: hidden; overscroll-behavior: none;
+            overflow: hidden; overscroll-behavior: none;
             background-color: #121214; color: #fff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; align-items: center; justify-content: center;
         }
-
+        
         .preview-bio-page {
-            width: 100%; min-height: 100%; display: flex; flex-direction: column;
+            width: 100%; height: 100%; height: 100dvh; display: flex; flex-direction: column;
             align-items: center; justify-content: center; padding: 24px 16px;
             box-sizing: border-box; position: relative;
+            overflow-y: auto; overscroll-behavior-y: contain;
         }
 
         .bg-glow {
@@ -1982,6 +1982,7 @@ export function generateStaticSite(data) {
             display: flex; flex-direction: column; align-items: center;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6); position: relative;
             z-index: 10; box-sizing: border-box;
+            margin: auto;
         }
 
         .preview-avatar-glow {
