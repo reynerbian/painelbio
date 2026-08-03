@@ -271,7 +271,7 @@ function updatePreviewFromForm() {
                             animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
                         }
                         span.textContent = emoji;
-                        span.style.cssText = `position:absolute;top:0;left:${left}%;font-size:${size}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${duration}s linear ${delay}s infinite;`;
+                        span.style.cssText = `position:absolute;top:-80px;opacity:0;left:${left}%;font-size:${size}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${duration}s linear ${delay}s infinite backwards;`;
                         phoneEmojiRain.appendChild(span);
                     }
                 }
