@@ -317,7 +317,7 @@ export function generateStaticSite(data) {
   const erEmoji = data.addonEmojiRainEmoji || '🌸';
   const erCount = Math.min(Math.max(parseInt(data.addonEmojiRainCount || 8, 10), 1), 20);
   const erSpeed = data.addonEmojiRainSpeed || 'normal';
-  const erCoverage = Math.min(Math.max(parseInt(data.addonEmojiRainCoverage || 80, 10), 10), 100);
+  const erCoverage = Math.min(Math.max(parseInt(data.addonEmojiRainCoverage || 100, 10), 10), 100);
   const erRotate = Boolean(data.addonEmojiRainRotate);
   const erDurMap = { slow: 6, normal: 5, fast: 3 };
   const erBase = erDurMap[erSpeed] || 3.5;
@@ -329,8 +329,8 @@ export function generateStaticSite(data) {
           const emoji = emojiArray[i % emojiArray.length] || '🌸';
           const sz  = (1.2 + Math.random() * 1.5).toFixed(2);
           const lft = (Math.random() * 90).toFixed(1);
-          const dur = (erBase * (0.7 + Math.random() * 0.7)).toFixed(2);
-          const dly = -(Math.random() * erBase * 2).toFixed(2);
+          const dur = (erBase * (0.8 + Math.random() * 0.4)).toFixed(2);
+          const dly = (i * (erBase / erCount) * 0.8).toFixed(2);
           let animName = 'pb-emojifall';
           if (erRotate) animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
           particles += `<span style="position:absolute;top:0;left:${lft}%;font-size:${sz}rem;filter:blur(2px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite;">${emoji}</span>`;

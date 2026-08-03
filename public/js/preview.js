@@ -219,7 +219,7 @@ function updatePreviewFromForm() {
                 const erEmoji = document.getElementById('input-addon-er-emoji')?.value.trim() || '🌸';
                 const erCount = parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10);
                 const erSpeed = document.getElementById('select-addon-er-speed')?.value || 'normal';
-                const erCoverage = parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10);
+                const erCoverage = parseInt(document.getElementById('input-addon-er-coverage')?.value || '100', 10);
                 const erRotate = document.getElementById('input-addon-er-rotate')?.checked || false;
                 const durationMap = { slow: 6, normal: 5, fast: 3 };
                 const baseDuration = durationMap[erSpeed] || 3.5;
@@ -264,8 +264,8 @@ function updatePreviewFromForm() {
                         const emoji = emojiArray[i % emojiArray.length] || '🌸';
                         const size = (1.2 + Math.random() * 1.2).toFixed(2);
                         const left = (Math.random() * 90).toFixed(1);
-                        const duration = (baseDuration * (0.7 + Math.random() * 0.7)).toFixed(2);
-                        const delay = -(Math.random() * baseDuration * 2).toFixed(2);
+                        const duration = (baseDuration * (0.8 + Math.random() * 0.4)).toFixed(2);
+                        const delay = (i * (baseDuration / count) * 0.8).toFixed(2);
                         let animName = 'pb-emojifall';
                         if (erRotate) {
                             animName = Math.random() > 0.5 ? 'pb-emojifall-cw' : 'pb-emojifall-ccw';
@@ -2112,7 +2112,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-tb-marquee-pause': backup.addonTopbannerMarqueePause || 3,
                     'input-addon-er-emoji': backup.addonEmojiRainEmoji || '',
                     'input-addon-er-count': backup.addonEmojiRainCount || 8,
-                    'input-addon-er-coverage': backup.addonEmojiRainCoverage || 80,
+                    'input-addon-er-coverage': backup.addonEmojiRainCoverage || 100,
                     'input-addon-ap-url': backup.addonAudioPlayerUrl || '',
                     'input-addon-ap-label': backup.addonAudioPlayerLabel || 'Música da Loja',
                     'select-addon-ap-position': backup.addonAudioPlayerPosition || 'bottom-right',
