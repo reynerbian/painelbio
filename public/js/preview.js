@@ -70,6 +70,7 @@ function updatePreviewFromForm() {
                         phoneTopBanner.style.transition = 'none';
                         phoneTopBanner.style.perspective = 'none';
 
+                        const txtEl = document.getElementById('phone-tb-live-text');
                         if (txtEl) {
                             txtEl.style.transform = 'none';
                             txtEl.style.opacity = '1';
