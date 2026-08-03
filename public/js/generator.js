@@ -40,60 +40,134 @@ export function generateStaticSite(data) {
   const tbBg = data.addonTopbannerBg || '#0f172a';
   const tbColor = data.addonTopbannerColor || '#38bdf8';
   const effect = data.addonTopbannerEffect || 'fade';
-  const isSlide = effect === 'slide' || effect === 'marquee';
+  const startsHidden = effect === 'slide' || effect === 'marquee';
   const pauseSec = parseInt(data.addonTopbannerPause || 2, 10);
   const pauseBetweenSec = parseInt(data.addonTopbannerPauseBetween || 1, 10);
 
   const topBannerHtml = hasTopBanner ? `
-    <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s; ${isSlide ? 'transform: translateY(-100%); opacity: 0;' : 'transform: translateY(0); opacity: 1;'}">
-        <span id="pb-tb-text" style="transition: opacity 0.3s ease-in-out;">${tbTexts[0]}</span>
+    <div id="pb-top-banner" style="position: fixed; top: 0; left: 0; width: 100%; background: ${tbBg}; color: ${tbColor}; padding: 10px 14px; font-size: 0.8rem; font-weight: 700; text-align: center; z-index: 99999; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: none; ${startsHidden ? 'transform: translateY(-100%); opacity: 0;' : 'transform: translateY(0); opacity: 1;'}">
+        <span id="pb-tb-text" style="transition: none; display: inline-block;">${tbTexts[0]}</span>
     </div>
     <script>
         (function() {
             var texts = ${JSON.stringify(tbTexts)};
-            var isSlide = ${isSlide};
+            var effect = ${JSON.stringify(effect)};
             var pauseMs = ${pauseSec} * 1000;
             var pauseBetweenMs = ${pauseBetweenSec} * 1000;
+            var mqSpeed = ${parseInt(data.addonTopbannerMarqueeSpeed || 5, 10)};
+            var mqPause = ${parseInt(data.addonTopbannerMarqueePause || 3, 10)};
+            
             var idx = 0;
             var banner = document.getElementById('pb-top-banner');
             var textEl = document.getElementById('pb-tb-text');
             if (!banner || !textEl || texts.length === 0) return;
 
-            if (isSlide) {
-                function runSlideCycle() {
-                    banner.style.transform = 'translateY(0)';
-                    banner.style.opacity = '1';
+            // Configura transições e estilos específicos de cada efeito no início
+            if (effect === 'slide') {
+                banner.style.transition = 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
+            } else if (effect === 'fade') {
+                textEl.style.transition = 'opacity 0.3s ease-in-out';
+            } else if (effect === 'bounce') {
+                textEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
+            } else if (effect === 'flip') {
+                textEl.style.transition = 'transform 0.4s ease-in, opacity 0.3s';
+                banner.style.perspective = '500px';
+            } else if (effect === 'shutter') {
+                banner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
+            }
 
+            function runCycle() {
+                if (effect === 'marquee') {
+                    textEl.style.whiteSpace = 'nowrap';
+                    textEl.innerHTML = texts.join(' &nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp; ');
+                    banner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
+                    banner.style.height = '0px';
+                    banner.style.padding = '0px';
+                    banner.style.overflow = 'hidden';
+                    
                     setTimeout(function() {
+                        banner.style.height = 'auto';
+                        banner.style.padding = '8px 10px';
+                        
+                        var pos = 100;
+                        textEl.style.transform = 'translateX(100%)';
+                        var step = mqSpeed * 0.4;
+                        var interval = setInterval(function() {
+                            pos -= step;
+                            textEl.style.transform = 'translateX(' + pos + '%)';
+                            if (pos < -150) {
+                                clearInterval(interval);
+                                banner.style.height = '0px';
+                                banner.style.padding = '0px';
+                                setTimeout(runCycle, mqPause * 1000);
+                            }
+                        }, 20);
+                    }, 500);
+                    return;
+                }
+
+                if (texts.length <= 1) return;
+
+                var isLastText = idx === texts.length - 1;
+                var delay = isLastText ? pauseMs : pauseBetweenMs;
+
+                setTimeout(function() {
+                    // SAÍDA
+                    if (effect === 'slide') {
                         banner.style.transform = 'translateY(-100%)';
                         banner.style.opacity = '0';
-
-                        setTimeout(function() {
-                            idx = (idx + 1) % texts.length;
-                            textEl.textContent = texts[idx];
-                            runSlideCycle();
-                        }, pauseMs);
-                    }, pauseBetweenMs);
-                }
-                setTimeout(runSlideCycle, 500);
-            } else {
-                if (texts.length > 1) {
-                    function runFadeCycle() {
-                        var isLastText = idx === texts.length - 1;
-                        var delay = isLastText ? pauseMs : pauseBetweenMs;
-                        
-                        setTimeout(function() {
-                            textEl.style.opacity = '0';
-                            setTimeout(function() {
-                                idx = (idx + 1) % texts.length;
-                                textEl.textContent = texts[idx];
-                                textEl.style.opacity = '1';
-                                runFadeCycle();
-                            }, 300);
-                        }, delay);
+                    } else if (effect === 'fade') {
+                        textEl.style.opacity = '0';
+                    } else if (effect === 'bounce') {
+                        textEl.style.transform = 'scale(0)';
+                        textEl.style.opacity = '0';
+                    } else if (effect === 'flip') {
+                        textEl.style.transform = 'rotateX(90deg)';
+                        textEl.style.opacity = '0';
+                    } else if (effect === 'shutter') {
+                        banner.style.height = '0px';
+                        banner.style.padding = '0px';
                     }
-                    runFadeCycle();
-                }
+
+                    var duration = (effect === 'slide') ? 450 : 400;
+
+                    setTimeout(function() {
+                        idx = (idx + 1) % texts.length;
+                        textEl.textContent = texts[idx];
+
+                        // ENTRADA
+                        if (effect === 'slide') {
+                            banner.style.transform = 'translateY(0)';
+                            banner.style.opacity = '1';
+                        } else if (effect === 'fade') {
+                            textEl.style.opacity = '1';
+                        } else if (effect === 'bounce') {
+                            textEl.style.transform = 'scale(1)';
+                            textEl.style.opacity = '1';
+                        } else if (effect === 'flip') {
+                            textEl.style.transform = 'rotateX(0deg)';
+                            textEl.style.opacity = '1';
+                        } else if (effect === 'shutter') {
+                            banner.style.height = 'auto';
+                            banner.style.padding = '8px 10px';
+                        }
+
+                        runCycle();
+                    }, duration);
+
+                }, delay);
+            }
+
+            if (effect === 'slide') {
+                banner.style.transform = 'translateY(-100%)';
+                banner.style.opacity = '0';
+                setTimeout(function() {
+                    banner.style.transform = 'translateY(0)';
+                    banner.style.opacity = '1';
+                    runCycle();
+                }, 500);
+            } else {
+                runCycle();
             }
         })();
     </script>

@@ -62,47 +62,40 @@ function updatePreviewFromForm() {
                         phoneTopBanner.style.transform = 'none';
                         phoneTopBanner.style.opacity = '1';
                         
+                        // Reset de estilos iniciais do banner e do elemento de texto
+                        phoneTopBanner.style.transform = 'none';
+                        phoneTopBanner.style.opacity = '1';
+                        phoneTopBanner.style.height = 'auto';
+                        phoneTopBanner.style.padding = '8px 10px';
+                        phoneTopBanner.style.transition = 'none';
+                        phoneTopBanner.style.perspective = 'none';
+
+                        if (txtEl) {
+                            txtEl.style.transform = 'none';
+                            txtEl.style.opacity = '1';
+                            txtEl.style.transition = 'none';
+                        }
+
+                        // Configura transições e estilos específicos de cada efeito no início
+                        if (effect === 'slide') {
+                            phoneTopBanner.style.transition = 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
+                        } else if (effect === 'fade') {
+                            if (txtEl) txtEl.style.transition = 'opacity 0.3s ease-in-out';
+                        } else if (effect === 'bounce') {
+                            if (txtEl) txtEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
+                        } else if (effect === 'flip') {
+                            if (txtEl) txtEl.style.transition = 'transform 0.4s ease-in, opacity 0.3s';
+                            phoneTopBanner.style.perspective = '500px';
+                        } else if (effect === 'shutter') {
+                            phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
+                        }
+
                         function runLiveEffectCycle() {
                             const txtEl = document.getElementById('phone-tb-live-text');
                             if (!txtEl) return;
-                            
-                            // Garante que todo novo ciclo comece do índice 0 e do primeiro texto
-                            window.phoneTbIdx = 0;
-                            txtEl.textContent = window.phoneTbTexts[0];
-                            
-                            if (effect === 'slide') {
-                                phoneTopBanner.style.transform = 'translateY(-100%)';
-                                phoneTopBanner.style.opacity = '0';
-                                safeSetTimeout(() => {
-                                    phoneTopBanner.style.transform = 'translateY(0)';
-                                    phoneTopBanner.style.opacity = '1';
-                                    window.phoneTbTimer1 = safeSetTimeout(() => {
-                                        phoneTopBanner.style.transform = 'translateY(-100%)';
-                                        phoneTopBanner.style.opacity = '0';
-                                        window.phoneTbTimer2 = safeSetTimeout(() => {
-                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                            runLiveEffectCycle();
-                                        }, pauseSec * 1000);
-                                    }, pauseBetweenSec * 1000);
-                                }, 100);
-                            } else if (effect === 'fade') {
-                                txtEl.style.transition = 'opacity 0.3s';
-                                if (texts.length > 1) {
-                                    const isLastText = window.phoneTbIdx === window.phoneTbTexts.length - 1;
-                                    const delay = (isLastText ? pauseSec : pauseBetweenSec) * 1000;
-                                    
-                                    window.phoneTbInterval = safeSetTimeout(() => {
-                                        txtEl.style.opacity = '0';
-                                        safeSetTimeout(() => {
-                                            window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
-                                            txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                            txtEl.style.opacity = '1';
-                                            runLiveEffectCycle();
-                                        }, 300);
-                                    }, delay);
-                                }
-                            } else if (effect === 'marquee') {
+
+                            if (effect === 'marquee') {
+                                // O efeito Marquee é contínuo e tem fluxo próprio
                                 txtEl.style.whiteSpace = 'nowrap';
                                 txtEl.innerHTML = window.phoneTbTexts.join(' &nbsp;&nbsp;&nbsp;⭐&nbsp;&nbsp;&nbsp; ');
                                 
@@ -132,112 +125,61 @@ function updatePreviewFromForm() {
                                         }
                                     }, 20);
                                 }, 500);
-                            } else if (effect === 'bounce') {
-                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
-                                txtEl.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s';
-                                
-                                phoneTopBanner.style.height = '0px';
-                                phoneTopBanner.style.padding = '0px';
-                                
-                                safeSetTimeout(() => {
-                                    phoneTopBanner.style.height = 'auto';
-                                    phoneTopBanner.style.padding = '8px 10px';
-                                    txtEl.style.transform = 'scale(1)';
-                                    
-                                    let currentIdx = 0;
-                                    function playNext() {
-                                        if (currentIdx >= texts.length - 1) {
-                                            safeSetTimeout(() => {
-                                                phoneTopBanner.style.height = '0px';
-                                                phoneTopBanner.style.padding = '0px';
-                                                safeSetTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, pauseBetweenSec * 1000);
-                                            return;
-                                        }
-                                        safeSetTimeout(() => {
-                                            txtEl.style.transform = 'scale(0)';
-                                            safeSetTimeout(() => {
-                                                currentIdx++;
-                                                window.phoneTbIdx = currentIdx;
-                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                                txtEl.style.transform = 'scale(1)';
-                                                playNext();
-                                            }, 500);
-                                        }, pauseBetweenSec * 1000);
-                                    }
-                                    playNext();
-                                }, 100);
-                            } else if (effect === 'flip') {
-                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
-                                txtEl.style.transition = 'transform 0.4s ease-in, opacity 0.3s';
-                                
-                                phoneTopBanner.style.height = '0px';
-                                phoneTopBanner.style.padding = '0px';
-                                
-                                safeSetTimeout(() => {
-                                    phoneTopBanner.style.height = 'auto';
-                                    phoneTopBanner.style.padding = '8px 10px';
-                                    txtEl.style.transform = 'rotateX(0deg)';
-                                    
-                                    let currentIdx = 0;
-                                    function playNext() {
-                                        if (currentIdx >= texts.length - 1) {
-                                            safeSetTimeout(() => {
-                                                phoneTopBanner.style.height = '0px';
-                                                phoneTopBanner.style.padding = '0px';
-                                                safeSetTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, pauseBetweenSec * 1000);
-                                            return;
-                                        }
-                                        safeSetTimeout(() => {
-                                            txtEl.style.transform = 'rotateX(90deg)';
-                                            safeSetTimeout(() => {
-                                                currentIdx++;
-                                                window.phoneTbIdx = currentIdx;
-                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                                txtEl.style.transform = 'rotateX(0deg)';
-                                                playNext();
-                                            }, 400);
-                                        }, pauseBetweenSec * 1000);
-                                    }
-                                    playNext();
-                                }, 100);
-                            } else if (effect === 'shutter') {
-                                phoneTopBanner.style.transition = 'height 0.4s ease-in-out, padding 0.4s ease-in-out';
-                                
-                                phoneTopBanner.style.height = '0px';
-                                phoneTopBanner.style.padding = '0px';
-                                
-                                safeSetTimeout(() => {
-                                    phoneTopBanner.style.height = 'auto';
-                                    phoneTopBanner.style.padding = '8px 10px';
-                                    
-                                    let currentIdx = 0;
-                                    function playNext() {
-                                        if (currentIdx >= texts.length - 1) {
-                                            safeSetTimeout(() => {
-                                                phoneTopBanner.style.height = '0px';
-                                                phoneTopBanner.style.padding = '0px';
-                                                safeSetTimeout(() => { runLiveEffectCycle(); }, pauseSec * 1000);
-                                            }, pauseBetweenSec * 1000);
-                                            return;
-                                        }
-                                        safeSetTimeout(() => {
-                                            phoneTopBanner.style.height = '0px';
-                                            phoneTopBanner.style.padding = '0px';
-                                            safeSetTimeout(() => {
-                                                currentIdx++;
-                                                window.phoneTbIdx = currentIdx;
-                                                txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
-                                                phoneTopBanner.style.height = 'auto';
-                                                phoneTopBanner.style.padding = '8px 10px';
-                                                playNext();
-                                            }, 400);
-                                        }, pauseBetweenSec * 1000);
-                                    }
-                                    playNext();
-                                }, 100);
+                                return;
                             }
+
+                            if (texts.length <= 1) return;
+
+                            const isLastText = window.phoneTbIdx === window.phoneTbTexts.length - 1;
+                            const delay = (isLastText ? pauseSec : pauseBetweenSec) * 1000;
+
+                            window.phoneTbInterval = safeSetTimeout(() => {
+                                // 1. Efeito de SAÍDA
+                                if (effect === 'slide') {
+                                    phoneTopBanner.style.transform = 'translateY(-100%)';
+                                    phoneTopBanner.style.opacity = '0';
+                                } else if (effect === 'fade') {
+                                    txtEl.style.opacity = '0';
+                                } else if (effect === 'bounce') {
+                                    txtEl.style.transform = 'scale(0)';
+                                    txtEl.style.opacity = '0';
+                                } else if (effect === 'flip') {
+                                    txtEl.style.transform = 'rotateX(90deg)';
+                                    txtEl.style.opacity = '0';
+                                } else if (effect === 'shutter') {
+                                    phoneTopBanner.style.height = '0px';
+                                    phoneTopBanner.style.padding = '0px';
+                                }
+
+                                // 2. Troca de texto e efeito de ENTRADA
+                                // O tempo do timeout deve ser suficiente para completar a animação de saída
+                                const transitionDuration = (effect === 'slide') ? 450 : 400;
+
+                                safeSetTimeout(() => {
+                                    window.phoneTbIdx = (window.phoneTbIdx + 1) % window.phoneTbTexts.length;
+                                    txtEl.textContent = window.phoneTbTexts[window.phoneTbIdx];
+
+                                    if (effect === 'slide') {
+                                        phoneTopBanner.style.transform = 'translateY(0)';
+                                        phoneTopBanner.style.opacity = '1';
+                                    } else if (effect === 'fade') {
+                                        txtEl.style.opacity = '1';
+                                    } else if (effect === 'bounce') {
+                                        txtEl.style.transform = 'scale(1)';
+                                        txtEl.style.opacity = '1';
+                                    } else if (effect === 'flip') {
+                                        txtEl.style.transform = 'rotateX(0deg)';
+                                        txtEl.style.opacity = '1';
+                                    } else if (effect === 'shutter') {
+                                        phoneTopBanner.style.height = 'auto';
+                                        phoneTopBanner.style.padding = '8px 10px';
+                                    }
+
+                                    // Continua o ciclo recursivamente
+                                    runLiveEffectCycle();
+                                }, transitionDuration);
+
+                            }, delay);
                         }
                         
                         runLiveEffectCycle();
