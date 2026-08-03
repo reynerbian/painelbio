@@ -273,7 +273,10 @@ export function generateStaticSite(data) {
   const hasLiveChat = Boolean(data.addonLivechatActive);
   const lcAvatar = data.addonLivechatAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
   const lcName = data.addonLivechatName || 'Suporte Amanda';
-  const lcStatusText = data.addonLivechatStatusText || 'Online Agora';
+  const lcStatusType = data.addonLivechatStatusType || 'smart';
+  const lcHoursStart = data.addonLivechatHoursStart || '08:00';
+  const lcHoursEnd = data.addonLivechatHoursEnd || '18:00';
+  const lcStatusTextRaw = data.addonLivechatStatusText || 'Online Agora';
   const lcMessage = data.addonLivechatMessage || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋';
   const lcPosition = data.addonLivechatPosition || 'bottom-left';
   const lcUrl = data.addonLivechatUrl || (data.btn1Url && data.btn1Url.includes('wa.me') ? data.btn1Url : 'https://wa.me/5511999999999');
@@ -287,9 +290,9 @@ export function generateStaticSite(data) {
       liveChatHtml = `
       <style>
           @keyframes lcPulse {
-              0% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}aa; }
-              70% { transform: scale(1); box-shadow: 0 0 0 8px ${lcColor}00; }
-              100% { transform: scale(0.95); box-shadow: 0 0 0 0 ${lcColor}00; }
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--lc-pulse-glow, ${lcColor}aa); }
+              70% { transform: scale(1); box-shadow: 0 0 0 8px var(--lc-pulse-glow, ${lcColor}00); }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 var(--lc-pulse-glow, ${lcColor}00); }
           }
           @keyframes lcPop {
               0% { transform: scale(0.8) translateY(20px); opacity: 0; }
@@ -298,17 +301,106 @@ export function generateStaticSite(data) {
       </style>
       <a href="${lcUrl}" target="_blank" rel="noopener" id="pb-static-livechat" style="position: fixed; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
           <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
-              <img src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
-              <span style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
+              <img id="pb-lc-avatar-img" src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
+              <span id="pb-lc-status-dot" style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
           </div>
           <div style="display: flex; flex-direction: column; overflow: hidden;">
               <div style="display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 0.78rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcName}</span>
-                  <span style="font-size: 0.65rem; font-weight: 600; color: ${lcColor}; background: ${lcColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">${lcStatusText}</span>
+                  <span id="pb-lc-status-text" style="font-size: 0.65rem; font-weight: 600; color: ${lcColor}; background: ${lcColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">Online agora</span>
               </div>
               <span style="font-size: 0.72rem; color: rgba(255,255,255,0.85); line-height: 1.25; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcMessage}</span>
           </div>
       </a>
+      <script>
+      (function() {
+          const type = "${lcStatusType}";
+          const baseColor = "${lcColor}";
+          const hoursStart = "${lcHoursStart}";
+          const hoursEnd = "${lcHoursEnd}";
+          const customText = "${lcStatusTextRaw}";
+          
+          const dot = document.getElementById('pb-lc-status-dot');
+          const text = document.getElementById('pb-lc-status-text');
+          const img = document.getElementById('pb-lc-avatar-img');
+          const link = document.getElementById('pb-static-livechat');
+          
+          if (!dot || !text) return;
+          
+          let stText = 'Online agora';
+          let stColor = baseColor;
+          let stActive = true;
+          
+          if (type === 'online') {
+              stText = 'Online agora';
+              stColor = baseColor;
+              stActive = true;
+          } else if (type === 'custom') {
+              stText = customText || 'Online agora';
+              stColor = baseColor;
+              stActive = true;
+          } else {
+              // Simulado Inteligente
+              try {
+                  const now = new Date();
+                  const curMin = now.getHours() * 60 + now.getMinutes();
+                  const [sh, sm] = hoursStart.split(':').map(Number);
+                  const [eh, em] = hoursEnd.split(':').map(Number);
+                  const startMin = (sh !== undefined && !isNaN(sh) ? sh : 8) * 60 + (sm !== undefined && !isNaN(sm) ? sm : 0);
+                  const endMin = (eh !== undefined && !isNaN(eh) ? eh : 18) * 60 + (em !== undefined && !isNaN(em) ? em : 0);
+                  
+                  if (curMin >= startMin && curMin <= endMin) {
+                      const seed = Math.floor(now.getTime() / 600000) % 100;
+                      if (seed < 85) {
+                          stText = 'Online agora';
+                          stColor = baseColor;
+                          stActive = true;
+                      } else {
+                          const minAgo = 2 + (seed % 8);
+                          stText = 'visto há ' + minAgo + ' min';
+                          stColor = '#94a3b8';
+                          stActive = false;
+                      }
+                  } else {
+                      const seed = Math.floor(now.getTime() / 86400000) % 10;
+                      const diffMin = 3 + (seed % 15);
+                      let lastH = eh !== undefined && !isNaN(eh) ? eh : 18;
+                      let lastM = (em !== undefined && !isNaN(em) ? em : 0) - diffMin;
+                      if (lastM < 0) {
+                          lastH--;
+                          lastM += 60;
+                      }
+                      if (lastH < 0) lastH += 24;
+                      const pad = (n) => String(n).padStart(2, '0');
+                      stText = 'visto às ' + pad(lastH) + ':' + pad(lastM);
+                      stColor = '#64748b';
+                      stActive = false;
+                  }
+              } catch (e) {
+                  stText = 'Online agora';
+                  stColor = baseColor;
+                  stActive = true;
+              }
+          }
+          
+          // Aplica os estilos calculados
+          text.textContent = stText;
+          text.style.color = stColor;
+          text.style.background = stColor + '22';
+          
+          dot.style.background = stColor;
+          if (img) img.style.borderColor = stColor;
+          
+          if (stActive) {
+              dot.style.animation = 'lcPulse 2s infinite';
+              link.style.setProperty('--lc-pulse-glow', stColor + 'aa');
+              link.style.boxShadow = '0 12px 30px rgba(0,0,0,0.6), 0 0 20px ' + stColor + '33';
+          } else {
+              dot.style.animation = 'none';
+              link.style.boxShadow = '0 12px 30px rgba(0,0,0,0.6), 0 0 15px rgba(0,0,0,0.1)';
+          }
+      })();
+      </script>
       `;
   }
 
@@ -756,11 +848,29 @@ export function generateStaticSite(data) {
                   }
               }
 
+              function fadeInAudio() {
+                  audio.volume = 0;
+                  var vol = 0;
+                  var interval = setInterval(function() {
+                      if (audio.paused || audio.muted) {
+                          clearInterval(interval);
+                          return;
+                      }
+                      vol += 0.05;
+                      if (vol >= 1) {
+                          vol = 1;
+                          clearInterval(interval);
+                      }
+                      audio.volume = vol;
+                  }, 100);
+              }
+
               function tryAutoplay() {
                   audio.muted = false;
                   var promise = audio.play();
                   if (promise !== undefined) {
                       promise.then(function() { 
+                          fadeInAudio();
                           updateUI(); 
                       }).catch(function() {
                           audio.muted = true;
@@ -779,9 +889,13 @@ export function generateStaticSite(data) {
                   function playOnFirstInteraction() {
                       if (audio.paused) {
                           audio.muted = false;
-                          audio.play().then(function() { updateUI(); }).catch(function(){});
+                          audio.play().then(function() { 
+                              fadeInAudio();
+                              updateUI(); 
+                          }).catch(function(){});
                       } else if (audio.muted) {
                           audio.muted = false;
+                          fadeInAudio();
                           updateUI();
                       }
                       window.removeEventListener('pointerdown', playOnFirstInteraction);
@@ -801,9 +915,17 @@ export function generateStaticSite(data) {
                   e.stopPropagation();
                   if (audio.paused) {
                       audio.muted = false;
-                      audio.play().then(function() { updateUI(); }).catch(function(){});
+                      audio.play().then(function() { 
+                          fadeInAudio();
+                          updateUI(); 
+                      }).catch(function(){});
                   } else {
-                      audio.muted = !audio.muted;
+                      if (audio.muted) {
+                          audio.muted = false;
+                          fadeInAudio();
+                      } else {
+                          audio.muted = true;
+                      }
                       updateUI();
                   }
               });

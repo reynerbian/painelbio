@@ -389,8 +389,11 @@
 
                 <!-- Foto / Avatar do Atendente -->
                 <div class="form-group" style="margin-bottom: 10px;">
-                    <label for="input-addon-lc-avatar" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">🖼️ Foto do Atendente (URL):</label>
-                    <input type="text" id="input-addon-lc-avatar" placeholder="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    <label for="input-addon-lc-avatar" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">📷 Foto do Atendente:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="input-addon-lc-avatar" placeholder="URL da imagem (ex: https://...)" style="flex: 1; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                        <button type="button" id="btn-search-lc-avatar" class="form-button" style="background: #22c55e; color: #ffffff; border: none; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; padding: 8px 14px; transition: background 0.2s;">Buscar</button>
+                    </div>
                 </div>
 
                 <!-- Nome do Atendente -->
@@ -399,9 +402,33 @@
                     <input type="text" id="input-addon-lc-name" placeholder="Ex: Suporte Amanda | Atendimento" value="Suporte Amanda" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 
-                <!-- Status Text -->
+                <!-- Tipo de Status -->
                 <div class="form-group" style="margin-bottom: 10px;">
-                    <label for="input-addon-lc-status" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🟢 Texto do Status (ponto verde):</label>
+                    <label for="select-addon-lc-status-type" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⚡ Modo do Status:</label>
+                    <select id="select-addon-lc-status-type" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="smart" selected>💡 Simulado Inteligente (Horário Comercial)</option>
+                        <option value="online">🟢 Sempre Online</option>
+                        <option value="custom">✍️ Texto Fixo Customizado</option>
+                    </select>
+                </div>
+
+                <!-- Configurações do Status Inteligente -->
+                <div id="container-addon-lc-status-smart" style="display: block; margin-bottom: 10px; border: 1px dashed rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2);">
+                    <div style="display: flex; gap: 8px;">
+                        <div style="flex: 1;">
+                            <label for="input-addon-lc-hours-start" style="font-size: 0.72rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">Hora de Início:</label>
+                            <input type="text" id="input-addon-lc-hours-start" value="08:00" placeholder="08:00" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; text-align: center;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="input-addon-lc-hours-end" style="font-size: 0.72rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">Hora de Fim:</label>
+                            <input type="text" id="input-addon-lc-hours-end" value="18:00" placeholder="18:00" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; text-align: center;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configurações do Status Customizado -->
+                <div id="container-addon-lc-status-custom" style="display: none; margin-bottom: 10px;">
+                    <label for="input-addon-lc-status" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🟢 Texto do Status:</label>
                     <input type="text" id="input-addon-lc-status" placeholder="Ex: Online Agora" value="Online Agora" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 

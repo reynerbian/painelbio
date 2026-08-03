@@ -472,8 +472,8 @@ function updatePreviewFromForm() {
 
                     phoneAudioPlayer.style.cssText = `position: absolute; ${posCss} z-index: 999; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(15, 23, 42, 0.85); color: #ffffff; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 24px rgba(0,0,0,0.35); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all 0.3s ease; user-select: none;`;
 
-                    // Só reconstrói o player se a URL mudou
-                    if (window._phoneLastAudioUrl !== apUrl) {
+                    // Só reconstrói o player se a URL mudou ou se o player foi reinicializado vazio no DOM
+                    if (window._phoneLastAudioUrl !== apUrl || !phoneAudioPlayer.querySelector('.ap-icon-circle')) {
                         window._phoneLastAudioUrl = apUrl;
                         window._phoneAudioPlaying = false;
                         window._phoneAudioMuted = false;
@@ -569,6 +569,45 @@ function updatePreviewFromForm() {
                     updatePlayerUI();
                     phoneAudioPlayer.style.display = 'flex';
 
+                    const fadeInAudio = (audio) => {
+                        audio.volume = 0;
+                        let vol = 0;
+                        const interval = setInterval(() => {
+                            if (audio.paused || audio.muted) {
+                                clearInterval(interval);
+                                return;
+                            }
+                            vol += 0.05;
+                            if (vol >= 1) {
+                                vol = 1;
+                                clearInterval(interval);
+                            }
+                            audio.volume = vol;
+                        }, 100);
+                    };
+
+                    const fadeInYt = (player) => {
+                        player.setVolume(0);
+                        let vol = 0;
+                        const interval = setInterval(() => {
+                            try {
+                                const state = player.getPlayerState();
+                                if (state !== YT.PlayerState.PLAYING || player.isMuted()) {
+                                    clearInterval(interval);
+                                    return;
+                                }
+                                vol += 5;
+                                if (vol >= 100) {
+                                    vol = 100;
+                                    clearInterval(interval);
+                                }
+                                player.setVolume(vol);
+                            } catch(e) {
+                                clearInterval(interval);
+                            }
+                        }, 100);
+                    };
+
                     phoneAudioPlayer.onclick = (e) => {
                         e.stopPropagation();
                         if (ytId) {
@@ -579,10 +618,12 @@ function updatePreviewFromForm() {
                                     window.phoneYtPlayer.playVideo();
                                     window._phoneAudioPlaying = true;
                                     window._phoneAudioMuted = false;
+                                    fadeInYt(window.phoneYtPlayer);
                                 } else {
                                     if (window.phoneYtPlayer.isMuted()) {
                                         window.phoneYtPlayer.unMute();
                                         window._phoneAudioMuted = false;
+                                        fadeInYt(window.phoneYtPlayer);
                                     } else {
                                         window.phoneYtPlayer.mute();
                                         window._phoneAudioMuted = true;
@@ -598,11 +639,18 @@ function updatePreviewFromForm() {
                                     audioEl.play().then(() => {
                                         window._phoneAudioPlaying = true;
                                         window._phoneAudioMuted = false;
+                                        fadeInAudio(audioEl);
                                         updatePlayerUI();
                                     }).catch(() => {});
                                 } else {
-                                    audioEl.muted = !audioEl.muted;
-                                    window._phoneAudioMuted = audioEl.muted;
+                                    if (audioEl.muted) {
+                                        audioEl.muted = false;
+                                        window._phoneAudioMuted = false;
+                                        fadeInAudio(audioEl);
+                                    } else {
+                                        audioEl.muted = true;
+                                        window._phoneAudioMuted = true;
+                                    }
                                     updatePlayerUI();
                                 }
                             }
@@ -635,10 +683,70 @@ function updatePreviewFromForm() {
             if (isLiveChatActive) {
                 const lcAvatar = document.getElementById('input-addon-lc-avatar')?.value.trim() || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
                 const lcName = document.getElementById('input-addon-lc-name')?.value.trim() || 'Suporte Amanda';
-                const lcStatusText = document.getElementById('input-addon-lc-status')?.value.trim() || 'Online Agora';
+                const lcStatusType = document.getElementById('select-addon-lc-status-type')?.value || 'smart';
+                const lcHoursStart = document.getElementById('input-addon-lc-hours-start')?.value.trim() || '08:00';
+                const lcHoursEnd = document.getElementById('input-addon-lc-hours-end')?.value.trim() || '18:00';
+                const lcStatusTextRaw = document.getElementById('input-addon-lc-status')?.value.trim() || 'Online Agora';
                 const lcPosition = document.getElementById('select-addon-lc-position')?.value || 'bottom-left';
                 const lcColor = document.getElementById('input-addon-lc-color')?.value || '#22c55e';
                 const lcMessage = document.getElementById('input-addon-lc-message')?.value.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 💬';
+
+                // Calcula o status inteligente ou estático
+                let statusText = 'Online agora';
+                let statusColor = lcColor;
+                let statusActive = true;
+
+                if (lcStatusType === 'online') {
+                    statusText = 'Online agora';
+                    statusColor = lcColor;
+                    statusActive = true;
+                } else if (lcStatusType === 'custom') {
+                    statusText = lcStatusTextRaw || 'Online agora';
+                    statusColor = lcColor;
+                    statusActive = true;
+                } else {
+                    // Simulado Inteligente
+                    try {
+                        const now = new Date();
+                        const curMin = now.getHours() * 60 + now.getMinutes();
+                        const [sh, sm] = lcHoursStart.split(':').map(Number);
+                        const [eh, em] = lcHoursEnd.split(':').map(Number);
+                        const startMin = (sh !== undefined && !isNaN(sh) ? sh : 8) * 60 + (sm !== undefined && !isNaN(sm) ? sm : 0);
+                        const endMin = (eh !== undefined && !isNaN(eh) ? eh : 18) * 60 + (em !== undefined && !isNaN(em) ? em : 0);
+
+                        if (curMin >= startMin && curMin <= endMin) {
+                            const seed = Math.floor(now.getTime() / 600000) % 100;
+                            if (seed < 85) {
+                                statusText = 'Online agora';
+                                statusColor = lcColor;
+                                statusActive = true;
+                            } else {
+                                const minAgo = 2 + (seed % 8);
+                                statusText = `visto há ${minAgo} min`;
+                                statusColor = '#94a3b8';
+                                statusActive = false;
+                            }
+                        } else {
+                            const seed = Math.floor(now.getTime() / 86400000) % 10;
+                            const diffMin = 3 + (seed % 15);
+                            let lastH = eh !== undefined && !isNaN(eh) ? eh : 18;
+                            let lastM = (em !== undefined && !isNaN(em) ? em : 0) - diffMin;
+                            if (lastM < 0) {
+                                lastH--;
+                                lastM += 60;
+                            }
+                            if (lastH < 0) lastH += 24;
+                            const pad = (n) => String(n).padStart(2, '0');
+                            statusText = `visto às ${pad(lastH)}:${pad(lastM)}`;
+                            statusColor = '#64748b';
+                            statusActive = false;
+                        }
+                    } catch (e) {
+                        statusText = 'Online agora';
+                        statusColor = lcColor;
+                        statusActive = true;
+                    }
+                }
 
                 // Usamos phoneScreen diretamente para que fique fixo em relação à borda do celular, independentemente do scroll
                 let targetContainer = phoneScreen;
@@ -658,17 +766,17 @@ function updatePreviewFromForm() {
                 let posCss = 'bottom: 20px; left: 20px;';
                 if (lcPosition === 'bottom-right') posCss = 'bottom: 20px; right: 20px;';
 
-                phoneLiveChat.style.cssText = `position: absolute; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;`;
+                phoneLiveChat.style.cssText = `position: absolute; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${statusColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;`;
                 
                 phoneLiveChat.innerHTML = `
                     <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
-                        <img src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
-                        <span style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
+                        <img src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${statusColor};">
+                        <span style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${statusColor}; border-radius: 50%; border: 2px solid #0f172a; ${statusActive ? 'animation: lcPulse 2s infinite;' : ''}"></span>
                     </div>
                     <div style="display: flex; flex-direction: column; overflow: hidden;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 0.78rem; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcName}</span>
-                            <span style="font-size: 0.65rem; font-weight: 600; color: ${lcColor}; background: ${lcColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">${lcStatusText}</span>
+                            <span style="font-size: 0.65rem; font-weight: 600; color: ${statusColor}; background: ${statusColor}22; padding: 1px 6px; border-radius: 10px; white-space: nowrap;">${statusText}</span>
                         </div>
                         <span style="font-size: 0.72rem; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcMessage}</span>
                     </div>
@@ -2354,8 +2462,17 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-aurora-c1': backup.addonAuroraC1 || '#00f2fe',
                     'input-addon-aurora-c2': backup.addonAuroraC2 || '#4facfe',
                     'input-addon-aurora-c3': backup.addonAuroraC3 || '#090514',
-                    'select-addon-aurora-speed': backup.addonAuroraSpeed || 'normal',
-                    'input-addon-aurora-blur': backup.addonAuroraBlur || 60
+                    'input-addon-aurora-blur': backup.addonAuroraBlur || 60,
+                    'input-addon-lc-avatar': backup.addonLivechatAvatar || '',
+                    'input-addon-lc-name': backup.addonLivechatName || 'Suporte Amanda',
+                    'select-addon-lc-status-type': backup.addonLivechatStatusType || 'smart',
+                    'input-addon-lc-hours-start': backup.addonLivechatHoursStart || '08:00',
+                    'input-addon-lc-hours-end': backup.addonLivechatHoursEnd || '18:00',
+                    'input-addon-lc-status': backup.addonLivechatStatusText || 'Online Agora',
+                    'input-addon-lc-message': backup.addonLivechatMessage || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋',
+                    'input-addon-lc-url': backup.addonLivechatUrl || 'https://wa.me/5511999999999',
+                    'select-addon-lc-position': backup.addonLivechatPosition || 'bottom-left',
+                    'input-addon-lc-color': backup.addonLivechatColor || '#22c55e'
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2466,7 +2583,22 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     const cardGlt = document.getElementById('card-addon-glitch');
                     if (cardGlt) cardGlt.style.display = 'block';
                 }
-
+                if (backup.addonLivechatActive) {
+                    const cardLc = document.getElementById('card-addon-livechat');
+                    if (cardLc) {
+                        cardLc.style.display = 'block';
+                        // Exibe os sub-campos do status baseado no tipo
+                        const selectLcStatusType = document.getElementById('select-addon-lc-status-type');
+                        const containerLcStatusSmart = document.getElementById('container-addon-lc-status-smart');
+                        const containerLcStatusCustom = document.getElementById('container-addon-lc-status-custom');
+                        if (selectLcStatusType) {
+                            const val = backup.addonLivechatStatusType || 'smart';
+                            selectLcStatusType.value = val;
+                            if (containerLcStatusSmart) containerLcStatusSmart.style.display = (val === 'smart') ? 'block' : 'none';
+                            if (containerLcStatusCustom) containerLcStatusCustom.style.display = (val === 'custom') ? 'block' : 'none';
+                        }
+                    }
+                }
                 if (backup.addonAuroraActive) {
                     const cardAur = document.getElementById('card-addon-aurora');
                     if (cardAur) {

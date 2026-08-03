@@ -1855,6 +1855,72 @@ loadClassicModel();
                 });
             }
 
+            // Toggle do Modo de Status e Upload de Imagem do Atendente (Add-on 5)
+            const selectLcStatusType = document.getElementById('select-addon-lc-status-type');
+            const containerLcStatusSmart = document.getElementById('container-addon-lc-status-smart');
+            const containerLcStatusCustom = document.getElementById('container-addon-lc-status-custom');
+
+            if (selectLcStatusType) {
+                const toggleLcFields = () => {
+                    const val = selectLcStatusType.value;
+                    if (containerLcStatusSmart) containerLcStatusSmart.style.display = (val === 'smart') ? 'block' : 'none';
+                    if (containerLcStatusCustom) containerLcStatusCustom.style.display = (val === 'custom') ? 'block' : 'none';
+                };
+                selectLcStatusType.addEventListener('change', () => {
+                    toggleLcFields();
+                    updatePreviewFromForm();
+                });
+                // Executa uma vez no load
+                toggleLcFields();
+            }
+
+            const btnSearchLcAvatar = document.getElementById('btn-search-lc-avatar');
+            if (btnSearchLcAvatar) {
+                btnSearchLcAvatar.addEventListener('click', () => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    
+                    fileInput.addEventListener('change', async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        
+                        const originalText = btnSearchLcAvatar.textContent;
+                        btnSearchLcAvatar.textContent = 'Enviando...';
+                        btnSearchLcAvatar.disabled = true;
+                        
+                        try {
+                            const formData = new FormData();
+                            formData.append('logo', file);
+                            
+                            const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            const data = await response.json();
+                            if (data.success && data.urls && data.urls.logo) {
+                                const lcAvatarInput = document.getElementById('input-addon-lc-avatar');
+                                if (lcAvatarInput) {
+                                    lcAvatarInput.value = window.location.origin + data.urls.logo;
+                                }
+                                updatePreviewFromForm();
+                            } else {
+                                alert('Erro ao fazer upload da imagem do atendente.');
+                            }
+                        } catch (err) {
+                            console.error('Erro ao fazer upload:', err);
+                            alert('Erro de conexão ao fazer upload.');
+                        } finally {
+                            btnSearchLcAvatar.textContent = originalText;
+                            btnSearchLcAvatar.disabled = false;
+                        }
+                    });
+                    
+                    fileInput.click();
+                });
+            }
+
             // ==========================================
             // ADD-ON 6: BOLINHAS NO BACKGROUND
             // ==========================================
@@ -2158,6 +2224,9 @@ loadClassicModel();
                         addonLivechatActive: document.getElementById('card-addon-livechat')?.style.display !== 'none',
                         addonLivechatAvatar: document.getElementById('input-addon-lc-avatar')?.value.trim() || '',
                         addonLivechatName: document.getElementById('input-addon-lc-name')?.value.trim() || 'Suporte Amanda',
+                        addonLivechatStatusType: document.getElementById('select-addon-lc-status-type')?.value || 'smart',
+                        addonLivechatHoursStart: document.getElementById('input-addon-lc-hours-start')?.value.trim() || '08:00',
+                        addonLivechatHoursEnd: document.getElementById('input-addon-lc-hours-end')?.value.trim() || '18:00',
                         addonLivechatStatusText: document.getElementById('input-addon-lc-status')?.value.trim() || 'Online Agora',
                         addonLivechatMessage: document.getElementById('input-addon-lc-message')?.value.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋',
                         addonLivechatUrl: document.getElementById('input-addon-lc-url')?.value.trim() || 'https://wa.me/5511999999999',
