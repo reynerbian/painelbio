@@ -1955,7 +1955,7 @@ export function generateStaticSite(data) {
         
         .preview-bio-page {
             width: 100%; height: 100%; height: 100dvh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 24px 16px;
+            align-items: center; justify-content: center; padding: ${hasTopBanner ? '60px' : '24px'} 16px 24px 16px;
             box-sizing: border-box; position: relative;
             overflow-x: hidden; /* Corta as luzes de neon nas laterais e evita rolagem horizontal */
             overflow-y: auto; overscroll-behavior-y: contain;

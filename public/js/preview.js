@@ -1477,11 +1477,14 @@ function updatePreviewFromForm() {
 
             if (!viewCard) return;
 
-            // Ajusta margem do card se o banner estiver ativo
+            // Ajusta o padding do container para não cobrir o conteúdo se o banner estiver ativo
+            const previewBioPage = document.querySelector('.preview-bio-page');
             if (isTopbannerActive) {
-                viewCard.style.marginTop = '36px';
+                viewCard.style.marginTop = 'auto';
+                if (previewBioPage) previewBioPage.style.paddingTop = '60px';
             } else {
-                viewCard.style.marginTop = '0px';
+                viewCard.style.marginTop = 'auto';
+                if (previewBioPage) previewBioPage.style.paddingTop = '24px';
             }
 
             const avatarUrlInput = document.getElementById('input-avatar');
