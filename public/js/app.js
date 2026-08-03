@@ -1711,9 +1711,36 @@ loadClassicModel();
             if (btnRemoveAvatarSpin && cardAvatarSpin) {
                 btnRemoveAvatarSpin.addEventListener('click', () => {
                     cardAvatarSpin.style.display = 'none';
-                    // Remove animação do avatar no preview
                     const liveAvatar = document.getElementById('view-avatar-container') || document.getElementById('v-view-avatar-wrapper');
                     if (liveAvatar) liveAvatar.style.animation = '';
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Entrada: mostra/esconde eixo e voltas conforme tipo de entrada
+            const asEntranceEl = document.getElementById('input-addon-as-entrance');
+            const asAxisCont   = document.getElementById('container-addon-as-axis');
+            const asSpinsCont  = document.getElementById('container-addon-as-spins');
+            if (asEntranceEl) {
+                const toggleEntranceFields = () => {
+                    const spinEntrances = ['spin', 'fadespin'];
+                    const show = spinEntrances.includes(asEntranceEl.value);
+                    if (asAxisCont)  asAxisCont.style.display  = show ? 'block' : 'none';
+                    if (asSpinsCont) asSpinsCont.style.display = show ? 'block' : 'none';
+                    updatePreviewFromForm();
+                };
+                asEntranceEl.addEventListener('change', toggleEntranceFields);
+                toggleEntranceFields(); // estado inicial
+            }
+
+            // Gatilho: mostra/esconde aviso hover e seção repetir
+            const asTriggerEl      = document.getElementById('input-addon-as-trigger');
+            const asHoverWarnEl    = document.getElementById('container-addon-as-hover-warning');
+            const asRepeatSection  = document.getElementById('container-addon-as-repeat-section');
+            if (asTriggerEl) {
+                asTriggerEl.addEventListener('change', () => {
+                    if (asHoverWarnEl)   asHoverWarnEl.style.display   = (asTriggerEl.value === 'hover') ? 'block' : 'none';
+                    if (asRepeatSection) asRepeatSection.style.display  = (asTriggerEl.value === 'onload') ? 'flex' : 'none';
                     updatePreviewFromForm();
                 });
             }
@@ -1727,6 +1754,34 @@ loadClassicModel();
                     updatePreviewFromForm();
                 });
             }
+
+            // Brilho Pulsante: toggle color picker
+            const asGlowChk      = document.getElementById('input-addon-as-glow');
+            const asGlowColorCont = document.getElementById('container-addon-as-glow-color');
+            if (asGlowChk && asGlowColorCont) {
+                asGlowChk.addEventListener('change', () => {
+                    asGlowColorCont.style.display = asGlowChk.checked ? 'block' : 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Borda Giratória: toggle color picker
+            const asBorderChk      = document.getElementById('input-addon-as-border');
+            const asBorderColorCont = document.getElementById('container-addon-as-border-color');
+            if (asBorderChk && asBorderColorCont) {
+                asBorderChk.addEventListener('change', () => {
+                    asBorderColorCont.style.display = asBorderChk.checked ? 'block' : 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
+            // Live update nos color pickers e selects do Add-on 3
+            ['input-addon-as-axis','input-addon-as-easing','input-addon-as-glow-color','input-addon-as-border-color',
+             'input-addon-as-duration','input-addon-as-spins','input-addon-as-interval',
+             'input-addon-as-float','input-addon-as-pulse'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => updatePreviewFromForm());
+            });
 
             // Botão testar animação agora
             const btnPreviewSpin = document.getElementById('btn-preview-avatarspin');
@@ -2083,6 +2138,16 @@ loadClassicModel();
                         addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
                         addonAvatarSpinRepeat: document.getElementById('input-addon-as-repeat')?.checked || false,
                         addonAvatarSpinInterval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
+                        addonAvatarSpinAxis: document.getElementById('input-addon-as-axis')?.value || 'Y',
+                        addonAvatarSpinEasing: document.getElementById('input-addon-as-easing')?.value || 'easeout',
+                        addonAvatarSpinEntrance: document.getElementById('input-addon-as-entrance')?.value || 'spin',
+                        addonAvatarSpinTrigger: document.getElementById('input-addon-as-trigger')?.value || 'onload',
+                        addonAvatarSpinFloat: document.getElementById('input-addon-as-float')?.checked || false,
+                        addonAvatarSpinPulse: document.getElementById('input-addon-as-pulse')?.checked || false,
+                        addonAvatarSpinGlow: document.getElementById('input-addon-as-glow')?.checked || false,
+                        addonAvatarSpinGlowColor: document.getElementById('input-addon-as-glow-color')?.value || '#f59e0b',
+                        addonAvatarSpinBorder: document.getElementById('input-addon-as-border')?.checked || false,
+                        addonAvatarSpinBorderColor: document.getElementById('input-addon-as-border-color')?.value || '#a855f7',
                         addonAudioPlayerActive: document.getElementById('card-addon-audioplayer')?.style.display !== 'none',
                         addonAudioPlayerUrl: document.getElementById('input-addon-ap-url')?.value.trim() || '',
                         addonAudioPlayerLabel: document.getElementById('input-addon-ap-label')?.value.trim() || 'Música da Loja',
@@ -2132,7 +2197,23 @@ loadClassicModel();
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
                         bannerConfig: { enabled: document.getElementById('card-addon-topbanner')?.style.display !== 'none' },
                         rainConfig: { enabled: document.getElementById('card-addon-emojirain')?.style.display !== 'none' },
-                        avatarSpinConfig: { enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none' },
+                        avatarSpinConfig: {
+                            enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
+                            duration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
+                            spins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
+                            repeat: document.getElementById('input-addon-as-repeat')?.checked || false,
+                            interval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
+                            axis: document.getElementById('input-addon-as-axis')?.value || 'Y',
+                            easing: document.getElementById('input-addon-as-easing')?.value || 'easeout',
+                            entrance: document.getElementById('input-addon-as-entrance')?.value || 'spin',
+                            trigger: document.getElementById('input-addon-as-trigger')?.value || 'onload',
+                            float: document.getElementById('input-addon-as-float')?.checked || false,
+                            pulse: document.getElementById('input-addon-as-pulse')?.checked || false,
+                            glow: document.getElementById('input-addon-as-glow')?.checked || false,
+                            glowColor: document.getElementById('input-addon-as-glow-color')?.value || '#f59e0b',
+                            border: document.getElementById('input-addon-as-border')?.checked || false,
+                            borderColor: document.getElementById('input-addon-as-border-color')?.value || '#a855f7',
+                        },
                         audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
                         chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
                         bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },

@@ -131,40 +131,89 @@ function updateCartSummary() {
     totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-function applyAvatarSpinAnimation(duration, spins, activeModel) {
-    const totalDeg = spins * 360;
-    const kfName = `pb-spin-${totalDeg}`;
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function getAvatarImgEl(activeModel) {
+    if (activeModel === 'vitrine')
+        return document.querySelector('#v-view-avatar-inner img') || document.getElementById('v-view-avatar-inner');
+    if (activeModel === 'carousel' || activeModel === 'carrossel')
+        return document.querySelector('#c-view-avatar-inner img') || document.getElementById('c-view-avatar-inner');
+    if (activeModel === 'shop')
+        return document.querySelector('#s-view-avatar-inner img') || document.getElementById('s-view-avatar-inner');
+    return document.querySelector('#view-avatar-inner img') || document.getElementById('view-avatar-inner');
+}
 
-    // Gera keyframes SOMENTE com from e to.
+function _getAvatarWrapEl(activeModel) {
+    if (activeModel === 'vitrine')    return document.getElementById('v-view-avatar-inner');
+    if (activeModel === 'carousel' || activeModel === 'carrossel') return document.getElementById('c-view-avatar-inner');
+    if (activeModel === 'shop')       return document.getElementById('s-view-avatar-inner');
+    return document.getElementById('view-avatar-inner');
+}
+
+// ── Mapa de curvas de aceleração ─────────────────────────────────────────────
+function _getEasingCss(easing) {
+    if (easing === 'elastic') return 'cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    if (easing === 'spring')  return 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+    return 'cubic-bezier(0.0, 0.0, 0.2, 1)'; // easeout (padrão)
+}
+
+// ── Aplica animação de ENTRADA no avatar ─────────────────────────────────────
+function applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance) {
+    axis     = axis     || 'Y';
+    easing   = easing   || 'easeout';
+    entrance = entrance || 'spin';
+
     let styleEl = document.getElementById('pb-avatarspin-style');
     if (!styleEl) {
         styleEl = document.createElement('style');
         styleEl.id = 'pb-avatarspin-style';
         document.head.appendChild(styleEl);
     }
-    styleEl.textContent = `
-        @keyframes ${kfName} {
-            from { transform: rotateY(0deg); }
-            to   { transform: rotateY(${totalDeg}deg); }
-        }
-    `;
+
+    const easingCss = _getEasingCss(easing);
+    let kfName = '';
+    let kfCss  = '';
+    let animCss = '';
+
+    if (entrance === 'zoomin') {
+        kfName  = 'pb-av-zoomin';
+        kfCss   = `@keyframes ${kfName} { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        animCss = `${kfName} ${duration}s ${easingCss} forwards`;
+    } else if (entrance === 'fall') {
+        kfName  = 'pb-av-fall';
+        kfCss   = `@keyframes ${kfName} { 0% { transform: translateY(-120px); opacity: 0; } 60% { transform: translateY(14px); opacity: 1; } 80% { transform: translateY(-8px); } 100% { transform: translateY(0); opacity: 1; } }`;
+        animCss = `${kfName} ${duration}s ${easingCss} forwards`;
+    } else if (entrance === 'fadespin') {
+        const totalDeg = spins * 360;
+        kfName  = `pb-av-fadespin-${totalDeg}${axis}`;
+        kfCss   = `@keyframes ${kfName} { from { transform: rotate${axis}(0deg); opacity: 0; } to { transform: rotate${axis}(${totalDeg}deg); opacity: 1; } }`;
+        animCss = `${kfName} ${duration}s ${easingCss} forwards`;
+    } else {
+        // spin (padrão)
+        const totalDeg = spins * 360;
+        kfName  = `pb-av-spin-${totalDeg}${axis}`;
+        kfCss   = `@keyframes ${kfName} { from { transform: rotate${axis}(0deg); } to { transform: rotate${axis}(${totalDeg}deg); } }`;
+        animCss = `${kfName} ${duration}s ${easingCss} forwards`;
+    }
+
+    styleEl.textContent = kfCss;
 
     const imgEl = getAvatarImgEl(activeModel);
     if (!imgEl) return;
 
     const parentEl = imgEl.parentElement;
     if (parentEl) {
-        parentEl.style.perspective = '500px';
+        parentEl.style.perspective = '600px';
         parentEl.style.overflow = 'visible';
     }
 
     imgEl.style.borderRadius = '50%';
     imgEl.style.display = 'block';
     imgEl.style.animation = 'none';
-    void imgEl.offsetHeight; // reflow: garante que o browser reseta a animação
-    imgEl.style.animation = `${kfName} ${duration}s cubic-bezier(0.0, 0.0, 0.2, 1) forwards`;
+    void imgEl.offsetHeight;
+    imgEl.style.animation = animCss;
 }
 
+// ── Remove animação de entrada ────────────────────────────────────────────────
 function removeAvatarSpinAnimation() {
     const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop'];
     models.forEach(m => {
@@ -180,25 +229,120 @@ function removeAvatarSpinAnimation() {
     });
 }
 
-function triggerAvatarSpinPreview() {
-    const activeModel = window.currentActiveModel || 'classic';
-    const duration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
-    const spins    = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
-    applyAvatarSpinAnimation(duration, spins, activeModel);
-    window.phoneAsConfigKey = null; // reseta para próxima mudança de config
+// ── Aplica efeitos CONTÍNUOS no wrapper do avatar ────────────────────────────
+function applyAvatarContinuousEffects(config, activeModel) {
+    // config = { float, pulse, glow, glowColor, border, borderColor }
+    let styleEl = document.getElementById('pb-avatar-continuous-style');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'pb-avatar-continuous-style';
+        document.head.appendChild(styleEl);
+    }
+
+    let kfCss = '';
+    const wrapId = activeModel === 'vitrine'  ? 'v-view-avatar-inner' :
+                   (activeModel === 'carousel' || activeModel === 'carrossel') ? 'c-view-avatar-inner' :
+                   activeModel === 'shop'     ? 's-view-avatar-inner' : 'view-avatar-inner';
+
+    // keyframes
+    kfCss += `@keyframes pb-av-float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }`;
+    kfCss += `@keyframes pb-av-pulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }`;
+    kfCss += `@keyframes pb-av-glow   { 0%,100%{box-shadow:0 0 10px 4px ${config.glowColor||'#f59e0b'}88} 50%{box-shadow:0 0 26px 10px ${config.glowColor||'#f59e0b'}cc} }`;
+    kfCss += `@keyframes pb-av-border { 0%{--border-angle:0turn} 100%{--border-angle:1turn} }`;
+
+    let anims = [];
+    if (config.float)  anims.push('pb-av-float  3.2s ease-in-out infinite');
+    if (config.pulse)  anims.push('pb-av-pulse  1.6s ease-in-out infinite');
+    if (config.glow)   anims.push('pb-av-glow   2.0s ease-in-out infinite');
+
+    // borda giratória usa ::before pseudo-element via wrapper
+    let borderCss = '';
+    if (config.border) {
+        const bc = config.borderColor || '#a855f7';
+        borderCss = `
+            #${wrapId} {
+                position: relative !important;
+                isolation: isolate !important;
+            }
+            #${wrapId}::before {
+                content: '';
+                position: absolute;
+                inset: -3px;
+                border-radius: 50%;
+                background: conic-gradient(from var(--border-angle, 0turn), ${bc}, #ffffff44, ${bc});
+                animation: pb-av-border 2s linear infinite;
+                z-index: -1;
+            }
+            @property --border-angle {
+                syntax: '<angle>';
+                initial-value: 0turn;
+                inherits: false;
+            }
+        `;
+    }
+
+    const imgSelector = `#${wrapId} img, #${wrapId}`;
+    const animVal = anims.length ? anims.join(', ') : 'none';
+
+    kfCss += `${imgSelector} { ${anims.length ? 'animation: ' + animVal + ';' : ''} }`;
+    kfCss += borderCss;
+
+    styleEl.textContent = kfCss;
 }
 
-function getAvatarImgEl(activeModel) {
-    if (activeModel === 'vitrine') {
-        return document.querySelector('#v-view-avatar-inner img') || document.getElementById('v-view-avatar-inner');
+// ── Remove efeitos contínuos ─────────────────────────────────────────────────
+function removeAvatarContinuousEffects() {
+    const styleEl = document.getElementById('pb-avatar-continuous-style');
+    if (styleEl) styleEl.textContent = '';
+    // Limpa inlines que possam ter sido aplicados
+    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop'];
+    models.forEach(m => {
+        const wrap = _getAvatarWrapEl(m);
+        if (wrap) {
+            const img = wrap.querySelector('img') || wrap;
+            if (img.style.animation && !img.style.animation.includes('pb-av-spin') &&
+                !img.style.animation.includes('pb-av-zoom') &&
+                !img.style.animation.includes('pb-av-fall') &&
+                !img.style.animation.includes('pb-av-fade')) {
+                img.style.animation = '';
+            }
+        }
+    });
+}
+
+// ── Setup de gatilho de clique/hover no avatar do preview ───────────────────
+function setupAvatarTrigger(trigger, duration, spins, activeModel, axis, easing, entrance) {
+    // Remove listeners anteriores
+    const imgEl = getAvatarImgEl(activeModel);
+    if (!imgEl) return;
+
+    // Remove clones de listeners via substituição
+    if (imgEl._pbClickHandler) imgEl.removeEventListener('click', imgEl._pbClickHandler);
+    if (imgEl._pbMouseoverHandler) imgEl.removeEventListener('mouseover', imgEl._pbMouseoverHandler);
+
+    if (trigger === 'click') {
+        imgEl._pbClickHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
+        imgEl.addEventListener('click', imgEl._pbClickHandler);
+        imgEl.style.cursor = 'pointer';
+    } else if (trigger === 'hover') {
+        imgEl._pbMouseoverHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
+        imgEl.addEventListener('mouseover', imgEl._pbMouseoverHandler);
+        imgEl.style.cursor = 'pointer';
+    } else {
+        imgEl.style.cursor = '';
     }
-    if (activeModel === 'carousel' || activeModel === 'carrossel') {
-        return document.querySelector('#c-view-avatar-inner img') || document.getElementById('c-view-avatar-inner');
-    }
-    if (activeModel === 'shop') {
-        return document.querySelector('#s-view-avatar-inner img') || document.getElementById('s-view-avatar-inner');
-    }
-    return document.querySelector('#view-avatar-inner img') || document.getElementById('view-avatar-inner');
+}
+
+// ── Botão "Testar Agora" ─────────────────────────────────────────────────────
+function triggerAvatarSpinPreview() {
+    const activeModel = window.currentActiveModel || 'classic';
+    const duration  = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
+    const spins     = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+    const axis      = document.getElementById('input-addon-as-axis')?.value     || 'Y';
+    const easing    = document.getElementById('input-addon-as-easing')?.value   || 'easeout';
+    const entrance  = document.getElementById('input-addon-as-entrance')?.value || 'spin';
+    applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
+    window.phoneAsConfigKey = null;
 }
 
 function tryAutoplay() {

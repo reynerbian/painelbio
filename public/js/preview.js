@@ -376,24 +376,45 @@ function updatePreviewFromForm() {
 
             if (isAvatarSpinActive) {
                 const asDuration = parseFloat(document.getElementById('input-addon-as-duration')?.value || '3');
-                const asSpins   = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
-                const asRepeat  = document.getElementById('input-addon-as-repeat')?.checked || false;
+                const asSpins    = parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10);
+                const asRepeat   = document.getElementById('input-addon-as-repeat')?.checked || false;
                 const asInterval = parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10);
-                const configKey  = `${asDuration}_${asSpins}_${asRepeat}_${asInterval}`;
+                const asAxis     = document.getElementById('input-addon-as-axis')?.value     || 'Y';
+                const asEasing   = document.getElementById('input-addon-as-easing')?.value   || 'easeout';
+                const asEntrance = document.getElementById('input-addon-as-entrance')?.value || 'spin';
+                const asTrigger  = document.getElementById('input-addon-as-trigger')?.value  || 'onload';
+                const asFloat    = document.getElementById('input-addon-as-float')?.checked  || false;
+                const asPulse    = document.getElementById('input-addon-as-pulse')?.checked  || false;
+                const asGlow     = document.getElementById('input-addon-as-glow')?.checked   || false;
+                const asGlowColor   = document.getElementById('input-addon-as-glow-color')?.value   || '#f59e0b';
+                const asBorder      = document.getElementById('input-addon-as-border')?.checked      || false;
+                const asBorderColor = document.getElementById('input-addon-as-border-color')?.value  || '#a855f7';
+
+                const configKey = `${asDuration}_${asSpins}_${asRepeat}_${asInterval}_${asAxis}_${asEasing}_${asEntrance}_${asTrigger}_${asFloat}_${asPulse}_${asGlow}_${asGlowColor}_${asBorder}_${asBorderColor}`;
 
                 if (window.phoneAsConfigKey !== configKey) {
                     window.phoneAsConfigKey = configKey;
                     if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
-                    applyAvatarSpinAnimation(asDuration, asSpins, activeModel);
-                    if (asRepeat) {
-                        window.phoneAsRepeatTimer = setInterval(() => {
-                            applyAvatarSpinAnimation(asDuration, asSpins, activeModel);
-                        }, (asDuration + asInterval) * 1000);
+
+                    // Efeitos contínuos (float, pulse, glow, border)
+                    applyAvatarContinuousEffects({ float: asFloat, pulse: asPulse, glow: asGlow, glowColor: asGlowColor, border: asBorder, borderColor: asBorderColor }, activeModel);
+
+                    if (asTrigger === 'onload') {
+                        applyAvatarSpinAnimation(asDuration, asSpins, activeModel, asAxis, asEasing, asEntrance);
+                        if (asRepeat) {
+                            window.phoneAsRepeatTimer = setInterval(() => {
+                                applyAvatarSpinAnimation(asDuration, asSpins, activeModel, asAxis, asEasing, asEntrance);
+                            }, (asDuration + asInterval) * 1000);
+                        }
+                    } else {
+                        // Para click/hover, configura o listener e não dispara no load
+                        setupAvatarTrigger(asTrigger, asDuration, asSpins, activeModel, asAxis, asEasing, asEntrance);
                     }
                 }
             } else {
-                // Remove animação se add-on desativado
+                // Remove tudo se add-on desativado
                 removeAvatarSpinAnimation();
+                removeAvatarContinuousEffects();
                 if (window.phoneAsRepeatTimer) { clearInterval(window.phoneAsRepeatTimer); window.phoneAsRepeatTimer = null; }
                 window.phoneAsConfigKey = null;
             }
@@ -2266,6 +2287,53 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 if (backup.addonAvatarSpinActive) {
                     const cardAs = document.getElementById('card-addon-avatarspin');
                     if (cardAs) cardAs.style.display = 'block';
+                    const asAxisEl     = document.getElementById('input-addon-as-axis');
+                    const asEasingEl   = document.getElementById('input-addon-as-easing');
+                    const asEntranceEl = document.getElementById('input-addon-as-entrance');
+                    const asTriggerEl  = document.getElementById('input-addon-as-trigger');
+                    const asFloatEl    = document.getElementById('input-addon-as-float');
+                    const asPulseEl    = document.getElementById('input-addon-as-pulse');
+                    const asGlowEl     = document.getElementById('input-addon-as-glow');
+                    const asGlowColorEl    = document.getElementById('input-addon-as-glow-color');
+                    const asBorderEl       = document.getElementById('input-addon-as-border');
+                    const asBorderColorEl  = document.getElementById('input-addon-as-border-color');
+                    const asDurEl  = document.getElementById('input-addon-as-duration');
+                    const asSpinEl = document.getElementById('input-addon-as-spins');
+                    const asRepEl  = document.getElementById('input-addon-as-repeat');
+                    const asIntEl  = document.getElementById('input-addon-as-interval');
+
+                    if (asDurEl  && backup.addonAvatarSpinDuration  !== undefined) asDurEl.value   = backup.addonAvatarSpinDuration;
+                    if (asSpinEl && backup.addonAvatarSpinSpins      !== undefined) asSpinEl.value  = backup.addonAvatarSpinSpins;
+                    if (asRepEl  && backup.addonAvatarSpinRepeat     !== undefined) asRepEl.checked = Boolean(backup.addonAvatarSpinRepeat);
+                    if (asIntEl  && backup.addonAvatarSpinInterval   !== undefined) asIntEl.value   = backup.addonAvatarSpinInterval;
+                    if (asAxisEl     && backup.addonAvatarSpinAxis)     asAxisEl.value     = backup.addonAvatarSpinAxis;
+                    if (asEasingEl   && backup.addonAvatarSpinEasing)   asEasingEl.value   = backup.addonAvatarSpinEasing;
+                    if (asEntranceEl && backup.addonAvatarSpinEntrance) asEntranceEl.value = backup.addonAvatarSpinEntrance;
+                    if (asTriggerEl  && backup.addonAvatarSpinTrigger)  asTriggerEl.value  = backup.addonAvatarSpinTrigger;
+                    if (asFloatEl    && backup.addonAvatarSpinFloat     !== undefined) asFloatEl.checked   = Boolean(backup.addonAvatarSpinFloat);
+                    if (asPulseEl    && backup.addonAvatarSpinPulse     !== undefined) asPulseEl.checked   = Boolean(backup.addonAvatarSpinPulse);
+                    if (asGlowEl     && backup.addonAvatarSpinGlow      !== undefined) asGlowEl.checked    = Boolean(backup.addonAvatarSpinGlow);
+                    if (asGlowColorEl   && backup.addonAvatarSpinGlowColor)   asGlowColorEl.value   = backup.addonAvatarSpinGlowColor;
+                    if (asBorderEl      && backup.addonAvatarSpinBorder     !== undefined) asBorderEl.checked    = Boolean(backup.addonAvatarSpinBorder);
+                    if (asBorderColorEl && backup.addonAvatarSpinBorderColor) asBorderColorEl.value = backup.addonAvatarSpinBorderColor;
+
+                    // Mostra/esconde color pickers de acordo com os checkboxes restaurados
+                    const asGlowColorCont   = document.getElementById('container-addon-as-glow-color');
+                    const asBorderColorCont = document.getElementById('container-addon-as-border-color');
+                    const asHoverWarn       = document.getElementById('container-addon-as-hover-warning');
+                    const asRepeatCont      = document.getElementById('container-addon-as-interval');
+                    const asRepeatSection   = document.getElementById('container-addon-as-repeat-section');
+                    const asAxisCont        = document.getElementById('container-addon-as-axis');
+                    const asSpinsCont       = document.getElementById('container-addon-as-spins');
+                    if (asGlowColorCont)   asGlowColorCont.style.display   = backup.addonAvatarSpinGlow   ? 'block' : 'none';
+                    if (asBorderColorCont) asBorderColorCont.style.display = backup.addonAvatarSpinBorder  ? 'block' : 'none';
+                    if (asHoverWarn)       asHoverWarn.style.display        = (backup.addonAvatarSpinTrigger === 'hover') ? 'block' : 'none';
+                    if (asRepeatCont)      asRepeatCont.style.display       = backup.addonAvatarSpinRepeat  ? 'block' : 'none';
+                    if (asRepeatSection)   asRepeatSection.style.display    = (backup.addonAvatarSpinTrigger === 'onload') ? 'flex' : 'none';
+                    const spinEntrances = ['spin', 'fadespin'];
+                    const showSpinControls = !backup.addonAvatarSpinEntrance || spinEntrances.includes(backup.addonAvatarSpinEntrance);
+                    if (asAxisCont)  asAxisCont.style.display  = showSpinControls ? 'block' : 'none';
+                    if (asSpinsCont) asSpinsCont.style.display = showSpinControls ? 'block' : 'none';
                 }
 
                 if (backup.addonAudioPlayerActive) {

@@ -1,4 +1,4 @@
-// --- PAINELBIO STATIC SITE GENERATOR (PUBLIC MODULE) ---
+﻿// --- PAINELBIO STATIC SITE GENERATOR (PUBLIC MODULE) ---
 // Contém o gerador estático oficial de HTML para todos os 4 modelos (Classic, Vitrine, Carrossel, Shop)
 
 export function generateStaticSite(data) {
@@ -422,6 +422,118 @@ export function generateStaticSite(data) {
           particles += `<span style="position:absolute;top:-80px;opacity:0;left:${lft}%;font-size:${sz}rem;width:1.2em;height:1.2em;display:inline-block;filter:blur(${blurVal}px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite backwards${swayAnim};">${particleContent}</span>`;
       }
       emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(-540deg);opacity:0}}@keyframes pb-emojisway{0%{margin-left:-12px}100%{margin-left:12px}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
+  }
+
+  // ADD-ON 3: RODOPIO DO AVATAR
+  const hasAvatarSpin = Boolean(data.addonAvatarSpinActive || data.avatarSpinConfig?.enabled);
+  let avatarSpinHtml = '';
+  if (hasAvatarSpin) {
+    const asConfig = data.avatarSpinConfig || {};
+    const asDuration = asConfig.duration || data.addonAvatarSpinDuration || 3;
+    const asSpins    = asConfig.spins    || data.addonAvatarSpinSpins    || 4;
+    const asAxis     = asConfig.axis     || data.addonAvatarSpinAxis     || 'Y';
+    const asEasing   = asConfig.easing   || data.addonAvatarSpinEasing   || 'easeout';
+    const asEntrance = asConfig.entrance || data.addonAvatarSpinEntrance || 'spin';
+    const asTrigger  = asConfig.trigger  || data.addonAvatarSpinTrigger  || 'onload';
+    const asRepeat   = Boolean(asConfig.repeat   ?? data.addonAvatarSpinRepeat);
+    const asInterval = asConfig.interval || data.addonAvatarSpinInterval || 5;
+    const asFloat    = Boolean(asConfig.float  ?? data.addonAvatarSpinFloat);
+    const asPulse    = Boolean(asConfig.pulse  ?? data.addonAvatarSpinPulse);
+    const asGlow     = Boolean(asConfig.glow   ?? data.addonAvatarSpinGlow);
+    const asGlowColor   = asConfig.glowColor   || data.addonAvatarSpinGlowColor   || '#f59e0b';
+    const asBorder      = Boolean(asConfig.border ?? data.addonAvatarSpinBorder);
+    const asBorderColor = asConfig.borderColor || data.addonAvatarSpinBorderColor || '#a855f7';
+
+    // Curva de aceleração
+    let easingCss = 'cubic-bezier(0.0, 0.0, 0.2, 1)';
+    if (asEasing === 'elastic') easingCss = 'cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    if (asEasing === 'spring')  easingCss = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+    // Keyframes de entrada
+    let entranceKf = '';
+    let entranceAnim = '';
+    const totalDeg = asSpins * 360;
+    if (asEntrance === 'zoomin') {
+        entranceKf   = `@keyframes pb-av-zoomin { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        entranceAnim = `pb-av-zoomin ${asDuration}s ${easingCss} forwards`;
+    } else if (asEntrance === 'fall') {
+        entranceKf   = `@keyframes pb-av-fall { 0%{transform:translateY(-120px);opacity:0} 60%{transform:translateY(14px);opacity:1} 80%{transform:translateY(-8px)} 100%{transform:translateY(0);opacity:1} }`;
+        entranceAnim = `pb-av-fall ${asDuration}s ${easingCss} forwards`;
+    } else if (asEntrance === 'fadespin') {
+        entranceKf   = `@keyframes pb-av-fadespin { from { transform: rotate${asAxis}(0deg); opacity: 0; } to { transform: rotate${asAxis}(${totalDeg}deg); opacity: 1; } }`;
+        entranceAnim = `pb-av-fadespin ${asDuration}s ${easingCss} forwards`;
+    } else {
+        entranceKf   = `@keyframes pb-av-spin { from { transform: rotate${asAxis}(0deg); } to { transform: rotate${asAxis}(${totalDeg}deg); } }`;
+        entranceAnim = `pb-av-spin ${asDuration}s ${easingCss} forwards`;
+    }
+
+    // Keyframes contínuos
+    let contKf = '';
+    let contAnims = [];
+    if (asFloat) { contKf += `@keyframes pb-av-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}`; contAnims.push('pb-av-float 3.2s ease-in-out infinite'); }
+    if (asPulse) { contKf += `@keyframes pb-av-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}`; contAnims.push('pb-av-pulse 1.6s ease-in-out infinite'); }
+    if (asGlow)  { contKf += `@keyframes pb-av-glow{0%,100%{box-shadow:0 0 10px 4px ${asGlowColor}88}50%{box-shadow:0 0 26px 10px ${asGlowColor}cc}}`; contAnims.push('pb-av-glow 2.0s ease-in-out infinite'); }
+    if (asBorder){ contKf += `@keyframes pb-av-border{0%{--pb-border-angle:0turn}100%{--pb-border-angle:1turn}}`; }
+
+    // Borda giratória via wrapper
+    const borderWrapCss = asBorder ? `
+        #pb-avatar-wrap { position: relative !important; isolation: isolate !important; }
+        #pb-avatar-wrap::before { content:''; position:absolute; inset:-3px; border-radius:50%;
+            background: conic-gradient(from var(--pb-border-angle,0turn), ${asBorderColor}, #ffffff44, ${asBorderColor});
+            animation: pb-av-border 2s linear infinite; z-index:-1; }
+        @property --pb-border-angle { syntax:'<angle>'; initial-value:0turn; inherits:false; }
+    ` : '';
+
+    // JS de gatilho
+    const contAnimVal = contAnims.length ? contAnims.join(', ') : '';
+    let triggerJs = '';
+    if (asTrigger === 'onload') {
+        triggerJs = `
+        (function() {
+            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
+            if (!img) return;
+            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
+            img.style.borderRadius='50%';
+            img.style.animation='none';
+            void img.offsetHeight;
+            img.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}';
+            ${asRepeat ? `setInterval(function(){ img.style.animation='none'; void img.offsetHeight; img.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, ${(asDuration + asInterval) * 1000});` : ''}
+        })();`;
+    } else if (asTrigger === 'click') {
+        triggerJs = `
+        (function() {
+            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
+            if (!img) return;
+            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
+            img.style.borderRadius='50%'; img.style.cursor='pointer';
+            ${contAnimVal ? `img.style.animation='${contAnimVal}';` : ''}
+            img.addEventListener('click', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
+            img.addEventListener('touchstart', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, {passive:true});
+        })();`;
+    } else if (asTrigger === 'hover') {
+        triggerJs = `
+        (function() {
+            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
+            if (!img) return;
+            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
+            img.style.borderRadius='50%'; img.style.cursor='pointer';
+            ${contAnimVal ? `img.style.animation='${contAnimVal}';` : ''}
+            img.addEventListener('mouseover', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
+        })();`;
+    }
+
+    avatarSpinHtml = `
+<style>
+    ${entranceKf}
+    ${contKf}
+    ${borderWrapCss}
+    #pb-avatar-wrap img { border-radius: 50%; }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        ${triggerJs}
+    });
+</script>`;
   }
 
   // ADD-ON 4: PLAYER DE ÁUDIO FLUTUANTE
@@ -1245,6 +1357,7 @@ export function generateStaticSite(data) {
           100% { transform: translateY(-270px) scale(0.4); opacity: 0; }
       }
   </style>
+$
 </head>
 <body>
   ${topBannerHtml}
@@ -1266,7 +1379,7 @@ export function generateStaticSite(data) {
       <div class="s-profile">
         ${data.avatar ? `
           <div class="s-avatar-wrapper">
-            <div class="s-avatar-inner">
+            <div class="s-avatar-inner" id="pb-avatar-wrap">
               <img src="${data.avatar}" alt="${data.name || ''}">
             </div>
           </div>
@@ -1342,7 +1455,7 @@ export function generateStaticSite(data) {
 
       const avatarHtml = data.avatar ? `
           <div class="c-avatar-wrapper">
-              <div class="c-avatar-inner">
+              <div class="c-avatar-inner" id="pb-avatar-wrap">
                   <img src="${data.avatar}" alt="${data.name || ''}">
               </div>
           </div>
@@ -1412,6 +1525,7 @@ export function generateStaticSite(data) {
       .c-footer { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.4); z-index: 10; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
       .c-footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 700; }
   </style>
+$
 </head>
 <body>
   ${topBannerHtml}
@@ -1597,6 +1711,7 @@ export function generateStaticSite(data) {
         .v-footer { margin-top: 35px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); display: flex; align-items: center; gap: 6px; }
         .v-footer a { color: rgba(255, 255, 255, 0.55); text-decoration: none; font-weight: 700; text-transform: uppercase; }
     </style>
+$
 </head>
 <body>
     ${topBannerHtml}
@@ -1618,14 +1733,14 @@ export function generateStaticSite(data) {
             
             ${data.avatar ? `
             <div class="v-avatar-overlap">
-                <div class="v-avatar-overlap-inner">
+                <div class="v-avatar-overlap-inner" id="pb-avatar-wrap">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : ''}
         </div>` : data.avatar ? `
         <div style="position: relative; width: 100px; height: 100px; margin-bottom: 20px;">
             <div class="v-avatar-overlap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">
-                <div class="v-avatar-overlap-inner">
+                <div class="v-avatar-overlap-inner" id="pb-avatar-wrap">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>
@@ -1658,7 +1773,7 @@ export function generateStaticSite(data) {
   if (isEbook) {
     const avatarHtml = data.avatar ? `
             <div class="eb-avatar-wrapper">
-                <div class="eb-avatar-inner">
+                <div class="eb-avatar-inner" id="pb-avatar-wrap">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : '';
@@ -1975,6 +2090,7 @@ export function generateStaticSite(data) {
         .footer { position: relative; z-index: 10; margin-top: auto; font-size: 0.72rem; color: rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .footer a { color: rgba(255,255,255,0.5); text-decoration: none; font-weight: 700; }
     </style>
+$
 </head>
 <body>
     ${topBannerHtml}
@@ -2087,7 +2203,7 @@ export function generateStaticSite(data) {
   // ==========================================
   const avatarHtml = data.avatar ? `
             <div class="preview-avatar-glow">
-                <div class="preview-avatar-inner">
+                <div class="preview-avatar-inner" id="pb-avatar-wrap">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : '';
@@ -2186,6 +2302,7 @@ export function generateStaticSite(data) {
         .footer { margin-top: 25px; font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
         .footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; text-transform: uppercase; }
     </style>
+$
 </head>
 <body>
     ${topBannerHtml}
