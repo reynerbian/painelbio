@@ -1560,13 +1560,69 @@ loadClassicModel();
                 });
             }
 
-            // Emoji catalog: clique nos botões para preencher o campo
+            // Sincroniza a seleção visual dos botões do catálogo com o valor do input de emojis
+            window.syncEmojiCatalogSelection = function() {
+                const emojiInput = document.getElementById('input-addon-er-emoji');
+                if (!emojiInput) return;
+                
+                const currentEmojis = Array.from(emojiInput.value);
+                const emojiCatalogBtns = document.querySelectorAll('.emoji-pick-btn');
+                
+                emojiCatalogBtns.forEach(btn => {
+                    const btnEmoji = btn.getAttribute('data-emoji');
+                    if (currentEmojis.includes(btnEmoji)) {
+                        btn.classList.add('active');
+                        btn.style.background = 'rgba(124, 58, 237, 0.25)';
+                        btn.style.borderColor = '#7c3aed';
+                        btn.style.boxShadow = '0 0 8px rgba(124, 58, 237, 0.4)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.background = 'rgba(255, 255, 255, 0.05)';
+                        btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        btn.style.boxShadow = 'none';
+                    }
+                });
+            };
+
+            // Inicializa a sincronização ao carregar
+            window.syncEmojiCatalogSelection();
+
+            // Sincroniza também se o usuário digitar/colar manualmente no campo de texto
+            const emojiInputForSync = document.getElementById('input-addon-er-emoji');
+            if (emojiInputForSync) {
+                emojiInputForSync.addEventListener('input', () => {
+                    window.syncEmojiCatalogSelection();
+                });
+            }
+
+            // Emoji catalog: clique nos botões para selecionar/deselecionar (suporta múltiplos)
             const emojiCatalogBtns = document.querySelectorAll('.emoji-pick-btn');
             emojiCatalogBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const emojiInput = document.getElementById('input-addon-er-emoji');
                     if (emojiInput) {
-                        emojiInput.value = btn.getAttribute('data-emoji');
+                        const btnEmoji = btn.getAttribute('data-emoji');
+                        let currentEmojis = Array.from(emojiInput.value);
+                        
+                        if (currentEmojis.includes(btnEmoji)) {
+                            // Se já tem o emoji, remove (deseleciona)
+                            currentEmojis = currentEmojis.filter(e => e !== btnEmoji);
+                        } else {
+                            // Se não tem, adiciona (seleciona). Limita a 10 emojis no total.
+                            if (currentEmojis.length < 10) {
+                                currentEmojis.push(btnEmoji);
+                            } else {
+                                if (typeof showCustomAlert === 'function') {
+                                    showCustomAlert('Você pode selecionar no máximo 10 emojis diferentes!', 'warning');
+                                } else {
+                                    alert('Você pode selecionar no máximo 10 emojis diferentes!');
+                                }
+                                return;
+                            }
+                        }
+                        
+                        emojiInput.value = currentEmojis.join('');
+                        window.syncEmojiCatalogSelection();
                         window.phoneErConfigKey = null; // força rebuild
                         updatePreviewFromForm();
                     }

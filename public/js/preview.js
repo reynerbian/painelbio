@@ -2286,8 +2286,8 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 const erCoverLabelEl = document.getElementById('label-addon-er-coverage');
                 const erCoverInputEl = document.getElementById('input-addon-er-coverage');
                 if (erCoverLabelEl && erCoverInputEl) {
-                    erCoverLabelEl.textContent = (backup.addonEmojiRainCoverage || 80) + '%';
-                    erCoverInputEl.value = backup.addonEmojiRainCoverage || 80;
+                    erCoverLabelEl.textContent = (backup.addonEmojiRainCoverage || 100) + '%';
+                    erCoverInputEl.value = backup.addonEmojiRainCoverage || 100;
                 }
                 if (backup.bioAlign) {
                     const alignBtn = document.querySelector(`.align-btn[data-align="${backup.bioAlign}"]`);
@@ -2318,6 +2318,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 updatePreviewFromForm();
             } else {
                 updatePreviewFromForm();
+            }
+
+            if (typeof window.syncEmojiCatalogSelection === 'function') {
+                window.syncEmojiCatalogSelection();
             }
 
             // Atualiza catálogo de add-ons e resumo do carrinho após injetar os inputs novos
