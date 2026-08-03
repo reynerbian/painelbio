@@ -14,18 +14,114 @@ export function generateStaticSite(data) {
   const isVitrine = (modelType === 'vitrine' || (modelType === 'classic' && !hasCarouselImages && hasHighlightImages)) && !isCarousel && !isShop && !isEbook;
 
   const presetMap = {
-    'gray': { c1: '#a3d959', c2: '#82b938', text: '#000000', bg: '#0e110d', cardBg: '#151914' },
-    'sunset': { c1: '#ff0844', c2: '#ffb199', text: '#ffffff', bg: '#120508', cardBg: '#1c080d' },
-    'neon-blue': { c1: '#00c6ff', c2: '#0072ff', text: '#000000', bg: '#050c17', cardBg: '#0a1628' },
-    'synthwave': { c1: '#f107a3', c2: '#7b2ff7', text: '#ffffff', bg: '#130419', cardBg: '#1d0726' },
-    'fire': { c1: '#ff5858', c2: '#f857a6', text: '#ffffff', bg: '#170606', cardBg: '#240a0a' },
-    'aurora': { c1: '#00ff87', c2: '#60e3fa', text: '#000000', bg: '#041710', cardBg: '#09241a' },
-    'indigo': { c1: '#06b6d4', c2: '#4f46e5', text: '#ffffff', bg: '#060a17', cardBg: '#0d1326' },
-    'cyber-lime': { c1: '#a8ff78', c2: '#78ffd6', text: '#000000', bg: '#091409', cardBg: '#102110' },
-    'rose-gold': { c1: '#fda085', c2: '#f6d365', text: '#000000', bg: '#170e0a', cardBg: '#241711' },
-    'golden': { c1: '#f5af19', c2: '#f12711', text: '#000000', bg: '#171104', cardBg: '#241a07' },
-    'deep-purple': { c1: '#e94057', c2: '#8a2387', text: '#ffffff', bg: '#120512', cardBg: '#1e091e' },
-    'platinum': { c1: '#ffffff', c2: '#9e9e9e', text: '#000000', bg: '#111111', cardBg: '#1c1c1c' }
+    'gray': {
+      c1: '#e2e8f0',
+      c2: '#475569',
+      border: 'rgba(226, 232, 240, 0.28)',
+      glow: 'rgba(71, 85, 105, 0.45)',
+      text: '#ffffff',
+      bg: '#121214',
+      cardBg: 'rgba(18, 15, 27, 0.75)'
+    },
+    'sunset': {
+      c1: '#ff0844',
+      c2: '#ffb199',
+      border: 'rgba(255, 8, 68, 0.35)',
+      glow: 'rgba(255, 177, 153, 0.55)',
+      text: '#ffffff',
+      bg: '#120508',
+      cardBg: '#1c080d'
+    },
+    'neon-blue': {
+      c1: '#00c6ff',
+      c2: '#0072ff',
+      border: 'rgba(0, 198, 255, 0.35)',
+      glow: 'rgba(0, 114, 255, 0.55)',
+      text: '#ffffff',
+      bg: '#050c17',
+      cardBg: '#0a1628'
+    },
+    'synthwave': {
+      c1: '#f107a3',
+      c2: '#7b2ff7',
+      border: 'rgba(241, 7, 163, 0.35)',
+      glow: 'rgba(123, 47, 247, 0.55)',
+      text: '#ffffff',
+      bg: '#130419',
+      cardBg: '#1d0726'
+    },
+    'fire': {
+      c1: '#f857a6',
+      c2: '#ff5858',
+      border: 'rgba(248, 87, 166, 0.35)',
+      glow: 'rgba(255, 88, 88, 0.55)',
+      text: '#ffffff',
+      bg: '#170606',
+      cardBg: '#240a0a'
+    },
+    'aurora': {
+      c1: '#00ff87',
+      c2: '#60e3fa',
+      border: 'rgba(0, 255, 135, 0.35)',
+      glow: 'rgba(96, 227, 250, 0.55)',
+      text: '#000000',
+      bg: '#041710',
+      cardBg: '#09241a'
+    },
+    'indigo': {
+      c1: '#4f46e5',
+      c2: '#06b6d4',
+      border: 'rgba(79, 70, 229, 0.35)',
+      glow: 'rgba(6, 182, 212, 0.55)',
+      text: '#ffffff',
+      bg: '#060a17',
+      cardBg: '#0d1326'
+    },
+    'cyber-lime': {
+      c1: '#a8ff78',
+      c2: '#78ffd6',
+      border: 'rgba(168, 255, 120, 0.35)',
+      glow: 'rgba(120, 255, 214, 0.55)',
+      text: '#000000',
+      bg: '#091409',
+      cardBg: '#102110'
+    },
+    'rose-gold': {
+      c1: '#f6d365',
+      c2: '#fda085',
+      border: 'rgba(246, 211, 101, 0.35)',
+      glow: 'rgba(253, 160, 133, 0.55)',
+      text: '#000000',
+      bg: '#170e0a',
+      cardBg: '#241711'
+    },
+    'golden': {
+      c1: '#f5af19',
+      c2: '#f12711',
+      border: 'rgba(245, 175, 25, 0.35)',
+      glow: 'rgba(241, 39, 17, 0.55)',
+      text: '#000000',
+      bg: '#171104',
+      cardBg: '#241a07'
+    },
+    'deep-purple': {
+      c1: '#8a2387',
+      c2: '#e94057',
+      border: 'rgba(138, 35, 135, 0.35)',
+      glow: 'rgba(233, 64, 87, 0.55)',
+      text: '#ffffff',
+      bg: '#120512',
+      cardBg: '#1e091e'
+    },
+    'platinum': {
+      c1: '#ffffff',
+      c2: '#616161',
+      border: 'rgba(255, 255, 255, 0.35)',
+      glow: 'rgba(97, 97, 97, 0.45)',
+      text: '#000000',
+      bg: '#111111',
+      cardBg: '#1c1c1c'
+    }
   };
 
   const theme = presetMap[data.preset] || presetMap['gray'];
@@ -1942,8 +2038,8 @@ export function generateStaticSite(data) {
         :root {
             --theme-c1: ${theme.c1};
             --theme-c2: ${theme.c2};
-            --theme-b: rgba(255, 255, 255, 0.08);
-            --theme-g: rgba(255, 255, 255, 0.15);
+            --theme-b: ${theme.border || 'rgba(255, 255, 255, 0.08)'};
+            --theme-g: ${theme.glow || 'rgba(255, 255, 255, 0.15)'};
         }
         
         html, body {
