@@ -1921,6 +1921,92 @@ loadClassicModel();
                 });
             }
 
+            // Toggle do painel de Múltiplos Atendentes (Add-on 5)
+            const inputLcMulti = document.getElementById('input-addon-lc-multi');
+            const containerLcMultiAgents = document.getElementById('container-addon-lc-multi-agents');
+            if (inputLcMulti) {
+                const toggleLcMulti = () => {
+                    if (containerLcMultiAgents) containerLcMultiAgents.style.display = inputLcMulti.checked ? 'block' : 'none';
+                };
+                inputLcMulti.addEventListener('change', () => {
+                    toggleLcMulti();
+                    updatePreviewFromForm();
+                });
+                toggleLcMulti();
+            }
+
+            // Upload de Imagem do Atendente 2
+            const btnSearchLcAvatar2 = document.getElementById('btn-search-lc-avatar2');
+            if (btnSearchLcAvatar2) {
+                btnSearchLcAvatar2.addEventListener('click', () => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.addEventListener('change', async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const originalText = btnSearchLcAvatar2.textContent;
+                        btnSearchLcAvatar2.textContent = '...';
+                        btnSearchLcAvatar2.disabled = true;
+                        try {
+                            const formData = new FormData();
+                            formData.append('logo', file);
+                            const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                            const data = await response.json();
+                            if (data.success && data.urls && data.urls.logo) {
+                                const inputVal = document.getElementById('input-addon-lc-avatar2');
+                                if (inputVal) inputVal.value = window.location.origin + data.urls.logo;
+                                updatePreviewFromForm();
+                            } else {
+                                alert('Erro ao fazer upload.');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                        } finally {
+                            btnSearchLcAvatar2.textContent = originalText;
+                            btnSearchLcAvatar2.disabled = false;
+                        }
+                    });
+                    fileInput.click();
+                });
+            }
+
+            // Upload de Imagem do Atendente 3
+            const btnSearchLcAvatar3 = document.getElementById('btn-search-lc-avatar3');
+            if (btnSearchLcAvatar3) {
+                btnSearchLcAvatar3.addEventListener('click', () => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.addEventListener('change', async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const originalText = btnSearchLcAvatar3.textContent;
+                        btnSearchLcAvatar3.textContent = '...';
+                        btnSearchLcAvatar3.disabled = true;
+                        try {
+                            const formData = new FormData();
+                            formData.append('logo', file);
+                            const response = await fetch('/api/upload', { method: 'POST', body: formData });
+                            const data = await response.json();
+                            if (data.success && data.urls && data.urls.logo) {
+                                const inputVal = document.getElementById('input-addon-lc-avatar3');
+                                if (inputVal) inputVal.value = window.location.origin + data.urls.logo;
+                                updatePreviewFromForm();
+                            } else {
+                                alert('Erro ao fazer upload.');
+                            }
+                        } catch (err) {
+                            console.error(err);
+                        } finally {
+                            btnSearchLcAvatar3.textContent = originalText;
+                            btnSearchLcAvatar3.disabled = false;
+                        }
+                    });
+                    fileInput.click();
+                });
+            }
+
             // ==========================================
             // ADD-ON 6: BOLINHAS NO BACKGROUND
             // ==========================================
@@ -2232,6 +2318,15 @@ loadClassicModel();
                         addonLivechatUrl: document.getElementById('input-addon-lc-url')?.value.trim() || 'https://wa.me/5511999999999',
                         addonLivechatPosition: document.getElementById('select-addon-lc-position')?.value || 'bottom-left',
                         addonLivechatColor: document.getElementById('input-addon-lc-color')?.value || '#22c55e',
+                        addonLivechatPretext: document.getElementById('input-addon-lc-pretext')?.value.trim() || '',
+                        addonLivechatDelay: parseInt(document.getElementById('input-addon-lc-delay')?.value || '3', 10),
+                        addonLivechatMulti: document.getElementById('input-addon-lc-multi')?.checked || false,
+                        addonLivechatName2: document.getElementById('input-addon-lc-name2')?.value.trim() || 'Suporte Financeiro',
+                        addonLivechatAvatar2: document.getElementById('input-addon-lc-avatar2')?.value.trim() || '',
+                        addonLivechatUrl2: document.getElementById('input-addon-lc-url2')?.value.trim() || 'https://wa.me/5511999999999',
+                        addonLivechatName3: document.getElementById('input-addon-lc-name3')?.value.trim() || 'Vendas e Dúvidas',
+                        addonLivechatAvatar3: document.getElementById('input-addon-lc-avatar3')?.value.trim() || '',
+                        addonLivechatUrl3: document.getElementById('input-addon-lc-url3')?.value.trim() || 'https://wa.me/5511999999999',
                         addonBgdotsActive: document.getElementById('card-addon-bgdots')?.style.display !== 'none',
                         addonBgdotsCount: parseInt(document.getElementById('input-addon-bd-count')?.value || '50', 10),
                         addonBgdotsColor: document.getElementById('input-addon-bd-color')?.value || '#ffffff',

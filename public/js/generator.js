@@ -281,11 +281,23 @@ export function generateStaticSite(data) {
   const lcPosition = data.addonLivechatPosition || 'bottom-left';
   const lcUrl = data.addonLivechatUrl || (data.btn1Url && data.btn1Url.includes('wa.me') ? data.btn1Url : 'https://wa.me/5511999999999');
   const lcColor = data.addonLivechatColor || '#22c55e';
+  const lcPretext = data.addonLivechatPretext || '';
+  const lcDelay = data.addonLivechatDelay !== undefined ? Number(data.addonLivechatDelay) : 3;
+  const lcMulti = Boolean(data.addonLivechatMulti);
+  const lcName2 = data.addonLivechatName2 || 'Suporte Financeiro';
+  const lcAvatar2 = data.addonLivechatAvatar2 || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100';
+  const lcUrl2 = data.addonLivechatUrl2 || 'https://wa.me/5511999999999';
+  const lcName3 = data.addonLivechatName3 || 'Vendas e Dúvidas';
+  const lcAvatar3 = data.addonLivechatAvatar3 || 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100';
+  const lcUrl3 = data.addonLivechatUrl3 || 'https://wa.me/5511999999999';
 
   let liveChatHtml = '';
   if (hasLiveChat) {
       let posCss = 'bottom: 20px; left: 20px;';
       if (lcPosition === 'bottom-right') posCss = 'bottom: 20px; right: 20px;';
+
+      let popupPosCss = 'bottom: 75px; left: 20px;';
+      if (lcPosition === 'bottom-right') popupPosCss = 'bottom: 75px; right: 20px;';
 
       liveChatHtml = `
       <style>
@@ -298,8 +310,12 @@ export function generateStaticSite(data) {
               0% { transform: scale(0.8) translateY(20px); opacity: 0; }
               100% { transform: scale(1) translateY(0); opacity: 1; }
           }
+          .pb-agent-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+          }
       </style>
-      <a href="${lcUrl}" target="_blank" rel="noopener" id="pb-static-livechat" style="position: fixed; ${posCss} z-index: 99998; display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+      
+      <a href="${lcUrl}" rel="noopener" id="pb-static-livechat" style="position: fixed; ${posCss} z-index: 99998; display: none; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.9); color: #ffffff; padding: 8px 14px 8px 10px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${lcColor}33; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-decoration: none; max-width: 310px; animation: lcPop 0.6s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
           <div style="position: relative; width: 42px; height: 42px; flex-shrink: 0;">
               <img id="pb-lc-avatar-img" src="${lcAvatar}" alt="${lcName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid ${lcColor};">
               <span id="pb-lc-status-dot" style="position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: ${lcColor}; border-radius: 50%; border: 2px solid #0f172a; animation: lcPulse 2s infinite;"></span>
@@ -312,6 +328,46 @@ export function generateStaticSite(data) {
               <span style="font-size: 0.72rem; color: rgba(255,255,255,0.85); line-height: 1.25; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lcMessage}</span>
           </div>
       </a>
+
+      ${lcMulti ? `
+      <div id="pb-static-livechat-popup" style="position: fixed; ${popupPosCss} z-index: 99999; display: none; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 10px; width: 230px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: lcPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+          <div style="font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 2px;">Fale Conosco:</div>
+          
+          <a href="#" id="pb-agent-link-1" target="_blank" rel="noopener" class="pb-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; text-decoration: none; transition: background 0.2s;">
+              <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                  <img src="${lcAvatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                  <span class="pb-agent-dot-1" style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${lcColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+              </div>
+              <div style="display: flex; flex-direction: column; overflow: hidden;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${lcName}</span>
+                  <span style="font-size: 0.6rem; color: #4ade80;">Suporte Geral</span>
+              </div>
+          </a>
+
+          <a href="#" id="pb-agent-link-2" target="_blank" rel="noopener" class="pb-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; text-decoration: none; transition: background 0.2s;">
+              <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                  <img src="${lcAvatar2}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                  <span class="pb-agent-dot-2" style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${lcColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+              </div>
+              <div style="display: flex; flex-direction: column; overflow: hidden;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${lcName2}</span>
+                  <span style="font-size: 0.6rem; color: #4ade80;">Online</span>
+              </div>
+          </a>
+
+          <a href="#" id="pb-agent-link-3" target="_blank" rel="noopener" class="pb-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; text-decoration: none; transition: background 0.2s;">
+              <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                  <img src="${lcAvatar3}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                  <span class="pb-agent-dot-3" style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${lcColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+              </div>
+              <div style="display: flex; flex-direction: column; overflow: hidden;">
+                  <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${lcName3}</span>
+                  <span style="font-size: 0.6rem; color: #4ade80;">Online</span>
+              </div>
+          </a>
+      </div>
+      ` : ''}
+
       <script>
       (function() {
           const type = "${lcStatusType}";
@@ -319,13 +375,16 @@ export function generateStaticSite(data) {
           const hoursStart = "${lcHoursStart}";
           const hoursEnd = "${lcHoursEnd}";
           const customText = "${lcStatusTextRaw}";
-          
+          const delaySecs = ${lcDelay};
+          const isMulti = ${lcMulti};
+          const pretext = "${lcPretext}";
+
           const dot = document.getElementById('pb-lc-status-dot');
           const text = document.getElementById('pb-lc-status-text');
           const img = document.getElementById('pb-lc-avatar-img');
           const link = document.getElementById('pb-static-livechat');
           
-          if (!dot || !text) return;
+          if (!dot || !text || !link) return;
           
           let stText = 'Online agora';
           let stColor = baseColor;
@@ -381,6 +440,60 @@ export function generateStaticSite(data) {
               dot.style.animation = 'none';
               link.style.boxShadow = '0 12px 30px rgba(0,0,0,0.6), 0 0 15px rgba(0,0,0,0.1)';
           }
+
+          // Atualiza as bolinhas dos agentes secundários se houver multi-agentes
+          if (isMulti) {
+              const dot1 = document.querySelector('.pb-agent-dot-1');
+              const dot2 = document.querySelector('.pb-agent-dot-2');
+              const dot3 = document.querySelector('.pb-agent-dot-3');
+              if (dot1) dot1.style.background = stColor;
+              if (dot2) dot2.style.background = stColor;
+              if (dot3) dot3.style.background = stColor;
+          }
+
+          // Função para formatar o link do WhatsApp com texto pré-definido
+          function formatWa(rawUrl) {
+              if (!rawUrl) return '';
+              if (!pretext) return rawUrl;
+              const divider = rawUrl.indexOf('?') !== -1 ? '&' : '?';
+              return rawUrl + divider + 'text=' + encodeURIComponent(pretext);
+          }
+
+          // Formatação dos links
+          if (isMulti) {
+              const link1 = document.getElementById('pb-agent-link-1');
+              const link2 = document.getElementById('pb-agent-link-2');
+              const link3 = document.getElementById('pb-agent-link-3');
+              if (link1) link1.href = formatWa("${lcUrl}");
+              if (link2) link2.href = formatWa("${lcUrl2}");
+              if (link3) link3.href = formatWa("${lcUrl3}");
+
+              // Toggle do popup no clique do balão principal
+              const popup = document.getElementById('pb-static-livechat-popup');
+              link.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  if (popup) {
+                      popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+                  }
+              });
+
+              // Fecha se clicar fora
+              document.addEventListener('click', function(e) {
+                  if (popup && popup.style.display === 'flex') {
+                      if (!link.contains(e.target) && !popup.contains(e.target)) {
+                          popup.style.display = 'none';
+                      }
+                  }
+              });
+          } else {
+              link.href = formatWa("${lcUrl}");
+          }
+
+          // Atraso de Exibição (Delay)
+          setTimeout(function() {
+              link.style.display = 'flex';
+          }, delaySecs * 1000);
+
       })();
       </script>
       `;

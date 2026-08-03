@@ -444,6 +444,67 @@
                     <input type="text" id="input-addon-lc-url" placeholder="https://wa.me/5511999999999" value="https://wa.me/5511999999999" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 
+                <!-- Mensagem Inicial Pré-preenchida -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-pretext" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">✍️ Mensagem Inicial (WhatsApp):</label>
+                    <input type="text" id="input-addon-lc-pretext" placeholder="Ex: Olá! Quero tirar uma dúvida." value="Olá! Quero tirar uma dúvida." style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Atraso de Exibição -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-delay" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⏳ Atraso de Exibição (segundos):</label>
+                    <input type="number" id="input-addon-lc-delay" min="0" max="30" value="3" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Habilitar Múltiplos Atendentes -->
+                <div class="form-group" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="input-addon-lc-multi" style="width: 16px; height: 16px; cursor: pointer;">
+                    <label for="input-addon-lc-multi" style="font-size: 0.8rem; font-weight: 700; color: #3b82f6; cursor: pointer;">👥 Ativar Múltiplos Atendentes</label>
+                </div>
+
+                <!-- Container Atendentes Extra -->
+                <div id="container-addon-lc-multi-agents" style="display: none; border: 1px dashed rgba(255,255,255,0.15); padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.15); margin-bottom: 10px;">
+                    <!-- Atendente 2 -->
+                    <div style="margin-bottom: 12px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 12px;">
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">👥 Atendente 2:</div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="input-addon-lc-name2" style="font-size: 0.72rem; color: #94a3b8;">Nome:</label>
+                            <input type="text" id="input-addon-lc-name2" placeholder="Ex: Suporte Financeiro" value="Suporte Financeiro" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="input-addon-lc-avatar2" style="font-size: 0.72rem; color: #94a3b8;">Foto:</label>
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" id="input-addon-lc-avatar2" placeholder="URL da foto..." style="flex: 1; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                                <button type="button" id="btn-search-lc-avatar2" class="form-button" style="background: #22c55e; color: #ffffff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; padding: 6px 10px;">Buscar</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="input-addon-lc-url2" style="font-size: 0.72rem; color: #94a3b8;">WhatsApp (URL/Link):</label>
+                            <input type="text" id="input-addon-lc-url2" placeholder="https://wa.me/5511999999999" value="https://wa.me/5511999999999" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                        </div>
+                    </div>
+
+                    <!-- Atendente 3 -->
+                    <div>
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">👥 Atendente 3:</div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="input-addon-lc-name3" style="font-size: 0.72rem; color: #94a3b8;">Nome:</label>
+                            <input type="text" id="input-addon-lc-name3" placeholder="Ex: Vendas e Dúvidas" value="Vendas e Dúvidas" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="input-addon-lc-avatar3" style="font-size: 0.72rem; color: #94a3b8;">Foto:</label>
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" id="input-addon-lc-avatar3" placeholder="URL da foto..." style="flex: 1; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                                <button type="button" id="btn-search-lc-avatar3" class="form-button" style="background: #22c55e; color: #ffffff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; padding: 6px 10px;">Buscar</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="input-addon-lc-url3" style="font-size: 0.72rem; color: #94a3b8;">WhatsApp (URL/Link):</label>
+                            <input type="text" id="input-addon-lc-url3" placeholder="https://wa.me/5511999999999" value="https://wa.me/5511999999999" style="width: 100%; font-size: 0.8rem; padding: 6px 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Posição Flutuante -->
                 <div class="form-group" style="margin-bottom: 10px;">
                     <label for="select-addon-lc-position" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📍 Posição no Celular:</label>

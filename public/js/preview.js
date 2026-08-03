@@ -764,6 +764,78 @@ function updatePreviewFromForm() {
                     </div>
                 `;
 
+                // Configura ação de clique no Preview (se for multi-agent, expande menu no mockup)
+                const lcMulti = document.getElementById('input-addon-lc-multi')?.checked || false;
+                if (lcMulti) {
+                    phoneLiveChat.onclick = (e) => {
+                        e.preventDefault();
+                        let popup = document.getElementById('phone-live-chat-popup');
+                        if (popup) {
+                            popup.style.display = (popup.style.display === 'none') ? 'flex' : 'none';
+                        } else {
+                            popup = document.createElement('div');
+                            popup.id = 'phone-live-chat-popup';
+                            let popupPosCss = 'bottom: 75px; left: 20px;';
+                            if (lcPosition === 'bottom-right') popupPosCss = 'bottom: 75px; right: 20px;';
+                            
+                            popup.style.cssText = `position: absolute; ${popupPosCss} z-index: 99999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 10px; width: 230px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 6px; animation: lcPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);`;
+
+                            const name2 = document.getElementById('input-addon-lc-name2')?.value.trim() || 'Suporte Financeiro';
+                            const av2 = document.getElementById('input-addon-lc-avatar2')?.value.trim() || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100';
+                            const name3 = document.getElementById('input-addon-lc-name3')?.value.trim() || 'Vendas e Dúvidas';
+                            const av3 = document.getElementById('input-addon-lc-avatar3')?.value.trim() || 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100';
+
+                            popup.innerHTML = `
+                                <div style="font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 2px;">Fale Conosco:</div>
+                                <div class="popup-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; cursor: pointer; transition: background 0.2s;">
+                                    <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                                        <img src="${lcAvatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                        <span style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${statusColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                        <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${lcName}</span>
+                                        <span style="font-size: 0.6rem; color: #4ade80;">Online</span>
+                                    </div>
+                                </div>
+                                <div class="popup-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; cursor: pointer; transition: background 0.2s;">
+                                    <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                                        <img src="${av2}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                        <span style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${statusColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                        <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${name2}</span>
+                                        <span style="font-size: 0.6rem; color: #4ade80;">Online</span>
+                                    </div>
+                                </div>
+                                <div class="popup-agent-item" style="display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 8px; cursor: pointer; transition: background 0.2s;">
+                                    <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                                        <img src="${av3}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                        <span style="position: absolute; bottom: 0; right: 0; width: 7px; height: 7px; background: ${statusColor}; border-radius: 50%; border: 1px solid #0f172a;"></span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; overflow: hidden;">
+                                        <span style="font-size: 0.72rem; font-weight: 700; color: #fff;">${name3}</span>
+                                        <span style="font-size: 0.6rem; color: #4ade80;">Online</span>
+                                    </div>
+                                </div>
+                            `;
+
+                            // CSS de hover
+                            if (!document.getElementById('mockup-agent-hover')) {
+                                const style = document.createElement('style');
+                                style.id = 'mockup-agent-hover';
+                                style.textContent = `.popup-agent-item:hover { background: rgba(255,255,255,0.08); }`;
+                                document.head.appendChild(style);
+                            }
+
+                            targetContainer.appendChild(popup);
+                        }
+                    };
+                } else {
+                    phoneLiveChat.onclick = null;
+                    const popup = document.getElementById('phone-live-chat-popup');
+                    if (popup) popup.remove();
+                }
+
                 let lcStyle = document.getElementById('phone-lc-style');
                 if (!lcStyle) {
                     lcStyle = document.createElement('style');
@@ -777,6 +849,8 @@ function updatePreviewFromForm() {
 
             } else if (phoneLiveChat) {
                 phoneLiveChat.style.display = 'none';
+                const popup = document.getElementById('phone-live-chat-popup');
+                if (popup) popup.remove();
             }
 
             // =========================================================================
@@ -2454,7 +2528,15 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-lc-message': backup.addonLivechatMessage || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋',
                     'input-addon-lc-url': backup.addonLivechatUrl || 'https://wa.me/5511999999999',
                     'select-addon-lc-position': backup.addonLivechatPosition || 'bottom-left',
-                    'input-addon-lc-color': backup.addonLivechatColor || '#22c55e'
+                    'input-addon-lc-color': backup.addonLivechatColor || '#22c55e',
+                    'input-addon-lc-pretext': backup.addonLivechatPretext || '',
+                    'input-addon-lc-delay': backup.addonLivechatDelay || 3,
+                    'input-addon-lc-name2': backup.addonLivechatName2 || 'Suporte Financeiro',
+                    'input-addon-lc-avatar2': backup.addonLivechatAvatar2 || '',
+                    'input-addon-lc-url2': backup.addonLivechatUrl2 || 'https://wa.me/5511999999999',
+                    'input-addon-lc-name3': backup.addonLivechatName3 || 'Vendas e Dúvidas',
+                    'input-addon-lc-avatar3': backup.addonLivechatAvatar3 || '',
+                    'input-addon-lc-url3': backup.addonLivechatUrl3 || 'https://wa.me/5511999999999'
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2578,6 +2660,12 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             selectLcStatusType.value = val;
                             if (containerLcStatusSmart) containerLcStatusSmart.style.display = (val === 'smart') ? 'block' : 'none';
                             if (containerLcStatusCustom) containerLcStatusCustom.style.display = (val === 'custom') ? 'block' : 'none';
+                        }
+                        const inputLcMulti = document.getElementById('input-addon-lc-multi');
+                        const containerLcMultiAgents = document.getElementById('container-addon-lc-multi-agents');
+                        if (inputLcMulti && backup.addonLivechatMulti !== undefined) {
+                            inputLcMulti.checked = Boolean(backup.addonLivechatMulti);
+                            if (containerLcMultiAgents) containerLcMultiAgents.style.display = inputLcMulti.checked ? 'block' : 'none';
                         }
                     }
                 }
