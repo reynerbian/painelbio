@@ -132,21 +132,21 @@ function updateCartSummary() {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-function getAvatarImgEl(activeModel) {
+function getAvatarOuterWrapperEl(activeModel) {
     if (activeModel === 'vitrine')
-        return document.querySelector('#v-view-avatar-inner img') || document.getElementById('v-view-avatar-inner');
+        return document.getElementById('v-view-avatar-wrapper');
     if (activeModel === 'carousel' || activeModel === 'carrossel')
-        return document.querySelector('#c-view-avatar-inner img') || document.getElementById('c-view-avatar-inner');
+        return document.getElementById('c-view-avatar-wrapper');
     if (activeModel === 'shop')
-        return document.querySelector('#s-view-avatar-inner img') || document.getElementById('s-view-avatar-inner');
-    return document.querySelector('#view-avatar-inner img') || document.getElementById('view-avatar-inner');
+        return document.getElementById('s-view-avatar-wrapper');
+    if (activeModel === 'ebook')
+        return document.getElementById('eb-view-avatar-wrapper');
+    return document.getElementById('view-avatar-container'); // Classic
 }
 
-function _getAvatarWrapEl(activeModel) {
-    if (activeModel === 'vitrine')    return document.getElementById('v-view-avatar-inner');
-    if (activeModel === 'carousel' || activeModel === 'carrossel') return document.getElementById('c-view-avatar-inner');
-    if (activeModel === 'shop')       return document.getElementById('s-view-avatar-inner');
-    return document.getElementById('view-avatar-inner');
+function getAvatarImgEl(activeModel) {
+    const wrap = getAvatarOuterWrapperEl(activeModel);
+    return wrap ? wrap.querySelector('img') : null;
 }
 
 // ── Mapa de curvas de aceleração ─────────────────────────────────────────────
@@ -197,30 +197,29 @@ function applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, en
 
     styleEl.textContent = kfCss;
 
-    const imgEl = getAvatarImgEl(activeModel);
-    if (!imgEl) return;
+    const wrapperEl = getAvatarOuterWrapperEl(activeModel);
+    if (!wrapperEl) return;
 
-    const parentEl = imgEl.parentElement;
+    const parentEl = wrapperEl.parentElement;
     if (parentEl) {
         parentEl.style.perspective = '600px';
         parentEl.style.overflow = 'visible';
     }
 
-    imgEl.style.borderRadius = '50%';
-    imgEl.style.display = 'block';
-    imgEl.style.animation = 'none';
-    void imgEl.offsetHeight;
-    imgEl.style.animation = animCss;
+    wrapperEl.style.borderRadius = '50%';
+    wrapperEl.style.animation = 'none';
+    void wrapperEl.offsetHeight;
+    wrapperEl.style.animation = animCss;
 }
 
 // ── Remove animação de entrada ────────────────────────────────────────────────
 function removeAvatarSpinAnimation() {
-    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop'];
+    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop', 'ebook'];
     models.forEach(m => {
-        const imgEl = getAvatarImgEl(m);
-        if (imgEl) {
-            imgEl.style.animation = '';
-            const parentEl = imgEl.parentElement;
+        const wrapperEl = getAvatarOuterWrapperEl(m);
+        if (wrapperEl) {
+            wrapperEl.style.animation = '';
+            const parentEl = wrapperEl.parentElement;
             if (parentEl) {
                 parentEl.style.perspective = '';
                 parentEl.style.overflow = '';
@@ -240,9 +239,9 @@ function applyAvatarContinuousEffects(config, activeModel) {
     }
 
     let kfCss = '';
-    const wrapId = activeModel === 'vitrine'  ? 'v-view-avatar-inner' :
-                   (activeModel === 'carousel' || activeModel === 'carrossel') ? 'c-view-avatar-inner' :
-                   activeModel === 'shop'     ? 's-view-avatar-inner' : 'view-avatar-inner';
+    const wrapperEl = getAvatarOuterWrapperEl(activeModel);
+    if (!wrapperEl) return;
+    const wrapId = wrapperEl.id;
 
     // keyframes
     kfCss += `@keyframes pb-av-float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }`;
@@ -263,11 +262,14 @@ function applyAvatarContinuousEffects(config, activeModel) {
             #${wrapId} {
                 position: relative !important;
                 isolation: isolate !important;
+                background: transparent !important;
+                border-color: transparent !important;
+                box-shadow: none !important;
             }
             #${wrapId}::before {
                 content: '';
                 position: absolute;
-                inset: -3px;
+                inset: 0px;
                 border-radius: 50%;
                 background: conic-gradient(from var(--border-angle, 0turn), ${bc}, #ffffff44, ${bc});
                 animation: pb-av-border 2s linear infinite;
@@ -281,10 +283,9 @@ function applyAvatarContinuousEffects(config, activeModel) {
         `;
     }
 
-    const imgSelector = `#${wrapId} img, #${wrapId}`;
     const animVal = anims.length ? anims.join(', ') : 'none';
 
-    kfCss += `${imgSelector} { ${anims.length ? 'animation: ' + animVal + ';' : ''} }`;
+    kfCss += `#${wrapId} { ${anims.length ? 'animation: ' + animVal + ';' : ''} }`;
     kfCss += borderCss;
 
     styleEl.textContent = kfCss;
@@ -294,42 +295,36 @@ function applyAvatarContinuousEffects(config, activeModel) {
 function removeAvatarContinuousEffects() {
     const styleEl = document.getElementById('pb-avatar-continuous-style');
     if (styleEl) styleEl.textContent = '';
-    // Limpa inlines que possam ter sido aplicados
-    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop'];
+    const models = ['classic', 'vitrine', 'carousel', 'carrossel', 'shop', 'ebook'];
     models.forEach(m => {
-        const wrap = _getAvatarWrapEl(m);
-        if (wrap) {
-            const img = wrap.querySelector('img') || wrap;
-            if (img.style.animation && !img.style.animation.includes('pb-av-spin') &&
-                !img.style.animation.includes('pb-av-zoom') &&
-                !img.style.animation.includes('pb-av-fall') &&
-                !img.style.animation.includes('pb-av-fade')) {
-                img.style.animation = '';
-            }
+        const wrapperEl = getAvatarOuterWrapperEl(m);
+        if (wrapperEl) {
+            wrapperEl.style.animation = '';
+            wrapperEl.style.background = '';
+            wrapperEl.style.borderColor = '';
+            wrapperEl.style.boxShadow = '';
         }
     });
 }
 
 // ── Setup de gatilho de clique/hover no avatar do preview ───────────────────
 function setupAvatarTrigger(trigger, duration, spins, activeModel, axis, easing, entrance) {
-    // Remove listeners anteriores
-    const imgEl = getAvatarImgEl(activeModel);
-    if (!imgEl) return;
+    const wrapperEl = getAvatarOuterWrapperEl(activeModel);
+    if (!wrapperEl) return;
 
-    // Remove clones de listeners via substituição
-    if (imgEl._pbClickHandler) imgEl.removeEventListener('click', imgEl._pbClickHandler);
-    if (imgEl._pbMouseoverHandler) imgEl.removeEventListener('mouseover', imgEl._pbMouseoverHandler);
+    if (wrapperEl._pbClickHandler) wrapperEl.removeEventListener('click', wrapperEl._pbClickHandler);
+    if (wrapperEl._pbMouseoverHandler) wrapperEl.removeEventListener('mouseover', wrapperEl._pbMouseoverHandler);
 
     if (trigger === 'click') {
-        imgEl._pbClickHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
-        imgEl.addEventListener('click', imgEl._pbClickHandler);
-        imgEl.style.cursor = 'pointer';
+        wrapperEl._pbClickHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
+        wrapperEl.addEventListener('click', wrapperEl._pbClickHandler);
+        wrapperEl.style.cursor = 'pointer';
     } else if (trigger === 'hover') {
-        imgEl._pbMouseoverHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
-        imgEl.addEventListener('mouseover', imgEl._pbMouseoverHandler);
-        imgEl.style.cursor = 'pointer';
+        wrapperEl._pbMouseoverHandler = () => applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, entrance);
+        wrapperEl.addEventListener('mouseover', wrapperEl._pbMouseoverHandler);
+        wrapperEl.style.cursor = 'pointer';
     } else {
-        imgEl.style.cursor = '';
+        wrapperEl.style.cursor = '';
     }
 }
 

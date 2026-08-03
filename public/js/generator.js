@@ -1,4 +1,4 @@
-﻿// --- PAINELBIO STATIC SITE GENERATOR (PUBLIC MODULE) ---
+// --- PAINELBIO STATIC SITE GENERATOR (PUBLIC MODULE) ---
 // Contém o gerador estático oficial de HTML para todos os 4 modelos (Classic, Vitrine, Carrossel, Shop)
 
 export function generateStaticSite(data) {
@@ -477,8 +477,8 @@ export function generateStaticSite(data) {
 
     // Borda giratória via wrapper
     const borderWrapCss = asBorder ? `
-        #pb-avatar-wrap { position: relative !important; isolation: isolate !important; }
-        #pb-avatar-wrap::before { content:''; position:absolute; inset:-3px; border-radius:50%;
+        #pb-avatar-wrap { position: relative !important; isolation: isolate !important; background: transparent !important; border-color: transparent !important; box-shadow: none !important; }
+        #pb-avatar-wrap::before { content:''; position:absolute; inset:0px; border-radius:50%;
             background: conic-gradient(from var(--pb-border-angle,0turn), ${asBorderColor}, #ffffff44, ${asBorderColor});
             animation: pb-av-border 2s linear infinite; z-index:-1; }
         @property --pb-border-angle { syntax:'<angle>'; initial-value:0turn; inherits:false; }
@@ -490,35 +490,35 @@ export function generateStaticSite(data) {
     if (asTrigger === 'onload') {
         triggerJs = `
         (function() {
-            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
-            if (!img) return;
-            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
-            img.style.borderRadius='50%';
-            img.style.animation='none';
-            void img.offsetHeight;
-            img.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}';
-            ${asRepeat ? `setInterval(function(){ img.style.animation='none'; void img.offsetHeight; img.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, ${(asDuration + asInterval) * 1000});` : ''}
+            var wrap = document.getElementById('pb-avatar-wrap');
+            if (!wrap) return;
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%';
+            wrap.style.animation='none';
+            void wrap.offsetHeight;
+            wrap.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}';
+            ${asRepeat ? `setInterval(function(){ wrap.style.animation='none'; void wrap.offsetHeight; wrap.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, ${(asDuration + asInterval) * 1000});` : ''}
         })();`;
     } else if (asTrigger === 'click') {
         triggerJs = `
         (function() {
-            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
-            if (!img) return;
-            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
-            img.style.borderRadius='50%'; img.style.cursor='pointer';
-            ${contAnimVal ? `img.style.animation='${contAnimVal}';` : ''}
-            img.addEventListener('click', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
-            img.addEventListener('touchstart', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, {passive:true});
+            var wrap = document.getElementById('pb-avatar-wrap');
+            if (!wrap) return;
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
+            ${contAnimVal ? `wrap.style.animation='${contAnimVal}';` : ''}
+            wrap.addEventListener('click', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
+            wrap.addEventListener('touchstart', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, {passive:true});
         })();`;
     } else if (asTrigger === 'hover') {
         triggerJs = `
         (function() {
-            var img = document.querySelector('#pb-avatar-wrap img') || document.getElementById('pb-avatar-wrap');
-            if (!img) return;
-            if (img.parentElement) { img.parentElement.style.perspective='600px'; img.parentElement.style.overflow='visible'; }
-            img.style.borderRadius='50%'; img.style.cursor='pointer';
-            ${contAnimVal ? `img.style.animation='${contAnimVal}';` : ''}
-            img.addEventListener('mouseover', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
+            var wrap = document.getElementById('pb-avatar-wrap');
+            if (!wrap) return;
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
+            ${contAnimVal ? `wrap.style.animation='${contAnimVal}';` : ''}
+            wrap.addEventListener('mouseover', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
         })();`;
     }
 
@@ -527,6 +527,7 @@ export function generateStaticSite(data) {
     ${entranceKf}
     ${contKf}
     ${borderWrapCss}
+    #pb-avatar-wrap { ${contAnimVal ? 'animation: ' + contAnimVal + ';' : ''} }
     #pb-avatar-wrap img { border-radius: 50%; }
 </style>
 <script>
@@ -1378,8 +1379,8 @@ ${avatarSpinHtml}
     <div class="s-content">
       <div class="s-profile">
         ${data.avatar ? `
-          <div class="s-avatar-wrapper">
-            <div class="s-avatar-inner" id="pb-avatar-wrap">
+          <div class="s-avatar-wrapper" id="pb-avatar-wrap">
+            <div class="s-avatar-inner">
               <img src="${data.avatar}" alt="${data.name || ''}">
             </div>
           </div>
@@ -1454,8 +1455,8 @@ ${avatarSpinHtml}
       const c3Img = data.carousel3Img || 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=1000';
 
       const avatarHtml = data.avatar ? `
-          <div class="c-avatar-wrapper">
-              <div class="c-avatar-inner" id="pb-avatar-wrap">
+          <div class="c-avatar-wrapper" id="pb-avatar-wrap">
+              <div class="c-avatar-inner">
                   <img src="${data.avatar}" alt="${data.name || ''}">
               </div>
           </div>
@@ -1732,15 +1733,15 @@ ${avatarSpinHtml}
             </div>
             
             ${data.avatar ? `
-            <div class="v-avatar-overlap">
-                <div class="v-avatar-overlap-inner" id="pb-avatar-wrap">
+            <div class="v-avatar-overlap" id="pb-avatar-wrap">
+                <div class="v-avatar-overlap-inner">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : ''}
         </div>` : data.avatar ? `
         <div style="position: relative; width: 100px; height: 100px; margin-bottom: 20px;">
-            <div class="v-avatar-overlap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">
-                <div class="v-avatar-overlap-inner" id="pb-avatar-wrap">
+            <div class="v-avatar-overlap" id="pb-avatar-wrap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">
+                <div class="v-avatar-overlap-inner">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>
@@ -1772,8 +1773,8 @@ ${avatarSpinHtml}
   // ==========================================
   if (isEbook) {
     const avatarHtml = data.avatar ? `
-            <div class="eb-avatar-wrapper">
-                <div class="eb-avatar-inner" id="pb-avatar-wrap">
+            <div class="eb-avatar-wrapper" id="pb-avatar-wrap">
+                <div class="eb-avatar-inner">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : '';
@@ -2202,8 +2203,8 @@ ${avatarSpinHtml}
   // MODELO 1: CLASSIC (Padrão Fallback)
   // ==========================================
   const avatarHtml = data.avatar ? `
-            <div class="preview-avatar-glow">
-                <div class="preview-avatar-inner" id="pb-avatar-wrap">
+            <div class="preview-avatar-glow" id="pb-avatar-wrap">
+                <div class="preview-avatar-inner">
                     <img src="${data.avatar}" alt="${data.name || ''}">
                 </div>
             </div>` : '';
