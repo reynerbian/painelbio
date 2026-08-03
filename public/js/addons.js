@@ -210,6 +210,14 @@ function applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, en
     wrapperEl.style.animation = 'none';
     void wrapperEl.offsetHeight;
     wrapperEl.style.animation = animCss;
+
+    if (wrapperEl._pbAnimEndHandler) {
+        wrapperEl.removeEventListener('animationend', wrapperEl._pbAnimEndHandler);
+    }
+    wrapperEl._pbAnimEndHandler = () => {
+        wrapperEl.style.animation = '';
+    };
+    wrapperEl.addEventListener('animationend', wrapperEl._pbAnimEndHandler, { once: true });
 }
 
 // ── Remove animação de entrada ────────────────────────────────────────────────

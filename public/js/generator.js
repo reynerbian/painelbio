@@ -496,8 +496,13 @@ export function generateStaticSite(data) {
             wrap.style.borderRadius='50%';
             wrap.style.animation='none';
             void wrap.offsetHeight;
-            wrap.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}';
-            ${asRepeat ? `setInterval(function(){ wrap.style.animation='none'; void wrap.offsetHeight; wrap.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, ${(asDuration + asInterval) * 1000});` : ''}
+            wrap.style.animation='${entranceAnim}';
+            var clearAnim = function() {
+                wrap.style.animation = '';
+                wrap.removeEventListener('animationend', clearAnim);
+            };
+            wrap.addEventListener('animationend', clearAnim);
+            ${asRepeat ? `setInterval(function(){ wrap.style.animation='none'; void wrap.offsetHeight; wrap.style.animation='${entranceAnim}'; wrap.addEventListener('animationend', clearAnim); }, ${(asDuration + asInterval) * 1000});` : ''}
         })();`;
     } else if (asTrigger === 'click') {
         triggerJs = `
@@ -506,9 +511,12 @@ export function generateStaticSite(data) {
             if (!wrap) return;
             if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
             wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
-            ${contAnimVal ? `wrap.style.animation='${contAnimVal}';` : ''}
-            wrap.addEventListener('click', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
-            wrap.addEventListener('touchstart', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; }, {passive:true});
+            var clearAnim = function() {
+                wrap.style.animation = '';
+                wrap.removeEventListener('animationend', clearAnim);
+            };
+            wrap.addEventListener('click', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}'; this.addEventListener('animationend', clearAnim); });
+            wrap.addEventListener('touchstart', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}'; this.addEventListener('animationend', clearAnim); }, {passive:true});
         })();`;
     } else if (asTrigger === 'hover') {
         triggerJs = `
@@ -517,8 +525,11 @@ export function generateStaticSite(data) {
             if (!wrap) return;
             if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
             wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
-            ${contAnimVal ? `wrap.style.animation='${contAnimVal}';` : ''}
-            wrap.addEventListener('mouseover', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}${contAnimVal ? ', ' + contAnimVal : ''}'; });
+            var clearAnim = function() {
+                wrap.style.animation = '';
+                wrap.removeEventListener('animationend', clearAnim);
+            };
+            wrap.addEventListener('mouseover', function() { this.style.animation='none'; void this.offsetHeight; this.style.animation='${entranceAnim}'; this.addEventListener('animationend', clearAnim); });
         })();`;
     }
 
