@@ -633,6 +633,7 @@
             box-sizing: border-box;
             animation: fadeIn 0.4s ease forwards;
             position: relative; /* Adicionado para posicionamento das luzes */
+            overflow-x: hidden; /* Corta as luzes de neon nas laterais e evita rolagem horizontal */
             overflow-y: auto; /* Permite rolar apenas se exceder a tela */
             overscroll-behavior-y: contain;
             scrollbar-width: none; /* Firefox */
