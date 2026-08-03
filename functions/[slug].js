@@ -19,6 +19,7 @@ export async function onRequest(context) {
     pathname.startsWith('/js/') || 
     pathname.startsWith('/api/') || 
     pathname.startsWith('/models/') ||
+    pathname.startsWith('/uploads/') ||
     pathname === '/favicon.ico' ||
     pathname === '/manifest.json' ||
     pathname === '/sw.js'
