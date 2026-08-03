@@ -321,8 +321,8 @@ export function generateStaticSite(data) {
   const erRotate = Boolean(data.addonEmojiRainRotate);
   const erSway = Boolean(data.addonEmojiRainSway);
   const erOpacity = data.addonEmojiRainOpacity || 'normal';
-  const erOutlineActive = Boolean(data.addonEmojiRainOutlineActive);
-  const erOutlineColor = data.addonEmojiRainOutlineColor || '#7c3aed';
+  const erAsSvg = Boolean(data.addonEmojiRainAsSvg);
+  const erSvgColor = data.addonEmojiRainSvgColor || '#7c3aed';
   
   const erDurMap = { slow: 6, normal: 5, fast: 3 };
   const erBase = erDurMap[erSpeed] || 3.5;
@@ -333,7 +333,58 @@ export function generateStaticSite(data) {
   if (hasEmojiRain) {
       let particles = '';
       const emojiArray = Array.from(erEmoji);
-      const outlineStyle = erOutlineActive ? `drop-shadow(1.5px 0 0 ${erOutlineColor}) drop-shadow(-1.5px 0 0 ${erOutlineColor}) drop-shadow(0 1.5px 0 ${erOutlineColor}) drop-shadow(0 -1.5px 0 ${erOutlineColor}) ` : '';
+      
+      // Mapeamento de caminhos SVG para os 48 emojis do catálogo
+      const emojiSvgPaths = {
+          '🌸': '<path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-4-4V2zm0 20a4 4 0 0 1-4-4v-2a4 4 0 0 1 4 4v2zm-10-10a4 4 0 0 1 4-4h2a4 4 0 0 1-4 4H2zm20 0a4 4 0 0 1-4 4h-2a4 4 0 0 1 4-4h2z"/>',
+          '🌺': '<path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0M12 3c-1.5 0-3 1.5-3 3.5S10.5 10 12 12c1.5-2 3-3.5 3-5.5S13.5 3 12 3zm0 18c1.5 0 3-1.5 3-3.5S13.5 14 12 12c-1.5 2-3 3.5-3 3.5s1.5 3.5 3 3.5zm-9-9c0 1.5 1.5 3 3.5 3S10 13.5 12 12c-2-1.5-3.5-3-5.5-3S3 10.5 3 12zm18 0c0-1.5-1.5-3-3.5-3S14 10.5 12 12c2 1.5 3.5 3 5.5 3s3.5-1.5 3.5-3z"/>',
+          '🌻': '<circle cx="12" cy="12" r="4"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M19.07 4.93l-2.83 2.83M6.34 17.66l-2.83 2.83"/>',
+          '🍀': '<path d="M12 12c1-2.5 3-4 5.5-4s4 1.5 4 4-1.5 4-4 4-4.5-1.5-5.5-4zm0 0c-1-2.5-3-4-5.5-4s-4 1.5-4 4 1.5 4 4 4 4.5-1.5 5.5-4zm0 0c1 2.5 3 4 5.5 4s4-1.5 4-4-1.5-4-4-4-4.5 1.5-5.5 4zm0 0c-1 2.5-3 4-5.5 4s-4-1.5-4-4 1.5-4 4-4 4.5 1.5 5.5 4zM12 12v9"/>',
+          '❄️': '<path d="M2 12h20M12 2v20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07M8 12l-2-2M8 12l-2 2M16 12l2-2M16 12l2 2M12 8l-2-2M12 8l2-2M12 16l-2 2M12 16l2 2"/>',
+          '⭐': '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>',
+          '🌙': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+          '☀️': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+          '💸': '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4"/>',
+          '💰': '<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6M12 1v22"/>',
+          '💎': '<path d="M6 3h12l4 6-10 12L2 9zM2 9h20M11 3 8 9l4 12M13 3l3 6-4 12"/>',
+          '🏆': '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6m12 5h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34M12 2a6 6 0 0 1 6 6v3a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"/>',
+          '🔥': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+          '✨': '<path d="M12 2v6M12 16v6M2 12h6M16 12h6M5.93 5.93l4.24 4.24M13.83 13.83l4.24 4.24M18.07 5.93l-4.24 4.24M10.17 13.83l-4.24 4.24"/>',
+          '💫': '<circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 1 0 10 10c0-2-2-3-4-3s-4 1-4 3"/>',
+          '🦋': '<path d="M12 3v18M12 5C9 1 4 3 4 8c0 4 5 5 8 2M12 5c3-4 8-2 8 3 0 4-5 5-8 2M12 15c-3 3-8 2-8-3 0-3 5-3 8 1M12 15c3 3 8 2 8-3 0-3-5-3-8 1"/>',
+          '🎉': '<path d="M4 22L14 12M14 12a4 4 0 1 0 4-4 4 4 0 0 0-4 4zm4-4l2-4M12 16l-4-2M16 20l1 2"/>',
+          '🎈': '<path d="M12 2a7 7 0 0 0-7 7c0 4.3 3.5 8 7 8s7-3.7 7-8a7 7 0 0 0-7-7zM12 17v5"/>',
+          '🎵': '<path d="M9 18V5l12-2v13M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm12-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>',
+          '❤️': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+          '💕': '<path d="M12 10c1-1 2-2.5 2-4.5A3.5 3.5 0 0 0 10.5 2c-1.5 0-2 .5-3.5 2C5.5 2.5 5 2 3.5 2A3.5 3.5 0 0 0 0 5.5c0 2 1 3.5 2 4.5l5.5 5.5ZM19 17c1-1 2-2 2-3.5a2.5 2.5 0 0 0-2.5-2.5c-1 0-1.5.5-2.5 1.5S14.5 11 13.5 11A2.5 2.5 0 0 0 11 13.5c0 1.5 1 2.5 2 3.5l3.5 3.5Z"/>',
+          '🌈': '<path d="M4 20A10 10 0 0 1 20 20M7 20A7 7 0 0 1 17 20M10 20A4 4 0 0 1 14 20"/>',
+          '🍕': '<path d="M15 3L3 15M3 15c2 4 7 6 12 4s7-6 5-11L15 3zM9 11a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm5 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>',
+          '🍦': '<path d="M12 2a4 4 0 0 0-4 4v3h8V6a4 4 0 0 0-4-4zm-4 7l4 12 4-12H8z"/>',
+          '💀': '<path d="M12 2a8 8 0 0 0-8 8c0 2.66 1.34 4.5 3 6v4a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4c1.66-1.5 3-3.34 3-6a8 8 0 0 0-8-8zm-3 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0zm-3 5h0M10 17h4"/>',
+          '👻': '<path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 3 3 3-3 3 3 3-3 3 3V10a8 8 0 0 0-8-8z"/>',
+          '👾': '<rect x="6" y="8" width="12" height="8" rx="2"/><path d="M8 6V8M16 6V8M10 12h4M6 10h2M16 10h2"/>',
+          '👽': '<path d="M12 2a9 9 0 0 0-9 9c0 3.3 1.5 6.3 4 8v3h10v-3c2.5-1.7 4-4.7 4-8a9 9 0 0 0-9-9zM8 12.5a1.5 2.5 0 1 0 3 0 1.5 2.5 0 1 0-3 0zm5 0a1.5 2.5 0 1 0 3 0 1.5 2.5 0 1 0-3 0z"/>',
+          '👑': '<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zM3 20h18v2H3z"/>',
+          '⚡': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+          '🚀': '<path d="M4.5 16.5c-1.5 1.25-2.5 3.5-2.5 3.5s2.25-1 3.5-2.5M12 2C6 2 2 6 2 12c0 2.5 1 4.5 2.5 6l6-6 4 4 6-6c1.5-1.5 3.5-2.5 6-2.5 0-2.5-1-4.5-2.5-6zM9 15l-3 6M15 9l6-3M12 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>',
+          '🛸': '<path d="M12 3a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6zM2 14c0-2.2 4.5-4 10-4s10 1.8 10 4-4.5 4-10 4-10-1.8-10-4zm4 5l-1 3m13-3l1 3m-7-3v3"/>',
+          '🌹': '<path d="M12 12c2.5-3 2.5-6.5 .5-8.5-2.5 2-4.5 4.5-4.5 7 0 .5 .5 1.5 1.5 2.5zm0 0v10M9 16c-2 0-3-1-4-2.5s.5-2 1.5-2 1.5 1.5 2.5 2.5M15 17c2 0 3-1 4-2.5s-.5-2-1.5-2-1.5 1.5-2.5 2.5"/>',
+          '🌷': '<path d="M12 22V12M12 12C9 9.5 7.5 7 7.5 4.5S9 2 12 4c3-2 4.5.5 4.5 3S15 9.5 12 12zM5 16c0-2.5 2.5-4 2.5-4s1.5 1.5 1.5 2.5S7 18 5 16zM19 16c0-2.5-2.5-4-2.5-4s-1.5 1.5-1.5 2.5s2 3.5 4 1.5z"/>',
+          '🍁': '<path d="M12 22V19M12 12l2-3 5 2-2-5 4-1-6-1-1-4-1 4-6 1 4 1-2 5 5-2 2 3z"/>',
+          '🍂': '<path d="M12 22c-1.5-3-3.5-5-5.5-7C4.5 13 3 11 3 9.5c0-2 1.5-3.5 3-3.5s2 .5 3.5 2M12 22c1.5-3 3.5-5 5.5-7c2-2 3.5-4 3.5-5.5 0-2-1.5-3.5-3-3.5s-2 .5-3.5 2M12 22V2"/>',
+          '🌱': '<path d="M12 22V12M12 12c-2.5 0-4.5-1.5-4.5-3.5S9 5 12 7c2.5-2 4.5.5 4.5 2.5S14.5 12 12 12z"/>',
+          '🍿': '<path d="M6 10h12v12H6zM8 10V6M12 10V5M16 10V6M6 14h12M6 18h12"/>',
+          '🍩': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>',
+          '🍪': '<circle cx="12" cy="12" r="10"/><circle cx="8" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="8" r="1.2" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/><circle cx="14" cy="14" r="0.8" fill="currentColor"/><circle cx="12" cy="11" r="1" fill="currentColor"/>',
+          '🐱': '<path d="M12 5c-3 0-6 2-6 6v7a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3v-7c0-4-3-6-6-6zM6 8L3 3l3 5zM18 8l3-5-3 5zM9 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM15 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>',
+          '🐶': '<path d="M12 5c-3 0-5 2.5-5 5.5v5c0 2 1.5 3.5 3 3.5h4c1.5 0 3-1.5 3-3.5v-5C17 7.5 15 5 12 5zM4 10c0-2 2-3 2-3s1 2 1 3v4s-3 1-3-4zM20 10c0-2-2-3-2-3s-1 2-1 3v4s3 1 3-4zM9.5 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>',
+          '🦊': '<path d="M12 18l-5-5V7l5 4 5-4v6l-5 5zM3 4l4 3-4 5zM21 4l-4 3 4 5z"/>',
+          '🦁': '<circle cx="12" cy="13" r="7"/><path d="M12 6a9 9 0 0 0-9 9c0 3.3 1.5 6.3 4 8v-1M12 6a9 9 0 0 1 9 9c0 3.3-1.5 6.3-4 8v-1"/>',
+          '🐼': '<circle cx="12" cy="13" r="8"/><circle cx="6" cy="6" r="3" fill="currentColor"/><circle cx="18" cy="6" r="3" fill="currentColor"/><circle cx="9.5" cy="11.5" r="1.5"/><circle cx="14.5" cy="11.5" r="1.5"/><path d="M12 15.5a1.5 1.5 0 0 1-1.5-1.5h3A1.5 1.5 0 0 1 12 15.5z"/>',
+          '🔮': '<circle cx="12" cy="10" r="8"/><path d="M5 18a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4H5z"/>',
+          '🧿': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/>',
+          '🎯': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+      };
       
       for (let i = 0; i < erCount; i++) {
           const emoji = emojiArray[i % emojiArray.length] || '🌸';
@@ -362,7 +413,13 @@ export function generateStaticSite(data) {
           const swayDelay = (Math.random() * 2).toFixed(2);
           const swayAnim = erSway ? `, pb-emojisway ${swayDur}s ease-in-out ${swayDelay}s infinite alternate` : '';
           
-          particles += `<span style="position:absolute;top:-80px;opacity:0;left:${lft}%;font-size:${sz}rem;filter:${outlineStyle}blur(${blurVal}px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite backwards${swayAnim};">${emoji}</span>`;
+          // Renderização do conteúdo da partícula (SVG ou caractere emoji)
+          let particleContent = emoji;
+          if (erAsSvg && emojiSvgPaths[emoji]) {
+              particleContent = `<svg viewBox="0 0 24 24" width="100%" height="100%" style="fill:none;stroke:${erSvgColor};stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:round;display:block;">${emojiSvgPaths[emoji]}</svg>`;
+          }
+          
+          particles += `<span style="position:absolute;top:-80px;opacity:0;left:${lft}%;font-size:${sz}rem;width:1.2em;height:1.2em;display:inline-block;filter:blur(${blurVal}px);pointer-events:none;animation:${animName} ${dur}s linear ${dly}s infinite backwards${swayAnim};">${particleContent}</span>`;
       }
       emojiRainHtml = `<style>body { position: relative; } @keyframes pb-emojifall{0%{top:-80px;opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;opacity:0}}@keyframes pb-emojifall-cw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(540deg);opacity:0}}@keyframes pb-emojifall-ccw{0%{top:-80px;transform:rotate(0deg);opacity:0}10%{opacity:${opacityVal}}90%{opacity:${opacityVal}}100%{top:100%;transform:rotate(-540deg);opacity:0}}@keyframes pb-emojisway{0%{margin-left:-12px}100%{margin-left:12px}}</style><div id="pb-emoji-rain" style="position:absolute;top:0;left:0;right:0;height:${erCoverage}%;overflow:hidden;pointer-events:none;z-index:0;">${particles}</div>`;
   }

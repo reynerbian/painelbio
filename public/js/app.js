@@ -1667,23 +1667,23 @@ loadClassicModel();
                 });
             }
 
-            // Outline active checkbox: show/hide container and rebuild
-            const erOutlineActiveInput = document.getElementById('input-addon-er-outline-active');
-            const erOutlineColorContainer = document.getElementById('container-addon-er-outline-color');
-            if (erOutlineActiveInput) {
-                erOutlineActiveInput.addEventListener('change', () => {
-                    if (erOutlineColorContainer) {
-                        erOutlineColorContainer.style.display = erOutlineActiveInput.checked ? 'flex' : 'none';
+            // SVG active checkbox: show/hide container and rebuild
+            const erAsSvgInput = document.getElementById('input-addon-er-as-svg');
+            const erSvgColorContainer = document.getElementById('container-addon-er-svg-color');
+            if (erAsSvgInput) {
+                erAsSvgInput.addEventListener('change', () => {
+                    if (erSvgColorContainer) {
+                        erSvgColorContainer.style.display = erAsSvgInput.checked ? 'flex' : 'none';
                     }
                     window.phoneErConfigKey = null;
                     updatePreviewFromForm();
                 });
             }
 
-            // Outline color picker: rebuild on input
-            const erOutlineColorInput = document.getElementById('input-addon-er-outline-color');
-            if (erOutlineColorInput) {
-                erOutlineColorInput.addEventListener('input', () => {
+            // SVG outline color picker: rebuild on input
+            const erSvgColorInput = document.getElementById('input-addon-er-svg-color');
+            if (erSvgColorInput) {
+                erSvgColorInput.addEventListener('input', () => {
                     window.phoneErConfigKey = null;
                     updatePreviewFromForm();
                 });
@@ -2076,8 +2076,8 @@ loadClassicModel();
                         addonEmojiRainRotate: document.getElementById('input-addon-er-rotate')?.checked || false,
                         addonEmojiRainSway: document.getElementById('input-addon-er-sway')?.checked || false,
                         addonEmojiRainOpacity: document.getElementById('select-addon-er-opacity')?.value || 'normal',
-                        addonEmojiRainOutlineActive: document.getElementById('input-addon-er-outline-active')?.checked || false,
-                        addonEmojiRainOutlineColor: document.getElementById('input-addon-er-outline-color')?.value || '#7c3aed',
+                        addonEmojiRainAsSvg: document.getElementById('input-addon-er-as-svg')?.checked || false,
+                        addonEmojiRainSvgColor: document.getElementById('input-addon-er-svg-color')?.value || '#7c3aed',
                         addonAvatarSpinActive: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
                         addonAvatarSpinDuration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
                         addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
