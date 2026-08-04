@@ -2019,6 +2019,8 @@ export function generateStaticSite(data) {
               }
           })();
       </script>
+      `;
+  }
 
   // ==========================================
   // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
