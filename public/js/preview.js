@@ -1049,26 +1049,25 @@ function updatePreviewFromForm() {
             }
 
             // =========================================================================
-            // ADD-ON 10: SPLASH PROMO LETREIRO (PREVIEW EM TEMPO REAL)
+            // ADD-ON 10: JANELA INTERATIVA / POP-UP DE ENTRADA (PREVIEW EM TEMPO REAL)
             // =========================================================================
             const cardSplashCheck = document.getElementById('card-addon-splashpromo');
             const isSplashActive = cardSplashCheck && cardSplashCheck.style.display !== 'none';
             let phoneSplash = document.getElementById('phone-splash-overlay');
 
             if (isSplashActive && phoneScreen) {
+                const splashMode = document.getElementById('select-addon-splash-mode')?.value || 'roulette';
+                const splashTitle = document.getElementById('input-addon-splash-title')?.value || '🎉 PARABÉNS!';
                 const splashText = document.getElementById('input-addon-splash-text')?.value || '';
-                const splashBg = document.getElementById('input-addon-splash-bg')?.value || '#e11d48';
-                const splashColor = document.getElementById('input-addon-splash-color')?.value || '#ffffff';
+                const splashDiscount = parseInt(document.getElementById('input-addon-splash-discount')?.value || '20', 10);
+                const splashMarqueeText = document.getElementById('input-addon-splash-marquee-text')?.value || '';
+                const splashBg = document.getElementById('input-addon-splash-bg')?.value || '#1e293b';
+                const splashColor = document.getElementById('input-addon-splash-color')?.value || '#38bdf8';
                 const splashOverlayColor = document.getElementById('input-addon-splash-overlay-color')?.value || '#090d16';
-                const splashOverlayOpacity = parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.8');
-                const splashSpeed = document.getElementById('select-addon-splash-speed')?.value || 'normal';
-                const splashBtnText = document.getElementById('input-addon-splash-btn-text')?.value || 'Entrar no Site 🚀';
+                const splashOverlayOpacity = parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.85');
+                const splashBtnText = document.getElementById('input-addon-splash-btn-text')?.value || 'Garantir Desconto & Entrar 🚀';
 
-                let speedSec = 8;
-                if (splashSpeed === 'slow') speedSec = 14;
-                if (splashSpeed === 'fast') speedSec = 4;
-
-                const currentConfigKey = `${splashText}_${splashBg}_${splashColor}_${splashOverlayColor}_${splashOverlayOpacity}_${splashSpeed}_${splashBtnText}`;
+                const currentConfigKey = `${splashMode}_${splashTitle}_${splashText}_${splashDiscount}_${splashMarqueeText}_${splashBg}_${splashColor}_${splashOverlayColor}_${splashOverlayOpacity}_${splashBtnText}`;
                 
                 // Conversão de cor do overlay
                 let r = 9, g = 13, b = 22;
@@ -1098,10 +1097,20 @@ function updatePreviewFromForm() {
                 if (window.phoneSplashConfigKey !== currentConfigKey) {
                     window.phoneSplashConfigKey = currentConfigKey;
                     
-                    // Mostrar novamente se a config mudou (para que o editor veja em tempo real)
-                    phoneSplash.style.cssText = `position: absolute; inset: 0; background: ${bgRgba}; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(4px); box-sizing: border-box; transition: opacity 0.3s ease; opacity: 1;`;
+                    // Cancelar qualquer roleta anterior
+                    if (window.phoneSplashRouletteInterval) {
+                        clearInterval(window.phoneSplashRouletteInterval);
+                        window.phoneSplashRouletteInterval = null;
+                    }
+                    if (window.phoneSplashRouletteTimeout) {
+                        clearTimeout(window.phoneSplashRouletteTimeout);
+                        window.phoneSplashRouletteTimeout = null;
+                    }
+
+                    // Resetar estilos do overlay
+                    phoneSplash.style.cssText = `position: absolute; inset: 0; background: ${bgRgba}; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-sizing: border-box; transition: opacity 0.3s ease; opacity: 1; padding: 16px;`;
                     
-                    // Injetar estilos de animação local se não existirem
+                    // Injetar estilos CSS locais para animações
                     let styleEl = document.getElementById('pb-splash-style');
                     if (!styleEl) {
                         styleEl = document.createElement('style');
@@ -1109,28 +1118,102 @@ function updatePreviewFromForm() {
                         document.head.appendChild(styleEl);
                     }
                     styleEl.textContent = `
+                        @keyframes pb-splash-pop {
+                            0% { transform: scale(0.6); opacity: 0; }
+                            70% { transform: scale(1.08); }
+                            100% { transform: scale(1); opacity: 1; }
+                        }
                         @keyframes pb-splash-marquee-lr {
                             0% { transform: translateX(-50%); }
                             100% { transform: translateX(0%); }
                         }
+                        @keyframes pb-splash-pulse-scale {
+                            0%, 100% { transform: scale(1); }
+                            50% { transform: scale(1.1); }
+                        }
                     `;
 
-                    // Repetir o texto para o efeito infinito funcionar perfeitamente
-                    const textRepeated = `${splashText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `.repeat(4);
-
+                    // Desenhar a janela modal
                     phoneSplash.innerHTML = `
-                        <div style="width: 100%; background: ${splashBg}; overflow: hidden; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                            <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 0.85rem; font-weight: 800; animation: pb-splash-marquee-lr ${speedSec}s linear infinite; padding-left: 50%;">
-                                ${textRepeated}
+                        <div id="phone-splash-modal" style="width: 100%; max-width: 280px; background: ${splashBg}; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); animation: pb-splash-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; position: relative;">
+                            <h2 style="font-size: 1.15rem; font-weight: 800; color: ${splashColor}; margin: 0 0 6px 0;">${splashTitle}</h2>
+                            <p id="phone-splash-desc" style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 16px 0; line-height: 1.4;">${splashText}</p>
+                            
+                            <div id="phone-splash-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70px;">
+                                <!-- Conteúdo dinâmico será injetado aqui -->
                             </div>
+
+                            <button type="button" id="phone-splash-close-btn" style="margin-top: 18px; width: 100%; background: ${splashColor}; color: #000; border: none; padding: 10px 18px; border-radius: 25px; font-weight: 800; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); outline: none; transition: transform 0.2s, opacity 0.3s; display: none;">
+                                ${splashBtnText}
+                            </button>
                         </div>
-                        <button type="button" id="phone-splash-close-btn" style="margin-top: 24px; background: #3b82f6; color: #ffffff; border: none; padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 15px rgba(59,130,246,0.4); outline: none; transition: transform 0.2s;">
-                            ${splashBtnText}
-                        </button>
                     `;
+
+                    const contentArea = phoneSplash.querySelector('#phone-splash-content-area');
+                    const closeBtn = phoneSplash.querySelector('#phone-splash-close-btn');
+
+                    if (splashMode === 'marquee') {
+                        // Modo Letreiro Promocional
+                        const textRepeated = `${splashMarqueeText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `.repeat(4);
+                        contentArea.innerHTML = `
+                            <div style="width: 100%; background: rgba(0,0,0,0.3); overflow: hidden; padding: 8px 0; border-top: 1px dashed rgba(255,255,255,0.1); border-bottom: 1px dashed rgba(255,255,255,0.1); box-sizing: border-box;">
+                                <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 0.75rem; font-weight: 800; animation: pb-splash-marquee-lr 8s linear infinite; padding-left: 50%;">
+                                    ${textRepeated}
+                                </div>
+                            </div>
+                        `;
+                        // Mostrar o botão fechar imediatamente no modo letreiro
+                        closeBtn.style.display = 'block';
+
+                    } else if (splashMode === 'roulette') {
+                        // Modo Roleta de Desconto
+                        contentArea.innerHTML = `
+                            <div id="phone-splash-roulette-num" style="font-size: 2.2rem; font-weight: 900; color: #fff; margin: 5px 0; font-family: monospace; letter-spacing: 1px;">
+                                00%
+                            </div>
+                            <div id="phone-splash-roulette-status" style="font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                Sorteando Desconto...
+                            </div>
+                        `;
+
+                        const numEl = phoneSplash.querySelector('#phone-splash-roulette-num');
+                        const statusEl = phoneSplash.querySelector('#phone-splash-roulette-status');
+
+                        // Animação de roleta
+                        window.phoneSplashRouletteInterval = setInterval(() => {
+                            const randNum = Math.floor(Math.random() * 89) + 10;
+                            if (numEl) numEl.textContent = `${randNum}%`;
+                        }, 60);
+
+                        window.phoneSplashRouletteTimeout = setTimeout(() => {
+                            if (window.phoneSplashRouletteInterval) {
+                                clearInterval(window.phoneSplashRouletteInterval);
+                                window.phoneSplashRouletteInterval = null;
+                            }
+                            // Para no desconto real
+                            if (numEl) {
+                                numEl.textContent = `${splashDiscount}% OFF`;
+                                numEl.style.color = splashColor;
+                                numEl.style.animation = 'pb-splash-pulse-scale 0.4s ease-in-out 2';
+                            }
+                            if (statusEl) {
+                                statusEl.textContent = '🎰 Desconto Garantido!';
+                                statusEl.style.color = '#4ade80';
+                            }
+                            
+                            // Mostrar botão de fechamento
+                            closeBtn.style.display = 'block';
+                            closeBtn.style.opacity = '0';
+                            closeBtn.style.transform = 'scale(0.9)';
+                            void closeBtn.offsetHeight;
+                            closeBtn.style.opacity = '1';
+                            closeBtn.style.transform = 'scale(1)';
+                            closeBtn.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                            
+                        }, 1500);
+                    }
 
                     // Evento para fechar
-                    const closeBtn = phoneSplash.querySelector('#phone-splash-close-btn');
                     if (closeBtn) {
                         closeBtn.addEventListener('click', () => {
                             phoneSplash.style.opacity = '0';
@@ -1143,6 +1226,14 @@ function updatePreviewFromForm() {
             } else if (phoneSplash) {
                 phoneSplash.style.display = 'none';
                 window.phoneSplashConfigKey = null;
+                if (window.phoneSplashRouletteInterval) {
+                    clearInterval(window.phoneSplashRouletteInterval);
+                    window.phoneSplashRouletteInterval = null;
+                }
+                if (window.phoneSplashRouletteTimeout) {
+                    clearTimeout(window.phoneSplashRouletteTimeout);
+                    window.phoneSplashRouletteTimeout = null;
+                }
             }
 
             // =========================================================================
@@ -2707,13 +2798,16 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-lc-name3': backup.addonLivechatName3 || 'Vendas e Dúvidas',
                     'input-addon-lc-avatar3': backup.addonLivechatAvatar3 || '',
                     'input-addon-lc-url3': backup.addonLivechatUrl3 || 'https://wa.me/5511999999999',
+                    'select-addon-splash-mode': backup.addonSplashpromoMode || 'roulette',
+                    'input-addon-splash-title': backup.addonSplashpromoTitle || '🎉 PARABÉNS!',
                     'input-addon-splash-text': backup.addonSplashpromoText || '',
-                    'input-addon-splash-bg': backup.addonSplashpromoBg || '#e11d48',
-                    'input-addon-splash-color': backup.addonSplashpromoColor || '#ffffff',
+                    'input-addon-splash-discount': backup.addonSplashpromoDiscount || 20,
+                    'input-addon-splash-marquee-text': backup.addonSplashpromoMarqueeText || '',
+                    'input-addon-splash-bg': backup.addonSplashpromoBg || '#1e293b',
+                    'input-addon-splash-color': backup.addonSplashpromoColor || '#38bdf8',
                     'input-addon-splash-overlay-color': backup.addonSplashpromoOverlayColor || '#090d16',
-                    'input-addon-splash-overlay-opacity': backup.addonSplashpromoOverlayOpacity || 0.8,
-                    'select-addon-splash-speed': backup.addonSplashpromoSpeed || 'normal',
-                    'input-addon-splash-btn-text': backup.addonSplashpromoBtnText || 'Entrar no Site 🚀'
+                    'input-addon-splash-overlay-opacity': backup.addonSplashpromoOverlayOpacity || 0.85,
+                    'input-addon-splash-btn-text': backup.addonSplashpromoBtnText || 'Garantir Desconto & Entrar 🚀'
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2722,6 +2816,15 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 for (const [id, val] of Object.entries(fieldsToRestore)) {
                     const el = document.getElementById(id);
                     if (el) el.value = val;
+                }
+
+                const modeSelect = document.getElementById('select-addon-splash-mode');
+                if (modeSelect) {
+                    modeSelect.value = backup.addonSplashpromoMode || 'roulette';
+                    const marqueeCont = document.getElementById('container-addon-splash-marquee-text');
+                    const discountCont = document.getElementById('container-addon-splash-discount');
+                    if (marqueeCont) marqueeCont.style.display = (modeSelect.value === 'marquee' ? 'block' : 'none');
+                    if (discountCont) discountCont.style.display = (modeSelect.value === 'roulette' ? 'block' : 'none');
                 }
 
                 const effectSelect = document.getElementById('select-addon-tb-effect');
