@@ -7,6 +7,23 @@ export function generateStaticSite(data) {
   const modelType = (data && data.model ? String(data.model).toLowerCase().trim() : 'classic');
   const hasCarouselImages = Boolean(data && (data.carousel1Img || data.carousel2Img || data.carousel3Img));
   const hasHighlightImages = Boolean(data && (data.highlight1Img || data.highlight2Img || data.highlight3Img));
+  const portraitLockHtml = `
+  <!-- Bloqueio de Tela Deitada (Modo Retrato Obrigatório) -->
+  <div id="pb-portrait-lock" style="position: fixed; inset: 0; background: #0c0f1d; z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 20px; font-family: sans-serif;">
+      <div style="font-size: 3rem; margin-bottom: 15px; animation: rotatePhone 2s ease-in-out infinite;">📱</div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 8px 0; color: #4ade80;">Por favor, rotacione o celular</h2>
+      <p style="font-size: 0.85rem; color: #94a3b8; margin: 0;">Este site foi otimizado para ser visualizado em modo retrato (tela em pé).</p>
+  </div>
+  <style>
+  @media (orientation: landscape) and (max-width: 900px) {
+      #pb-portrait-lock { display: flex !important; }
+  }
+  @keyframes rotatePhone {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-90deg); }
+  }
+  </style>
+  `;
 
   const isShop = modelType === 'shop';
   const isEbook = modelType === 'ebook';
@@ -1315,6 +1332,10 @@ export function generateStaticSite(data) {
   const mtxSize = parseInt(data.addonMatrixSize || 14, 10);
   const mtxChars = data.addonMatrixChars || 'matrix';
   const mtxOpacity = parseFloat(data.addonMatrixOpacity || 0.15);
+  const mtxCustomChars = data.addonMatrixCustomChars || '';
+  const mtxTheme = data.addonMatrixTheme || 'custom';
+  const mtxDir = data.addonMatrixDir || 'down';
+  const mtxGlow = Boolean(data.addonMatrixGlow);
 
   let matrixHtml = '';
   if (hasMatrix) {
@@ -1326,18 +1347,37 @@ export function generateStaticSite(data) {
           if (!canvas) return;
           const ctx = canvas.getContext('2d');
           
-          function resize() {
-              canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth;
-              canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight;
-          }
-          resize();
-          window.addEventListener('resize', resize);
-          
           const color = '${mtxColor}';
           const speedSetting = '${mtxSpeed}';
           const fontSize = ${mtxSize};
           const charType = '${mtxChars}';
           const opacity = ${mtxOpacity};
+          const customChars = ${JSON.stringify(mtxCustomChars)};
+          const theme = '${mtxTheme}';
+          const dir = '${mtxDir}';
+          const glow = ${mtxGlow};
+
+          let columns = [];
+
+          function resize() {
+              canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth;
+              canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight;
+
+              const columnsCount = Math.floor(canvas.width / fontSize) + 1;
+              columns = [];
+              for (let x = 0; x < columnsCount; x++) {
+                  columns.push({
+                      x: x,
+                      y: dir === 'up' 
+                          ? (canvas.height / fontSize + Math.random() * 50) 
+                          : (Math.random() * -100),
+                      length: 8 + Math.floor(Math.random() * 12),
+                      speed: (0.4 + Math.random() * 0.8)
+                  });
+              }
+          }
+          resize();
+          window.addEventListener('resize', resize);
 
           function hexToRgb(hex) {
               const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
@@ -1354,6 +1394,8 @@ export function generateStaticSite(data) {
               chars = "01";
           } else if (charType === 'alphabet') {
               chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          } else if (charType === 'custom' && customChars) {
+              chars = customChars;
           }
           const charArray = chars.split("");
 
@@ -1361,39 +1403,67 @@ export function generateStaticSite(data) {
           if (speedSetting === 'slow') speedMult = 0.4;
           if (speedSetting === 'fast') speedMult = 2.2;
 
-          const columnsCount = Math.floor(canvas.width / fontSize) + 1;
-          const columns = [];
-          for (let x = 0; x < columnsCount; x++) {
-              columns.push({
-                  x: x,
-                  y: Math.random() * -100,
-                  length: 8 + Math.floor(Math.random() * 12),
-                  speed: (0.4 + Math.random() * 0.8)
-              });
-          }
-
           function loop() {
               ctx.clearRect(0, 0, canvas.width, canvas.height);
               ctx.font = "bold " + fontSize + "px monospace";
               ctx.textAlign = 'center';
 
               columns.forEach(col => {
-                  col.y += col.speed * speedMult * 0.4;
-                  if (col.y - col.length > canvas.height / fontSize) {
-                      col.y = -col.length;
-                      col.length = 8 + Math.floor(Math.random() * 12);
-                      col.speed = (0.4 + Math.random() * 0.8);
+                  if (dir === 'up') {
+                      col.y -= col.speed * speedMult * 0.4;
+                      if (col.y + col.length < 0) {
+                          col.y = canvas.height / fontSize + col.length;
+                          col.length = 8 + Math.floor(Math.random() * 12);
+                          col.speed = (0.4 + Math.random() * 0.8);
+                      }
+                  } else {
+                      col.y += col.speed * speedMult * 0.4;
+                      if (col.y - col.length > canvas.height / fontSize) {
+                          col.y = -col.length;
+                          col.length = 8 + Math.floor(Math.random() * 12);
+                          col.speed = (0.4 + Math.random() * 0.8);
+                      }
                   }
 
                   for (let i = 0; i < col.length; i++) {
-                      const charY = Math.floor(col.y - i);
+                      const charY = Math.floor(dir === 'up' ? col.y + i : col.y - i);
                       if (charY < 0 || charY * fontSize > canvas.height) continue;
 
                       let alpha = (1 - (i / col.length)) * opacity;
-                      if (i === 0) {
-                          ctx.fillStyle = 'rgba(255, 255, 255, ' + (opacity * 1.5) + ')';
+
+                      if (theme === 'rainbow') {
+                          const hue = (col.x * 20 + charY * 5) % 360;
+                          if (i === 0) {
+                              ctx.fillStyle = 'hsla(' + hue + ', 100%, 80%, ' + (opacity * 1.5) + ')';
+                          } else {
+                              ctx.fillStyle = 'hsla(' + hue + ', 100%, 60%, ' + alpha + ')';
+                          }
+                      } else if (theme === 'fire') {
+                          const hue = Math.max(0, 60 - (i * (60 / col.length)));
+                          if (i === 0) {
+                              ctx.fillStyle = 'hsla(' + hue + ', 100%, 80%, ' + (opacity * 1.5) + ')';
+                          } else {
+                              ctx.fillStyle = 'hsla(' + hue + ', 100%, 50%, ' + alpha + ')';
+                          }
                       } else {
-                          ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + alpha + ')';
+                          if (i === 0) {
+                              ctx.fillStyle = 'rgba(255, 255, 255, ' + (opacity * 1.5) + ')';
+                          } else {
+                              ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + alpha + ')';
+                          }
+                      }
+
+                      if (glow) {
+                          ctx.shadowBlur = 6;
+                          if (theme === 'rainbow') {
+                              ctx.shadowColor = 'hsl(' + ((col.x * 20 + charY * 5) % 360) + ', 100%, 50%)';
+                          } else if (theme === 'fire') {
+                              ctx.shadowColor = '#ff3300';
+                          } else {
+                              ctx.shadowColor = color;
+                          }
+                      } else {
+                          ctx.shadowBlur = 0;
                       }
 
                       const char = charArray[Math.floor(Math.random() * charArray.length)];
@@ -1401,6 +1471,7 @@ export function generateStaticSite(data) {
                   }
               });
 
+              ctx.shadowBlur = 0;
               requestAnimationFrame(loop);
           }
           
@@ -1757,6 +1828,7 @@ export function generateStaticSite(data) {
 ${avatarSpinHtml}
 </head>
 <body>
+  ${portraitLockHtml}
   ${topBannerHtml}
   ${audioPlayerHtml}
   ${liveChatHtml}
@@ -1925,6 +1997,7 @@ ${avatarSpinHtml}
 ${avatarSpinHtml}
 </head>
 <body>
+  ${portraitLockHtml}
   ${topBannerHtml}
   ${audioPlayerHtml}
   ${liveChatHtml}
@@ -2111,6 +2184,7 @@ ${avatarSpinHtml}
 ${avatarSpinHtml}
 </head>
 <body>
+    ${portraitLockHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
@@ -2490,6 +2564,7 @@ ${avatarSpinHtml}
 ${avatarSpinHtml}
 </head>
 <body>
+    ${portraitLockHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
@@ -2702,6 +2777,7 @@ ${avatarSpinHtml}
 ${avatarSpinHtml}
 </head>
 <body>
+    ${portraitLockHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}

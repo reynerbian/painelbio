@@ -627,11 +627,43 @@
                         <option value="matrix" selected>🈂️ Matrix Clássico (Katakana)</option>
                         <option value="binary">🔢 Binário (0 e 1)</option>
                         <option value="alphabet">🔠 Alfabeto (A-Z)</option>
+                        <option value="custom">✍️ Texto Personalizado (Configurado abaixo)</option>
                     </select>
                 </div>
 
-                <!-- Densidade -->
+                <!-- Caracteres Customizados -->
+                <div id="container-addon-mtx-custom-chars" class="form-group" style="margin-bottom: 10px; display: none;">
+                    <label for="input-addon-mtx-custom-chars" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">✍️ Texto Customizado:</label>
+                    <input type="text" id="input-addon-mtx-custom-chars" placeholder="Ex: DIVA123" value="" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Tema de Cores -->
                 <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-mtx-theme" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🌈 Tema de Cores:</label>
+                    <select id="select-addon-mtx-theme" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="custom" selected>🎨 Cor Sólida Personalizada</option>
+                        <option value="rainbow">🌈 Arco-Íris Cibernético</option>
+                        <option value="fire">🔥 Fogo Digital</option>
+                    </select>
+                </div>
+
+                <!-- Direção da Chuva -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-mtx-dir" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⬆️ Direção da Chuva:</label>
+                    <select id="select-addon-mtx-dir" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="down" selected>⬇️ Queda (Para Baixo)</option>
+                        <option value="up">⬆️ Subida (Para Cima)</option>
+                    </select>
+                </div>
+
+                <!-- Efeito Neon Glow -->
+                <div class="form-group" style="margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="input-addon-mtx-glow" style="width: 16px; height: 16px; cursor: pointer;">
+                    <label for="input-addon-mtx-glow" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; cursor: pointer;">🌟 Habilitar Brilho Neon (Glow)</label>
+                </div>
+
+                <!-- Densidade -->
+                <div class="form-group" style="margin-bottom: 0;">
                     <label for="input-addon-mtx-opacity" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">👁️ Opacidade da Chuva (<span id="label-addon-mtx-opacity">0.15</span>):</label>
                     <input type="range" id="input-addon-mtx-opacity" min="0.05" max="0.5" step="0.05" value="0.15" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-mtx-opacity').textContent = this.value">
                 </div>

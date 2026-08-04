@@ -2065,6 +2065,19 @@ loadClassicModel();
                 });
             }
 
+            const selectMtxChars = document.getElementById('select-addon-mtx-chars');
+            const containerMtxCustom = document.getElementById('container-addon-mtx-custom-chars');
+            if (selectMtxChars) {
+                const toggleMtxCustom = () => {
+                    if (containerMtxCustom) containerMtxCustom.style.display = (selectMtxChars.value === 'custom') ? 'block' : 'none';
+                };
+                selectMtxChars.addEventListener('change', () => {
+                    toggleMtxCustom();
+                    updatePreviewFromForm();
+                });
+                toggleMtxCustom();
+            }
+
             // ==========================================
             // ADD-ON 8: CYBERPUNK TEXT GLITCH
             // ==========================================
@@ -2343,6 +2356,10 @@ loadClassicModel();
                         addonMatrixSize: parseInt(document.getElementById('input-addon-mtx-size')?.value || '14', 10),
                         addonMatrixChars: document.getElementById('select-addon-mtx-chars')?.value || 'matrix',
                         addonMatrixOpacity: parseFloat(document.getElementById('input-addon-mtx-opacity')?.value || '0.15'),
+                        addonMatrixCustomChars: document.getElementById('input-addon-mtx-custom-chars')?.value.trim() || '',
+                        addonMatrixTheme: document.getElementById('select-addon-mtx-theme')?.value || 'custom',
+                        addonMatrixDir: document.getElementById('select-addon-mtx-dir')?.value || 'down',
+                        addonMatrixGlow: document.getElementById('input-addon-mtx-glow')?.checked || false,
                         addonGlitchActive: document.getElementById('card-addon-glitch')?.style.display !== 'none',
                         addonGlitchIntensity: document.getElementById('select-addon-glitch-intensity')?.value || 'normal',
                         addonGlitchSpeed: document.getElementById('select-addon-glitch-speed')?.value || 'normal',
