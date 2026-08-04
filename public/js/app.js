@@ -3579,4 +3579,205 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.updateModelCardsPrices === 'function') {
         window.updateModelCardsPrices();
     }
+
+    // Delegacia de Eventos de Clique para Habilitar/Remover Add-ons (Evita race conditions em dispositivos móveis)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button, a');
+        if (!btn || !btn.id) return;
+
+        const id = btn.id;
+
+        // 1. HABILITAR ADD-ONS
+        if (id === 'btn-enable-topbanner-addon') {
+            const card = document.getElementById('card-addon-topbanner');
+            if (card) {
+                card.style.display = 'block';
+                const text1 = document.getElementById('input-addon-tb-text1');
+                if (text1 && !text1.value) text1.value = "🔥 Frete Grátis em compras acima de R$ 199";
+                const text2 = document.getElementById('input-addon-tb-text2');
+                if (text2 && !text2.value) text2.value = "💳 Em até 10x sem juros no cartão";
+                const text3 = document.getElementById('input-addon-tb-text3');
+                if (text3 && !text3.value) text3.value = "🛍️ Cupom 10% OFF: BEMVINDO10";
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-emojirain-addon') {
+            const card = document.getElementById('card-addon-emojirain');
+            if (card) {
+                card.style.display = 'block';
+                const emojiInput = document.getElementById('input-addon-er-emoji');
+                if (emojiInput && !emojiInput.value) emojiInput.value = '🌸';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-avatarspin-addon') {
+            const card = document.getElementById('card-addon-avatarspin');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-audioplayer-addon') {
+            const card = document.getElementById('card-addon-audioplayer');
+            if (card) {
+                card.style.display = 'block';
+                const urlInput = document.getElementById('input-addon-ap-url');
+                if (urlInput && !urlInput.value) {
+                    urlInput.value = 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3';
+                }
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-livechat-addon') {
+            const card = document.getElementById('card-addon-livechat');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-bgdots-addon') {
+            const card = document.getElementById('card-addon-bgdots');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-matrix-addon') {
+            const card = document.getElementById('card-addon-matrix');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-glitch-addon') {
+            const card = document.getElementById('card-addon-glitch');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-aurora-addon') {
+            const card = document.getElementById('card-addon-aurora');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+        else if (id === 'btn-enable-splashpromo-addon') {
+            const card = document.getElementById('card-addon-splashpromo');
+            if (card) {
+                card.style.display = 'block';
+                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                if (contentTabBtn) contentTabBtn.click();
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+            }
+        }
+
+        // 2. REMOVER ADD-ONS
+        else if (id === 'btn-remove-topbanner-addon') {
+            const card = document.getElementById('card-addon-topbanner');
+            if (card) {
+                card.style.display = 'none';
+                const text1 = document.getElementById('input-addon-tb-text1'); if (text1) text1.value = "";
+                const text2 = document.getElementById('input-addon-tb-text2'); if (text2) text2.value = "";
+                const text3 = document.getElementById('input-addon-tb-text3'); if (text3) text3.value = "";
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-emojirain-addon') {
+            const card = document.getElementById('card-addon-emojirain');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-avatarspin-addon') {
+            const card = document.getElementById('card-addon-avatarspin');
+            if (card) {
+                card.style.display = 'none';
+                const liveAvatar = document.getElementById('view-avatar-container') || document.getElementById('v-view-avatar-wrapper');
+                if (liveAvatar) liveAvatar.style.animation = '';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-audioplayer-addon') {
+            const card = document.getElementById('card-addon-audioplayer');
+            if (card) {
+                card.style.display = 'none';
+                const urlInput = document.getElementById('input-addon-ap-url');
+                if (urlInput) urlInput.value = '';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-livechat-addon') {
+            const card = document.getElementById('card-addon-livechat');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-bgdots-addon') {
+            const card = document.getElementById('card-addon-bgdots');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-matrix-addon') {
+            const card = document.getElementById('card-addon-matrix');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-glitch-addon') {
+            const card = document.getElementById('card-addon-glitch');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-aurora-addon') {
+            const card = document.getElementById('card-addon-aurora');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+        else if (id === 'btn-remove-splashpromo-addon') {
+            const card = document.getElementById('card-addon-splashpromo');
+            if (card) {
+                card.style.display = 'none';
+                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
+            }
+        }
+    });
 });
