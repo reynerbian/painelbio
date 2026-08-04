@@ -1,6 +1,11 @@
 // --- PREVIEW MODULE ---
 
 function updatePreviewFromForm() {
+            if (window._pbScrambleIntervals) {
+                window._pbScrambleIntervals.forEach(clearInterval);
+            }
+            window._pbScrambleIntervals = [];
+
             const activeModel = window.currentActiveModel || 'classic';
             updateAddonCatalogButtonStates();
 
@@ -2018,28 +2023,23 @@ function updatePreviewFromForm() {
 
                 // Scramble: armazena id para não duplicar intervalos
                 if (doScramble) {
-                    if (!phoneScreen._pbScrambleActive) {
-                        phoneScreen._pbScrambleActive = true;
-                        const chars = '#$@%&!01?*X';
-                        const interval = glitchSpeed === 'fast' ? 1200 : 3500;
-                        const allGlitch = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
-                        allGlitch.forEach(el => {
-                            const orig = el.innerText;
-                            if (!orig) return;
-                            setInterval(() => {
-                                if (Math.random() < 0.4) {
-                                    el.innerText = orig.split('').map(c => c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]).join('');
-                                    setTimeout(() => { el.innerText = orig; }, 250);
-                                }
-                            }, interval);
-                        });
-                    }
-                } else {
-                    phoneScreen._pbScrambleActive = false;
+                    const chars = '#$@%&!01?*X';
+                    const interval = glitchSpeed === 'fast' ? 1200 : 3500;
+                    const allGlitch = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
+                    allGlitch.forEach(el => {
+                        const orig = el.innerText;
+                        if (!orig) return;
+                        const intervalId = setInterval(() => {
+                            if (Math.random() < 0.4) {
+                                el.innerText = orig.split('').map(c => c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]).join('');
+                                setTimeout(() => { el.innerText = orig; }, 250);
+                            }
+                        }, interval);
+                        window._pbScrambleIntervals.push(intervalId);
+                    });
                 }
 
             } else if (phoneScreen) {
-                phoneScreen._pbScrambleActive = false;
                 const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target, .pb-glitch-border-target');
                 elements.forEach(el => {
                     el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target', 'pb-glitch-border-target');
