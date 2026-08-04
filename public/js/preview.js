@@ -3557,6 +3557,18 @@ function initAuroraEngine(canvas, config) {
     if (speedSetting === 'slow') speedMult = 0.4;
     if (speedSetting === 'fast') speedMult = 2.5;
 
+    // Gerar estrelas estáticas para o fundo (30 estrelas)
+    const stars = [];
+    for (let i = 0; i < 30; i++) {
+        stars.push({
+            x: Math.random(),
+            y: Math.random() * 0.55, // Apenas na metade superior da tela
+            size: Math.random() * 1.5 + 0.5,
+            speed: 0.0008 + Math.random() * 0.0015,
+            phase: Math.random() * Math.PI * 2
+        });
+    }
+
     // Helper to convert hex to rgba
     function hexToRgba(hex, alpha) {
         if (hex.startsWith('#')) {
@@ -3578,74 +3590,144 @@ function initAuroraEngine(canvas, config) {
         return hex;
     }
 
-    // Configurando as cortinas de luz
+    // Helper para misturar cor com branco para criar o núcleo brilhante
+    function mixColorWithWhite(hex) {
+        if (hex.startsWith('#')) {
+            const cleanHex = hex.replace('#', '');
+            let r, g, b;
+            if (cleanHex.length === 3) {
+                r = parseInt(cleanHex[0] + cleanHex[0], 16);
+                g = parseInt(cleanHex[1] + cleanHex[1], 16);
+                b = parseInt(cleanHex[2] + cleanHex[2], 16);
+            } else if (cleanHex.length === 6) {
+                r = parseInt(cleanHex.slice(0, 2), 16);
+                g = parseInt(cleanHex.slice(2, 4), 16);
+                b = parseInt(cleanHex.slice(4, 6), 16);
+            } else {
+                return '#ffffff';
+            }
+            // Mistura 55% branco, 45% cor original
+            r = Math.round(r * 0.45 + 255 * 0.55);
+            g = Math.round(g * 0.45 + 255 * 0.55);
+            b = Math.round(b * 0.45 + 255 * 0.55);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        return '#ffffff';
+    }
+
+    // Cortinas de luz (bands)
     const bands = [
         {
             color: c1,
-            baseY: 0.38,
-            amp: 0.07,
-            freq: 0.004,
-            speed: 0.0008,
+            baseYPercent: 0.35,
+            ampPercent: 0.08,
+            freq: 0.003,
+            speed: 0.0006,
             phase: 0,
             heightPercent: 0.45
         },
         {
             color: c2,
-            baseY: 0.46,
-            amp: 0.05,
-            freq: 0.006,
-            speed: -0.0005,
-            phase: Math.PI / 3,
+            baseYPercent: 0.44,
+            ampPercent: 0.06,
+            freq: 0.005,
+            speed: -0.0004,
+            phase: Math.PI / 2.5,
             heightPercent: 0.4
         },
         {
             color: c1,
-            baseY: 0.42,
-            amp: 0.06,
-            freq: 0.005,
-            speed: 0.0011,
-            phase: Math.PI * 1.2,
+            baseYPercent: 0.39,
+            ampPercent: 0.07,
+            freq: 0.004,
+            speed: 0.0009,
+            phase: Math.PI * 1.3,
             heightPercent: 0.38
         }
     ];
 
     function loop() {
-        // Desenha o fundo escuro com mesclagem normal
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = c3;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Ativa mesclagem 'screen' para somar brilhos onde as ondas se cruzam
-        ctx.globalCompositeOperation = 'screen';
-
         const time = Date.now() * speedMult;
-        const step = 6; // Passo horizontal das linhas verticais (bom compromisso performance/detalhe)
         const width = canvas.width;
         const height = canvas.height;
 
+        // 1. DESENHAR CÉU ESTRELADO (Fundo escuro com degradê vertical)
+        ctx.globalCompositeOperation = 'source-over';
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+        skyGrad.addColorStop(0, '#040409'); // Espaço profundo (quase preto)
+        skyGrad.addColorStop(0.5, '#070918'); // Transição para indigo escuro
+        skyGrad.addColorStop(1, c3); // Cor de base especificada (ex: Slate Dark no Arctic)
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. DESENHAR ESTRELAS CINTILANTES
+        stars.forEach(s => {
+            const starX = s.x * width;
+            const starY = s.y * height;
+            // Cintilação com função senoidal absoluta no tempo
+            const alpha = 0.15 + 0.8 * Math.abs(Math.sin(time * s.speed + s.phase));
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(starX, starY, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // 3. DESENHAR AS CORTINAS DA AURORA BOREAL (Com blending 'screen')
+        ctx.globalCompositeOperation = 'screen';
+
+        const step = 4; // Menor step = mais densidade/definição
+        const timeSec = time * 0.001;
+
         bands.forEach(band => {
-            const bandBaseY = height * band.baseY;
-            const bandAmp = height * band.amp;
+            const bandBaseY = height * band.baseYPercent;
+            const bandAmp = height * band.ampPercent;
             const bandHeight = height * band.heightPercent;
 
-            for (let x = 0; x < width; x += step) {
-                // Soma de duas ondas senoidais para um movimento orgânico e não repetitivo
-                const waveY = bandBaseY + 
-                    Math.sin(x * band.freq + time * band.speed + band.phase) * bandAmp +
-                    Math.cos(x * (band.freq * 1.7) - time * (band.speed * 0.8) + band.phase) * (bandAmp * 0.35);
+            // Fator de respiração se pulsate estiver ativado (varia opacidade global da banda e tamanho)
+            let breatheOpacity = 1.0;
+            let breatheSizeMult = 1.0;
+            if (config.pulsate) {
+                breatheOpacity = 0.5 + 0.5 * Math.sin(timeSec * 0.7 + band.phase); // Ciclo de 0.0 a 1.0
+                breatheSizeMult = 0.85 + 0.15 * Math.cos(timeSec * 0.7 + band.phase); // Varia tamanho em até 15%
+            }
 
-                const startY = waveY - bandHeight / 2;
-                const endY = waveY + bandHeight / 2;
+            const activeAmp = bandAmp * breatheSizeMult;
+            const activeHeight = bandHeight * breatheSizeMult;
+
+            for (let x = 0; x < width; x += step) {
+                // Onda principal + harmônica secundária para ondulação complexa e orgânica
+                const waveY = bandBaseY + 
+                    Math.sin(x * band.freq + timeSec * band.speed + band.phase) * activeAmp +
+                    Math.cos(x * (band.freq * 2.1) - timeSec * (band.speed * 0.8) + band.phase) * (activeAmp * 0.35) +
+                    Math.sin(x * (band.freq * 3.8) + timeSec * 0.4) * (activeAmp * 0.12);
+
+                const startY = waveY - activeHeight / 2;
+                const endY = waveY + activeHeight / 2;
+
+                // Fator de listras verticais (Rays) que deslizam horizontalmente
+                let rayFactor = Math.sin(x * 0.035 + timeSec * 0.45 + band.phase * 1.5) * 
+                                 Math.cos(x * 0.015 - timeSec * 0.22 + band.phase);
+                rayFactor = (rayFactor + 1) / 2; // Normaliza para [0, 1]
+                rayFactor = Math.pow(rayFactor, 2.0); // Deixa os feixes mais nítidos e separados
+
+                const finalAlpha = 0.65 * rayFactor * breatheOpacity;
+
+                if (finalAlpha <= 0.01) continue; // Pula se estiver invisível para economizar desenho
 
                 const grad = ctx.createLinearGradient(x, startY, x, endY);
+                const glowColor = band.color;
+                const coreColor = mixColorWithWhite(band.color);
+
                 grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-                grad.addColorStop(0.25, hexToRgba(band.color, 0.3));
-                grad.addColorStop(0.5, hexToRgba(band.color, 0.7)); // Destaque brilhante no centro da cortina
-                grad.addColorStop(0.75, hexToRgba(band.color, 0.3));
+                grad.addColorStop(0.25, hexToRgba(glowColor, finalAlpha * 0.35));
+                grad.addColorStop(0.48, hexToRgba(glowColor, finalAlpha * 0.85));
+                grad.addColorStop(0.5, hexToRgba(coreColor, finalAlpha * 0.95)); // Núcleo brilhante (pastel/branco)
+                grad.addColorStop(0.52, hexToRgba(glowColor, finalAlpha * 0.85));
+                grad.addColorStop(0.75, hexToRgba(glowColor, finalAlpha * 0.35));
                 grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
                 ctx.strokeStyle = grad;
-                ctx.lineWidth = step + 1; // Evita frestas pretas entre as linhas
+                ctx.lineWidth = step + 1; // Leve sobreposição para junção perfeita
                 ctx.beginPath();
                 ctx.moveTo(x, startY);
                 ctx.lineTo(x, endY);
@@ -3653,9 +3735,9 @@ function initAuroraEngine(canvas, config) {
             }
         });
 
-        if (config.pulsate) {
-            const dynamicBlur = config.blur + Math.sin(Date.now() / 1500) * 15;
-            canvas.style.filter = `blur(${dynamicBlur}px)`;
+        // Mantém o filtro de blur estático no elemento Canvas (sem pulsate de blur via CSS que causa lag)
+        if (canvas.style.filter !== `blur(${config.blur}px)`) {
+            canvas.style.filter = `blur(${config.blur}px)`;
         }
 
         window.phoneAurLoopId = requestAnimationFrame(loop);
