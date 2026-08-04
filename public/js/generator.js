@@ -1645,36 +1645,100 @@ export function generateStaticSite(data) {
           const c3 = '${c3}';
           const speedMult = ${speedMult};
 
-          const blobs = [
-              { x: canvas.width * 0.2, y: canvas.height * 0.2, vx: 0.5, vy: 0.3, radius: canvas.width * 0.6, color: c1 },
-              { x: canvas.width * 0.8, y: canvas.height * 0.4, vx: -0.4, vy: 0.5, radius: canvas.width * 0.7, color: c2 },
-              { x: canvas.width * 0.5, y: canvas.height * 0.8, vx: 0.3, vy: -0.4, radius: canvas.width * 0.8, color: c3 }
+          // Helper to convert hex to rgba
+          function hexToRgba(hex, alpha) {
+              if (hex.startsWith('#')) {
+                  const cleanHex = hex.replace('#', '');
+                  let r, g, b;
+                  if (cleanHex.length === 3) {
+                      r = parseInt(cleanHex[0] + cleanHex[0], 16);
+                      g = parseInt(cleanHex[1] + cleanHex[1], 16);
+                      b = parseInt(cleanHex[2] + cleanHex[2], 16);
+                  } else if (cleanHex.length === 6) {
+                      r = parseInt(cleanHex.slice(0, 2), 16);
+                      g = parseInt(cleanHex.slice(2, 4), 16);
+                      b = parseInt(cleanHex.slice(4, 6), 16);
+                  } else {
+                      r = 0; g = 0; b = 0;
+                  }
+                  return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+              }
+              return hex;
+          }
+
+          // Configurando as cortinas de luz
+          const bands = [
+              {
+                  color: c1,
+                  baseY: 0.38,
+                  amp: 0.07,
+                  freq: 0.004,
+                  speed: 0.0008,
+                  phase: 0,
+                  heightPercent: 0.45
+              },
+              {
+                  color: c2,
+                  baseY: 0.46,
+                  amp: 0.05,
+                  freq: 0.006,
+                  speed: -0.0005,
+                  phase: Math.PI / 3,
+                  heightPercent: 0.4
+              },
+              {
+                  color: c1,
+                  baseY: 0.42,
+                  amp: 0.06,
+                  freq: 0.005,
+                  speed: 0.0011,
+                  phase: Math.PI * 1.2,
+                  heightPercent: 0.38
+              }
           ];
 
           function loop() {
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              // Desenha o fundo escuro com mesclagem normal
+              ctx.globalCompositeOperation = 'source-over';
               ctx.fillStyle = c3;
               ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-              blobs.forEach(b => {
-                  b.x += b.vx * speedMult;
-                  b.y += b.vy * speedMult;
+              // Ativa mesclagem 'screen' para somar brilhos onde as ondas se cruzam
+              ctx.globalCompositeOperation = 'screen';
 
-                  if (b.x - b.radius < -canvas.width * 0.3 || b.x + b.radius > canvas.width * 1.3) {
-                      b.vx *= -1;
-                  }
-                  if (b.y - b.radius < -canvas.height * 0.3 || b.y + b.radius > canvas.height * 1.3) {
-                      b.vy *= -1;
-                  }
+              const time = Date.now() * speedMult;
+              const step = 6; // Passo horizontal das linhas verticais (bom compromisso performance/detalhe)
+              const width = canvas.width;
+              const height = canvas.height;
 
-                  const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius);
-                  grad.addColorStop(0, b.color);
-                  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                  
-                  ctx.fillStyle = grad;
-                  ctx.beginPath();
-                  ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-                  ctx.fill();
+              bands.forEach(band => {
+                  const bandBaseY = height * band.baseY;
+                  const bandAmp = height * band.amp;
+                  const bandHeight = height * band.heightPercent;
+
+                  for (let x = 0; x < width; x += step) {
+                      // Soma de duas ondas senoidais para um movimento orgânico e não repetitivo
+                      const waveY = bandBaseY + 
+                          Math.sin(x * band.freq + time * band.speed + band.phase) * bandAmp +
+                          Math.cos(x * (band.freq * 1.7) - time * (band.speed * 0.8) + band.phase) * (bandAmp * 0.35);
+
+                      const startY = waveY - bandHeight / 2;
+                      const endY = waveY + bandHeight / 2;
+
+                      const grad = ctx.createLinearGradient(x, startY, x, endY);
+                      grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                      grad.addColorStop(0.25, hexToRgba(band.color, 0.3));
+                      grad.addColorStop(0.5, hexToRgba(band.color, 0.7)); // Destaque brilhante no centro da cortina
+                      grad.addColorStop(0.75, hexToRgba(band.color, 0.3));
+                      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                      ctx.strokeStyle = grad;
+                      ctx.lineWidth = step + 1; // Evita frestas pretas entre as linhas
+                      ctx.beginPath();
+                      ctx.moveTo(x, startY);
+                      ctx.lineTo(x, endY);
+                      ctx.stroke();
+                  }
               });
 
               if (${aurPulsate}) {
