@@ -1049,6 +1049,103 @@ function updatePreviewFromForm() {
             }
 
             // =========================================================================
+            // ADD-ON 10: SPLASH PROMO LETREIRO (PREVIEW EM TEMPO REAL)
+            // =========================================================================
+            const cardSplashCheck = document.getElementById('card-addon-splashpromo');
+            const isSplashActive = cardSplashCheck && cardSplashCheck.style.display !== 'none';
+            let phoneSplash = document.getElementById('phone-splash-overlay');
+
+            if (isSplashActive && phoneScreen) {
+                const splashText = document.getElementById('input-addon-splash-text')?.value || '';
+                const splashBg = document.getElementById('input-addon-splash-bg')?.value || '#e11d48';
+                const splashColor = document.getElementById('input-addon-splash-color')?.value || '#ffffff';
+                const splashOverlayColor = document.getElementById('input-addon-splash-overlay-color')?.value || '#090d16';
+                const splashOverlayOpacity = parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.8');
+                const splashSpeed = document.getElementById('select-addon-splash-speed')?.value || 'normal';
+                const splashBtnText = document.getElementById('input-addon-splash-btn-text')?.value || 'Entrar no Site 🚀';
+
+                let speedSec = 8;
+                if (splashSpeed === 'slow') speedSec = 14;
+                if (splashSpeed === 'fast') speedSec = 4;
+
+                const currentConfigKey = `${splashText}_${splashBg}_${splashColor}_${splashOverlayColor}_${splashOverlayOpacity}_${splashSpeed}_${splashBtnText}`;
+                
+                // Conversão de cor do overlay
+                let r = 9, g = 13, b = 22;
+                if (splashOverlayColor.startsWith('#')) {
+                    const hex = splashOverlayColor.replace('#', '');
+                    if (hex.length === 3) {
+                        r = parseInt(hex[0]+hex[0], 16);
+                        g = parseInt(hex[1]+hex[1], 16);
+                        b = parseInt(hex[2]+hex[2], 16);
+                    } else if (hex.length === 6) {
+                        r = parseInt(hex.slice(0,2), 16);
+                        g = parseInt(hex.slice(2,4), 16);
+                        b = parseInt(hex.slice(4,6), 16);
+                    }
+                }
+                const bgRgba = `rgba(${r}, ${g}, ${b}, ${splashOverlayOpacity})`;
+
+                if (!phoneSplash || phoneSplash.parentNode !== phoneScreen) {
+                    if (phoneSplash && phoneSplash.parentNode) {
+                        phoneSplash.parentNode.removeChild(phoneSplash);
+                    }
+                    phoneSplash = document.createElement('div');
+                    phoneSplash.id = 'phone-splash-overlay';
+                    phoneScreen.appendChild(phoneSplash);
+                }
+
+                if (window.phoneSplashConfigKey !== currentConfigKey) {
+                    window.phoneSplashConfigKey = currentConfigKey;
+                    
+                    // Mostrar novamente se a config mudou (para que o editor veja em tempo real)
+                    phoneSplash.style.cssText = `position: absolute; inset: 0; background: ${bgRgba}; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(4px); box-sizing: border-box; transition: opacity 0.3s ease; opacity: 1;`;
+                    
+                    // Injetar estilos de animação local se não existirem
+                    let styleEl = document.getElementById('pb-splash-style');
+                    if (!styleEl) {
+                        styleEl = document.createElement('style');
+                        styleEl.id = 'pb-splash-style';
+                        document.head.appendChild(styleEl);
+                    }
+                    styleEl.textContent = `
+                        @keyframes pb-splash-marquee-lr {
+                            0% { transform: translateX(-50%); }
+                            100% { transform: translateX(0%); }
+                        }
+                    `;
+
+                    // Repetir o texto para o efeito infinito funcionar perfeitamente
+                    const textRepeated = `${splashText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `.repeat(4);
+
+                    phoneSplash.innerHTML = `
+                        <div style="width: 100%; background: ${splashBg}; overflow: hidden; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                            <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 0.85rem; font-weight: 800; animation: pb-splash-marquee-lr ${speedSec}s linear infinite; padding-left: 50%;">
+                                ${textRepeated}
+                            </div>
+                        </div>
+                        <button type="button" id="phone-splash-close-btn" style="margin-top: 24px; background: #3b82f6; color: #ffffff; border: none; padding: 10px 24px; border-radius: 30px; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 15px rgba(59,130,246,0.4); outline: none; transition: transform 0.2s;">
+                            ${splashBtnText}
+                        </button>
+                    `;
+
+                    // Evento para fechar
+                    const closeBtn = phoneSplash.querySelector('#phone-splash-close-btn');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => {
+                            phoneSplash.style.opacity = '0';
+                            setTimeout(() => {
+                                phoneSplash.style.display = 'none';
+                            }, 300);
+                        });
+                    }
+                }
+            } else if (phoneSplash) {
+                phoneSplash.style.display = 'none';
+                window.phoneSplashConfigKey = null;
+            }
+
+            // =========================================================================
             // ADD-ON 8: CYBERPUNK TEXT GLITCH (PREVIEW EM TEMPO REAL)
             // =========================================================================
             const cardGlitchCheck = document.getElementById('card-addon-glitch');
@@ -2609,7 +2706,14 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-lc-url2': backup.addonLivechatUrl2 || 'https://wa.me/5511999999999',
                     'input-addon-lc-name3': backup.addonLivechatName3 || 'Vendas e Dúvidas',
                     'input-addon-lc-avatar3': backup.addonLivechatAvatar3 || '',
-                    'input-addon-lc-url3': backup.addonLivechatUrl3 || 'https://wa.me/5511999999999'
+                    'input-addon-lc-url3': backup.addonLivechatUrl3 || 'https://wa.me/5511999999999',
+                    'input-addon-splash-text': backup.addonSplashpromoText || '',
+                    'input-addon-splash-bg': backup.addonSplashpromoBg || '#e11d48',
+                    'input-addon-splash-color': backup.addonSplashpromoColor || '#ffffff',
+                    'input-addon-splash-overlay-color': backup.addonSplashpromoOverlayColor || '#090d16',
+                    'input-addon-splash-overlay-opacity': backup.addonSplashpromoOverlayOpacity || 0.8,
+                    'select-addon-splash-speed': backup.addonSplashpromoSpeed || 'normal',
+                    'input-addon-splash-btn-text': backup.addonSplashpromoBtnText || 'Entrar no Site 🚀'
                 };
                 const apAutoplayEl = document.getElementById('input-addon-ap-autoplay');
                 if (apAutoplayEl && backup.addonAudioPlayerAutoplay !== undefined) {
@@ -2785,6 +2889,11 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         const cCont = document.getElementById('container-aurora-custom-colors');
                         if (cCont) cCont.style.display = (palVal === 'custom') ? 'flex' : 'none';
                     }
+                }
+
+                if (backup.addonSplashpromoActive) {
+                    const cardSpl = document.getElementById('card-addon-splashpromo');
+                    if (cardSpl) cardSpl.style.display = 'block';
                 }
 
                 const aurBlurEl = document.getElementById('input-addon-aurora-blur');

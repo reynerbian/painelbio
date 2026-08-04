@@ -69,6 +69,7 @@ const DEFAULT_PIX_SETTINGS = {
     avatarSpinPrice: 2.50,
     audioPrice: 2.99,
     chatPrice: 2.99,
+    splashPrice: 3.00,
     whatsappNumber: ''
 };
 
@@ -135,7 +136,8 @@ const ADDON_DEFINITIONS = [
     { slug: 'bgdots',       configKey: 'bgdotsConfig',      priceKey: 'bgdotsPrice',     defaultPrice: 2.50, name: 'Bolinhas no Background' },
     { slug: 'matrix',       configKey: 'matrixConfig',      priceKey: 'matrixPrice',     defaultPrice: 3.00, name: 'Matrix Code Rain' },
     { slug: 'glitch',       configKey: 'glitchConfig',      priceKey: 'glitchPrice',     defaultPrice: 2.50, name: 'Cyberpunk Text Glitch' },
-    { slug: 'aurora',       configKey: 'auroraConfig',      priceKey: 'auroraPrice',     defaultPrice: 3.50, name: 'Aurora Boreal Fluida' }
+    { slug: 'aurora',       configKey: 'auroraConfig',      priceKey: 'auroraPrice',     defaultPrice: 3.50, name: 'Aurora Boreal Fluida' },
+    { slug: 'splashpromo',  configKey: 'splashpromoConfig', priceKey: 'splashPrice',     defaultPrice: 3.00, name: 'Splash Promo Letreiro' }
 ];
 
 /**

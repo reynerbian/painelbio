@@ -816,3 +816,56 @@
                     </label>
                 </div>
             </div>
+
+            <!-- Card Add-on 10: Splash Promo Letreiro -->
+            <div id="card-addon-splashpromo" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-splashpromo-addon" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; line-height: 1;" title="Remover Add-on">&times;</button>
+                <h3 style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;">📢 Splash Marquee Promocional</h3>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Banner promocional em tela cheia que impede o toque até que o usuário clique em fechar.</p>
+                
+                <!-- Texto do Letreiro -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-splash-text" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📝 Texto do Letreiro:</label>
+                    <input type="text" id="input-addon-splash-text" value="🔥 IMPERDÍVEL! GANHE 20% DE DESCONTO EM TODO O SITE! USE O CUPOM: PROMO20 🔥" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Cores -->
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label for="input-addon-splash-bg" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">🎨 Fundo da Faixa:</label>
+                        <input type="color" id="input-addon-splash-bg" value="#e11d48" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="input-addon-splash-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">🔤 Cor do Texto:</label>
+                        <input type="color" id="input-addon-splash-color" value="#ffffff" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Cor do Overlay e Opacidade -->
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label for="input-addon-splash-overlay-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">🖤 Fundo Tela:</label>
+                        <input type="color" id="input-addon-splash-overlay-color" value="#090d16" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="input-addon-splash-overlay-opacity" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">🌓 Opacidade (0.1 - 1):</label>
+                        <input type="number" id="input-addon-splash-overlay-opacity" min="0.1" max="1" step="0.1" value="0.8" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <!-- Velocidade do Letreiro -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-splash-speed" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⚡ Velocidade:</label>
+                    <select id="select-addon-splash-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer;">
+                        <option value="slow">Lento</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="fast">Rápido</option>
+                    </select>
+                </div>
+
+                <!-- Texto do Botão Fechar -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-splash-btn-text" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🔘 Texto do Botão:</label>
+                    <input type="text" id="input-addon-splash-btn-text" value="Entrar no Site 🚀" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+            </div>

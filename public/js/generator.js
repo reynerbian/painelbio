@@ -1831,6 +1831,75 @@ export function generateStaticSite(data) {
       `;
   }
 
+  // ADD-ON 10: SPLASH PROMO LETREIRO
+  const hasSplash = Boolean(data.addonSplashpromoActive);
+  let splashpromoHtml = '';
+  if (hasSplash) {
+      const splashText = data.addonSplashpromoText || '';
+      const splashBg = data.addonSplashpromoBg || '#e11d48';
+      const splashColor = data.addonSplashpromoColor || '#ffffff';
+      const splashOverlayColor = data.addonSplashpromoOverlayColor || '#090d16';
+      const splashOverlayOpacity = parseFloat(data.addonSplashpromoOverlayOpacity !== undefined ? data.addonSplashpromoOverlayOpacity : 0.8);
+      const splashSpeed = data.addonSplashpromoSpeed || 'normal';
+      const splashBtnText = data.addonSplashpromoBtnText || 'Entrar no Site 🚀';
+
+      let speedSec = 8;
+      if (splashSpeed === 'slow') speedSec = 14;
+      if (splashSpeed === 'fast') speedSec = 4;
+
+      // Conversão de cor do overlay para RGBA
+      let r = 9, g = 13, b = 22;
+      if (splashOverlayColor.startsWith('#')) {
+          const hex = splashOverlayColor.replace('#', '');
+          if (hex.length === 3) {
+              r = parseInt(hex[0]+hex[0], 16);
+              g = parseInt(hex[1]+hex[1], 16);
+              b = parseInt(hex[2]+hex[2], 16);
+          } else if (hex.length === 6) {
+              r = parseInt(hex.slice(0,2), 16);
+              g = parseInt(hex.slice(2,4), 16);
+              b = parseInt(hex.slice(4,6), 16);
+          }
+      }
+      const bgRgba = 'rgba(' + r + ',' + g + ',' + b + ',' + splashOverlayOpacity + ')';
+
+      // Repetir o texto para garantir looping infinito
+      const textRepeated = (splashText + '      ').repeat(4);
+
+      splashpromoHtml = `
+      <div id="pb-splash-promo-overlay" style="position: fixed; inset: 0; background: ${bgRgba}; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-sizing: border-box; transition: opacity 0.4s ease; opacity: 1;">
+          <style>
+              @keyframes pb-static-splash-marquee-lr {
+                  0% { transform: translateX(-50%); }
+                  100% { transform: translateX(0%); }
+              }
+          </style>
+          <div style="width: 100%; background: ${splashBg}; overflow: hidden; padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+              <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 1.05rem; font-weight: 800; animation: pb-static-splash-marquee-lr ${speedSec}s linear infinite; padding-left: 50%;">
+                  ${textRepeated}
+              </div>
+          </div>
+          <button type="button" id="pb-splash-promo-close-btn" style="margin-top: 32px; background: #3b82f6; color: #ffffff; border: none; padding: 12px 32px; border-radius: 30px; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 20px rgba(59,130,246,0.5); outline: none; transition: transform 0.2s, background 0.2s;">
+              ${splashBtnText}
+          </button>
+      </div>
+      <script>
+          (function() {
+              var overlay = document.getElementById('pb-splash-promo-overlay');
+              var btn = document.getElementById('pb-splash-promo-close-btn');
+              if (!overlay || !btn) return;
+              btn.addEventListener('click', function() {
+                  overlay.style.opacity = '0';
+                  setTimeout(function() {
+                      overlay.style.display = 'none';
+                      overlay.parentNode.removeChild(overlay);
+                  }, 400);
+              });
+          })();
+      </script>
+      `;
+  }
+
   // ==========================================
   // MODELO 4: SHOP (Catálogo de Produtos em Carrossel)
   // ==========================================
@@ -2014,6 +2083,7 @@ ${avatarSpinHtml}
   ${topBannerHtml}
   ${audioPlayerHtml}
   ${liveChatHtml}
+  ${splashpromoHtml}
   <div class="s-container">
     ${emojiRainHtml}
     ${bgdotsHtml}
@@ -2183,6 +2253,7 @@ ${avatarSpinHtml}
   ${topBannerHtml}
   ${audioPlayerHtml}
   ${liveChatHtml}
+  ${splashpromoHtml}
   <div class="c-fullscreen-page">
       ${emojiRainHtml}
       ${bgdotsHtml}
@@ -2370,6 +2441,7 @@ ${avatarSpinHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
+    ${splashpromoHtml}
     <div class="v-container">
         ${emojiRainHtml}
         ${bgdotsHtml}
@@ -2750,6 +2822,7 @@ ${avatarSpinHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
+    ${splashpromoHtml}
     <div class="eb-page">
         ${emojiRainHtml}
         ${bgdotsHtml}
@@ -2963,6 +3036,7 @@ ${avatarSpinHtml}
     ${topBannerHtml}
     ${audioPlayerHtml}
     ${liveChatHtml}
+    ${splashpromoHtml}
     
     <!-- Elementos de fundo posicionados de forma absoluta no body (fora do scroll) -->
     ${emojiRainHtml}

@@ -2149,6 +2149,32 @@ loadClassicModel();
                 });
             }
 
+            // ==========================================
+            // ADD-ON 10: SPLASH PROMO LETREIRO
+            // ==========================================
+            const btnEnableSplash = document.getElementById('btn-enable-splashpromo-addon');
+            const cardSplashInspector = document.getElementById('card-addon-splashpromo');
+            const btnRemoveSplash = document.getElementById('btn-remove-splashpromo-addon');
+
+            if (btnEnableSplash && cardSplashInspector) {
+                btnEnableSplash.addEventListener('click', () => {
+                    cardSplashInspector.style.display = 'block';
+                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
+                    if (contentTabBtn) contentTabBtn.click();
+                    updatePreviewFromForm();
+                    setTimeout(() => {
+                        cardSplashInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                });
+            }
+
+            if (btnRemoveSplash && cardSplashInspector) {
+                btnRemoveSplash.addEventListener('click', () => {
+                    cardSplashInspector.style.display = 'none';
+                    updatePreviewFromForm();
+                });
+            }
+
             // Botões rápidos de faixas de exemplo
             document.querySelectorAll('.ap-demo-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -2394,6 +2420,14 @@ loadClassicModel();
                         addonAuroraSpeed: document.getElementById('select-addon-aurora-speed')?.value || 'normal',
                         addonAuroraBlur: parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10),
                         addonAuroraPulsate: document.getElementById('input-addon-aurora-pulsate')?.checked || false,
+                        addonSplashpromoActive: document.getElementById('card-addon-splashpromo')?.style.display !== 'none',
+                        addonSplashpromoText: document.getElementById('input-addon-splash-text')?.value || '',
+                        addonSplashpromoBg: document.getElementById('input-addon-splash-bg')?.value || '#e11d48',
+                        addonSplashpromoColor: document.getElementById('input-addon-splash-color')?.value || '#ffffff',
+                        addonSplashpromoOverlayColor: document.getElementById('input-addon-splash-overlay-color')?.value || '#090d16',
+                        addonSplashpromoOverlayOpacity: parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.8'),
+                        addonSplashpromoSpeed: document.getElementById('select-addon-splash-speed')?.value || 'normal',
+                        addonSplashpromoBtnText: document.getElementById('input-addon-splash-btn-text')?.value || 'Entrar no Site 🚀',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
@@ -2421,7 +2455,8 @@ loadClassicModel();
                         bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },
                         matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' },
                         glitchConfig: { enabled: document.getElementById('card-addon-glitch')?.style.display !== 'none' },
-                        auroraConfig: { enabled: document.getElementById('card-addon-aurora')?.style.display !== 'none' }
+                        auroraConfig: { enabled: document.getElementById('card-addon-aurora')?.style.display !== 'none' },
+                        splashpromoConfig: { enabled: document.getElementById('card-addon-splashpromo')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');
