@@ -1753,7 +1753,7 @@ export function generateStaticSite(data) {
                   const starX = s.x * width;
                   const starY = s.y * height;
                   // Cintilação com função senoidal absoluta no tempo
-                  const alpha = 0.15 + 0.8 * Math.abs(Math.sin(time * s.speed + s.phase));
+                  const alpha = 0.15 + 0.8 * Math.abs(Math.sin(timeMs * s.speed + s.phase));
                   ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
                   ctx.beginPath();
                   ctx.arc(starX, starY, s.size, 0, Math.PI * 2);
@@ -1764,7 +1764,6 @@ export function generateStaticSite(data) {
               ctx.globalCompositeOperation = 'screen';
 
               const step = 4; // Menor step = mais densidade/definição
-              const timeSec = time * 0.001;
 
               bands.forEach(band => {
                   const bandBaseY = height * band.baseYPercent;
@@ -1775,8 +1774,8 @@ export function generateStaticSite(data) {
                   let breatheOpacity = 1.0;
                   let breatheSizeMult = 1.0;
                   if (${aurPulsate}) {
-                      breatheOpacity = 0.5 + 0.5 * Math.sin(timeSec * 0.7 + band.phase); // Ciclo de 0.0 a 1.0
-                      breatheSizeMult = 0.85 + 0.15 * Math.cos(timeSec * 0.7 + band.phase); // Varia tamanho em até 15%
+                      breatheOpacity = 0.55 + 0.45 * Math.sin(localTimeSec * 2.2 + band.phase); // Ciclo mais perceptível (~2.8s)
+                      breatheSizeMult = 0.8 + 0.2 * Math.cos(localTimeSec * 2.2 + band.phase); // Varia tamanho em até 20%
                   }
 
                   const activeAmp = bandAmp * breatheSizeMult;
@@ -1785,16 +1784,16 @@ export function generateStaticSite(data) {
                   for (let x = 0; x < width; x += step) {
                       // Onda principal + harmônica secundária para ondulação complexa e orgânica
                       const waveY = bandBaseY + 
-                          Math.sin(x * band.freq + timeSec * band.speed + band.phase) * activeAmp +
-                          Math.cos(x * (band.freq * 2.1) - timeSec * (band.speed * 0.8) + band.phase) * (activeAmp * 0.35) +
-                          Math.sin(x * (band.freq * 3.8) + timeSec * 0.4) * (activeAmp * 0.12);
+                          Math.sin(x * band.freq + localTimeSec * band.speed + band.phase) * activeAmp +
+                          Math.cos(x * (band.freq * 2.1) - localTimeSec * (band.speed * 0.8) + band.phase) * (activeAmp * 0.35) +
+                          Math.sin(x * (band.freq * 3.8) + localTimeSec * 0.4) * (activeAmp * 0.12);
 
                       const startY = waveY - activeHeight / 2;
                       const endY = waveY + activeHeight / 2;
 
                       // Fator de listras verticais (Rays) que deslizam horizontalmente
-                      let rayFactor = Math.sin(x * 0.035 + timeSec * 0.45 + band.phase * 1.5) * 
-                                       Math.cos(x * 0.015 - timeSec * 0.22 + band.phase);
+                      let rayFactor = Math.sin(x * 0.035 + localTimeSec * 0.45 + band.phase * 1.5) * 
+                                       Math.cos(x * 0.015 - localTimeSec * 0.22 + band.phase);
                       rayFactor = (rayFactor + 1) / 2; // Normaliza para [0, 1]
                       rayFactor = Math.pow(rayFactor, 2.0); // Deixa os feixes mais nítidos e separados
 
