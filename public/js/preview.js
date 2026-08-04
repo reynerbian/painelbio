@@ -2525,6 +2525,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'select-addon-mtx-dir': backup.addonMatrixDir || 'down',
                     'select-addon-glitch-intensity': backup.addonGlitchIntensity || 'normal',
                     'select-addon-glitch-speed': backup.addonGlitchSpeed || 'normal',
+                    'select-addon-glitch-palette': backup.addonGlitchPalette || 'cyberpunk',
+                    'input-addon-glitch-c1': backup.addonGlitchC1 || '#ff0055',
+                    'input-addon-glitch-c2': backup.addonGlitchC2 || '#00ffaa',
+                    'select-addon-glitch-duration': backup.addonGlitchDuration || 'short',
                     'select-addon-aurora-palette': backup.addonAuroraPalette || 'arctic',
                     'input-addon-aurora-c1': backup.addonAuroraC1 || '#00f2fe',
                     'input-addon-aurora-c2': backup.addonAuroraC2 || '#4facfe',
@@ -2669,7 +2673,28 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
 
                 if (backup.addonGlitchActive) {
                     const cardGlt = document.getElementById('card-addon-glitch');
-                    if (cardGlt) cardGlt.style.display = 'block';
+                    if (cardGlt) {
+                        cardGlt.style.display = 'block';
+                        const selectGlitchPalette = document.getElementById('select-addon-glitch-palette');
+                        const containerGlitchCustom = document.getElementById('container-addon-glitch-custom-colors');
+                        if (selectGlitchPalette) {
+                            const val = backup.addonGlitchPalette || 'cyberpunk';
+                            selectGlitchPalette.value = val;
+                            if (containerGlitchCustom) containerGlitchCustom.style.display = (val === 'custom') ? 'flex' : 'none';
+                        }
+                        const elName = document.getElementById('input-addon-glitch-name');
+                        if (elName && backup.addonGlitchName !== undefined) elName.checked = Boolean(backup.addonGlitchName);
+                        const elBtns = document.getElementById('input-addon-glitch-buttons');
+                        if (elBtns && backup.addonGlitchButtons !== undefined) elBtns.checked = Boolean(backup.addonGlitchButtons);
+                        const elScramble = document.getElementById('input-addon-glitch-scramble');
+                        if (elScramble && backup.addonGlitchScramble !== undefined) elScramble.checked = Boolean(backup.addonGlitchScramble);
+                        const elBorder = document.getElementById('input-addon-glitch-border');
+                        if (elBorder && backup.addonGlitchBorder !== undefined) elBorder.checked = Boolean(backup.addonGlitchBorder);
+                        const elFlash = document.getElementById('input-addon-glitch-flash');
+                        if (elFlash && backup.addonGlitchFlash !== undefined) elFlash.checked = Boolean(backup.addonGlitchFlash);
+                        const elWave = document.getElementById('input-addon-glitch-wave');
+                        if (elWave && backup.addonGlitchWave !== undefined) elWave.checked = Boolean(backup.addonGlitchWave);
+                    }
                 }
                 if (backup.addonLivechatActive) {
                     const cardLc = document.getElementById('card-addon-livechat');

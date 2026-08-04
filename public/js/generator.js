@@ -1487,6 +1487,14 @@ export function generateStaticSite(data) {
   const glitchSpeed = data.addonGlitchSpeed || 'normal';
   const glitchName = Boolean(data.addonGlitchName !== undefined ? data.addonGlitchName : true);
   const glitchButtons = Boolean(data.addonGlitchButtons !== undefined ? data.addonGlitchButtons : true);
+  const glitchPalette = data.addonGlitchPalette || 'cyberpunk';
+  const glitchC1Raw = data.addonGlitchC1 || '#ff0055';
+  const glitchC2Raw = data.addonGlitchC2 || '#00ffaa';
+  const glitchDuration = data.addonGlitchDuration || 'short';
+  const glitchScramble = Boolean(data.addonGlitchScramble);
+  const glitchBorder = Boolean(data.addonGlitchBorder);
+  const glitchFlash = Boolean(data.addonGlitchFlash);
+  const glitchWave = Boolean(data.addonGlitchWave);
 
   let glitchHtml = '';
   if (hasGlitch) {
@@ -1495,49 +1503,83 @@ export function generateStaticSite(data) {
       if (glitchIntensity === 'low') { dist = 1; scale = 0.5; }
       if (glitchIntensity === 'high') { dist = 4; scale = 2; }
 
+      let gc1 = '#ff0055';
+      let gc2 = '#00ffaa';
+      if (glitchPalette === 'matrix') { gc1 = '#00ff00'; gc2 = '#ffffff'; }
+      else if (glitchPalette === 'vhs') { gc1 = '#ff0000'; gc2 = '#0066ff'; }
+      else if (glitchPalette === 'gold') { gc1 = '#ffcc00'; gc2 = '#9900ff'; }
+      else if (glitchPalette === 'custom') { gc1 = glitchC1Raw; gc2 = glitchC2Raw; }
+
+      const flashFilter82 = glitchFlash ? 'filter: drop-shadow(0 0 10px ' + gc1 + ');' : '';
+      const flashFilterOff = glitchFlash ? 'filter: none;' : '';
+      const animDur = glitchSpeed === 'fast' ? (glitchDuration === 'long' ? '1s' : '0.4s') : (glitchDuration === 'long' ? '6s' : '4s');
+
       glitchHtml = `
       <style>
-          @keyframes pb-glitch-normal {
-              0%, 80%, 100% { text-shadow: none; transform: none; }
-              82% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-2deg); }
-              84% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
-              86% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist}px 0 #00ffaa; transform: translate(0px, 0px) skew(-1deg); }
-              88%, 98% { text-shadow: none; transform: none; }
+          @keyframes pb-glitch-anim {
+              0%, 80%, 100% { text-shadow: none; transform: none; ${flashFilterOff} }
+              82% { text-shadow: ${dist}px -${dist/2}px 0 ${gc1}, -${dist}px ${dist/2}px 0 ${gc2}; transform: translate(${scale}px, -${scale}px) skew(-2deg); ${flashFilter82} }
+              84% { text-shadow: -${dist}px ${dist}px 0 ${gc1}, ${dist}px -${dist}px 0 ${gc2}; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
+              86% { text-shadow: ${dist/2}px -${dist}px 0 ${gc1}, -${dist/2}px ${dist/2}px 0 ${gc2}; transform: translate(0px, 0px) skew(-1deg); }
+              88%, 98% { text-shadow: none; transform: none; ${flashFilterOff} }
           }
-          @keyframes pb-glitch-slow {
-              0%, 90%, 100% { text-shadow: none; transform: none; }
-              92% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale}px) skew(-1deg); }
-              94% { text-shadow: -${dist}px ${dist}px 0 #ff0055, ${dist}px -${dist}px 0 #00ffaa; transform: translate(-${scale}px, ${scale}px) skew(2deg); }
-              96%, 98% { text-shadow: none; transform: none; }
-          }
-          @keyframes pb-glitch-fast {
-              0%, 100% { text-shadow: ${dist/2}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale/2}px); }
-              20% { text-shadow: -${dist}px ${dist/2}px 0 #ff0055, ${dist}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale}px, ${scale/2}px) skew(-1deg); }
-              40% { text-shadow: ${dist/2}px -${dist}px 0 #ff0055, -${dist/2}px ${dist}px 0 #00ffaa; transform: translate(${scale/2}px, -${scale}px) skew(2deg); }
-              60% { text-shadow: -${dist/2}px ${dist}px 0 #ff0055, ${dist/2}px -${dist/2}px 0 #00ffaa; transform: translate(-${scale/2}px, ${scale/2}px); }
-              80% { text-shadow: ${dist}px -${dist/2}px 0 #ff0055, -${dist/2}px ${dist/2}px 0 #00ffaa; transform: translate(${scale}px, -${scale/2}px) skew(-2deg); }
+
+          @keyframes pb-glitch-border-anim {
+              0%, 80%, 100% { border-color: rgba(255,255,255,0.2); box-shadow: none; }
+              82% { border-color: ${gc1}; box-shadow: 0 0 12px ${gc1}, -2px 0 0 ${gc2}; }
+              84% { border-color: ${gc2}; box-shadow: 0 0 12px ${gc2}, 2px 0 0 ${gc1}; }
+              88%, 98% { border-color: rgba(255,255,255,0.2); box-shadow: none; }
           }
           
           .pb-glitch-name-target {
-              animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+              animation: pb-glitch-anim ${animDur} infinite !important;
           }
           .pb-glitch-btn-target {
-              animation: pb-glitch-${glitchSpeed} ${glitchSpeed === 'fast' ? '0.5s' : '4s'} infinite !important;
+              animation: pb-glitch-anim ${animDur} infinite !important;
+          }
+          .pb-glitch-border-target {
+              animation: pb-glitch-border-anim ${animDur} infinite !important;
           }
       </style>
       <script>
       (function() {
           document.addEventListener('DOMContentLoaded', function() {
-              const glitchName = ${glitchName};
-              const glitchButtons = ${glitchButtons};
+              const doName = ${glitchName};
+              const doButtons = ${glitchButtons};
+              const doBorder = ${glitchBorder};
+              const doWave = ${glitchWave};
+              const doScramble = ${glitchScramble};
               
-              if (glitchName) {
+              if (doName) {
                   const names = document.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name, .s-name, .v-name');
                   names.forEach(n => n.classList.add('pb-glitch-name-target'));
               }
-              if (glitchButtons) {
+              if (doButtons) {
                   const btns = document.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn, .btn, a.link-btn');
-                  btns.forEach(b => b.classList.add('pb-glitch-btn-target'));
+                  btns.forEach((b, idx) => {
+                      b.classList.add('pb-glitch-btn-target');
+                      if (doBorder) b.classList.add('pb-glitch-border-target');
+                      if (doWave) b.style.animationDelay = (idx * 0.25) + 's';
+                  });
+              }
+
+              if (doScramble) {
+                  const glitchElements = document.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
+                  const chars = '#$@%&!01?#*!X';
+                  glitchElements.forEach(el => {
+                      const origText = el.innerText;
+                      if (!origText || origText.length === 0) return;
+                      
+                      setInterval(function() {
+                          if (Math.random() < 0.4) {
+                              let scrambled = origText.split('').map(c => (c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)])).join('');
+                              el.innerText = scrambled;
+                              setTimeout(function() {
+                                  el.innerText = origText;
+                              }, 250);
+                          }
+                      }, ${glitchSpeed === 'fast' ? 1200 : 3500});
+                  });
               }
           });
       })();

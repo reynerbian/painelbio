@@ -2107,6 +2107,19 @@ loadClassicModel();
                 });
             }
 
+            const selectGlitchPalette = document.getElementById('select-addon-glitch-palette');
+            const containerGlitchCustom = document.getElementById('container-addon-glitch-custom-colors');
+            if (selectGlitchPalette) {
+                const toggleGlitchCustom = () => {
+                    if (containerGlitchCustom) containerGlitchCustom.style.display = (selectGlitchPalette.value === 'custom') ? 'flex' : 'none';
+                };
+                selectGlitchPalette.addEventListener('change', () => {
+                    toggleGlitchCustom();
+                    updatePreviewFromForm();
+                });
+                toggleGlitchCustom();
+            }
+
             // ==========================================
             // ADD-ON 9: AURORA BOREAL FLUIDA
             // ==========================================
@@ -2365,6 +2378,14 @@ loadClassicModel();
                         addonGlitchSpeed: document.getElementById('select-addon-glitch-speed')?.value || 'normal',
                         addonGlitchName: document.getElementById('input-addon-glitch-name')?.checked || false,
                         addonGlitchButtons: document.getElementById('input-addon-glitch-buttons')?.checked || false,
+                        addonGlitchPalette: document.getElementById('select-addon-glitch-palette')?.value || 'cyberpunk',
+                        addonGlitchC1: document.getElementById('input-addon-glitch-c1')?.value || '#ff0055',
+                        addonGlitchC2: document.getElementById('input-addon-glitch-c2')?.value || '#00ffaa',
+                        addonGlitchDuration: document.getElementById('select-addon-glitch-duration')?.value || 'short',
+                        addonGlitchScramble: document.getElementById('input-addon-glitch-scramble')?.checked || false,
+                        addonGlitchBorder: document.getElementById('input-addon-glitch-border')?.checked || false,
+                        addonGlitchFlash: document.getElementById('input-addon-glitch-flash')?.checked || false,
+                        addonGlitchWave: document.getElementById('input-addon-glitch-wave')?.checked || false,
                         addonAuroraActive: document.getElementById('card-addon-aurora')?.style.display !== 'none',
                         addonAuroraPalette: document.getElementById('select-addon-aurora-palette')?.value || 'arctic',
                         addonAuroraC1: document.getElementById('input-addon-aurora-c1')?.value || '#00f2fe',

@@ -696,13 +696,58 @@
                     </select>
                 </div>
 
-                <!-- Áreas Aplicadas -->
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                <!-- Duração do Surto -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-glitch-duration" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎚️ Duração do Surto:</label>
+                    <select id="select-addon-glitch-duration" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f43f5e; border: 1px solid #334155; cursor: pointer;">
+                        <option value="short" selected>⚡ Estalo Rápido (0.2s)</option>
+                        <option value="long">🌊 Surto Intenso (1.0s)</option>
+                    </select>
+                </div>
+
+                <!-- Paleta de Cores do Glitch -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-glitch-palette" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Paleta de Cores do Glitch:</label>
+                    <select id="select-addon-glitch-palette" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f43f5e; border: 1px solid #334155; cursor: pointer;">
+                        <option value="cyberpunk" selected>💖/💙 Cyberpunk Neon (Magenta + Ciano)</option>
+                        <option value="matrix">💚/🤍 Matrix Hacker (Verde Neon + Branco)</option>
+                        <option value="vhs">🔴/🔵 Retro VHS (Vermelho + Azul)</option>
+                        <option value="gold">🟡/💜 Purple & Gold (Amarelo + Roxo)</option>
+                        <option value="custom">🎨 Cores Personalizadas</option>
+                    </select>
+                </div>
+
+                <!-- Cores Customizadas -->
+                <div id="container-addon-glitch-custom-colors" style="display: none; gap: 8px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label for="input-addon-glitch-c1" style="font-size: 0.72rem; color: #cbd5e1;">Cor 1:</label>
+                        <input type="color" id="input-addon-glitch-c1" value="#ff0055" style="width: 100%; height: 32px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="input-addon-glitch-c2" style="font-size: 0.72rem; color: #cbd5e1;">Cor 2:</label>
+                        <input type="color" id="input-addon-glitch-c2" value="#00ffaa" style="width: 100%; height: 32px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Áreas Aplicadas & Recursos Extras -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
                     <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
                         <input type="checkbox" id="input-addon-glitch-name" checked style="cursor: pointer;"> Aplicar no Nome do Perfil
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
                         <input type="checkbox" id="input-addon-glitch-buttons" checked style="cursor: pointer;"> Aplicar nos Botões de Links
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #f43f5e; font-weight: 700; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-scramble" style="cursor: pointer;"> 🔣 Embaralhar Letras (Hacker Swap)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-border" style="cursor: pointer;"> 🔲 Glitch na Borda do Botão
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-flash" style="cursor: pointer;"> ⚡ Flash Neon de Estática
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-wave" style="cursor: pointer;"> 🌊 Efeito Onda em Cascata nos Botões
                     </label>
                 </div>
             </div>
