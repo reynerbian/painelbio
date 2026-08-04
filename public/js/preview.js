@@ -1060,14 +1060,15 @@ function updatePreviewFromForm() {
                 const splashTitle = document.getElementById('input-addon-splash-title')?.value || '🎉 PARABÉNS!';
                 const splashText = document.getElementById('input-addon-splash-text')?.value || '';
                 const splashDiscount = parseInt(document.getElementById('input-addon-splash-discount')?.value || '20', 10);
-                const splashMarqueeText = document.getElementById('input-addon-splash-marquee-text')?.value || '';
+                const splashCoupon = document.getElementById('input-addon-splash-coupon')?.value || 'BIO20';
+                const splashCountdownTime = parseInt(document.getElementById('input-addon-splash-countdown-time')?.value || '10', 10);
                 const splashBg = document.getElementById('input-addon-splash-bg')?.value || '#1e293b';
                 const splashColor = document.getElementById('input-addon-splash-color')?.value || '#38bdf8';
                 const splashOverlayColor = document.getElementById('input-addon-splash-overlay-color')?.value || '#090d16';
                 const splashOverlayOpacity = parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.85');
                 const splashBtnText = document.getElementById('input-addon-splash-btn-text')?.value || 'Garantir Desconto & Entrar 🚀';
 
-                const currentConfigKey = `${splashMode}_${splashTitle}_${splashText}_${splashDiscount}_${splashMarqueeText}_${splashBg}_${splashColor}_${splashOverlayColor}_${splashOverlayOpacity}_${splashBtnText}`;
+                const currentConfigKey = `${splashMode}_${splashTitle}_${splashText}_${splashDiscount}_${splashCoupon}_${splashCountdownTime}_${splashBg}_${splashColor}_${splashOverlayColor}_${splashOverlayOpacity}_${splashBtnText}`;
                 
                 // Conversão de cor do overlay
                 let r = 9, g = 13, b = 22;
@@ -1097,15 +1098,13 @@ function updatePreviewFromForm() {
                 if (window.phoneSplashConfigKey !== currentConfigKey) {
                     window.phoneSplashConfigKey = currentConfigKey;
                     
-                    // Cancelar qualquer roleta anterior
-                    if (window.phoneSplashRouletteInterval) {
-                        clearInterval(window.phoneSplashRouletteInterval);
-                        window.phoneSplashRouletteInterval = null;
-                    }
-                    if (window.phoneSplashRouletteTimeout) {
-                        clearTimeout(window.phoneSplashRouletteTimeout);
-                        window.phoneSplashRouletteTimeout = null;
-                    }
+                    // Cancelar qualquer processo ativo
+                    if (window.phoneSplashRouletteInterval) clearInterval(window.phoneSplashRouletteInterval);
+                    if (window.phoneSplashRouletteTimeout) clearTimeout(window.phoneSplashRouletteTimeout);
+                    if (window.phoneSplashCountdownInterval) clearInterval(window.phoneSplashCountdownInterval);
+                    window.phoneSplashRouletteInterval = null;
+                    window.phoneSplashRouletteTimeout = null;
+                    window.phoneSplashCountdownInterval = null;
 
                     // Resetar estilos do overlay
                     phoneSplash.style.cssText = `position: absolute; inset: 0; background: ${bgRgba}; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-sizing: border-box; transition: opacity 0.3s ease; opacity: 1; padding: 16px;`;
@@ -1123,24 +1122,59 @@ function updatePreviewFromForm() {
                             70% { transform: scale(1.08); }
                             100% { transform: scale(1); opacity: 1; }
                         }
-                        @keyframes pb-splash-marquee-lr {
-                            0% { transform: translateX(-50%); }
-                            100% { transform: translateX(0%); }
-                        }
                         @keyframes pb-splash-pulse-scale {
                             0%, 100% { transform: scale(1); }
                             50% { transform: scale(1.1); }
                         }
+                        @keyframes pb-splash-shake {
+                            0%, 100% { transform: rotate(0deg); }
+                            20%, 60% { transform: rotate(-8deg); }
+                            40%, 80% { transform: rotate(8deg); }
+                        }
+                        @keyframes pb-shimmer {
+                            0% { transform: translateX(-150%); }
+                            50%, 100% { transform: translateX(150%); }
+                        }
+                        .phone-voucher-card {
+                            position: relative;
+                            background: ${splashBg};
+                            border: 1.5px solid rgba(255,255,255,0.1);
+                            border-radius: 16px;
+                            padding: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                            width: 100%;
+                            box-sizing: border-box;
+                        }
+                        .phone-voucher-card::before, .phone-voucher-card::after {
+                            content: '';
+                            position: absolute;
+                            top: 50%;
+                            width: 16px;
+                            height: 16px;
+                            background: ${bgRgba};
+                            border-radius: 50%;
+                            transform: translateY(-50%);
+                            z-index: 5;
+                        }
+                        .phone-voucher-card::before { left: -8px; border-right: 1.5px solid rgba(255,255,255,0.1); }
+                        .phone-voucher-card::after { right: -8px; border-left: 1.5px solid rgba(255,255,255,0.1); }
                     `;
 
                     // Desenhar a janela modal
                     phoneSplash.innerHTML = `
+                        <canvas id="phone-splash-preview-confetti" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999999;"></canvas>
+                        
                         <div id="phone-splash-modal" style="width: 100%; max-width: 280px; background: ${splashBg}; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.6); animation: pb-splash-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; position: relative;">
-                            <h2 style="font-size: 1.15rem; font-weight: 800; color: ${splashColor}; margin: 0 0 6px 0;">${splashTitle}</h2>
-                            <p id="phone-splash-desc" style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 16px 0; line-height: 1.4;">${splashText}</p>
                             
-                            <div id="phone-splash-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70px;">
-                                <!-- Conteúdo dinâmico será injetado aqui -->
+                            <!-- Borda do Voucher se for o caso -->
+                            <div id="phone-splash-voucher-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                                <h2 id="phone-splash-title-el" style="font-size: 1.15rem; font-weight: 800; color: ${splashColor}; margin: 0 0 6px 0;">${splashTitle}</h2>
+                                <p id="phone-splash-desc" style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 16px 0; line-height: 1.4;">${splashText}</p>
+                                
+                                <div id="phone-splash-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 75px; position: relative;">
+                                    <!-- Conteúdo dinâmico -->
+                                </div>
                             </div>
 
                             <button type="button" id="phone-splash-close-btn" style="margin-top: 18px; width: 100%; background: ${splashColor}; color: #000; border: none; padding: 10px 18px; border-radius: 25px; font-weight: 800; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); outline: none; transition: transform 0.2s, opacity 0.3s; display: none;">
@@ -1152,21 +1186,59 @@ function updatePreviewFromForm() {
                     const contentArea = phoneSplash.querySelector('#phone-splash-content-area');
                     const closeBtn = phoneSplash.querySelector('#phone-splash-close-btn');
 
-                    if (splashMode === 'marquee') {
-                        // Modo Letreiro Promocional
-                        const textRepeated = `${splashMarqueeText} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; `.repeat(4);
-                        contentArea.innerHTML = `
-                            <div style="width: 100%; background: rgba(0,0,0,0.3); overflow: hidden; padding: 8px 0; border-top: 1px dashed rgba(255,255,255,0.1); border-bottom: 1px dashed rgba(255,255,255,0.1); box-sizing: border-box;">
-                                <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 0.75rem; font-weight: 800; animation: pb-splash-marquee-lr 8s linear infinite; padding-left: 50%;">
-                                    ${textRepeated}
-                                </div>
-                            </div>
-                        `;
-                        // Mostrar o botão fechar imediatamente no modo letreiro
-                        closeBtn.style.display = 'block';
+                    // Mini motor de confete na Preview
+                    const triggerConfetti = () => {
+                        const canvas = phoneSplash.querySelector('#phone-splash-preview-confetti');
+                        if (!canvas) return;
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = phoneScreen.clientWidth || 300;
+                        canvas.height = phoneScreen.clientHeight || 450;
+                        
+                        const colors = ['#f43f5e', '#3b82f6', '#10b981', '#eab308', '#a855f7', '#78ffd6'];
+                        const particles = [];
+                        for (let i = 0; i < 40; i++) {
+                            particles.push({
+                                x: canvas.width / 2,
+                                y: canvas.height / 2 - 30,
+                                angle: Math.random() * Math.PI * 2,
+                                speed: 2 + Math.random() * 5,
+                                gravity: 0.1,
+                                color: colors[Math.floor(Math.random() * colors.length)],
+                                radius: 2 + Math.random() * 3,
+                                decay: 0.02,
+                                opacity: 1,
+                                wobble: Math.random() * 10
+                            });
+                        }
+                        
+                        const anim = () => {
+                            if (particles.length === 0) return;
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            for (let i = particles.length - 1; i >= 0; i--) {
+                                const p = particles[i];
+                                p.x += Math.cos(p.angle) * p.speed;
+                                p.y += Math.sin(p.angle) * p.speed + p.gravity;
+                                p.speed *= 0.98;
+                                p.opacity -= p.decay;
+                                p.wobble += 0.15;
+                                if (p.opacity <= 0) {
+                                    particles.splice(i, 1);
+                                    continue;
+                                }
+                                ctx.fillStyle = p.color;
+                                ctx.globalAlpha = p.opacity;
+                                ctx.beginPath();
+                                ctx.arc(p.x + Math.sin(p.wobble) * 2, p.y, p.radius, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                            ctx.globalAlpha = 1;
+                            requestAnimationFrame(anim);
+                        };
+                        anim();
+                    };
 
-                    } else if (splashMode === 'roulette') {
-                        // Modo Roleta de Desconto
+                    if (splashMode === 'roulette') {
+                        // MODO 1: Roleta
                         contentArea.innerHTML = `
                             <div id="phone-splash-roulette-num" style="font-size: 2.2rem; font-weight: 900; color: #fff; margin: 5px 0; font-family: monospace; letter-spacing: 1px;">
                                 00%
@@ -1179,38 +1251,213 @@ function updatePreviewFromForm() {
                         const numEl = phoneSplash.querySelector('#phone-splash-roulette-num');
                         const statusEl = phoneSplash.querySelector('#phone-splash-roulette-status');
 
-                        // Animação de roleta
                         window.phoneSplashRouletteInterval = setInterval(() => {
                             const randNum = Math.floor(Math.random() * 89) + 10;
                             if (numEl) numEl.textContent = `${randNum}%`;
                         }, 60);
 
                         window.phoneSplashRouletteTimeout = setTimeout(() => {
-                            if (window.phoneSplashRouletteInterval) {
-                                clearInterval(window.phoneSplashRouletteInterval);
-                                window.phoneSplashRouletteInterval = null;
-                            }
-                            // Para no desconto real
+                            if (window.phoneSplashRouletteInterval) clearInterval(window.phoneSplashRouletteInterval);
+                            window.phoneSplashRouletteInterval = null;
+
                             if (numEl) {
                                 numEl.textContent = `${splashDiscount}% OFF`;
                                 numEl.style.color = splashColor;
                                 numEl.style.animation = 'pb-splash-pulse-scale 0.4s ease-in-out 2';
                             }
                             if (statusEl) {
-                                statusEl.textContent = '🎰 Desconto Garantido!';
+                                statusEl.textContent = `🎯 Cupom: ${splashCoupon}`;
                                 statusEl.style.color = '#4ade80';
                             }
                             
-                            // Mostrar botão de fechamento
+                            triggerConfetti();
+
                             closeBtn.style.display = 'block';
-                            closeBtn.style.opacity = '0';
-                            closeBtn.style.transform = 'scale(0.9)';
-                            void closeBtn.offsetHeight;
                             closeBtn.style.opacity = '1';
                             closeBtn.style.transform = 'scale(1)';
-                            closeBtn.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                            
                         }, 1500);
+
+                    } else if (splashMode === 'scratch') {
+                        // MODO 2: Raspadinha Canvas
+                        contentArea.innerHTML = `
+                            <div style="position: relative; width: 200px; height: 80px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.25); display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; border: 1px dashed rgba(255,255,255,0.15);">
+                                <div style="font-size: 1.15rem; font-weight: 900; color: ${splashColor};">${splashDiscount}% OFF</div>
+                                <div style="font-size: 0.7rem; color: #fff; opacity: 0.6; font-weight: bold; margin-top: 2px;">CUPOM: ${splashCoupon}</div>
+                                <canvas id="phone-scratch-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;"></canvas>
+                            </div>
+                        `;
+
+                        const canvas = phoneSplash.querySelector('#phone-scratch-canvas');
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 200;
+                            canvas.height = 80;
+
+                            // Desenhar película cinza brilhante
+                            ctx.fillStyle = '#64748b';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#94a3b8';
+                            ctx.font = 'bold 12px sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('Raspe Aqui 👆', canvas.width / 2, canvas.height / 2);
+
+                            let isScratching = false;
+
+                            const scratch = (clientX, clientY) => {
+                                const rect = canvas.getBoundingClientRect();
+                                const x = clientX - rect.left;
+                                const y = clientY - rect.top;
+
+                                ctx.globalCompositeOperation = 'destination-out';
+                                ctx.beginPath();
+                                ctx.arc(x, y, 14, 0, Math.PI * 2);
+                                ctx.fill();
+
+                                // Checar porcentagem de raspagem
+                                try {
+                                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                                    const pixels = imgData.data;
+                                    let transparent = 0;
+                                    for (let i = 3; i < pixels.length; i += 4) {
+                                        if (pixels[i] < 128) transparent++;
+                                    }
+                                    const pct = transparent / (pixels.length / 4);
+                                    if (pct > 0.45) {
+                                        canvas.style.transition = 'opacity 0.3s';
+                                        canvas.style.opacity = '0';
+                                        setTimeout(() => { canvas.style.display = 'none'; }, 300);
+                                        triggerConfetti();
+                                        closeBtn.style.display = 'block';
+                                    }
+                                } catch (e) {}
+                            };
+
+                            canvas.addEventListener('mousedown', () => { isScratching = true; });
+                            canvas.addEventListener('mouseup', () => { isScratching = false; });
+                            canvas.addEventListener('mouseleave', () => { isScratching = false; });
+                            canvas.addEventListener('mousemove', (e) => {
+                                if (isScratching) scratch(e.clientX, e.clientY);
+                            });
+
+                            // Mobile touch events
+                            canvas.addEventListener('touchstart', (e) => {
+                                isScratching = true;
+                                if (e.touches[0]) scratch(e.touches[0].clientX, e.touches[0].clientY);
+                            });
+                            canvas.addEventListener('touchend', () => { isScratching = false; });
+                            canvas.addEventListener('touchmove', (e) => {
+                                if (isScratching && e.touches[0]) {
+                                    e.preventDefault();
+                                    scratch(e.touches[0].clientX, e.touches[0].clientY);
+                                }
+                            });
+                        }
+
+                    } else if (splashMode === 'gift') {
+                        // MODO 3: Caixas de Presente
+                        contentArea.innerHTML = `
+                            <div id="phone-gift-container" style="display: flex; gap: 12px; justify-content: center; margin: 8px 0; width: 100%;">
+                                <div class="phone-gift-box" data-box="1" style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale 1.5s infinite ease-in-out;">🎁</div>
+                                <div class="phone-gift-box" data-box="2" style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale 1.5s infinite ease-in-out; animation-delay: 0.2s;">🎁</div>
+                                <div class="phone-gift-box" data-box="3" style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale 1.5s infinite ease-in-out; animation-delay: 0.4s;">🎁</div>
+                            </div>
+                            <div id="phone-gift-reveal" style="display: none; font-size: 1.8rem; font-weight: 900; color: ${splashColor}; margin: 5px 0;"></div>
+                        `;
+
+                        const boxes = contentArea.querySelectorAll('.phone-gift-box');
+                        const revealEl = contentArea.querySelector('#phone-gift-reveal');
+                        const containerEl = contentArea.querySelector('#phone-gift-container');
+
+                        boxes.forEach(box => {
+                            box.addEventListener('click', function() {
+                                // Parar a animação dos outros e sumir
+                                boxes.forEach(b => {
+                                    if (b !== box) {
+                                        b.style.opacity = '0';
+                                        b.style.transform = 'scale(0.6)';
+                                    }
+                                });
+                                
+                                box.style.animation = 'pb-splash-shake 0.4s ease 2';
+                                
+                                setTimeout(() => {
+                                    containerEl.style.display = 'none';
+                                    if (revealEl) {
+                                        revealEl.innerHTML = `🎉 ${splashDiscount}% OFF<br><span style="font-size: 0.75rem; color: #4ade80; display: block; margin-top: 4px;">Cupom: ${splashCoupon}</span>`;
+                                        revealEl.style.display = 'block';
+                                        revealEl.style.animation = 'pb-splash-pop 0.4s forwards';
+                                    }
+                                    triggerConfetti();
+                                    closeBtn.style.display = 'block';
+                                }, 800);
+                            });
+                        });
+
+                    } else if (splashMode === 'voucher') {
+                        // MODO 4: Voucher Shimmer
+                        // Ocupa o topo do modal com estilo de ticket serrilhado
+                        const modalEl = phoneSplash.querySelector('#phone-splash-modal');
+                        const titleEl = phoneSplash.querySelector('#phone-splash-title-el');
+                        const descEl = phoneSplash.querySelector('#phone-splash-desc');
+
+                        if (modalEl && titleEl && descEl) {
+                            titleEl.style.display = 'none';
+                            descEl.style.display = 'none';
+                        }
+
+                        contentArea.innerHTML = `
+                            <div class="phone-voucher-card">
+                                <!-- Brilho shimmer -->
+                                <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: translateX(-150%); animation: pb-shimmer 3s infinite; pointer-events: none; z-index: 8;"></div>
+                                
+                                <h3 style="font-size: 0.95rem; font-weight: 800; color: ${splashColor}; margin: 0 0 6px 0;">${splashTitle}</h3>
+                                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 12px 0;">${splashText}</p>
+                                
+                                <div style="width: 100%; border-top: 1.5px dashed rgba(255,255,255,0.15); margin: 8px 0; position: relative; z-index: 6;"></div>
+                                
+                                <div style="font-size: 1.4rem; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; margin-top: 6px;">
+                                    CUPOM: <span style="background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.2); font-family: monospace;">${splashCoupon}</span>
+                                </div>
+                            </div>
+                        `;
+
+                        closeBtn.style.display = 'block';
+
+                    } else if (splashMode === 'countdown') {
+                        // MODO 5: Oferta Relâmpago (Countdown)
+                        contentArea.innerHTML = `
+                            <div style="font-size: 1.8rem; font-weight: 900; color: #ff453a; font-family: monospace; letter-spacing: 1px;" id="phone-splash-timer-num">
+                                00:00.00
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; font-weight: bold; margin-top: 4px;">
+                                Use o Cupom: <span style="color: ${splashColor}; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px; font-family: monospace;">${splashCoupon}</span>
+                            </div>
+                        `;
+
+                        let totalMs = splashCountdownTime * 60 * 1000;
+                        const timerEl = contentArea.querySelector('#phone-splash-timer-num');
+
+                        window.phoneSplashCountdownInterval = setInterval(() => {
+                            totalMs -= 70;
+                            if (totalMs <= 0) {
+                                clearInterval(window.phoneSplashCountdownInterval);
+                                totalMs = 0;
+                            }
+                            const min = Math.floor(totalMs / 60000);
+                            const sec = Math.floor((totalMs % 60000) / 1000);
+                            const ms = Math.floor((totalMs % 1000) / 10);
+                            
+                            const padMin = String(min).padStart(2, '0');
+                            const padSec = String(sec).padStart(2, '0');
+                            const padMs = String(ms).padStart(2, '0');
+                            
+                            if (timerEl) {
+                                timerEl.textContent = `${padMin}:${padSec}.${padMs}`;
+                            }
+                        }, 70);
+
+                        closeBtn.style.display = 'block';
                     }
 
                     // Evento para fechar
@@ -1226,14 +1473,12 @@ function updatePreviewFromForm() {
             } else if (phoneSplash) {
                 phoneSplash.style.display = 'none';
                 window.phoneSplashConfigKey = null;
-                if (window.phoneSplashRouletteInterval) {
-                    clearInterval(window.phoneSplashRouletteInterval);
-                    window.phoneSplashRouletteInterval = null;
-                }
-                if (window.phoneSplashRouletteTimeout) {
-                    clearTimeout(window.phoneSplashRouletteTimeout);
-                    window.phoneSplashRouletteTimeout = null;
-                }
+                if (window.phoneSplashRouletteInterval) clearInterval(window.phoneSplashRouletteInterval);
+                if (window.phoneSplashRouletteTimeout) clearTimeout(window.phoneSplashRouletteTimeout);
+                if (window.phoneSplashCountdownInterval) clearInterval(window.phoneSplashCountdownInterval);
+                window.phoneSplashRouletteInterval = null;
+                window.phoneSplashRouletteTimeout = null;
+                window.phoneSplashCountdownInterval = null;
             }
 
             // =========================================================================
@@ -2802,7 +3047,8 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                     'input-addon-splash-title': backup.addonSplashpromoTitle || '🎉 PARABÉNS!',
                     'input-addon-splash-text': backup.addonSplashpromoText || '',
                     'input-addon-splash-discount': backup.addonSplashpromoDiscount || 20,
-                    'input-addon-splash-marquee-text': backup.addonSplashpromoMarqueeText || '',
+                    'input-addon-splash-coupon': backup.addonSplashpromoCoupon || 'BIO20',
+                    'input-addon-splash-countdown-time': backup.addonSplashpromoCountdownTime || 10,
                     'input-addon-splash-bg': backup.addonSplashpromoBg || '#1e293b',
                     'input-addon-splash-color': backup.addonSplashpromoColor || '#38bdf8',
                     'input-addon-splash-overlay-color': backup.addonSplashpromoOverlayColor || '#090d16',
@@ -2821,10 +3067,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 const modeSelect = document.getElementById('select-addon-splash-mode');
                 if (modeSelect) {
                     modeSelect.value = backup.addonSplashpromoMode || 'roulette';
-                    const marqueeCont = document.getElementById('container-addon-splash-marquee-text');
                     const discountCont = document.getElementById('container-addon-splash-discount');
-                    if (marqueeCont) marqueeCont.style.display = (modeSelect.value === 'marquee' ? 'block' : 'none');
-                    if (discountCont) discountCont.style.display = (modeSelect.value === 'roulette' ? 'block' : 'none');
+                    const countdownCont = document.getElementById('container-addon-splash-countdown-time');
+                    if (discountCont) discountCont.style.display = (['roulette', 'scratch', 'gift'].includes(modeSelect.value) ? 'block' : 'none');
+                    if (countdownCont) countdownCont.style.display = (modeSelect.value === 'countdown' ? 'block' : 'none');
                 }
 
                 const effectSelect = document.getElementById('select-addon-tb-effect');

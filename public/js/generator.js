@@ -1839,7 +1839,8 @@ export function generateStaticSite(data) {
       const splashTitle = data.addonSplashpromoTitle || '🎉 PARABÉNS!';
       const splashText = data.addonSplashpromoText || '';
       const splashDiscount = parseInt(data.addonSplashpromoDiscount !== undefined ? data.addonSplashpromoDiscount : 20, 10);
-      const splashMarqueeText = data.addonSplashpromoMarqueeText || '';
+      const splashCoupon = data.addonSplashpromoCoupon || 'BIO20';
+      const splashCountdownTime = parseInt(data.addonSplashpromoCountdownTime !== undefined ? data.addonSplashpromoCountdownTime : 10, 10);
       const splashBg = data.addonSplashpromoBg || '#1e293b';
       const splashColor = data.addonSplashpromoColor || '#38bdf8';
       const splashOverlayColor = data.addonSplashpromoOverlayColor || '#090d16';
@@ -1862,8 +1863,6 @@ export function generateStaticSite(data) {
       }
       const bgRgba = 'rgba(' + r + ',' + g + ',' + b + ',' + splashOverlayOpacity + ')';
 
-      const textRepeated = (splashMarqueeText + '      ').repeat(4);
-
       splashpromoHtml = `
       <div id="pb-splash-promo-overlay" style="position: fixed; inset: 0; background: ${bgRgba}; z-index: 9999999; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-sizing: border-box; transition: opacity 0.4s ease; opacity: 1; padding: 20px;">
           <style>
@@ -1872,40 +1871,106 @@ export function generateStaticSite(data) {
                   70% { transform: scale(1.08); }
                   100% { transform: scale(1); opacity: 1; }
               }
-              @keyframes pb-splash-marquee-lr-static {
-                  0% { transform: translateX(-50%); }
-                  100% { transform: translateX(0%); }
-              }
               @keyframes pb-splash-pulse-scale-static {
                   0%, 100% { transform: scale(1); }
                   50% { transform: scale(1.1); }
               }
+              @keyframes pb-splash-shake-static {
+                  0%, 100% { transform: rotate(0deg); }
+                  20%, 60% { transform: rotate(-8deg); }
+                  40%, 80% { transform: rotate(8deg); }
+              }
+              @keyframes pb-shimmer-static {
+                  0% { transform: translateX(-150%); }
+                  50%, 100% { transform: translateX(150%); }
+              }
+              .pb-voucher-card {
+                  position: relative;
+                  background: ${splashBg};
+                  border: 1.5px solid rgba(255,255,255,0.1);
+                  border-radius: 20px;
+                  padding: 24px;
+                  overflow: hidden;
+                  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+                  width: 100%;
+                  box-sizing: border-box;
+              }
+              .pb-voucher-card::before, .pb-voucher-card::after {
+                  content: '';
+                  position: absolute;
+                  top: 50%;
+                  width: 18px;
+                  height: 18px;
+                  background: ${bgRgba};
+                  border-radius: 50%;
+                  transform: translateY(-50%);
+                  z-index: 5;
+              }
+              .pb-voucher-card::before { left: -9px; border-right: 1.5px solid rgba(255,255,255,0.1); }
+              .pb-voucher-card::after { right: -9px; border-left: 1.5px solid rgba(255,255,255,0.1); }
           </style>
           
           <canvas id="pb-splash-confetti" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></canvas>
 
           <div id="pb-splash-modal" style="width: 100%; max-width: 320px; background: ${splashBg}; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: pb-splash-pop-static 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; position: relative; z-index: 20;">
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: ${splashColor}; margin: 0 0 8px 0; letter-spacing: 0.5px;">${splashTitle}</h2>
-              <p style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin: 0 0 20px 0; line-height: 1.4;">${splashText}</p>
               
-              <div id="pb-splash-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px;">
-                  ${splashMode === 'marquee' ? `
-                      <div style="width: 100%; background: rgba(0,0,0,0.3); overflow: hidden; padding: 12px 0; border-top: 1px dashed rgba(255,255,255,0.1); border-bottom: 1px dashed rgba(255,255,255,0.1); box-sizing: border-box;">
-                          <div style="display: inline-block; white-space: nowrap; color: ${splashColor}; font-size: 0.85rem; font-weight: 800; animation: pb-splash-marquee-lr-static 8s linear infinite; padding-left: 50%;">
-                              ${textRepeated}
-                          </div>
-                      </div>
-                  ` : `
+              ${splashMode !== 'voucher' ? `
+                  <h2 id="pb-splash-title" style="font-size: 1.3rem; font-weight: 800; color: ${splashColor}; margin: 0 0 8px 0; letter-spacing: 0.5px;">${splashTitle}</h2>
+                  <p id="pb-splash-desc" style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin: 0 0 20px 0; line-height: 1.4;">${splashText}</p>
+              ` : ''}
+              
+              <div id="pb-splash-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; position: relative;">
+                  
+                  ${splashMode === 'roulette' ? `
                       <div id="pb-splash-roulette-num" style="font-size: 2.8rem; font-weight: 900; color: #ffffff; margin: 5px 0; font-family: monospace; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
                           00%
                       </div>
                       <div id="pb-splash-roulette-status" style="font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                           Sorteando Desconto...
                       </div>
-                  `}
+                  ` : ''}
+
+                  ${splashMode === 'scratch' ? `
+                      <div style="position: relative; width: 220px; height: 90px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; border: 1.5px dashed rgba(255,255,255,0.15);">
+                          <div style="font-size: 1.4rem; font-weight: 900; color: ${splashColor};">${splashDiscount}% OFF</div>
+                          <div style="font-size: 0.75rem; color: #fff; opacity: 0.7; font-weight: bold; margin-top: 2px;">CUPOM: ${splashCoupon}</div>
+                          <canvas id="pb-scratch-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;"></canvas>
+                      </div>
+                  ` : ''}
+
+                  ${splashMode === 'gift' ? `
+                      <div id="pb-gift-container" style="display: flex; gap: 16px; justify-content: center; margin: 8px 0; width: 100%;">
+                          <div class="pb-gift-box" data-box="1" style="width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale-static 1.5s infinite ease-in-out;">🎁</div>
+                          <div class="pb-gift-box" data-box="2" style="width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale-static 1.5s infinite ease-in-out; animation-delay: 0.2s;">🎁</div>
+                          <div class="pb-gift-box" data-box="3" style="width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; transition: all 0.3s; animation: pb-splash-pulse-scale-static 1.5s infinite ease-in-out; animation-delay: 0.4s;">🎁</div>
+                      </div>
+                      <div id="pb-gift-reveal" style="display: none; font-size: 2rem; font-weight: 900; color: ${splashColor}; margin: 5px 0;"></div>
+                  ` : ''}
+
+                  ${splashMode === 'voucher' ? `
+                      <div class="pb-voucher-card">
+                          <!-- Shimmer effect -->
+                          <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: translateX(-150%); animation: pb-shimmer-static 3s infinite; pointer-events: none; z-index: 8;"></div>
+                          <h3 style="font-size: 1.05rem; font-weight: 800; color: ${splashColor}; margin: 0 0 6px 0;">${splashTitle}</h3>
+                          <p style="font-size: 0.78rem; color: rgba(255,255,255,0.65); margin: 0 0 12px 0;">${splashText}</p>
+                          <div style="width: 100%; border-top: 1.5px dashed rgba(255,255,255,0.15); margin: 8px 0; position: relative; z-index: 6;"></div>
+                          <div style="font-size: 1.45rem; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; margin-top: 6px;">
+                              CUPOM: <span style="background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.2); font-family: monospace;">${splashCoupon}</span>
+                          </div>
+                      </div>
+                  ` : ''}
+
+                  ${splashMode === 'countdown' ? `
+                      <div style="font-size: 2.2rem; font-weight: 900; color: #ff453a; font-family: monospace; letter-spacing: 1px;" id="pb-splash-timer-num">
+                          00:00.00
+                      </div>
+                      <div style="font-size: 0.8rem; color: rgba(255,255,255,0.6); font-weight: bold; margin-top: 4px;">
+                          Use o Cupom: <span style="color: ${splashColor}; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px; font-family: monospace;">${splashCoupon}</span>
+                      </div>
+                  ` : ''}
               </div>
 
-              <button type="button" id="pb-splash-promo-close-btn" style="margin-top: 24px; width: 100%; background: ${splashColor}; color: #000; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); outline: none; transition: transform 0.2s, opacity 0.3s; ${splashMode === 'roulette' ? 'display: none;' : 'display: block;'}">
+              <button type="button" id="pb-splash-promo-close-btn" style="margin-top: 24px; width: 100%; background: ${splashColor}; color: #000; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); outline: none; transition: transform 0.2s, opacity 0.3s; ${['roulette', 'scratch', 'gift'].includes(splashMode) ? 'display: none;' : 'display: block;'}">
                   ${splashBtnText}
               </button>
           </div>
@@ -1924,43 +1989,7 @@ export function generateStaticSite(data) {
                   }, 400);
               });
 
-              // Se o modo for roleta, fazemos o sorteio
               var mode = '${splashMode}';
-              if (mode === 'roulette') {
-                  var numEl = document.getElementById('pb-splash-roulette-num');
-                  var statusEl = document.getElementById('pb-splash-roulette-status');
-                  var targetDiscount = ${splashDiscount};
-                  
-                  var rouletteInterval = setInterval(function() {
-                      var randNum = Math.floor(Math.random() * 89) + 10;
-                      if (numEl) numEl.textContent = randNum + '%';
-                  }, 60);
-
-                  setTimeout(function() {
-                      clearInterval(rouletteInterval);
-                      if (numEl) {
-                          numEl.textContent = targetDiscount + '% OFF';
-                          numEl.style.color = '${splashColor}';
-                          numEl.style.animation = 'pb-splash-pulse-scale-static 0.4s ease-in-out 2';
-                      }
-                      if (statusEl) {
-                          statusEl.textContent = '🎰 Desconto Garantido!';
-                          statusEl.style.color = '#4ade80';
-                      }
-                      
-                      // Disparar efeito de confete
-                      triggerConfetti();
-
-                      // Mostrar botão
-                      btn.style.display = 'block';
-                      btn.style.opacity = '0';
-                      btn.style.transform = 'scale(0.9)';
-                      void btn.offsetHeight;
-                      btn.style.opacity = '1';
-                      btn.style.transform = 'scale(1)';
-                      btn.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                  }, 1500);
-              }
 
               // Mini motor de confete em Canvas
               function triggerConfetti() {
@@ -1997,7 +2026,7 @@ export function generateStaticSite(data) {
                           var p = particles[i];
                           p.x += Math.cos(p.angle) * p.speed;
                           p.y += Math.sin(p.angle) * p.speed + p.gravity;
-                          p.speed *= 0.98; // Ar drag
+                          p.speed *= 0.98;
                           p.opacity -= p.decay;
                           p.wobble += 0.1;
 
@@ -2016,6 +2045,161 @@ export function generateStaticSite(data) {
                       requestAnimationFrame(animate);
                   }
                   animate();
+              }
+
+              // Mostrar botão com animação
+              function showCloseButton() {
+                  btn.style.display = 'block';
+                  btn.style.opacity = '0';
+                  btn.style.transform = 'scale(0.9)';
+                  void btn.offsetHeight;
+                  btn.style.opacity = '1';
+                  btn.style.transform = 'scale(1)';
+                  btn.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+              }
+
+              if (mode === 'roulette') {
+                  var numEl = document.getElementById('pb-splash-roulette-num');
+                  var statusEl = document.getElementById('pb-splash-roulette-status');
+                  var targetDiscount = ${splashDiscount};
+                  
+                  var rouletteInterval = setInterval(function() {
+                      var randNum = Math.floor(Math.random() * 89) + 10;
+                      if (numEl) numEl.textContent = randNum + '%';
+                  }, 60);
+
+                  setTimeout(function() {
+                      clearInterval(rouletteInterval);
+                      if (numEl) {
+                          numEl.textContent = targetDiscount + '% OFF';
+                          numEl.style.color = '${splashColor}';
+                          numEl.style.animation = 'pb-splash-pulse-scale-static 0.4s ease-in-out 2';
+                      }
+                      if (statusEl) {
+                          statusEl.textContent = '🎯 Cupom: ${splashCoupon}';
+                          statusEl.style.color = '#4ade80';
+                      }
+                      
+                      triggerConfetti();
+                      showCloseButton();
+                  }, 1500);
+
+              } else if (mode === 'scratch') {
+                  var canvas = document.getElementById('pb-scratch-canvas');
+                  if (canvas) {
+                      var ctx = canvas.getContext('2d');
+                      canvas.width = 220;
+                      canvas.height = 90;
+
+                      ctx.fillStyle = '#64748b';
+                      ctx.fillRect(0, 0, canvas.width, canvas.height);
+                      ctx.fillStyle = '#94a3b8';
+                      ctx.font = 'bold 13px sans-serif';
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'middle';
+                      ctx.fillText('Raspe Aqui 👆', canvas.width / 2, canvas.height / 2);
+
+                      var isScratching = false;
+
+                      var scratch = function(clientX, clientY) {
+                          var rect = canvas.getBoundingClientRect();
+                          var x = clientX - rect.left;
+                          var y = clientY - rect.top;
+
+                          ctx.globalCompositeOperation = 'destination-out';
+                          ctx.beginPath();
+                          ctx.arc(x, y, 15, 0, Math.PI * 2);
+                          ctx.fill();
+
+                          try {
+                              var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                              var pixels = imgData.data;
+                              var transparent = 0;
+                              for (var i = 3; i < pixels.length; i += 4) {
+                                  if (pixels[i] < 128) transparent++;
+                              }
+                              var pct = transparent / (pixels.length / 4);
+                              if (pct > 0.45) {
+                                  canvas.style.transition = 'opacity 0.3s';
+                                  canvas.style.opacity = '0';
+                                  setTimeout(function() { canvas.style.display = 'none'; }, 300);
+                                  triggerConfetti();
+                                  showCloseButton();
+                              }
+                          } catch(e) {}
+                      };
+
+                      canvas.addEventListener('mousedown', function() { isScratching = true; });
+                      canvas.addEventListener('mouseup', function() { isScratching = false; });
+                      canvas.addEventListener('mouseleave', function() { isScratching = false; });
+                      canvas.addEventListener('mousemove', function(e) {
+                          if (isScratching) scratch(e.clientX, e.clientY);
+                      });
+
+                      canvas.addEventListener('touchstart', function(e) {
+                          isScratching = true;
+                          if (e.touches[0]) scratch(e.touches[0].clientX, e.touches[0].clientY);
+                      });
+                      canvas.addEventListener('touchend', function() { isScratching = false; });
+                      canvas.addEventListener('touchmove', function(e) {
+                          if (isScratching && e.touches[0]) {
+                              e.preventDefault();
+                              scratch(e.touches[0].clientX, e.touches[0].clientY);
+                          }
+                      });
+                  }
+
+              } else if (mode === 'gift') {
+                  var boxes = document.querySelectorAll('.pb-gift-box');
+                  var revealEl = document.getElementById('pb-gift-reveal');
+                  var containerEl = document.getElementById('pb-gift-container');
+
+                  boxes.forEach(function(box) {
+                      box.addEventListener('click', function() {
+                          boxes.forEach(function(b) {
+                              if (b !== box) {
+                                  b.style.opacity = '0';
+                                  b.style.transform = 'scale(0.6)';
+                              }
+                          });
+                          
+                          box.style.animation = 'pb-splash-shake-static 0.4s ease 2';
+                          
+                          setTimeout(function() {
+                              containerEl.style.display = 'none';
+                              if (revealEl) {
+                                  revealEl.innerHTML = '🎉 ' + ${splashDiscount} + '% OFF<br><span style="font-size: 0.8rem; color: #4ade80; display: block; margin-top: 4px;">Cupom: ' + '${splashCoupon}' + '</span>';
+                                  revealEl.style.display = 'block';
+                                  revealEl.style.animation = 'pb-splash-pop-static 0.4s forwards';
+                              }
+                              triggerConfetti();
+                              showCloseButton();
+                          }, 800);
+                      });
+                  });
+
+              } else if (mode === 'countdown') {
+                  var totalMs = ${splashCountdownTime} * 60 * 1000;
+                  var timerEl = document.getElementById('pb-splash-timer-num');
+
+                  var countdownInterval = setInterval(function() {
+                      totalMs -= 70;
+                      if (totalMs <= 0) {
+                          clearInterval(countdownInterval);
+                          totalMs = 0;
+                      }
+                      var min = Math.floor(totalMs / 60000);
+                      var sec = Math.floor((totalMs % 60000) / 1000);
+                      var ms = Math.floor((totalMs % 1000) / 10);
+                      
+                      var padMin = String(min).padStart(2, '0');
+                      var padSec = String(sec).padStart(2, '0');
+                      var padMs = String(ms).padStart(2, '0');
+                      
+                      if (timerEl) {
+                          timerEl.textContent = padMin + ':' + padSec + '.' + padMs;
+                      }
+                  }, 70);
               }
           })();
       </script>

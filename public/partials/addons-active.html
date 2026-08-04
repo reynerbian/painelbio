@@ -821,14 +821,17 @@
             <div id="card-addon-splashpromo" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
                 <button type="button" id="btn-remove-splashpromo-addon" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; line-height: 1;" title="Remover Add-on">&times;</button>
                 <h3 style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;">🎁 Janela Interativa / Pop-up</h3>
-                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Pop-up centralizado em tela cheia com efeitos interativos como Letreiros ou Roleta de Descontos.</p>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Pop-up centralizado em tela cheia com efeitos interativos (Roleta, Raspadinha, Presentes, Voucher ou Countdown).</p>
                 
                 <!-- Modo do Pop-up -->
                 <div class="form-group" style="margin-bottom: 10px;">
                     <label for="select-addon-splash-mode" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎯 Modo do Pop-up:</label>
-                    <select id="select-addon-splash-mode" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer;" onchange="document.getElementById('container-addon-splash-marquee-text').style.display = (this.value === 'marquee' ? 'block' : 'none'); document.getElementById('container-addon-splash-discount').style.display = (this.value === 'roulette' ? 'block' : 'none');">
+                    <select id="select-addon-splash-mode" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer;" onchange="const val = this.value; document.getElementById('container-addon-splash-discount').style.display = (['roulette', 'scratch', 'gift'].includes(val) ? 'block' : 'none'); document.getElementById('container-addon-splash-countdown-time').style.display = (val === 'countdown' ? 'block' : 'none');">
                         <option value="roulette" selected>🎰 Roleta de Desconto</option>
-                        <option value="marquee">📢 Letreiro Promocional</option>
+                        <option value="scratch">💅 Raspadinha da Sorte</option>
+                        <option value="gift">🎁 Caixa de Presente</option>
+                        <option value="voucher">🎟️ Voucher Premium</option>
+                        <option value="countdown">⏱️ Oferta Relâmpago</option>
                     </select>
                 </div>
 
@@ -844,16 +847,22 @@
                     <input type="text" id="input-addon-splash-text" value="Você ganhou um desconto especial!" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 
-                <!-- Campo de Desconto (Roleta) -->
+                <!-- Campo de Desconto (Roleta, Raspadinha, Presentes) -->
                 <div id="container-addon-splash-discount" class="form-group" style="margin-bottom: 10px;">
-                    <label for="input-addon-splash-discount" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎰 Desconto da Roleta (%):</label>
+                    <label for="input-addon-splash-discount" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎰 Desconto (%):</label>
                     <input type="number" id="input-addon-splash-discount" min="1" max="99" value="20" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 
-                <!-- Texto do Letreiro (Letreiro) -->
-                <div id="container-addon-splash-marquee-text" class="form-group" style="margin-bottom: 10px; display: none;">
-                    <label for="input-addon-splash-marquee-text" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📢 Texto Correndo do Letreiro:</label>
-                    <input type="text" id="input-addon-splash-marquee-text" value="🔥 APROVEITE: 30% DE DESCONTO EM TODO O SITE SÓ HOJE! 🔥" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                <!-- Campo de Cupom (Todos os modos) -->
+                <div id="container-addon-splash-coupon" class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-splash-coupon" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎟️ Código do Cupom:</label>
+                    <input type="text" id="input-addon-splash-coupon" value="BIO20" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Campo de Tempo do Countdown (Countdown apenas) -->
+                <div id="container-addon-splash-countdown-time" class="form-group" style="margin-bottom: 10px; display: none;">
+                    <label for="input-addon-splash-countdown-time" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⏱️ Duração da Oferta (minutos):</label>
+                    <input type="number" id="input-addon-splash-countdown-time" min="1" max="1440" value="10" style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
                 </div>
 
                 <!-- Cores do Modal -->
