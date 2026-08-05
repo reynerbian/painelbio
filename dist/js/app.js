@@ -1369,7 +1369,6 @@ const leftIcon = document.querySelector('.left-icon');
                             addonTopbannerMarqueeSpeed: document.getElementById('input-addon-tb-marquee-speed')?.value || '5',
                             addonTopbannerMarqueePause: document.getElementById('input-addon-tb-marquee-pause')?.value || '3',
                             addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
-                            addonTopbannerPauseBetween: parseInt(document.getElementById('input-addon-tb-pause-between')?.value || '1', 10),
                             bioAlign: document.querySelector('.align-btn.active')?.getAttribute('data-align') || 'center',
                             preset: localStorage.getItem('selected-theme-preset') || 'gray'
                         };
@@ -1450,7 +1449,7 @@ loadClassicModel();
             const containerMarquee = document.getElementById('container-addon-tb-marquee-settings');
             if (effectSelect) {
                 function updateAddonFields() {
-                    if (containerPause) containerPause.style.display = (['fade', 'slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
+                    if (containerPause) containerPause.style.display = (['slide', 'bounce', 'flip', 'shutter'].includes(effectSelect.value)) ? 'block' : 'none';
                     if (containerMarquee) containerMarquee.style.display = (effectSelect.value === 'marquee') ? 'block' : 'none';
                 }
                 updateAddonFields();
@@ -1560,69 +1559,13 @@ loadClassicModel();
                 });
             }
 
-            // Sincroniza a seleção visual dos botões do catálogo com o valor do input de emojis
-            window.syncEmojiCatalogSelection = function() {
-                const emojiInput = document.getElementById('input-addon-er-emoji');
-                if (!emojiInput) return;
-                
-                const currentEmojis = Array.from(emojiInput.value);
-                const emojiCatalogBtns = document.querySelectorAll('.emoji-pick-btn');
-                
-                emojiCatalogBtns.forEach(btn => {
-                    const btnEmoji = btn.getAttribute('data-emoji');
-                    if (currentEmojis.includes(btnEmoji)) {
-                        btn.classList.add('active');
-                        btn.style.background = 'rgba(124, 58, 237, 0.25)';
-                        btn.style.borderColor = '#7c3aed';
-                        btn.style.boxShadow = '0 0 8px rgba(124, 58, 237, 0.4)';
-                    } else {
-                        btn.classList.remove('active');
-                        btn.style.background = 'rgba(255, 255, 255, 0.05)';
-                        btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                        btn.style.boxShadow = 'none';
-                    }
-                });
-            };
-
-            // Inicializa a sincronização ao carregar
-            window.syncEmojiCatalogSelection();
-
-            // Sincroniza também se o usuário digitar/colar manualmente no campo de texto
-            const emojiInputForSync = document.getElementById('input-addon-er-emoji');
-            if (emojiInputForSync) {
-                emojiInputForSync.addEventListener('input', () => {
-                    window.syncEmojiCatalogSelection();
-                });
-            }
-
-            // Emoji catalog: clique nos botões para selecionar/deselecionar (suporta múltiplos)
+            // Emoji catalog: clique nos botões para preencher o campo
             const emojiCatalogBtns = document.querySelectorAll('.emoji-pick-btn');
             emojiCatalogBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const emojiInput = document.getElementById('input-addon-er-emoji');
                     if (emojiInput) {
-                        const btnEmoji = btn.getAttribute('data-emoji');
-                        let currentEmojis = Array.from(emojiInput.value);
-                        
-                        if (currentEmojis.includes(btnEmoji)) {
-                            // Se já tem o emoji, remove (deseleciona)
-                            currentEmojis = currentEmojis.filter(e => e !== btnEmoji);
-                        } else {
-                            // Se não tem, adiciona (seleciona). Limita a 10 emojis no total.
-                            if (currentEmojis.length < 10) {
-                                currentEmojis.push(btnEmoji);
-                            } else {
-                                if (typeof showCustomAlert === 'function') {
-                                    showCustomAlert('Você pode selecionar no máximo 10 emojis diferentes!', 'warning');
-                                } else {
-                                    alert('Você pode selecionar no máximo 10 emojis diferentes!');
-                                }
-                                return;
-                            }
-                        }
-                        
-                        emojiInput.value = currentEmojis.join('');
-                        window.syncEmojiCatalogSelection();
+                        emojiInput.value = btn.getAttribute('data-emoji');
                         window.phoneErConfigKey = null; // força rebuild
                         updatePreviewFromForm();
                     }
@@ -1644,46 +1587,6 @@ loadClassicModel();
             const erRotateInput = document.getElementById('input-addon-er-rotate');
             if (erRotateInput) {
                 erRotateInput.addEventListener('change', () => {
-                    window.phoneErConfigKey = null;
-                    updatePreviewFromForm();
-                });
-            }
-
-            // Sway checkbox: rebuild ao mudar
-            const erSwayInput = document.getElementById('input-addon-er-sway');
-            if (erSwayInput) {
-                erSwayInput.addEventListener('change', () => {
-                    window.phoneErConfigKey = null;
-                    updatePreviewFromForm();
-                });
-            }
-
-            // Opacity select: rebuild ao mudar
-            const erOpacitySelect = document.getElementById('select-addon-er-opacity');
-            if (erOpacitySelect) {
-                erOpacitySelect.addEventListener('change', () => {
-                    window.phoneErConfigKey = null;
-                    updatePreviewFromForm();
-                });
-            }
-
-            // SVG active checkbox: show/hide container and rebuild
-            const erAsSvgInput = document.getElementById('input-addon-er-as-svg');
-            const erSvgColorContainer = document.getElementById('container-addon-er-svg-color');
-            if (erAsSvgInput) {
-                erAsSvgInput.addEventListener('change', () => {
-                    if (erSvgColorContainer) {
-                        erSvgColorContainer.style.display = erAsSvgInput.checked ? 'flex' : 'none';
-                    }
-                    window.phoneErConfigKey = null;
-                    updatePreviewFromForm();
-                });
-            }
-
-            // SVG outline color picker: rebuild on input
-            const erSvgColorInput = document.getElementById('input-addon-er-svg-color');
-            if (erSvgColorInput) {
-                erSvgColorInput.addEventListener('input', () => {
                     window.phoneErConfigKey = null;
                     updatePreviewFromForm();
                 });
@@ -1711,36 +1614,9 @@ loadClassicModel();
             if (btnRemoveAvatarSpin && cardAvatarSpin) {
                 btnRemoveAvatarSpin.addEventListener('click', () => {
                     cardAvatarSpin.style.display = 'none';
+                    // Remove animação do avatar no preview
                     const liveAvatar = document.getElementById('view-avatar-container') || document.getElementById('v-view-avatar-wrapper');
                     if (liveAvatar) liveAvatar.style.animation = '';
-                    updatePreviewFromForm();
-                });
-            }
-
-            // Entrada: mostra/esconde eixo e voltas conforme tipo de entrada
-            const asEntranceEl = document.getElementById('input-addon-as-entrance');
-            const asAxisCont   = document.getElementById('container-addon-as-axis');
-            const asSpinsCont  = document.getElementById('container-addon-as-spins');
-            if (asEntranceEl) {
-                const toggleEntranceFields = () => {
-                    const spinEntrances = ['spin', 'fadespin'];
-                    const show = spinEntrances.includes(asEntranceEl.value);
-                    if (asAxisCont)  asAxisCont.style.display  = show ? 'block' : 'none';
-                    if (asSpinsCont) asSpinsCont.style.display = show ? 'block' : 'none';
-                    updatePreviewFromForm();
-                };
-                asEntranceEl.addEventListener('change', toggleEntranceFields);
-                toggleEntranceFields(); // estado inicial
-            }
-
-            // Gatilho: mostra/esconde aviso hover e seção repetir
-            const asTriggerEl      = document.getElementById('input-addon-as-trigger');
-            const asHoverWarnEl    = document.getElementById('container-addon-as-hover-warning');
-            const asRepeatSection  = document.getElementById('container-addon-as-repeat-section');
-            if (asTriggerEl) {
-                asTriggerEl.addEventListener('change', () => {
-                    if (asHoverWarnEl)   asHoverWarnEl.style.display   = (asTriggerEl.value === 'hover') ? 'block' : 'none';
-                    if (asRepeatSection) asRepeatSection.style.display  = (asTriggerEl.value === 'onload') ? 'flex' : 'none';
                     updatePreviewFromForm();
                 });
             }
@@ -1754,34 +1630,6 @@ loadClassicModel();
                     updatePreviewFromForm();
                 });
             }
-
-            // Brilho Pulsante: toggle color picker
-            const asGlowChk      = document.getElementById('input-addon-as-glow');
-            const asGlowColorCont = document.getElementById('container-addon-as-glow-color');
-            if (asGlowChk && asGlowColorCont) {
-                asGlowChk.addEventListener('change', () => {
-                    asGlowColorCont.style.display = asGlowChk.checked ? 'block' : 'none';
-                    updatePreviewFromForm();
-                });
-            }
-
-            // Borda Giratória: toggle color picker
-            const asBorderChk      = document.getElementById('input-addon-as-border');
-            const asBorderColorCont = document.getElementById('container-addon-as-border-color');
-            if (asBorderChk && asBorderColorCont) {
-                asBorderChk.addEventListener('change', () => {
-                    asBorderColorCont.style.display = asBorderChk.checked ? 'block' : 'none';
-                    updatePreviewFromForm();
-                });
-            }
-
-            // Live update nos color pickers e selects do Add-on 3
-            ['input-addon-as-axis','input-addon-as-easing','input-addon-as-glow-color','input-addon-as-border-color',
-             'input-addon-as-duration','input-addon-as-spins','input-addon-as-interval',
-             'input-addon-as-float','input-addon-as-pulse'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('change', () => updatePreviewFromForm());
-            });
 
             // Botão testar animação agora
             const btnPreviewSpin = document.getElementById('btn-preview-avatarspin');
@@ -1855,158 +1703,6 @@ loadClassicModel();
                 });
             }
 
-            // Toggle do Modo de Status e Upload de Imagem do Atendente (Add-on 5)
-            const selectLcStatusType = document.getElementById('select-addon-lc-status-type');
-            const containerLcStatusSmart = document.getElementById('container-addon-lc-status-smart');
-            const containerLcStatusCustom = document.getElementById('container-addon-lc-status-custom');
-
-            if (selectLcStatusType) {
-                const toggleLcFields = () => {
-                    const val = selectLcStatusType.value;
-                    if (containerLcStatusSmart) containerLcStatusSmart.style.display = (val === 'smart') ? 'block' : 'none';
-                    if (containerLcStatusCustom) containerLcStatusCustom.style.display = (val === 'custom') ? 'block' : 'none';
-                };
-                selectLcStatusType.addEventListener('change', () => {
-                    toggleLcFields();
-                    updatePreviewFromForm();
-                });
-                // Executa uma vez no load
-                toggleLcFields();
-            }
-
-            const btnSearchLcAvatar = document.getElementById('btn-search-lc-avatar');
-            if (btnSearchLcAvatar) {
-                btnSearchLcAvatar.addEventListener('click', () => {
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/*';
-                    
-                    fileInput.addEventListener('change', async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        
-                        const originalText = btnSearchLcAvatar.textContent;
-                        btnSearchLcAvatar.textContent = 'Enviando...';
-                        btnSearchLcAvatar.disabled = true;
-                        
-                        try {
-                            const formData = new FormData();
-                            formData.append('logo', file);
-                            
-                            const response = await fetch('/api/upload', {
-                                method: 'POST',
-                                body: formData
-                            });
-                            
-                            const data = await response.json();
-                            if (data.success && data.urls && data.urls.logo) {
-                                const lcAvatarInput = document.getElementById('input-addon-lc-avatar');
-                                if (lcAvatarInput) {
-                                    lcAvatarInput.value = window.location.origin + data.urls.logo;
-                                }
-                                updatePreviewFromForm();
-                            } else {
-                                alert('Erro ao fazer upload da imagem do atendente.');
-                            }
-                        } catch (err) {
-                            console.error('Erro ao fazer upload:', err);
-                            alert('Erro de conexão ao fazer upload.');
-                        } finally {
-                            btnSearchLcAvatar.textContent = originalText;
-                            btnSearchLcAvatar.disabled = false;
-                        }
-                    });
-                    
-                    fileInput.click();
-                });
-            }
-
-            // Toggle do painel de Múltiplos Atendentes (Add-on 5)
-            const inputLcMulti = document.getElementById('input-addon-lc-multi');
-            const containerLcMultiAgents = document.getElementById('container-addon-lc-multi-agents');
-            if (inputLcMulti) {
-                const toggleLcMulti = () => {
-                    if (containerLcMultiAgents) containerLcMultiAgents.style.display = inputLcMulti.checked ? 'block' : 'none';
-                };
-                inputLcMulti.addEventListener('change', () => {
-                    toggleLcMulti();
-                    updatePreviewFromForm();
-                });
-                toggleLcMulti();
-            }
-
-            // Upload de Imagem do Atendente 2
-            const btnSearchLcAvatar2 = document.getElementById('btn-search-lc-avatar2');
-            if (btnSearchLcAvatar2) {
-                btnSearchLcAvatar2.addEventListener('click', () => {
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/*';
-                    fileInput.addEventListener('change', async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        const originalText = btnSearchLcAvatar2.textContent;
-                        btnSearchLcAvatar2.textContent = '...';
-                        btnSearchLcAvatar2.disabled = true;
-                        try {
-                            const formData = new FormData();
-                            formData.append('logo', file);
-                            const response = await fetch('/api/upload', { method: 'POST', body: formData });
-                            const data = await response.json();
-                            if (data.success && data.urls && data.urls.logo) {
-                                const inputVal = document.getElementById('input-addon-lc-avatar2');
-                                if (inputVal) inputVal.value = window.location.origin + data.urls.logo;
-                                updatePreviewFromForm();
-                            } else {
-                                alert('Erro ao fazer upload.');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                        } finally {
-                            btnSearchLcAvatar2.textContent = originalText;
-                            btnSearchLcAvatar2.disabled = false;
-                        }
-                    });
-                    fileInput.click();
-                });
-            }
-
-            // Upload de Imagem do Atendente 3
-            const btnSearchLcAvatar3 = document.getElementById('btn-search-lc-avatar3');
-            if (btnSearchLcAvatar3) {
-                btnSearchLcAvatar3.addEventListener('click', () => {
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/*';
-                    fileInput.addEventListener('change', async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        const originalText = btnSearchLcAvatar3.textContent;
-                        btnSearchLcAvatar3.textContent = '...';
-                        btnSearchLcAvatar3.disabled = true;
-                        try {
-                            const formData = new FormData();
-                            formData.append('logo', file);
-                            const response = await fetch('/api/upload', { method: 'POST', body: formData });
-                            const data = await response.json();
-                            if (data.success && data.urls && data.urls.logo) {
-                                const inputVal = document.getElementById('input-addon-lc-avatar3');
-                                if (inputVal) inputVal.value = window.location.origin + data.urls.logo;
-                                updatePreviewFromForm();
-                            } else {
-                                alert('Erro ao fazer upload.');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                        } finally {
-                            btnSearchLcAvatar3.textContent = originalText;
-                            btnSearchLcAvatar3.disabled = false;
-                        }
-                    });
-                    fileInput.click();
-                });
-            }
-
             // ==========================================
             // ADD-ON 6: BOLINHAS NO BACKGROUND
             // ==========================================
@@ -2065,19 +1761,6 @@ loadClassicModel();
                 });
             }
 
-            const selectMtxChars = document.getElementById('select-addon-mtx-chars');
-            const containerMtxCustom = document.getElementById('container-addon-mtx-custom-chars');
-            if (selectMtxChars) {
-                const toggleMtxCustom = () => {
-                    if (containerMtxCustom) containerMtxCustom.style.display = (selectMtxChars.value === 'custom') ? 'block' : 'none';
-                };
-                selectMtxChars.addEventListener('change', () => {
-                    toggleMtxCustom();
-                    updatePreviewFromForm();
-                });
-                toggleMtxCustom();
-            }
-
             // ==========================================
             // ADD-ON 8: CYBERPUNK TEXT GLITCH
             // ==========================================
@@ -2107,19 +1790,6 @@ loadClassicModel();
                 });
             }
 
-            const selectGlitchPalette = document.getElementById('select-addon-glitch-palette');
-            const containerGlitchCustom = document.getElementById('container-addon-glitch-custom-colors');
-            if (selectGlitchPalette) {
-                const toggleGlitchCustom = () => {
-                    if (containerGlitchCustom) containerGlitchCustom.style.display = (selectGlitchPalette.value === 'custom') ? 'flex' : 'none';
-                };
-                selectGlitchPalette.addEventListener('change', () => {
-                    toggleGlitchCustom();
-                    updatePreviewFromForm();
-                });
-                toggleGlitchCustom();
-            }
-
             // ==========================================
             // ADD-ON 9: AURORA BOREAL FLUIDA
             // ==========================================
@@ -2145,32 +1815,6 @@ loadClassicModel();
             if (btnRemoveAurora && cardAuroraInspector) {
                 btnRemoveAurora.addEventListener('click', () => {
                     cardAuroraInspector.style.display = 'none';
-                    updatePreviewFromForm();
-                });
-            }
-
-            // ==========================================
-            // ADD-ON 10: SPLASH PROMO LETREIRO
-            // ==========================================
-            const btnEnableSplash = document.getElementById('btn-enable-splashpromo-addon');
-            const cardSplashInspector = document.getElementById('card-addon-splashpromo');
-            const btnRemoveSplash = document.getElementById('btn-remove-splashpromo-addon');
-
-            if (btnEnableSplash && cardSplashInspector) {
-                btnEnableSplash.addEventListener('click', () => {
-                    cardSplashInspector.style.display = 'block';
-                    const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                    if (contentTabBtn) contentTabBtn.click();
-                    updatePreviewFromForm();
-                    setTimeout(() => {
-                        cardSplashInspector.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                });
-            }
-
-            if (btnRemoveSplash && cardSplashInspector) {
-                btnRemoveSplash.addEventListener('click', () => {
-                    cardSplashInspector.style.display = 'none';
                     updatePreviewFromForm();
                 });
             }
@@ -2373,34 +2017,17 @@ loadClassicModel();
                         addonTopbannerColor: document.getElementById('input-addon-tb-color')?.value || '#38bdf8',
                         addonTopbannerEffect: document.getElementById('select-addon-tb-effect')?.value || 'fade',
                         addonTopbannerPause: parseInt(document.getElementById('input-addon-tb-pause')?.value || '2', 10),
-                        addonTopbannerPauseBetween: parseInt(document.getElementById('input-addon-tb-pause-between')?.value || '1', 10),
-                        addonTopbannerMarqueeSpeed: parseInt(document.getElementById('input-addon-tb-marquee-speed')?.value || '5', 10),
-                        addonTopbannerMarqueePause: parseInt(document.getElementById('input-addon-tb-marquee-pause')?.value || '3', 10),
                         addonEmojiRainActive: document.getElementById('card-addon-emojirain')?.style.display !== 'none',
                         addonEmojiRainEmoji: document.getElementById('input-addon-er-emoji')?.value?.trim() || '',
                         addonEmojiRainCount: parseInt(document.getElementById('input-addon-er-count')?.value || '8', 10),
                         addonEmojiRainSpeed: document.getElementById('select-addon-er-speed')?.value || 'normal',
-                        addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '100', 10),
+                        addonEmojiRainCoverage: parseInt(document.getElementById('input-addon-er-coverage')?.value || '80', 10),
                         addonEmojiRainRotate: document.getElementById('input-addon-er-rotate')?.checked || false,
-                        addonEmojiRainSway: document.getElementById('input-addon-er-sway')?.checked || false,
-                        addonEmojiRainOpacity: document.getElementById('select-addon-er-opacity')?.value || 'normal',
-                        addonEmojiRainAsSvg: document.getElementById('input-addon-er-as-svg')?.checked || false,
-                        addonEmojiRainSvgColor: document.getElementById('input-addon-er-svg-color')?.value || '#7c3aed',
                         addonAvatarSpinActive: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
                         addonAvatarSpinDuration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
                         addonAvatarSpinSpins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
                         addonAvatarSpinRepeat: document.getElementById('input-addon-as-repeat')?.checked || false,
                         addonAvatarSpinInterval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
-                        addonAvatarSpinAxis: document.getElementById('input-addon-as-axis')?.value || 'Y',
-                        addonAvatarSpinEasing: document.getElementById('input-addon-as-easing')?.value || 'easeout',
-                        addonAvatarSpinEntrance: document.getElementById('input-addon-as-entrance')?.value || 'spin',
-                        addonAvatarSpinTrigger: document.getElementById('input-addon-as-trigger')?.value || 'onload',
-                        addonAvatarSpinFloat: document.getElementById('input-addon-as-float')?.checked || false,
-                        addonAvatarSpinPulse: document.getElementById('input-addon-as-pulse')?.checked || false,
-                        addonAvatarSpinGlow: document.getElementById('input-addon-as-glow')?.checked || false,
-                        addonAvatarSpinGlowColor: document.getElementById('input-addon-as-glow-color')?.value || '#f59e0b',
-                        addonAvatarSpinBorder: document.getElementById('input-addon-as-border')?.checked || false,
-                        addonAvatarSpinBorderColor: document.getElementById('input-addon-as-border-color')?.value || '#a855f7',
                         addonAudioPlayerActive: document.getElementById('card-addon-audioplayer')?.style.display !== 'none',
                         addonAudioPlayerUrl: document.getElementById('input-addon-ap-url')?.value?.trim() || '',
                         addonAudioPlayerLabel: document.getElementById('input-addon-ap-label')?.value?.trim() || 'Música da Loja',
@@ -2411,23 +2038,11 @@ loadClassicModel();
                         addonLivechatActive: document.getElementById('card-addon-livechat')?.style.display !== 'none',
                         addonLivechatAvatar: document.getElementById('input-addon-lc-avatar')?.value?.trim() || '',
                         addonLivechatName: document.getElementById('input-addon-lc-name')?.value?.trim() || 'Suporte Amanda',
-                        addonLivechatStatusType: document.getElementById('select-addon-lc-status-type')?.value || 'smart',
-                        addonLivechatHoursStart: document.getElementById('input-addon-lc-hours-start')?.value?.trim() || '08:00',
-                        addonLivechatHoursEnd: document.getElementById('input-addon-lc-hours-end')?.value?.trim() || '18:00',
                         addonLivechatStatusText: document.getElementById('input-addon-lc-status')?.value?.trim() || 'Online Agora',
                         addonLivechatMessage: document.getElementById('input-addon-lc-message')?.value?.trim() || 'Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋',
                         addonLivechatUrl: document.getElementById('input-addon-lc-url')?.value?.trim() || 'https://wa.me/5511999999999',
                         addonLivechatPosition: document.getElementById('select-addon-lc-position')?.value || 'bottom-left',
                         addonLivechatColor: document.getElementById('input-addon-lc-color')?.value || '#22c55e',
-                        addonLivechatPretext: document.getElementById('input-addon-lc-pretext')?.value?.trim() || '',
-                        addonLivechatDelay: parseInt(document.getElementById('input-addon-lc-delay')?.value || '3', 10),
-                        addonLivechatMulti: document.getElementById('input-addon-lc-multi')?.checked || false,
-                        addonLivechatName2: document.getElementById('input-addon-lc-name2')?.value?.trim() || 'Suporte Financeiro',
-                        addonLivechatAvatar2: document.getElementById('input-addon-lc-avatar2')?.value?.trim() || '',
-                        addonLivechatUrl2: document.getElementById('input-addon-lc-url2')?.value?.trim() || 'https://wa.me/5511999999999',
-                        addonLivechatName3: document.getElementById('input-addon-lc-name3')?.value?.trim() || 'Vendas e Dúvidas',
-                        addonLivechatAvatar3: document.getElementById('input-addon-lc-avatar3')?.value?.trim() || '',
-                        addonLivechatUrl3: document.getElementById('input-addon-lc-url3')?.value?.trim() || 'https://wa.me/5511999999999',
                         addonBgdotsActive: document.getElementById('card-addon-bgdots')?.style.display !== 'none',
                         addonBgdotsCount: parseInt(document.getElementById('input-addon-bd-count')?.value || '50', 10),
                         addonBgdotsColor: document.getElementById('input-addon-bd-color')?.value || '#ffffff',
@@ -2444,23 +2059,11 @@ loadClassicModel();
                         addonMatrixSize: parseInt(document.getElementById('input-addon-mtx-size')?.value || '14', 10),
                         addonMatrixChars: document.getElementById('select-addon-mtx-chars')?.value || 'matrix',
                         addonMatrixOpacity: parseFloat(document.getElementById('input-addon-mtx-opacity')?.value || '0.15'),
-                        addonMatrixCustomChars: document.getElementById('input-addon-mtx-custom-chars')?.value?.trim() || '',
-                        addonMatrixTheme: document.getElementById('select-addon-mtx-theme')?.value || 'custom',
-                        addonMatrixDir: document.getElementById('select-addon-mtx-dir')?.value || 'down',
-                        addonMatrixGlow: document.getElementById('input-addon-mtx-glow')?.checked || false,
                         addonGlitchActive: document.getElementById('card-addon-glitch')?.style.display !== 'none',
                         addonGlitchIntensity: document.getElementById('select-addon-glitch-intensity')?.value || 'normal',
                         addonGlitchSpeed: document.getElementById('select-addon-glitch-speed')?.value || 'normal',
                         addonGlitchName: document.getElementById('input-addon-glitch-name')?.checked || false,
                         addonGlitchButtons: document.getElementById('input-addon-glitch-buttons')?.checked || false,
-                        addonGlitchPalette: document.getElementById('select-addon-glitch-palette')?.value || 'cyberpunk',
-                        addonGlitchC1: document.getElementById('input-addon-glitch-c1')?.value || '#ff0055',
-                        addonGlitchC2: document.getElementById('input-addon-glitch-c2')?.value || '#00ffaa',
-                        addonGlitchDuration: document.getElementById('select-addon-glitch-duration')?.value || 'short',
-                        addonGlitchScramble: document.getElementById('input-addon-glitch-scramble')?.checked || false,
-                        addonGlitchBorder: document.getElementById('input-addon-glitch-border')?.checked || false,
-                        addonGlitchFlash: document.getElementById('input-addon-glitch-flash')?.checked || false,
-                        addonGlitchWave: document.getElementById('input-addon-glitch-wave')?.checked || false,
                         addonAuroraActive: document.getElementById('card-addon-aurora')?.style.display !== 'none',
                         addonAuroraPalette: document.getElementById('select-addon-aurora-palette')?.value || 'arctic',
                         addonAuroraC1: document.getElementById('input-addon-aurora-c1')?.value || '#00f2fe',
@@ -2469,47 +2072,18 @@ loadClassicModel();
                         addonAuroraSpeed: document.getElementById('select-addon-aurora-speed')?.value || 'normal',
                         addonAuroraBlur: parseInt(document.getElementById('input-addon-aurora-blur')?.value || '60', 10),
                         addonAuroraPulsate: document.getElementById('input-addon-aurora-pulsate')?.checked || false,
-                        addonSplashpromoActive: document.getElementById('card-addon-splashpromo')?.style.display !== 'none',
-                        addonSplashpromoMode: document.getElementById('select-addon-splash-mode')?.value || 'roulette',
-                        addonSplashpromoTitle: document.getElementById('input-addon-splash-title')?.value || '🎉 PARABÉNS!',
-                        addonSplashpromoText: document.getElementById('input-addon-splash-text')?.value || '',
-                        addonSplashpromoDiscount: parseInt(document.getElementById('input-addon-splash-discount')?.value || '20', 10),
-                        addonSplashpromoCoupon: document.getElementById('input-addon-splash-coupon')?.value || 'BIO20',
-                        addonSplashpromoCountdownTime: parseInt(document.getElementById('input-addon-splash-countdown-time')?.value || '10', 10),
-                        addonSplashpromoBg: document.getElementById('input-addon-splash-bg')?.value || '#1e293b',
-                        addonSplashpromoColor: document.getElementById('input-addon-splash-color')?.value || '#38bdf8',
-                        addonSplashpromoOverlayColor: document.getElementById('input-addon-splash-overlay-color')?.value || '#090d16',
-                        addonSplashpromoOverlayOpacity: parseFloat(document.getElementById('input-addon-splash-overlay-opacity')?.value || '0.85'),
-                        addonSplashpromoBtnText: document.getElementById('input-addon-splash-btn-text')?.value || 'Garantir Desconto & Entrar 🚀',
                         preset: localStorage.getItem('selected-theme-preset') || 'gray',
                         bioAlign: document.querySelector('.align-btn.active') ? document.querySelector('.align-btn.active').getAttribute('data-align') : 'center',
                         serviceFee: parseFloat(document.getElementById('cart-service-fee')?.value) || 0,
                         bannerConfig: { enabled: document.getElementById('card-addon-topbanner')?.style.display !== 'none' },
                         rainConfig: { enabled: document.getElementById('card-addon-emojirain')?.style.display !== 'none' },
-                        avatarSpinConfig: {
-                            enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none',
-                            duration: parseFloat(document.getElementById('input-addon-as-duration')?.value || '3'),
-                            spins: parseInt(document.getElementById('input-addon-as-spins')?.value || '4', 10),
-                            repeat: document.getElementById('input-addon-as-repeat')?.checked || false,
-                            interval: parseInt(document.getElementById('input-addon-as-interval')?.value || '5', 10),
-                            axis: document.getElementById('input-addon-as-axis')?.value || 'Y',
-                            easing: document.getElementById('input-addon-as-easing')?.value || 'easeout',
-                            entrance: document.getElementById('input-addon-as-entrance')?.value || 'spin',
-                            trigger: document.getElementById('input-addon-as-trigger')?.value || 'onload',
-                            float: document.getElementById('input-addon-as-float')?.checked || false,
-                            pulse: document.getElementById('input-addon-as-pulse')?.checked || false,
-                            glow: document.getElementById('input-addon-as-glow')?.checked || false,
-                            glowColor: document.getElementById('input-addon-as-glow-color')?.value || '#f59e0b',
-                            border: document.getElementById('input-addon-as-border')?.checked || false,
-                            borderColor: document.getElementById('input-addon-as-border-color')?.value || '#a855f7',
-                        },
+                        avatarSpinConfig: { enabled: document.getElementById('card-addon-avatarspin')?.style.display !== 'none' },
                         audioPlayerConfig: { enabled: document.getElementById('card-addon-audioplayer')?.style.display !== 'none' },
                         chatWidgetConfig: { enabled: document.getElementById('card-addon-livechat')?.style.display !== 'none' },
                         bgdotsConfig: { enabled: document.getElementById('card-addon-bgdots')?.style.display !== 'none' },
                         matrixConfig: { enabled: document.getElementById('card-addon-matrix')?.style.display !== 'none' },
                         glitchConfig: { enabled: document.getElementById('card-addon-glitch')?.style.display !== 'none' },
-                        auroraConfig: { enabled: document.getElementById('card-addon-aurora')?.style.display !== 'none' },
-                        splashpromoConfig: { enabled: document.getElementById('card-addon-splashpromo')?.style.display !== 'none' }
+                        auroraConfig: { enabled: document.getElementById('card-addon-aurora')?.style.display !== 'none' }
                     };
 
                     const btnSave = document.getElementById('btn-save-inspector');
@@ -3632,205 +3206,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.updateModelCardsPrices === 'function') {
         window.updateModelCardsPrices();
     }
-
-    // Delegacia de Eventos de Clique para Habilitar/Remover Add-ons (Evita race conditions em dispositivos móveis)
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('button, a');
-        if (!btn || !btn.id) return;
-
-        const id = btn.id;
-
-        // 1. HABILITAR ADD-ONS
-        if (id === 'btn-enable-topbanner-addon') {
-            const card = document.getElementById('card-addon-topbanner');
-            if (card) {
-                card.style.display = 'block';
-                const text1 = document.getElementById('input-addon-tb-text1');
-                if (text1 && !text1.value) text1.value = "🔥 Frete Grátis em compras acima de R$ 199";
-                const text2 = document.getElementById('input-addon-tb-text2');
-                if (text2 && !text2.value) text2.value = "💳 Em até 10x sem juros no cartão";
-                const text3 = document.getElementById('input-addon-tb-text3');
-                if (text3 && !text3.value) text3.value = "🛍️ Cupom 10% OFF: BEMVINDO10";
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-emojirain-addon') {
-            const card = document.getElementById('card-addon-emojirain');
-            if (card) {
-                card.style.display = 'block';
-                const emojiInput = document.getElementById('input-addon-er-emoji');
-                if (emojiInput && !emojiInput.value) emojiInput.value = '🌸';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-avatarspin-addon') {
-            const card = document.getElementById('card-addon-avatarspin');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-audioplayer-addon') {
-            const card = document.getElementById('card-addon-audioplayer');
-            if (card) {
-                card.style.display = 'block';
-                const urlInput = document.getElementById('input-addon-ap-url');
-                if (urlInput && !urlInput.value) {
-                    urlInput.value = 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3';
-                }
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-livechat-addon') {
-            const card = document.getElementById('card-addon-livechat');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-bgdots-addon') {
-            const card = document.getElementById('card-addon-bgdots');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-matrix-addon') {
-            const card = document.getElementById('card-addon-matrix');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-glitch-addon') {
-            const card = document.getElementById('card-addon-glitch');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-aurora-addon') {
-            const card = document.getElementById('card-addon-aurora');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-        else if (id === 'btn-enable-splashpromo-addon') {
-            const card = document.getElementById('card-addon-splashpromo');
-            if (card) {
-                card.style.display = 'block';
-                const contentTabBtn = document.querySelector('.inspector-tab-btn[data-tab="content"]');
-                if (contentTabBtn) contentTabBtn.click();
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-                setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-            }
-        }
-
-        // 2. REMOVER ADD-ONS
-        else if (id === 'btn-remove-topbanner-addon') {
-            const card = document.getElementById('card-addon-topbanner');
-            if (card) {
-                card.style.display = 'none';
-                const text1 = document.getElementById('input-addon-tb-text1'); if (text1) text1.value = "";
-                const text2 = document.getElementById('input-addon-tb-text2'); if (text2) text2.value = "";
-                const text3 = document.getElementById('input-addon-tb-text3'); if (text3) text3.value = "";
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-emojirain-addon') {
-            const card = document.getElementById('card-addon-emojirain');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-avatarspin-addon') {
-            const card = document.getElementById('card-addon-avatarspin');
-            if (card) {
-                card.style.display = 'none';
-                const liveAvatar = document.getElementById('view-avatar-container') || document.getElementById('v-view-avatar-wrapper');
-                if (liveAvatar) liveAvatar.style.animation = '';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-audioplayer-addon') {
-            const card = document.getElementById('card-addon-audioplayer');
-            if (card) {
-                card.style.display = 'none';
-                const urlInput = document.getElementById('input-addon-ap-url');
-                if (urlInput) urlInput.value = '';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-livechat-addon') {
-            const card = document.getElementById('card-addon-livechat');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-bgdots-addon') {
-            const card = document.getElementById('card-addon-bgdots');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-matrix-addon') {
-            const card = document.getElementById('card-addon-matrix');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-glitch-addon') {
-            const card = document.getElementById('card-addon-glitch');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-aurora-addon') {
-            const card = document.getElementById('card-addon-aurora');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-        else if (id === 'btn-remove-splashpromo-addon') {
-            const card = document.getElementById('card-addon-splashpromo');
-            if (card) {
-                card.style.display = 'none';
-                if (typeof updatePreviewFromForm === 'function') updatePreviewFromForm();
-            }
-        }
-    });
 });

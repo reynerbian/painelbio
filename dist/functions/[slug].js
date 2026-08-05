@@ -1,0 +1,96 @@
+import { generateStaticSite } from './shared.js';
+
+export async function onRequest(context) {
+  const { request, env, params, next } = context;
+  
+  const slug = params.slug;
+  if (!slug) {
+    return next();
+  }
+
+  const pathname = new URL(request.url).pathname;
+
+  // Verifica se é um arquivo estático real (ex: style.css, app.js, icon.png)
+  const isAssetFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|json|html|webmanifest|txt|cjs|map)$/i.test(pathname);
+  
+  if (
+    isAssetFile || 
+    pathname.startsWith('/css/') || 
+    pathname.startsWith('/js/') || 
+    pathname.startsWith('/api/') || 
+    pathname.startsWith('/models/') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js'
+  ) {
+    return next();
+  }
+
+  // Prepara o slug com e sem @ (suporta pontos no nome do usuário como @anacarolina.semijoias)
+  const cleanSlug = slug.toLowerCase();
+  const slugWithAt = cleanSlug.startsWith('@') ? cleanSlug : '@' + cleanSlug;
+  const slugWithoutAt = cleanSlug.replace('@', '');
+
+  try {
+    if (!env || !env.PAINELBIO_KV) {
+      return next();
+    }
+
+    // Tenta buscar no KV com e sem @
+    let dataStr = await env.PAINELBIO_KV.get(`site:${slugWithAt}`);
+    if (!dataStr) {
+      dataStr = await env.PAINELBIO_KV.get(`site:${slugWithoutAt}`);
+    }
+    
+    if (!dataStr) {
+      // Se NÃO encontrou no KV, exibe uma página bonita de "Perfil não encontrado" em vez de abrir o App!
+      return new Response(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil não encontrado | PainelBio</title>
+    <style>
+        body { background: #0d1117; color: #fff; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; padding: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 32px 24px; max-width: 360px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { font-size: 1.2rem; margin-bottom: 8px; color: #f0f6fc; }
+        p { font-size: 0.9rem; color: #8b949e; margin-bottom: 24px; line-height: 1.4; }
+        a { background: #238636; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Perfil @${slugWithoutAt} não encontrado</h2>
+        <p>Este link ainda não foi publicado no ar. Abra a galeria e clique no botão de Upload.</p>
+        <a href="/">Criar meu Link na Bio</a>
+    </div>
+</body>
+</html>`, { 
+        status: 404, 
+        headers: { 'Content-Type': 'text/html;charset=UTF-8' } 
+      });
+    }
+
+    // Incrementa a métrica de visualizações do mês sem travar a resposta
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    const statsKey = `stats:${slugWithoutAt}:${currentMonth}`;
+    try {
+      const statsStr = await env.PAINELBIO_KV.get(statsKey);
+      let stats = statsStr ? JSON.parse(statsStr) : { views: 0, clicks: 0, referrals: 0 };
+      stats.views = (stats.views || 0) + 1;
+      context.waitUntil(env.PAINELBIO_KV.put(statsKey, JSON.stringify(stats)));
+    } catch(e) {}
+
+    const data = JSON.parse(dataStr);
+    const html = generateStaticSite(data);
+    
+    return new Response(html, { 
+        headers: { 
+          'Content-Type': 'text/html;charset=UTF-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        } 
+    });
+  } catch (err) {
+    return new Response('Erro ao carregar o site', { status: 500 });
+  }
+}

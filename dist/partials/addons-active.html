@@ -1,0 +1,542 @@
+<!-- Card do Add-on 1: Anúncio Flutuante de Topo -->
+            <div id="card-addon-topbanner" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-topbanner-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+                
+                <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    📢 Add-on Ativo: Anúncio Flutuante
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-tb-text1">Frase 1 (ex: 🔥 Frete Grátis):</label>
+                    <input type="text" id="input-addon-tb-text1" placeholder="Ex: 🔥 Frete Grátis para todo o Brasil">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-tb-text2">Frase 2 (ex: 💳 10x sem juros):</label>
+                    <input type="text" id="input-addon-tb-text2" placeholder="Ex: 💳 Em até 10x sem juros no cartão">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-tb-text3">Frase 3 (ex: 🛍️ Cupom BEMVINDO10):</label>
+                    <input type="text" id="input-addon-tb-text3" placeholder="Ex: 🛍️ Cupom 10% OFF: BEMVINDO10">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-tb-bg">Cor da Faixa:</label>
+                        <input type="color" id="input-addon-tb-bg" value="#0f172a" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-tb-color">Cor do Texto:</label>
+                        <input type="color" id="input-addon-tb-color" value="#38bdf8" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Motor de Efeitos Visuais do Anúncio de Topo -->
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                    <label for="select-addon-tb-effect" style="font-size: 0.8rem; font-weight: 700; color: #60a5fa; display: block; margin-bottom: 6px;">
+                        🎬 Tipo de Efeito Visual do Anúncio:
+                    </label>
+                    <select id="select-addon-tb-effect" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer; margin-bottom: 10px;">
+                        <option value="fade">✨ 1. Fade Suave (Transição Fixa)</option>
+                        <option value="slide">⏱️ 2. Encolher &amp; Expandir (com Pausa)</option>
+                        <option value="marquee">📺 3. Letreiro Contínuo (Marquee/Ticker)</option>
+                        <option value="bounce">🎈 4. Quique Elástico (Pop Bounce)</option>
+                        <option value="flip">🔄 5. Giro 3D de Painel (Flip 3D)</option>
+                        <option value="shutter">🪟 6. Cortina / Persiana (Shutter)</option>
+                    </select>
+
+                      <div id="container-addon-tb-pause" style="display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                          <label for="input-addon-tb-pause-between" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Pausa entre os Textos (Segundos):</label>
+                          <input type="number" id="input-addon-tb-pause-between" value="1" min="1" max="10" placeholder="Ex: 1" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; margin-bottom: 10px;">
+                          
+                          <label for="input-addon-tb-pause" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Pausa para Recomeçar o Anúncio (Segundos):</label>
+                          <input type="number" id="input-addon-tb-pause" value="2" min="1" max="60" placeholder="Ex: 2" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                      </div>
+                    <div id="container-addon-tb-marquee-settings" style="display: none; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-top: 10px;">
+                        <label for="input-addon-tb-marquee-speed" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Velocidade do Letreiro (1 a 10):</label>
+                        <input type="number" id="input-addon-tb-marquee-speed" value="5" min="1" max="10" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; margin-bottom: 10px;">
+                        
+                        <label for="input-addon-tb-marquee-pause" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Pausa Fechado (Segundos):</label>
+                        <input type="number" id="input-addon-tb-marquee-pause" value="3" min="1" max="60" style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card do Add-on 2: Chuva de Emoji -->
+            <div id="card-addon-emojirain" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-emojirain-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #a78bfa; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🌧️ Add-on Ativo: Chuva de Emoji
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-er-emoji">Emoji que vai cair:</label>
+                    <input type="text" id="input-addon-er-emoji" placeholder="Ex: 🌸  💸  🔥  ❄️  🌟" maxlength="4" style="font-size: 1.4rem; text-align: center; letter-spacing: 4px;">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 4px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-er-count">Quantidade (1–20):</label>
+                        <input type="number" id="input-addon-er-count" value="8" min="1" max="20" style="width: 100%; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="select-addon-er-speed">Velocidade:</label>
+                        <select id="select-addon-er-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #a78bfa; border: 1px solid #334155; cursor: pointer; box-sizing: border-box;">
+                            <option value="slow">🐢 Lenta</option>
+                            <option value="normal" selected>🚶 Normal</option>
+                            <option value="fast">⚡ Rápida</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Alcance da Chuva -->
+                <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label for="input-addon-er-coverage" style="margin-bottom: 0; font-size: 0.8rem;">📏 Alcance da Chuva:</label>
+                        <span id="label-addon-er-coverage" style="font-size: 0.8rem; font-weight: 700; color: #a78bfa;">80%</span>
+                    </div>
+                    <input type="range" id="input-addon-er-coverage" min="10" max="100" value="80" style="width: 100%; accent-color: #7c3aed; cursor: pointer; margin: 0;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #475569; margin-top: 2px;">
+                        <span>10% (topo)</span><span>100% (tela toda)</span>
+                    </div>
+                </div>
+
+                <!-- Rotação -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 8px 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <label for="input-addon-er-rotate" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer;">
+                        🔄 Emojis Giram (aleatório):
+                    </label>
+                    <input type="checkbox" id="input-addon-er-rotate" style="width: 18px; height: 18px; cursor: pointer; accent-color: #7c3aed;">
+                </div>
+
+                <!-- Catálogo de Emojis -->
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                    <label style="font-size: 0.78rem; font-weight: 700; color: #a78bfa; display: block; margin-bottom: 8px;">📚 Catálogo (clique para usar):</label>
+                    <div class="emoji-catalog-grid" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;">
+                        <button type="button" class="emoji-pick-btn" data-emoji="🌸" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🌸</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🌺" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🌺</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🌻" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🌻</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🍀" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🍀</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="❄️" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">❄️</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="⭐" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">⭐</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🌙" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🌙</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="☀️" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">☀️</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="💸" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">💸</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="💰" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">💰</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="💎" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">💎</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🏆" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🏆</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🔥" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🔥</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="✨" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">✨</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="💫" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">💫</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🦋" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🦋</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🎉" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🎉</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🎈" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🎈</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🎵" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🎵</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="❤️" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">❤️</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="💕" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">💕</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🌈" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🌈</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🍕" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🍕</button>
+                        <button type="button" class="emoji-pick-btn" data-emoji="🍦" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1rem; padding: 4px; cursor: pointer; transition: background 0.15s;">🍦</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card do Add-on 3: Rodopio do Avatar -->
+            <div id="card-addon-avatarspin" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-avatarspin-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #f59e0b; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🌀 Add-on Ativo: Rodopio do Avatar
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Quando o visitante abre o site, a foto de perfil dá um giro completo em 3D e vai desacelerando até parar, igual a uma moeda girando.
+                </p>
+
+                <!-- Duração do giro -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="input-addon-as-duration" style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+                        ⏱️ Duração do Rodopio (segundos):
+                    </label>
+                    <input type="number" id="input-addon-as-duration" value="3" min="1" max="10" step="0.5"
+                        style="width: 100%; font-size: 1rem; font-weight: 700; padding: 10px 14px; border-radius: 8px; background: #0f172a; color: #f59e0b; border: 1px solid #f59e0b55; box-sizing: border-box; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #475569; margin-top: 4px; text-align: center;">1 segundo = giro rápido · 10 segundos = giro bem lento e elegante</div>
+                </div>
+
+                <!-- Número de voltas -->
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="input-addon-as-spins" style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 5px;">
+                        🔁 Número de Voltas (rotações):
+                    </label>
+                    <input type="number" id="input-addon-as-spins" value="4" min="1" max="20"
+                        style="width: 100%; font-size: 1rem; font-weight: 700; padding: 10px 14px; border-radius: 8px; background: #0f172a; color: #f59e0b; border: 1px solid #f59e0b55; box-sizing: border-box; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #475569; margin-top: 4px; text-align: center;">Ex: 4 voltas completas antes de parar.</div>
+                </div>
+
+                <!-- Repetir? -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 10px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <label for="input-addon-as-repeat" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer;">
+                        🔂 Repetir o giro a cada X segundos:
+                    </label>
+                    <input type="checkbox" id="input-addon-as-repeat" style="width: 18px; height: 18px; cursor: pointer; accent-color: #f59e0b;">
+                </div>
+                <div id="container-addon-as-interval" style="display: none; margin-top: 10px;">
+                    <label for="input-addon-as-interval" style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">Intervalo entre cada giro (segundos):</label>
+                    <input type="number" id="input-addon-as-interval" value="5" min="2" max="60"
+                        style="width: 100%; font-size: 0.85rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Preview rápido -->
+                <button type="button" id="btn-preview-avatarspin" style="margin-top: 14px; width: 100%; background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer;">
+                    ▶ Testar Animação Agora
+                </button>
+            </div>
+
+            <!-- Card do Add-on 4: Player de Áudio Flutuante -->
+            <div id="card-addon-audioplayer" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-audioplayer-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #ec4899; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    🎵 Add-on Ativo: Player de Áudio Flutuante
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Adiciona um botão de som no canto da tela com barras de ondas sonoras (equalizador) para tocar vinheta, música temática ou recado de voz.
+                </p>
+
+                <!-- URL do Áudio MP3 -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-ap-url" style="font-size: 0.8rem; font-weight: 700; color: #f472b6;">🔗 Link / URL do Áudio (MP3 ou OGG):</label>
+                    <input type="text" id="input-addon-ap-url" placeholder="https://exemplo.com/musica.mp3" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Faixas de Demonstração -->
+                <div style="margin-top: 10px; margin-bottom: 14px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: #f472b6; display: block; margin-bottom: 6px;">🎶 Ou escolha uma trilha de exemplo:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="ap-demo-btn" data-url="https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">☕ Lofi Soft</button>
+                        <button type="button" class="ap-demo-btn" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">✨ Pop Moderno</button>
+                        <button type="button" class="ap-demo-btn" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">🎸 Eletrônico Chill</button>
+                        <button type="button" class="ap-demo-btn" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" style="background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.35); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">🎹 Melodico Piano</button>
+                    </div>
+                </div>
+
+                <!-- Rótulo / Legenda do Botão -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-ap-label" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📝 Rótulo / Legenda do Botão:</label>
+                    <input type="text" id="input-addon-ap-label" placeholder="Ex: Ouvir Música da Loja" value="Música da Loja" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Posição Flutuante -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-ap-position" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📍 Posição do Botão Flutuante:</label>
+                    <select id="select-addon-ap-position" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f472b6; border: 1px solid #334155; cursor: pointer;">
+                        <option value="bottom-right" selected>↘️ Canto Inferior Direito</option>
+                        <option value="bottom-left">↙️ Canto Inferior Esquerdo</option>
+                        <option value="top-right">↗️ Canto Superior Direito</option>
+                    </select>
+                </div>
+
+                <!-- Cores -->
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-ap-color">Cor do Botão:</label>
+                        <input type="color" id="input-addon-ap-color" value="#ec4899" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="input-addon-ap-wave-color">Cor da Onda (Wave):</label>
+                        <input type="color" id="input-addon-ap-wave-color" value="#ffffff" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Autoplay -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding: 10px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <label for="input-addon-ap-autoplay" style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1; cursor: pointer; display: block;">
+                            ▶️ Iniciar Som Automaticamente:
+                        </label>
+                        <span style="font-size: 0.68rem; color: #64748b;">(Requer primeira interação do toque no celular)</span>
+                    </div>
+                    <input type="checkbox" id="input-addon-ap-autoplay" style="width: 18px; height: 18px; cursor: pointer; accent-color: #ec4899;">
+                </div>
+            </div>
+
+            <!-- Card do Add-on 5: Balão de Atendimento "Online Agora" -->
+            <div id="card-addon-livechat" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-livechat-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #22c55e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    💬 Add-on Ativo: Balão "Online Agora" (WhatsApp)
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Exibe um balão flutuante com a foto do atendente, um ponto verde piscando ("Online Agora") e a prévia de mensagem para conversão imediata no WhatsApp.
+                </p>
+
+                <!-- Foto / Avatar do Atendente -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-avatar" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">🖼️ Foto do Atendente (URL):</label>
+                    <input type="text" id="input-addon-lc-avatar" placeholder="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Nome do Atendente -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-name" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">👤 Nome do Atendente:</label>
+                    <input type="text" id="input-addon-lc-name" placeholder="Ex: Suporte Amanda | Atendimento" value="Suporte Amanda" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Status Text -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-status" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🟢 Texto do Status (ponto verde):</label>
+                    <input type="text" id="input-addon-lc-status" placeholder="Ex: Online Agora" value="Online Agora" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Mensagem do Balão -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-message" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">💬 Prévia da Mensagem:</label>
+                    <textarea id="input-addon-lc-message" rows="2" placeholder="Ex: Dúvidas sobre tamanhos? Fale comigo no WhatsApp! 👋" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box; resize: vertical;">Dúvidas sobre produtos? Fale comigo no WhatsApp! 👋</textarea>
+                </div>
+
+                <!-- Link do WhatsApp -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-lc-url" style="font-size: 0.8rem; font-weight: 700; color: #4ade80;">🔗 Link do WhatsApp (URL):</label>
+                    <input type="text" id="input-addon-lc-url" placeholder="https://wa.me/5511999999999" value="https://wa.me/5511999999999" style="width: 100%; font-size: 0.82rem; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #fff; border: 1px solid #334155; box-sizing: border-box;">
+                </div>
+
+                <!-- Posição Flutuante -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-lc-position" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📍 Posição no Celular:</label>
+                    <select id="select-addon-lc-position" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="bottom-left" selected>↙️ Canto Inferior Esquerdo (Recomendado)</option>
+                        <option value="bottom-right">↘️ Canto Inferior Direito</option>
+                    </select>
+                </div>
+
+                <!-- Cor do Ponto / Badge -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="input-addon-lc-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Cor do Ponto Online:</label>
+                    <input type="color" id="input-addon-lc-color" value="#22c55e" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                </div>
+            </div>
+
+            <!-- Card Add-on 6: Bolinhas no Background -->
+            <div id="card-addon-bgdots" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-bgdots-addon" title="Desativar e remover este Add-on" style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); width: 26px; height: 26px; border-radius: 50%; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #22c55e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    ✨ Add-on Ativo: Bolinhas no Background
+                </div>
+
+                <p style="font-size: 0.75rem; color: #94a3b8; margin: 0 0 14px 0; line-height: 1.5;">
+                    Adiciona partículas e bolinhas flutuantes com efeitos de colisão, brilho, vento e interatividade ao fundo do seu site.
+                </p>
+
+                <!-- Quantidade de Bolinhas -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-bd-count" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🔢 Quantidade de Bolinhas (<span id="label-addon-bd-count">50</span>):</label>
+                    <input type="range" id="input-addon-bd-count" min="10" max="200" step="5" value="50" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-bd-count').textContent = this.value">
+                </div>
+
+                <!-- Cor das Bolinhas -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-bd-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Cor das Bolinhas:</label>
+                    <input type="color" id="input-addon-bd-color" value="#ffffff" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                </div>
+
+                <!-- Opacidade -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-bd-opacity" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">👁️ Opacidade/Transparência (<span id="label-addon-bd-opacity">0.3</span>):</label>
+                    <input type="range" id="input-addon-bd-opacity" min="0.1" max="1.0" step="0.05" value="0.3" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-bd-opacity').textContent = this.value">
+                </div>
+
+                <!-- Estilo de Movimento / Brilho -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-bd-style" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🔄 Estilo de Movimento:</label>
+                    <select id="select-addon-bd-style" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="floating" selected>🎈 Flutuante Suave (Padrão)</option>
+                        <option value="rain">🌧️ Chuva de Brilho / Queda</option>
+                        <option value="constellation">🕸️ Constelação / Conexão em Rede</option>
+                        <option value="orbit">🌀 Espiral / Órbita do Avatar</option>
+                        <option value="vagalume">✨ Vagalumes (Zigue-zague Orgânico)</option>
+                        <option value="twinkle">⭐ Cintilação Estelar (Céu Estrelado)</option>
+                    </select>
+                </div>
+
+                <!-- Velocidade -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-bd-speed" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⚡ Velocidade:</label>
+                    <select id="select-addon-bd-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="slow">🐢 Lento</option>
+                        <option value="normal" selected>🏃 Normal</option>
+                        <option value="fast">⚡ Rápido</option>
+                    </select>
+                </div>
+
+                <!-- Checkboxes de Efeitos -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-bd-glow" checked style="cursor: pointer;"> 🌟 Ativar Brilho/Neon (Glow)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-bd-trail" style="cursor: pointer;"> 💫 Rastro de Brilho (Trail)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-bd-interactive" style="cursor: pointer;"> 🧲 Interagir ao Toque (Repulsão)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-bd-click-explode" style="cursor: pointer;"> 💥 Explosão ao Clicar/Tocar
+                    </label>
+                </div>
+            </div>
+
+            <!-- Card Add-on 7: Matrix Code Rain -->
+            <div id="card-addon-matrix" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-matrix-addon" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; line-height: 1;" title="Remover Add-on">&times;</button>
+                
+                <h3 style="font-size: 0.9rem; font-weight: 700; color: #4ade80; margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;">🟢 Chuva de Código Matrix</h3>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Queda digital clássica de caracteres fluida e customizável no plano de fundo do site.</p>
+                
+                <!-- Cor do Código -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-mtx-color" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Cor do Código:</label>
+                    <input type="color" id="input-addon-mtx-color" value="#00ff00" style="width: 100%; height: 36px; padding: 2px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                </div>
+
+                <!-- Velocidade -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-mtx-speed" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⚡ Velocidade da Queda:</label>
+                    <select id="select-addon-mtx-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="slow">🐢 Lento</option>
+                        <option value="normal" selected>🏃 Normal</option>
+                        <option value="fast">⚡ Rápido</option>
+                    </select>
+                </div>
+
+                <!-- Tamanho da Fonte -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-mtx-size" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">📏 Tamanho da Fonte (<span id="label-addon-mtx-size">14</span>px):</label>
+                    <input type="range" id="input-addon-mtx-size" min="10" max="24" step="1" value="14" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-mtx-size').textContent = this.value">
+                </div>
+
+                <!-- Tipo de Caracteres -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-mtx-chars" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🔤 Tipo de Caracteres:</label>
+                    <select id="select-addon-mtx-chars" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #4ade80; border: 1px solid #334155; cursor: pointer;">
+                        <option value="matrix" selected>🈂️ Matrix Clássico (Katakana)</option>
+                        <option value="binary">🔢 Binário (0 e 1)</option>
+                        <option value="alphabet">🔠 Alfabeto (A-Z)</option>
+                    </select>
+                </div>
+
+                <!-- Densidade -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-mtx-opacity" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">👁️ Opacidade da Chuva (<span id="label-addon-mtx-opacity">0.15</span>):</label>
+                    <input type="range" id="input-addon-mtx-opacity" min="0.05" max="0.5" step="0.05" value="0.15" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-mtx-opacity').textContent = this.value">
+                </div>
+            </div>
+
+            <!-- Card Add-on 8: Cyberpunk Text Glitch -->
+            <div id="card-addon-glitch" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-glitch-addon" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; line-height: 1;" title="Remover Add-on">&times;</button>
+                
+                <h3 style="font-size: 0.9rem; font-weight: 700; color: #f43f5e; margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;">⚡ Cyberpunk Text Glitch</h3>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Distorções estéticas de canais de cor e falhas analógicas nos textos e botões.</p>
+                
+                <!-- Intensidade -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-glitch-intensity" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">💥 Intensidade do Efeito:</label>
+                    <select id="select-addon-glitch-intensity" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f43f5e; border: 1px solid #334155; cursor: pointer;">
+                        <option value="low">🤏 Suave</option>
+                        <option value="normal" selected>🏃 Médio</option>
+                        <option value="high">🔥 Forte</option>
+                    </select>
+                </div>
+
+                <!-- Frequência / Intervalo -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-glitch-speed" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⏱️ Frequência do Glitch:</label>
+                    <select id="select-addon-glitch-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #f43f5e; border: 1px solid #334155; cursor: pointer;">
+                        <option value="slow">⏳ Raro (A cada 8s)</option>
+                        <option value="normal" selected>⏱️ Frequente (A cada 4s)</option>
+                        <option value="fast">⚡ Sempre Ativo (Loop Constante)</option>
+                    </select>
+                </div>
+
+                <!-- Áreas Aplicadas -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-name" checked style="cursor: pointer;"> Aplicar no Nome do Perfil
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-glitch-buttons" checked style="cursor: pointer;"> Aplicar nos Botões de Links
+                    </label>
+                </div>
+            </div>
+
+            <!-- Card Add-on 9: Aurora Boreal Fluida -->
+            <div id="card-addon-aurora" style="display: none; background: rgba(30, 41, 59, 0.2); border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-top: 16px; margin-bottom: 16px; position: relative;">
+                <button type="button" id="btn-remove-aurora-addon" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; line-height: 1;" title="Remover Add-on">&times;</button>
+                
+                <h3 style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin: 0 0 4px 0; display: flex; align-items: center; gap: 6px;">🌌 Aurora Boreal Fluida</h3>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin: 0 0 14px 0;">Ondas abstratas e gradientes fluidos em movimento orgânico e relaxante de fundo.</p>
+                
+                <!-- Paleta de Cores Preset -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-aurora-palette" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🎨 Paleta de Cores:</label>
+                    <select id="select-addon-aurora-palette" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer;" onchange="toggleAuroraCustomColors(this.value)">
+                        <option value="arctic" selected>🌌 Céu Ártico (Azul & Verde)</option>
+                        <option value="sunset">🌅 Pôr do Sol (Roxo, Rosa & Laranja)</option>
+                        <option value="synthwave">🌆 Synthwave (Azul, Roxo & Rosa)</option>
+                        <option value="custom">⚙️ Personalizado (Defina 3 cores)</option>
+                    </select>
+                </div>
+
+                <!-- Cores Customizadas -->
+                <div id="container-aurora-custom-colors" style="display: none; gap: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px;">Cor 1</label>
+                        <input type="color" id="input-addon-aurora-c1" value="#00f2fe" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px;">Cor 2</label>
+                        <input type="color" id="input-addon-aurora-c2" value="#4facfe" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.7rem; color: #94a3b8; display: block; margin-bottom: 2px;">Cor 3</label>
+                        <input type="color" id="input-addon-aurora-c3" value="#090514" style="width: 100%; height: 32px; background: transparent; border: 1px solid #334155; border-radius: 6px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <script>
+                function toggleAuroraCustomColors(val) {
+                    const c = document.getElementById('container-aurora-custom-colors');
+                    if (c) c.style.display = (val === 'custom') ? 'flex' : 'none';
+                }
+                </script>
+
+                <!-- Velocidade do Fluxo -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-addon-aurora-speed" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">⚡ Velocidade do Fluxo:</label>
+                    <select id="select-addon-aurora-speed" style="width: 100%; font-size: 0.8rem; font-weight: 600; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #38bdf8; border: 1px solid #334155; cursor: pointer;">
+                        <option value="slow">🐢 Lento</option>
+                        <option value="normal" selected>🏃 Normal</option>
+                        <option value="fast">⚡ Rápido</option>
+                    </select>
+                </div>
+
+                <!-- Intensidade de Brilho / Blur -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="input-addon-aurora-blur" style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1;">🌫️ Desfoque / Mistura (<span id="label-addon-aurora-blur">60</span>px):</label>
+                    <input type="range" id="input-addon-aurora-blur" min="40" max="100" step="5" value="60" style="width: 100%; cursor: pointer;" oninput="document.getElementById('label-addon-aurora-blur').textContent = this.value">
+                </div>
+
+                <!-- Efeito Respirar (Pulsar desfoque) -->
+                <div style="margin-top: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" id="input-addon-aurora-pulsate" checked style="cursor: pointer;"> 🌬️ Efeito Respirar (Oscilar Desfoque)
+                    </label>
+                </div>
+            </div>

@@ -1,0 +1,123 @@
+<!-- Inspector Form: Modelo Fullscreen Carousel (Estilo Instagram) -->
+<form id="inspector-form" class="inspector-form">
+
+    <!-- Navegação por Abas Internas -->
+    <div class="inspector-tabs-container" style="display: flex; gap: 8px; margin-bottom: 16px; padding: 4px; background: rgba(0,0,0,0.4); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <button type="button" class="inspector-tab-btn active" data-tab="content" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: #3b82f6; color: #fff; transition: all 0.2s;">📝 Conteúdo</button>
+        <button type="button" class="inspector-tab-btn" data-tab="addons" style="flex: 1; padding: 9px 12px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: transparent; color: #94a3b8; transition: all 0.2s;">🧩 Add ons</button>
+    </div>
+
+    <!-- PAINEL 1: CONTEÚDO PRINCIPAL -->
+    <div id="panel-content" class="inspector-panel active">
+        
+        <!-- Bloco 1: Carrossel 3 Fotos Tela Cheia -->
+        <div style="background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; font-weight: 700; color: #ec4899; display: block; margin-bottom: 8px;">📸 Fotos do Carrossel (3 Imagens em Tela Cheia):</label>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="input-carousel1-img" style="font-size: 0.75rem; color: #f472b6;">Foto 1 de Fundo (URL):</label>
+                <input type="text" id="input-carousel1-img" placeholder="URL da Foto 1 (ex: https://...)">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="input-carousel2-img" style="font-size: 0.75rem; color: #f472b6;">Foto 2 de Fundo (URL):</label>
+                <input type="text" id="input-carousel2-img" placeholder="URL da Foto 2 (ex: https://...)">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="input-carousel3-img" style="font-size: 0.75rem; color: #f472b6;">Foto 3 de Fundo (URL):</label>
+                <input type="text" id="input-carousel3-img" placeholder="URL da Foto 3 (ex: https://...)">
+            </div>
+        </div>
+
+        <!-- Bloco 2: Perfil do Instagram -->
+        <div class="form-group">
+            <label for="input-avatar">Foto de Perfil / Avatar:</label>
+            <div class="input-with-button">
+                <input type="text" id="input-avatar" placeholder="URL da imagem (ex: https://...)">
+                <button type="button" id="btn-search-avatar" class="form-button">Buscar</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="input-name">Nome da Loja / Marca:</label>
+            <input type="text" id="input-name" placeholder="Ex: Studio Beauty | Estética">
+        </div>
+
+        <div class="form-group">
+            <label for="input-arroba">@ do Instagram:</label>
+            <input type="text" id="input-arroba" placeholder="Ex: studiobeauty.oficial">
+        </div>
+
+        <div class="form-group">
+            <label for="input-bio">Texto da Bio / Apresentação:</label>
+            <textarea id="input-bio" placeholder="Ex: Especialista em extensão de cílios..."></textarea>
+            
+            <div class="align-buttons-container" style="display: flex; gap: 8px; margin-top: 8px;">
+                <button type="button" class="align-btn active" data-align="left" aria-label="Alinhar à Esquerda">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+                <button type="button" class="align-btn" data-align="center" aria-label="Alinhar ao Centro">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="17" y1="12" x2="7" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+                <button type="button" class="align-btn" data-align="right" aria-label="Alinhar à Direita">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="12" x2="9" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bloco 3: 2 Botões Lado a Lado no Rodapé -->
+        <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 12px; margin-bottom: 16px;">
+            <label style="font-size: 0.85rem; font-weight: 700; color: #60a5fa; display: block; margin-bottom: 8px;">🔘 2 Botões de Ação no Rodapé (Lado a Lado):</label>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="input-btn1-title" style="font-size: 0.75rem; color: #93c5fd;">Botão 1 (Esquerda) - Título & URL:</label>
+                <input type="text" id="input-btn1-title" placeholder="Ex: 💬 WhatsApp" style="margin-bottom: 4px;">
+                <input type="text" id="input-btn1-url" placeholder="Ex: https://wa.me/5511999999999">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="input-btn2-title" style="font-size: 0.75rem; color: #93c5fd;">Botão 2 (Direita) - Título & URL:</label>
+                <input type="text" id="input-btn2-title" placeholder="Ex: 🛍️ Catálogo / Preços" style="margin-bottom: 4px;">
+                <input type="text" id="input-btn2-url" placeholder="Ex: https://wa.me/5511999999999">
+            </div>
+        </div>
+
+        <!-- Container para Add-ons Ativados -->
+        <div id="active-addons-list"></div>
+
+    </div>
+
+    <!-- PAINEL 2: CATÁLOGO DE ADD-ONS -->
+    <div id="panel-addons" class="inspector-panel" style="display: none;"></div>
+
+    <!-- Resumo do Orçamento (Carrinho) -->
+    <div style="margin-top: 20px; margin-bottom: 16px;">
+        <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.2); margin-bottom: 12px;">
+        <div id="cart-summary" style="padding: 0 4px;">
+            <!-- Conteúdo será gerado via JS -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 6px;">
+                <span id="cart-model-name">Modelo Carrossel</span>
+                <span id="cart-model-price">R$ 14,99</span>
+            </div>
+            <div id="cart-addons-list"></div>
+            <!-- Taxa de Serviço (mão de obra) -->
+            <div id="cart-service-fee-row" style="display: none; align-items: center; justify-content: space-between; margin-top: 6px; margin-bottom: 2px;">
+                <label style="font-size: 0.78rem; color: #f59e0b; white-space: nowrap;">🔧 Taxa de Serviço:</label>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 0.78rem; color: #f59e0b;">R$</span>
+                    <input type="number" id="cart-service-fee" min="0" step="0.01" value="0" placeholder="0,00"
+                        style="width: 70px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; border-radius: 6px; padding: 4px 6px; font-size: 0.82rem; text-align: right;"
+                        oninput="if(this.value < 0) this.value = 0; if(typeof updateCartSummary==='function') updateCartSummary()" />
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+                <span>Total a Cobrar:</span>
+                <span id="cart-total-price" style="color: #10b981;">R$ 14,99</span>
+            </div>
+        </div>
+        <hr style="border: none; border-top: 1px dashed rgba(255,255,255,0.2); margin-top: 12px;">
+    </div>
+
+    <button type="submit" id="btn-save-inspector" class="save-button" style="margin-top: 8px;">Salvar Site</button>
+</form>
