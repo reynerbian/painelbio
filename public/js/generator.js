@@ -2757,10 +2757,11 @@ ${avatarSpinHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
             ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
+            ${(h2 || h3) ? `
             <div class="v-sub-row">
                 ${h2 ? `<div class="v-sub-pic"><img src="${h2}" alt="Destaque 2"></div>` : ''}
                 ${h3 ? `<div class="v-sub-pic"><img src="${h3}" alt="Destaque 3"></div>` : ''}
-            </div>
+            </div>` : ''}
             
             ${data.avatar ? `
             <div class="v-avatar-overlap" id="pb-avatar-wrap">

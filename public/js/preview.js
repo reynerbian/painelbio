@@ -2206,18 +2206,66 @@ function updatePreviewFromForm() {
 
                 if (hasAnyPhoto) {
                     heroGrid.style.display = 'block';
-                    if (img1) {
-                        img1.src = h1Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
-                        img1.style.display = h1Img ? 'block' : 'none';
+                    
+                    const h1Container = document.getElementById('v-view-h1-container');
+                    const subRow = document.getElementById('v-view-sub-row');
+                    const h2Container = document.getElementById('v-view-h2-container');
+                    const h3Container = document.getElementById('v-view-h3-container');
+
+                    // 1. Principal Grande
+                    if (h1Img) {
+                        if (img1) img1.src = h1Img;
+                        if (h1Container) h1Container.style.display = 'block';
+                    } else {
+                        if (h1Container) h1Container.style.display = 'none';
                     }
-                    if (img2) {
-                        img2.src = h2Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
-                        img2.style.display = h2Img ? 'block' : 'none';
+
+                    // 2. Sub-imagens de Destaques
+                    if (h2Img && h3Img) {
+                        // Ambas presentes -> lado a lado (50% cada)
+                        if (img2) img2.src = h2Img;
+                        if (img3) img3.src = h3Img;
+                        if (h2Container) {
+                            h2Container.style.display = 'block';
+                            h2Container.style.flex = '1';
+                            h2Container.style.width = 'auto';
+                        }
+                        if (h3Container) {
+                            h3Container.style.display = 'block';
+                            h3Container.style.flex = '1';
+                            h3Container.style.width = 'auto';
+                        }
+                        if (subRow) {
+                            subRow.style.display = 'flex';
+                            subRow.style.flexDirection = 'row';
+                        }
+                    } else if (h2Img || h3Img) {
+                        // Apenas uma presente -> ocupa 100% de largura
+                        if (h2Img) {
+                            if (img2) img2.src = h2Img;
+                            if (h2Container) {
+                                h2Container.style.display = 'block';
+                                h2Container.style.flex = 'none';
+                                h2Container.style.width = '100%';
+                            }
+                            if (h3Container) h3Container.style.display = 'none';
+                        } else {
+                            if (img3) img3.src = h3Img;
+                            if (h3Container) {
+                                h3Container.style.display = 'block';
+                                h3Container.style.flex = 'none';
+                                h3Container.style.width = '100%';
+                            }
+                            if (h2Container) h2Container.style.display = 'none';
+                        }
+                        if (subRow) subRow.style.display = 'block';
+                    } else {
+                        // Nenhuma das secundárias presente -> esconde sub-row
+                        if (subRow) subRow.style.display = 'none';
+                        if (h2Container) h2Container.style.display = 'none';
+                        if (h3Container) h3Container.style.display = 'none';
                     }
-                    if (img3) {
-                        img3.src = h3Img || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="%231a1a1a"/>';
-                        img3.style.display = h3Img ? 'block' : 'none';
-                    }
+
                     if (avatarWrapper && avatarWrapper.parentNode !== heroGrid) {
                         heroGrid.appendChild(avatarWrapper);
                     }
@@ -2827,14 +2875,14 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         
                         <!-- Grid Superior de Fotos Soltas com Avatar Sobreposto -->
                         <div id="v-view-hero-grid" style="width: 100%; position: relative; margin-bottom: 45px; display: none;">
-                            <div style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px;">
+                            <div id="v-view-h1-container" style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px;">
                                 <img id="v-view-h1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600'" />
                             </div>
-                            <div style="display: flex; gap: 8px; width: 100%;">
-                                <div style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                            <div id="v-view-sub-row" style="display: flex; gap: 8px; width: 100%;">
+                                <div id="v-view-h2-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
                                     <img id="v-view-h2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400'" />
                                 </div>
-                                <div style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                                <div id="v-view-h3-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
                                     <img id="v-view-h3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400'" />
                                 </div>
                             </div>
