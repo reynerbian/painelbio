@@ -131,7 +131,7 @@ app.post('/api/publish', async (req, res) => {
     
     // Salva o screenshot do celular (preview.png)
     if (data.previewBase64) {
-      const base64Data = data.previewBase64.replace(/^data:image\/png;base64,/, "");
+      const base64Data = data.previewBase64.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
       fs.writeFileSync(path.join(siteDir, 'preview.png'), base64Data, 'base64');
       delete data.previewBase64; // Não precisa salvar a base64 no banco antigo
     } else if (fs.existsSync(path.join(siteDir, 'url_logo.jpg'))) {

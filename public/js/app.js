@@ -2524,14 +2524,18 @@ loadClassicModel();
                         const phoneMockup = document.querySelector('.phone-mockup');
                         let previewBase64 = null;
                         if (phoneMockup && typeof html2canvas !== 'undefined') {
-                            const canvas = await html2canvas(phoneMockup, { 
-                                scale: 1, 
-                                useCORS: true,
-                                backgroundColor: '#000000'
-                            });
-                            // Use JPEG instead of PNG to save HUGE amounts of space in LocalStorage (e.g. 50kb vs 1MB)
-                            previewBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                            updatedData.previewBase64 = previewBase64;
+                            try {
+                                const canvas = await html2canvas(phoneMockup, { 
+                                    scale: 1, 
+                                    useCORS: true,
+                                    backgroundColor: '#000000'
+                                });
+                                // Use JPEG instead of PNG to save HUGE amounts of space in LocalStorage (e.g. 50kb vs 1MB)
+                                previewBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                                updatedData.previewBase64 = previewBase64;
+                            } catch (screenshotError) {
+                                console.error('Erro ao tirar print de preview:', screenshotError);
+                            }
                         }
 
                         if (btnSave) btnSave.textContent = "Salvando Localmente...";
