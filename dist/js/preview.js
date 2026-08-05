@@ -1401,67 +1401,174 @@ function updatePreviewFromForm() {
 
                 // Mostra o Grid de Fotos APENAS se houver ao menos 1 URL preenchida
                 const hasAnyPhoto = Boolean(h1Img || h2Img || h3Img);
+                const selectVitrineLayout = document.getElementById('select-vitrine-layout');
+                const vitrineLayout = selectVitrineLayout ? selectVitrineLayout.value : 'grid';
 
                 if (hasAnyPhoto) {
                     heroGrid.style.display = 'block';
                     
-                    const h1Container = document.getElementById('v-view-h1-container');
-                    const subRow = document.getElementById('v-view-sub-row');
-                    const h2Container = document.getElementById('v-view-h2-container');
-                    const h3Container = document.getElementById('v-view-h3-container');
-
-                    // 1. Principal Grande
-                    if (h1Img) {
-                        if (img1) img1.src = h1Img;
-                        if (h1Container) h1Container.style.display = 'block';
+                    const gridLayoutDiv = document.getElementById('v-view-grid-layout');
+                    const slideshowLayoutDiv = document.getElementById('v-view-slideshow-layout');
+                    
+                    if (vitrineLayout === 'slideshow') {
+                        if (gridLayoutDiv) gridLayoutDiv.style.display = 'none';
+                        if (slideshowLayoutDiv) slideshowLayoutDiv.style.display = 'block';
+                        
+                        // Slideshow Logic
+                        const slides = [];
+                        const h1Title = document.getElementById('input-highlight1-title')?.value.trim() || '';
+                        const h2Title = document.getElementById('input-highlight2-title')?.value.trim() || '';
+                        const h3Title = document.getElementById('input-highlight3-title')?.value.trim() || '';
+                        
+                        if (h1Img) slides.push({ img: h1Img, title: h1Title, idx: 0 });
+                        if (h2Img) slides.push({ img: h2Img, title: h2Title, idx: 1 });
+                        if (h3Img) slides.push({ img: h3Img, title: h3Title, idx: 2 });
+                        
+                        // Update thumbnails visibility and src
+                        const thumbContainers = slideshowLayoutDiv.querySelectorAll('.v-view-thumb-item');
+                        const thumbImg1 = document.getElementById('v-view-thumb-1');
+                        const thumbImg2 = document.getElementById('v-view-thumb-2');
+                        const thumbImg3 = document.getElementById('v-view-thumb-3');
+                        
+                        if (thumbImg1) thumbImg1.src = h1Img || '';
+                        if (thumbImg2) thumbImg2.src = h2Img || '';
+                        if (thumbImg3) thumbImg3.src = h3Img || '';
+                        
+                        if (thumbContainers[0]) thumbContainers[0].style.display = h1Img ? 'block' : 'none';
+                        if (thumbContainers[1]) thumbContainers[1].style.display = h2Img ? 'block' : 'none';
+                        if (thumbContainers[2]) thumbContainers[2].style.display = h3Img ? 'block' : 'none';
+                        
+                        // Clear active slideshow interval
+                        if (window._pbVitrineSlideshowInterval) {
+                            clearInterval(window._pbVitrineSlideshowInterval);
+                        }
+                        
+                        if (slides.length > 0) {
+                            const slideMainImg = document.getElementById('v-view-slide-main');
+                            const slideMainTitle = document.getElementById('v-view-slide-title');
+                            
+                            // Keep index within bounds
+                            if (typeof window._pbVitrineActiveIndex === 'undefined' || window._pbVitrineActiveIndex >= slides.length) {
+                                window._pbVitrineActiveIndex = 0;
+                            }
+                            
+                            const goToSlide = (slideIndex) => {
+                                window._pbVitrineActiveIndex = slideIndex;
+                                const slide = slides[slideIndex];
+                                if (!slide) return;
+                                
+                                if (slideMainImg) {
+                                    slideMainImg.style.opacity = '0.4';
+                                    setTimeout(() => {
+                                        slideMainImg.src = slide.img;
+                                        slideMainImg.style.opacity = '1';
+                                    }, 150);
+                                }
+                                
+                                if (slideMainTitle) {
+                                    if (slide.title) {
+                                        slideMainTitle.textContent = slide.title;
+                                        slideMainTitle.style.display = 'block';
+                                    } else {
+                                        slideMainTitle.style.display = 'none';
+                                    }
+                                }
+                                
+                                thumbContainers.forEach((container, i) => {
+                                    if (slides[i] && slides[i].idx === slide.idx) {
+                                        container.style.border = '2px solid var(--theme-color-1, #a3d959)';
+                                    } else {
+                                        container.style.border = '2px solid transparent';
+                                    }
+                                });
+                            };
+                            
+                            goToSlide(window._pbVitrineActiveIndex);
+                            
+                            const resetInterval = () => {
+                                if (window._pbVitrineSlideshowInterval) clearInterval(window._pbVitrineSlideshowInterval);
+                                if (slides.length > 1) {
+                                    window._pbVitrineSlideshowInterval = setInterval(() => {
+                                        let next = (window._pbVitrineActiveIndex + 1) % slides.length;
+                                        goToSlide(next);
+                                    }, 4000);
+                                }
+                            };
+                            
+                            thumbContainers.forEach((item, i) => {
+                                item.onclick = () => {
+                                    goToSlide(i);
+                                    resetInterval();
+                                };
+                            });
+                            
+                            resetInterval();
+                        }
                     } else {
-                        if (h1Container) h1Container.style.display = 'none';
-                    }
+                        if (gridLayoutDiv) gridLayoutDiv.style.display = 'block';
+                        if (slideshowLayoutDiv) slideshowLayoutDiv.style.display = 'none';
+                        
+                        const h1Container = document.getElementById('v-view-h1-container');
+                        const subRow = document.getElementById('v-view-sub-row');
+                        const h2Container = document.getElementById('v-view-h2-container');
+                        const h3Container = document.getElementById('v-view-h3-container');
+                        const img1 = document.getElementById('v-view-h1');
+                        const img2 = document.getElementById('v-view-h2');
+                        const img3 = document.getElementById('v-view-h3');
 
-                    // 2. Sub-imagens de Destaques
-                    if (h2Img && h3Img) {
-                        // Ambas presentes -> lado a lado (50% cada)
-                        if (img2) img2.src = h2Img;
-                        if (img3) img3.src = h3Img;
-                        if (h2Container) {
-                            h2Container.style.display = 'block';
-                            h2Container.style.flex = '1';
-                            h2Container.style.width = 'auto';
+                        // 1. Principal Grande
+                        if (h1Img) {
+                            if (img1) img1.src = h1Img;
+                            if (h1Container) h1Container.style.display = 'block';
+                        } else {
+                            if (h1Container) h1Container.style.display = 'none';
                         }
-                        if (h3Container) {
-                            h3Container.style.display = 'block';
-                            h3Container.style.flex = '1';
-                            h3Container.style.width = 'auto';
-                        }
-                        if (subRow) {
-                            subRow.style.display = 'flex';
-                            subRow.style.flexDirection = 'row';
-                        }
-                    } else if (h2Img || h3Img) {
-                        // Apenas uma presente -> ocupa 100% de largura
-                        if (h2Img) {
+
+                        // 2. Sub-imagens de Destaques
+                        if (h2Img && h3Img) {
+                            // Ambas presentes -> lado a lado (50% cada)
                             if (img2) img2.src = h2Img;
+                            if (img3) img3.src = h3Img;
                             if (h2Container) {
                                 h2Container.style.display = 'block';
-                                h2Container.style.flex = 'none';
-                                h2Container.style.width = '100%';
+                                h2Container.style.flex = '1';
+                                h2Container.style.width = 'auto';
                             }
-                            if (h3Container) h3Container.style.display = 'none';
-                        } else {
-                            if (img3) img3.src = h3Img;
                             if (h3Container) {
                                 h3Container.style.display = 'block';
-                                h3Container.style.flex = 'none';
-                                h3Container.style.width = '100%';
+                                h3Container.style.flex = '1';
+                                h3Container.style.width = 'auto';
                             }
+                            if (subRow) {
+                                subRow.style.display = 'flex';
+                                subRow.style.flexDirection = 'row';
+                            }
+                        } else if (h2Img || h3Img) {
+                            // Apenas uma presente -> ocupa 100% de largura
+                            if (h2Img) {
+                                if (img2) img2.src = h2Img;
+                                if (h2Container) {
+                                    h2Container.style.display = 'block';
+                                    h2Container.style.flex = 'none';
+                                    h2Container.style.width = '100%';
+                                }
+                                if (h3Container) h3Container.style.display = 'none';
+                            } else {
+                                if (img3) img3.src = h3Img;
+                                if (h3Container) {
+                                    h3Container.style.display = 'block';
+                                    h3Container.style.flex = 'none';
+                                    h3Container.style.width = '100%';
+                                }
+                                if (h2Container) h2Container.style.display = 'none';
+                            }
+                            if (subRow) subRow.style.display = 'block';
+                        } else {
+                            // Nenhuma das secundárias presente -> esconde sub-row
+                            if (subRow) subRow.style.display = 'none';
                             if (h2Container) h2Container.style.display = 'none';
+                            if (h3Container) h3Container.style.display = 'none';
                         }
-                        if (subRow) subRow.style.display = 'block';
-                    } else {
-                        // Nenhuma das secundárias presente -> esconde sub-row
-                        if (subRow) subRow.style.display = 'none';
-                        if (h2Container) h2Container.style.display = 'none';
-                        if (h3Container) h3Container.style.display = 'none';
                     }
 
                     if (avatarWrapper && avatarWrapper.parentNode !== heroGrid) {
@@ -1487,7 +1594,6 @@ function updatePreviewFromForm() {
                         avatarWrapper.style.margin = '0 auto 20px auto';
                     }
                 }
-
                 // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema
                 const activePreset = localStorage.getItem('selected-theme-preset') || 'gray';
                 const presetThemeMap = {
@@ -2039,15 +2145,38 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                         
                         <!-- Grid Superior de Fotos Soltas com Avatar Sobreposto -->
                         <div id="v-view-hero-grid" style="width: 100%; position: relative; margin-bottom: 45px; display: none;">
-                            <div id="v-view-h1-container" style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px;">
-                                <img id="v-view-h1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600'" />
-                            </div>
-                            <div id="v-view-sub-row" style="display: flex; gap: 8px; width: 100%;">
-                                <div id="v-view-h2-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
-                                    <img id="v-view-h2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400'" />
+                            
+                            <!-- MODO GRID ESTÁTICO -->
+                            <div id="v-view-grid-layout" style="width: 100%;">
+                                <div id="v-view-h1-container" style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px;">
+                                    <img id="v-view-h1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600'" />
                                 </div>
-                                <div id="v-view-h3-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
-                                    <img id="v-view-h3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400'" />
+                                <div id="v-view-sub-row" style="display: flex; gap: 8px; width: 100%;">
+                                    <div id="v-view-h2-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                                        <img id="v-view-h2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400'" />
+                                    </div>
+                                    <div id="v-view-h3-container" style="flex: 1; height: 130px; border-radius: 18px; overflow: hidden; background: #1a1a1a;">
+                                        <img id="v-view-h3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400'" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- MODO SLIDESHOW ROTATIVO -->
+                            <div id="v-view-slideshow-layout" style="width: 100%; display: none;">
+                                <div style="width: 100%; height: 260px; border-radius: 22px; overflow: hidden; background: #1a1a1a; margin-bottom: 8px; position: relative;">
+                                    <img id="v-view-slide-main" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease-in-out;" />
+                                    <div id="v-view-slide-title" style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.85)); color: #fff; padding: 12px 16px; font-size: 0.85rem; font-weight: 600; text-align: left; box-sizing: border-box; display: none;"></div>
+                                </div>
+                                <div style="display: flex; gap: 8px; width: 100%;">
+                                    <div class="v-view-thumb-item" data-index="0" style="flex: 1; height: 80px; border-radius: 12px; overflow: hidden; background: #1a1a1a; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; box-sizing: border-box;">
+                                        <img id="v-view-thumb-1" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </div>
+                                    <div class="v-view-thumb-item" data-index="1" style="flex: 1; height: 80px; border-radius: 12px; overflow: hidden; background: #1a1a1a; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; box-sizing: border-box;">
+                                        <img id="v-view-thumb-2" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </div>
+                                    <div class="v-view-thumb-item" data-index="2" style="flex: 1; height: 80px; border-radius: 12px; overflow: hidden; background: #1a1a1a; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; box-sizing: border-box;">
+                                        <img id="v-view-thumb-3" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </div>
                                 </div>
                             </div>
                             
@@ -2147,6 +2276,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
             if (payload && (payload.arroba || payload.name)) {
                 const backup = payload;
                 const fieldsToRestore = {
+                    'select-vitrine-layout': backup.vitrineLayout || 'grid',
                     'input-avatar': backup.avatar || '',
                     'input-name': backup.name || '',
                     'input-arroba': backup.arroba || '',

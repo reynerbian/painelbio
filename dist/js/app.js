@@ -1996,6 +1996,7 @@ loadClassicModel();
                     const updatedData = {
                         model: activeModel,
                         arroba: cleanArroba,
+                        vitrineLayout: document.getElementById('select-vitrine-layout')?.value || 'grid',
                         name: document.getElementById('input-name')?.value?.trim() || '',
                         avatar: document.getElementById('input-avatar')?.value?.trim() || '',
                         bio: document.getElementById('input-bio')?.value?.trim() || '',

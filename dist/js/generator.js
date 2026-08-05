@@ -1226,11 +1226,110 @@ export function generateStaticSite(data) {
   // ==========================================
   // MODELO 2: VITRINE
   // ==========================================
-  if (isVitrine) {
+    if (isVitrine) {
     const h1 = data.highlight1Img || '';
     const h2 = data.highlight2Img || '';
     const h3 = data.highlight3Img || '';
     const hasHeroPhotos = Boolean(h1 || h2 || h3);
+
+    let highlightsHtml = '';
+    if (hasHeroPhotos) {
+        if (data.vitrineLayout === 'slideshow') {
+            highlightsHtml = `
+            <!-- MODO SLIDESHOW ROTATIVO -->
+            <div class="v-slideshow-container">
+                <div class="v-slideshow-main">
+                    <img id="v-slide-main-img" src="" alt="Destaque Principal">
+                    <div id="v-slide-main-title" class="v-slideshow-title"></div>
+                </div>
+                <div class="v-slideshow-thumbs">
+                    ${h1 ? `<div class="v-thumb-item" data-index="0"><img src="${h1}" alt="Minia 1"></div>` : ''}
+                    ${h2 ? `<div class="v-thumb-item" data-index="1"><img src="${h2}" alt="Minia 2"></div>` : ''}
+                    ${h3 ? `<div class="v-thumb-item" data-index="2"><img src="${h3}" alt="Minia 3"></div>` : ''}
+                </div>
+            </div>`;
+        } else {
+            highlightsHtml = `
+            <!-- MODO GRID ESTÁTICO -->
+            ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
+            ${(h2 || h3) ? `
+            <div class="v-sub-row">
+                ${h2 ? `<div class="v-sub-pic"><img src="${h2}" alt="Destaque 2"></div>` : ''}
+                ${h3 ? `<div class="v-sub-pic"><img src="${h3}" alt="Destaque 3"></div>` : ''}
+            </div>` : ''}`;
+        }
+    }
+
+    const slideshowScript = (data.vitrineLayout === 'slideshow' && hasHeroPhotos) ? `
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var slides = [];
+            ${h1 ? `slides.push({ img: "${h1}", title: "${data.highlight1Title || ''}" });` : ''}
+            ${h2 ? `slides.push({ img: "${h2}", title: "${data.highlight2Title || ''}" });` : ''}
+            ${h3 ? `slides.push({ img: "${h3}", title: "${data.highlight3Title || ''}" });` : ''}
+            
+            if (slides.length === 0) return;
+            
+            var activeIdx = 0;
+            var mainImg = document.getElementById('v-slide-main-img');
+            var mainTitle = document.getElementById('v-slide-main-title');
+            var thumbs = document.querySelectorAll('.v-thumb-item');
+            var intervalId = null;
+            
+            function showSlide(index) {
+                if (index < 0 || index >= slides.length) return;
+                activeIdx = index;
+                
+                // Fade effect
+                if (mainImg) {
+                    mainImg.style.opacity = '0.4';
+                    setTimeout(function() {
+                        mainImg.src = slides[index].img;
+                        mainImg.style.opacity = '1';
+                    }, 150);
+                }
+                
+                if (mainTitle) {
+                    if (slides[index].title) {
+                        mainTitle.textContent = slides[index].title;
+                        mainTitle.style.display = 'block';
+                    } else {
+                        mainTitle.style.display = 'none';
+                    }
+                }
+                
+                thumbs.forEach(function(thumb, i) {
+                    if (i === index) {
+                        thumb.style.borderColor = 'var(--v-accent)';
+                    } else {
+                        thumb.style.borderColor = 'transparent';
+                    }
+                });
+            }
+            
+            function startInterval() {
+                if (intervalId) clearInterval(intervalId);
+                if (slides.length > 1) {
+                    intervalId = setInterval(function() {
+                        var next = (activeIdx + 1) % slides.length;
+                        showSlide(next);
+                    }, 4000);
+                }
+            }
+            
+            thumbs.forEach(function(thumb, i) {
+                thumb.addEventListener('click', function() {
+                    showSlide(i);
+                    startInterval();
+                });
+            });
+            
+            // Initial slide
+            showSlide(0);
+            startInterval();
+        });
+    </script>
+    ` : '';
 
     const btn1Html = data.btn1Title ? `<a href="${data.btn1Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn1Title}</a>` : '';
     const btn2Html = data.btn2Title ? `<a href="${data.btn2Url || '#'}" class="v-btn" target="_blank" rel="noopener" onclick="trackAction('click')">${data.btn2Title}</a>` : '';
@@ -1308,6 +1407,63 @@ export function generateStaticSite(data) {
         .v-sub-row { display: flex; gap: 10px; width: 100%; }
         .v-sub-pic { flex: 1; height: 155px; border-radius: 20px; overflow: hidden; background: #1a1a1a; }
         .v-sub-pic img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Slideshow Layout */
+        .v-slideshow-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .v-slideshow-main {
+            width: 100%;
+            height: 320px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #1a1a1a;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .v-slideshow-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .v-slideshow-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            color: #fff;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: left;
+            box-sizing: border-box;
+            display: none;
+        }
+        .v-slideshow-thumbs {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .v-thumb-item {
+            flex: 1;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a1a;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .v-thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .v-avatar-overlap {
             position: absolute; bottom: -42px; left: 50%; transform: translateX(-50%);
@@ -1345,19 +1501,9 @@ export function generateStaticSite(data) {
         ${auroraHtml}
         ${hasHeroPhotos ? `
         <div class="v-grid-hero">
-            ${h1 ? `<div class="v-main-pic"><img src="${h1}" alt="Destaque 1"></div>` : ''}
-            ${(h2 || h3) ? `
-            <div class="v-sub-row">
-                ${h2 ? `<div class="v-sub-pic"><img src="${h2}" alt="Destaque 2"></div>` : ''}
-                ${h3 ? `<div class="v-sub-pic"><img src="${h3}" alt="Destaque 3"></div>` : ''}
-            </div>` : ''}
+            ${highlightsHtml}
             
-            ${data.avatar ? `
-            <div class="v-avatar-overlap">
-                <div class="v-avatar-overlap-inner">
-                    <img src="${data.avatar}" alt="${data.name || ''}">
-                </div>
-            </div>` : ''}
+            ${data.avatar ? '<div class="v-avatar-overlap" id="pb-avatar-wrap"><div class="v-avatar-overlap-inner"><img src="' + data.avatar + '" alt="' + (data.name || '') + '"></div></div>' : ''}
         </div>` : data.avatar ? `
         <div style="position: relative; width: 100px; height: 100px; margin-bottom: 20px;">
             <div class="v-avatar-overlap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">
@@ -1384,6 +1530,7 @@ export function generateStaticSite(data) {
             </div>
         </div>
     </div>
+    ${slideshowScript}
 </body>
 </html>`;
   }
