@@ -2297,12 +2297,38 @@ loadClassicModel();
             // Evento de Salvar Formulário no Servidor (Delegado no inspector-content para suportar trocas dinâmicas de templates)
             const inspectorContentContainer = document.getElementById('inspector-content');
             if (inspectorContentContainer) {
+                // Logger direto de cliques no botão de salvar para ajudar no diagnóstico
+                inspectorContentContainer.addEventListener('click', (e) => {
+                    const btn = e.target.closest('#btn-save-inspector');
+                    if (!btn) return;
+                    
+                    if (typeof addScraperLog === 'function') {
+                        addScraperLog('Clique detectado no botão "Salvar Site"!', 'info');
+                        
+                        const form = document.getElementById('inspector-form');
+                        if (form) {
+                            addScraperLog('Formulário inspector-form localizado na DOM.', 'info');
+                            const checkValidity = typeof form.reportValidity === 'function' ? form.reportValidity() : true;
+                            addScraperLog('Validação do formulário: ' + (checkValidity ? 'Válido' : 'Inválido (erros de campos requeridos/formatos)'), checkValidity ? 'info' : 'warning');
+                        } else {
+                            addScraperLog('Erro: Formulário inspector-form NÃO localizado!', 'error');
+                        }
+                    }
+                });
+
                 inspectorContentContainer.addEventListener('submit', async (e) => {
                     if (!e.target || e.target.id !== 'inspector-form') return;
                     e.preventDefault();
                     
+                    if (typeof addScraperLog === 'function') {
+                        addScraperLog('Processando envio do formulário de salvamento...', 'info');
+                    }
+                    
                     const arrobaInput = document.getElementById('input-arroba');
-                    if (!arrobaInput || !arrobaInput.value.trim()) return;
+                    if (!arrobaInput || !arrobaInput.value?.trim()) {
+                        if (typeof addScraperLog === 'function') addScraperLog('Erro: Campo @ do Instagram vazio ou inválido!', 'error');
+                        return;
+                    }
 
                     let cleanArroba = arrobaInput.value.trim().toLowerCase();
                     if (!cleanArroba.startsWith('@')) {
@@ -2520,11 +2546,13 @@ loadClassicModel();
                     }
 
                     try {
+                        if (typeof addScraperLog === 'function') addScraperLog('Iniciando captura de mockup do celular...', 'info');
                         // Capturar a tela do celular
                         const phoneMockup = document.querySelector('.phone-mockup');
                         let previewBase64 = null;
                         if (phoneMockup && typeof html2canvas !== 'undefined') {
                             try {
+                                if (typeof addScraperLog === 'function') addScraperLog('Executando html2canvas para gerar print da prévia...', 'info');
                                 const canvas = await html2canvas(phoneMockup, { 
                                     scale: 1, 
                                     useCORS: true,
@@ -2533,21 +2561,27 @@ loadClassicModel();
                                 // Use JPEG instead of PNG to save HUGE amounts of space in LocalStorage (e.g. 50kb vs 1MB)
                                 previewBase64 = canvas.toDataURL('image/jpeg', 0.6);
                                 updatedData.previewBase64 = previewBase64;
+                                if (typeof addScraperLog === 'function') addScraperLog('Print da prévia gerado e anexado com sucesso!', 'success');
                             } catch (screenshotError) {
                                 console.error('Erro ao tirar print de preview:', screenshotError);
+                                if (typeof addScraperLog === 'function') addScraperLog('Aviso: erro ao gerar print de prévia (CORS/canvas): ' + screenshotError.message + '. Continuando salvamento dos dados...', 'warning');
                             }
+                        } else {
+                            if (typeof addScraperLog === 'function') addScraperLog('Aviso: html2canvas não está carregado ou mockup não encontrado. Continuando salvamento dos dados...', 'warning');
                         }
 
                         if (btnSave) btnSave.textContent = "Salvando Localmente...";
+                        if (typeof addScraperLog === 'function') addScraperLog('Estruturando dados e verificando histórico de cobrança...', 'info');
                         
                         // Fix for invalid date
                         updatedData.createdAt = new Date().toISOString();
 
-                    // SERVERLESS: Salva tudo no LocalStorage
+                        // SERVERLESS: Salva tudo no LocalStorage
                         const existingLead = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === cleanArroba.toLowerCase());
 
                         // Preserva e atualiza o status de publicação e pagamento
                         if (existingLead) {
+                            if (typeof addScraperLog === 'function') addScraperLog('Site já existe na base de dados. Atualizando registro existente para ' + cleanArroba, 'info');
                             // Mantém histórico financeiro anterior
                             updatedData.lastPaidAt = existingLead.lastPaidAt;
                             updatedData.renewalDueDate = existingLead.renewalDueDate;
@@ -2581,6 +2615,7 @@ loadClassicModel();
                                 updatedData.modificationPendingAmount = 0;
                             }
                         } else {
+                            if (typeof addScraperLog === 'function') addScraperLog('Criando novo registro de site para ' + cleanArroba, 'info');
                             // Novo site
                             updatedData.status = 'not_published';
                             updatedData.paymentStatus = 'pending';
@@ -2588,8 +2623,10 @@ loadClassicModel();
                             updatedData.purchasedAddons = [];
                         }
                         
+                        if (typeof addScraperLog === 'function') addScraperLog('Persistindo dados no banco (IndexedDB/LocalStorage)...', 'info');
                         // Salva no Banco de Dados
                         await window.db.saveLead(updatedData);
+                        if (typeof addScraperLog === 'function') addScraperLog('Dados salvos no banco local com sucesso!', 'success');
 
                         window.recentlySavedArroba = cleanArroba;
 
@@ -2608,6 +2645,7 @@ loadClassicModel();
                             }, 3500);
                         }
 
+                        if (typeof addScraperLog === 'function') addScraperLog('Salvamento concluído! Alternando tela para a Galeria...', 'success');
                         // Fechar o inspector e alternar diretamente para a Galeria
                         setTimeout(() => {
                             const rightDrawer = document.getElementById('right-drawer');
@@ -2631,6 +2669,7 @@ loadClassicModel();
 
                     } catch (err) {
                         console.error('Erro ao salvar:', err);
+                        if (typeof addScraperLog === 'function') addScraperLog('Erro fatal ao salvar o site: ' + err.message, 'error');
                         if (btnSave) {
                             btnSave.textContent = "Erro ao salvar ❌";
                             btnSave.style.opacity = '1';
