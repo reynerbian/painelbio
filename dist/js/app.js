@@ -1952,7 +1952,7 @@ loadClassicModel();
                         const form = document.getElementById('inspector-form');
                         if (form) {
                             addScraperLog('Formulário inspector-form localizado na DOM.', 'info');
-                            const checkValidity = typeof form.reportValidity === 'function' ? form.reportValidity() : true;
+                            const checkValidity = typeof form.checkValidity === 'function' ? form.checkValidity() : true;
                             
                             if (!checkValidity) {
                                 addScraperLog('Validação do formulário: Inválido (campos com formato ou preenchimento incorreto)', 'warning');
