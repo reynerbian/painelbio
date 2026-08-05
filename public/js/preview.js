@@ -2610,7 +2610,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = '#0f172a';
                 
                 previewScreen.innerHTML = `
-                    <div class="s-live-page" style="position: relative; width: 100%; min-height: 100%; padding: 24px 0 30px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; background: #0f172a; color: #fff; overflow: hidden;">
+                    <div class="s-live-page" style="position: relative; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none; padding: 24px 0 30px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; background: #0f172a; color: #fff;">
 
                         <!-- Fundo desfocado com degradê (preenchido via JS com a imagem do produto 1) -->
                         <div id="s-view-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 55%; background-size: cover; background-position: center; filter: blur(22px) brightness(0.45); transform: scale(1.1); z-index: 0; display: none;"></div>
@@ -2871,7 +2871,7 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                 previewScreen.style.background = '#0e110d';
                 
                 previewScreen.innerHTML = `
-                    <div class="v-live-page" style="width: 100%; min-height: 100%; padding: 14px 12px 30px 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;">
+                    <div class="v-live-page" style="width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none; padding: 14px 12px 30px 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;">
                         
                         <!-- Grid Superior de Fotos Soltas com Avatar Sobreposto -->
                         <div id="v-view-hero-grid" style="width: 100%; position: relative; margin-bottom: 45px; display: none;">

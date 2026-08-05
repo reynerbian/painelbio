@@ -639,7 +639,7 @@
             scrollbar-width: none; /* Firefox */
         }
 
-        .preview-bio-page::-webkit-scrollbar {
+        .preview-bio-page::-webkit-scrollbar, .v-live-page::-webkit-scrollbar, .s-live-page::-webkit-scrollbar, .eb-live-page::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera */
         }
 
