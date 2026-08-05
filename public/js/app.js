@@ -2235,6 +2235,55 @@ loadClassicModel();
                 });
             }
 
+            // Clique nos botões de buscar imagem para os destaques (vitrine 1, 2 e 3)
+            [1, 2, 3].forEach(num => {
+                const btn = document.getElementById(`btn-search-highlight${num}`);
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/*';
+                        
+                        fileInput.addEventListener('change', async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            
+                            const originalText = btn.textContent;
+                            btn.textContent = '...';
+                            btn.disabled = true;
+                            
+                            try {
+                                const formData = new FormData();
+                                formData.append(`vitrine${num}`, file);
+                                
+                                const response = await fetch('/api/upload', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                const data = await response.json();
+                                if (data.success && data.urls && data.urls[`vitrine${num}`]) {
+                                    const imgInput = document.getElementById(`input-highlight${num}-img`);
+                                    if (imgInput) {
+                                        imgInput.value = window.location.origin + data.urls[`vitrine${num}`];
+                                    }
+                                    updatePreviewFromForm();
+                                } else {
+                                    alert(`Erro ao fazer upload do destaque ${num}.`);
+                                }
+                            } catch (err) {
+                                console.error('Erro ao fazer upload:', err);
+                                alert('Erro de conexão ao fazer upload.');
+                            } finally {
+                                btn.textContent = originalText;
+                                btn.disabled = false;
+                            }
+                        });
+                        fileInput.click();
+                    });
+                }
+            });
+
             // Botões de alinhamento da Bio
             const alignBtns = document.querySelectorAll('.align-btn');
             alignBtns.forEach(btn => {
