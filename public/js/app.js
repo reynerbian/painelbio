@@ -2309,7 +2309,17 @@ loadClassicModel();
                         if (form) {
                             addScraperLog('Formulário inspector-form localizado na DOM.', 'info');
                             const checkValidity = typeof form.reportValidity === 'function' ? form.reportValidity() : true;
-                            addScraperLog('Validação do formulário: ' + (checkValidity ? 'Válido' : 'Inválido (erros de campos requeridos/formatos)'), checkValidity ? 'info' : 'warning');
+                            
+                            if (!checkValidity) {
+                                addScraperLog('Validação do formulário: Inválido (campos com formato ou preenchimento incorreto)', 'warning');
+                                const invalidElements = form.querySelectorAll(':invalid');
+                                invalidElements.forEach(el => {
+                                    const label = document.querySelector(`label[for="${el.id}"]`)?.textContent || el.placeholder || el.id;
+                                    addScraperLog(`Campo com erro: "${label}" (ID: ${el.id})`, 'error');
+                                });
+                            } else {
+                                addScraperLog('Validação do formulário: Válido', 'success');
+                            }
                         } else {
                             addScraperLog('Erro: Formulário inspector-form NÃO localizado!', 'error');
                         }
