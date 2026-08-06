@@ -1,4 +1,58 @@
-// --- PREVIEW MODULE ---
+function applyGlitchTargetsToPreview() {
+    const phoneScreen = document.getElementById('phone-preview-screen');
+    const cardGlitchActiveCheck = document.getElementById('card-addon-glitch');
+    if (cardGlitchActiveCheck && cardGlitchActiveCheck.style.display !== 'none' && phoneScreen) {
+        const glitchName = document.getElementById('input-addon-glitch-name')?.checked || false;
+        const glitchButtons = document.getElementById('input-addon-glitch-buttons')?.checked || false;
+        const doBorder = window._pbGlitchBorder || false;
+        const doWave = window._pbGlitchWave || false;
+        const doScramble = window._pbGlitchScramble || false;
+        const glitchSpeed = window._pbGlitchSpeed || 'normal';
+
+        const names = phoneScreen.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name, .s-name, .v-name');
+        names.forEach(nameEl => {
+            if (glitchName) nameEl.classList.add('pb-glitch-name-target');
+            else nameEl.classList.remove('pb-glitch-name-target');
+        });
+
+        const btns = phoneScreen.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn, .btn, a.link-btn');
+        btns.forEach((btnEl, idx) => {
+            if (glitchButtons) {
+                btnEl.classList.add('pb-glitch-btn-target');
+                if (doBorder) btnEl.classList.add('pb-glitch-border-target');
+                else btnEl.classList.remove('pb-glitch-border-target');
+                btnEl.style.animationDelay = doWave ? (idx * 0.25) + 's' : '0s';
+            } else {
+                btnEl.classList.remove('pb-glitch-btn-target', 'pb-glitch-border-target');
+                btnEl.style.animationDelay = '';
+            }
+        });
+
+        if (doScramble) {
+            const chars = '#$@%&!01?*X';
+            const interval = glitchSpeed === 'fast' ? 1200 : 3500;
+            const allGlitch = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
+            allGlitch.forEach(el => {
+                const orig = el.innerText;
+                if (!orig) return;
+                const intervalId = setInterval(() => {
+                    if (Math.random() < 0.4) {
+                        el.innerText = orig.split('').map(c => c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]).join('');
+                        setTimeout(() => { el.innerText = orig; }, 250);
+                    }
+                }, interval);
+                window._pbScrambleIntervals.push(intervalId);
+            });
+        }
+
+    } else if (phoneScreen) {
+        const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target, .pb-glitch-border-target');
+        elements.forEach(el => {
+            el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target', 'pb-glitch-border-target');
+            el.style.animationDelay = '';
+        });
+    }
+}
 
 function updatePreviewFromForm() {
             if (window._pbScrambleIntervals) {
@@ -1758,6 +1812,7 @@ function updatePreviewFromForm() {
                     viewButtons.style.display = (btn1Title || btn2Title) ? 'flex' : 'none';
                     viewButtons.innerHTML = btnsHtml;
                 }
+                applyGlitchTargetsToPreview();
                 return;
             }
 
@@ -1914,6 +1969,7 @@ function updatePreviewFromForm() {
                     }, { passive: false });
                 }
 
+                applyGlitchTargetsToPreview();
                 return;
             }
             
@@ -2153,6 +2209,7 @@ function updatePreviewFromForm() {
                     });
                 }
 
+                applyGlitchTargetsToPreview();
                 return;
             }
 
@@ -2500,6 +2557,7 @@ function updatePreviewFromForm() {
                 if (btn4Title) btnsHtml += createVBtn(btn4Title, btn4Url);
 
                 if (viewButtons) viewButtons.innerHTML = btnsHtml;
+                applyGlitchTargetsToPreview();
                 return;
             }
 
@@ -2613,60 +2671,7 @@ function updatePreviewFromForm() {
 
             viewFooter.style.display = "flex";
 
-            // Aplica ou remove classes dos elementos de glitch após todos os templates renderizarem
-            const cardGlitchActiveCheck = document.getElementById('card-addon-glitch');
-            if (cardGlitchActiveCheck && cardGlitchActiveCheck.style.display !== 'none' && phoneScreen) {
-                const glitchName = document.getElementById('input-addon-glitch-name')?.checked || false;
-                const glitchButtons = document.getElementById('input-addon-glitch-buttons')?.checked || false;
-                const doBorder = window._pbGlitchBorder || false;
-                const doWave = window._pbGlitchWave || false;
-                const doScramble = window._pbGlitchScramble || false;
-                const glitchSpeed = window._pbGlitchSpeed || 'normal';
-
-                const names = phoneScreen.querySelectorAll('#view-name, #v-view-name, #c-view-name, #s-view-name, #eb-view-name, .preview-name, .eb-name, .s-name, .v-name');
-                names.forEach(nameEl => {
-                    if (glitchName) nameEl.classList.add('pb-glitch-name-target');
-                    else nameEl.classList.remove('pb-glitch-name-target');
-                });
-
-                const btns = phoneScreen.querySelectorAll('.preview-btn, .c-btn, .v-btn, .eb-link-btn, .s-card-btn, .s-catalog-btn, .preview-link-btn, .btn, a.link-btn');
-                btns.forEach((btnEl, idx) => {
-                    if (glitchButtons) {
-                        btnEl.classList.add('pb-glitch-btn-target');
-                        if (doBorder) btnEl.classList.add('pb-glitch-border-target');
-                        else btnEl.classList.remove('pb-glitch-border-target');
-                        btnEl.style.animationDelay = doWave ? (idx * 0.25) + 's' : '0s';
-                    } else {
-                        btnEl.classList.remove('pb-glitch-btn-target', 'pb-glitch-border-target');
-                        btnEl.style.animationDelay = '';
-                    }
-                });
-
-                // Scramble: armazena id para não duplicar intervalos
-                if (doScramble) {
-                    const chars = '#$@%&!01?*X';
-                    const interval = glitchSpeed === 'fast' ? 1200 : 3500;
-                    const allGlitch = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target');
-                    allGlitch.forEach(el => {
-                        const orig = el.innerText;
-                        if (!orig) return;
-                        const intervalId = setInterval(() => {
-                            if (Math.random() < 0.4) {
-                                el.innerText = orig.split('').map(c => c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]).join('');
-                                setTimeout(() => { el.innerText = orig; }, 250);
-                            }
-                        }, interval);
-                        window._pbScrambleIntervals.push(intervalId);
-                    });
-                }
-
-            } else if (phoneScreen) {
-                const elements = phoneScreen.querySelectorAll('.pb-glitch-name-target, .pb-glitch-btn-target, .pb-glitch-border-target');
-                elements.forEach(el => {
-                    el.classList.remove('pb-glitch-name-target', 'pb-glitch-btn-target', 'pb-glitch-border-target');
-                    el.style.animationDelay = '';
-                });
-            }
+            applyGlitchTargetsToPreview();
         }
 
 async function loadTemplatePreview(templateId, dataToFill = null) {
