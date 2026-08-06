@@ -746,9 +746,16 @@ export function generateStaticSite(data) {
     #pb-avatar-wrap img { border-radius: 50%; }
 </style>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        ${triggerJs}
-    });
+    (function() {
+        function runAvatarSpin() {
+            ${triggerJs}
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runAvatarSpin);
+        } else {
+            runAvatarSpin();
+        }
+    })();
 </script>`;
   }
 
@@ -2873,14 +2880,18 @@ ${avatarSpinHtml}
             object-fit: cover;
         }
 
-        .v-avatar-overlap {
+        .v-avatar-positioner {
             position: absolute; bottom: ${data.vitrineLayout === 'slideshow' ? '-110px' : '-42px'}; left: 50%; transform: translateX(-50%);
-            width: 94px; height: 94px; border-radius: 50%;
+            width: 94px; height: 94px; z-index: 20; pointer-events: none;
+        }
+
+        .v-avatar-overlap {
+            position: relative; width: 100%; height: 100%; border-radius: 50%;
             background: linear-gradient(135deg, var(--v-accent), var(--v-accent-2));
             padding: 3px; border: 4px solid var(--v-bg);
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; box-shadow: 0 0 22px rgba(0,0,0,0.6);
-            z-index: 20; box-sizing: border-box;
+            box-sizing: border-box; pointer-events: auto;
         }
 
         .v-avatar-overlap-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #111; }
@@ -2914,7 +2925,7 @@ ${avatarSpinHtml}
         <div class="v-grid-hero">
             ${highlightsHtml}
             
-            ${data.avatar ? '<div class="v-avatar-overlap" id="pb-avatar-wrap"><div class="v-avatar-overlap-inner"><img src="' + data.avatar + '" alt="' + (data.name || '') + '"></div></div>' : ''}
+            ${data.avatar ? '<div class="v-avatar-positioner"><div class="v-avatar-overlap" id="pb-avatar-wrap"><div class="v-avatar-overlap-inner"><img src="' + data.avatar + '" alt="' + (data.name || '') + '"></div></div></div>' : ''}
         </div>` : data.avatar ? `
         <div style="position: relative; width: 100px; height: 100px; margin-bottom: 20px;">
             <div class="v-avatar-overlap" id="pb-avatar-wrap" style="position: relative; bottom: 0; left: 0; transform: none; margin: 0 auto;">

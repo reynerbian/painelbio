@@ -2375,29 +2375,47 @@ function updatePreviewFromForm() {
                         }
                     }
 
-                    if (avatarWrapper && avatarWrapper.parentNode !== heroGrid) {
-                        heroGrid.appendChild(avatarWrapper);
+                    const avatarPos = document.getElementById('v-view-avatar-positioner') || avatarWrapper;
+                    if (avatarPos && avatarPos.parentNode !== heroGrid) {
+                        heroGrid.appendChild(avatarPos);
                     }
-                    if (avatarWrapper) {
-                        avatarWrapper.style.position = 'absolute';
+                    if (avatarPos) {
+                        avatarPos.style.position = 'absolute';
                         // Avatar tem 84px de altura. No slideshow as miniaturas ficam na base do heroGrid.
                         // bottom: -100px garante que o avatar fique 16px abaixo das miniaturas.
-                        avatarWrapper.style.bottom = vitrineLayout === 'slideshow' ? '-100px' : '-38px';
-                        avatarWrapper.style.left = '50%';
-                        avatarWrapper.style.transform = 'translateX(-50%)';
-                        avatarWrapper.style.margin = '0';
-                    }
-                } else {
-                    heroGrid.style.display = 'none';
-                    if (avatarWrapper && avatarWrapper.parentNode !== infoSection) {
-                        infoSection.prepend(avatarWrapper);
+                        avatarPos.style.bottom = vitrineLayout === 'slideshow' ? '-100px' : '-38px';
+                        avatarPos.style.left = '50%';
+                        avatarPos.style.transform = 'translateX(-50%)';
+                        avatarPos.style.margin = '0';
                     }
                     if (avatarWrapper) {
                         avatarWrapper.style.position = 'relative';
                         avatarWrapper.style.bottom = '0';
                         avatarWrapper.style.left = '0';
                         avatarWrapper.style.transform = 'none';
-                        avatarWrapper.style.margin = '0 auto 20px auto';
+                        avatarWrapper.style.margin = '0';
+                        avatarWrapper.style.width = '100%';
+                        avatarWrapper.style.height = '100%';
+                    }
+                } else {
+                    heroGrid.style.display = 'none';
+                    const avatarPos = document.getElementById('v-view-avatar-positioner') || avatarWrapper;
+                    if (avatarPos && avatarPos.parentNode !== infoSection) {
+                        infoSection.prepend(avatarPos);
+                    }
+                    if (avatarPos) {
+                        avatarPos.style.position = 'relative';
+                        avatarPos.style.bottom = '0';
+                        avatarPos.style.left = '0';
+                        avatarPos.style.transform = 'none';
+                        avatarPos.style.margin = '0 auto 20px auto';
+                    }
+                    if (avatarWrapper) {
+                        avatarWrapper.style.position = 'relative';
+                        avatarWrapper.style.bottom = '0';
+                        avatarWrapper.style.left = '0';
+                        avatarWrapper.style.transform = 'none';
+                        avatarWrapper.style.margin = '0';
                     }
                 }
                 // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema
@@ -3021,8 +3039,10 @@ async function loadTemplatePreview(templateId, dataToFill = null) {
                             </div>
                             
                             <!-- Avatar Sobreposto na Junção -->
-                            <div id="v-view-avatar-wrapper" style="position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%); width: 84px; height: 84px; border-radius: 50%; background: #fdf6df; border: 4px solid #0e110d; display: none; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5); z-index: 10;">
-                                <div id="v-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
+                            <div id="v-view-avatar-positioner" style="position: absolute; bottom: -38px; left: 50%; transform: translateX(-50%); width: 84px; height: 84px; z-index: 10;">
+                                <div id="v-view-avatar-wrapper" style="position: relative; width: 100%; height: 100%; border-radius: 50%; background: #fdf6df; border: 4px solid #0e110d; display: none; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+                                    <div id="v-view-avatar-inner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden;"></div>
+                                </div>
                             </div>
                         </div>
 
