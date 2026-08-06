@@ -696,8 +696,8 @@ export function generateStaticSite(data) {
         (function() {
             var wrap = document.getElementById('pb-avatar-wrap');
             if (!wrap) return;
-            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
-            wrap.style.borderRadius='50%';
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.perspectiveOrigin='center center'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%'; wrap.style.transformOrigin='center center'; wrap.style.transformStyle='preserve-3d';
             wrap.style.animation='none';
             void wrap.offsetHeight;
             wrap.style.animation='${entranceAnim}';
@@ -713,8 +713,8 @@ export function generateStaticSite(data) {
         (function() {
             var wrap = document.getElementById('pb-avatar-wrap');
             if (!wrap) return;
-            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
-            wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.perspectiveOrigin='center center'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%'; wrap.style.transformOrigin='center center'; wrap.style.transformStyle='preserve-3d'; wrap.style.cursor='pointer';
             var clearAnim = function() {
                 wrap.style.animation = '';
                 wrap.removeEventListener('animationend', clearAnim);
@@ -727,8 +727,8 @@ export function generateStaticSite(data) {
         (function() {
             var wrap = document.getElementById('pb-avatar-wrap');
             if (!wrap) return;
-            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.overflow='visible'; }
-            wrap.style.borderRadius='50%'; wrap.style.cursor='pointer';
+            if (wrap.parentElement) { wrap.parentElement.style.perspective='600px'; wrap.parentElement.style.perspectiveOrigin='center center'; wrap.parentElement.style.overflow='visible'; }
+            wrap.style.borderRadius='50%'; wrap.style.transformOrigin='center center'; wrap.style.transformStyle='preserve-3d'; wrap.style.cursor='pointer';
             var clearAnim = function() {
                 wrap.style.animation = '';
                 wrap.removeEventListener('animationend', clearAnim);

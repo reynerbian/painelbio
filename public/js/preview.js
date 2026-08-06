@@ -2387,6 +2387,9 @@ function updatePreviewFromForm() {
                         avatarPos.style.left = '50%';
                         avatarPos.style.transform = 'translateX(-50%)';
                         avatarPos.style.margin = '0';
+                        avatarPos.style.width = '84px';
+                        avatarPos.style.height = '84px';
+                        avatarPos.style.boxSizing = 'border-box';
                     }
                     if (avatarWrapper) {
                         avatarWrapper.style.position = 'relative';
@@ -2394,8 +2397,11 @@ function updatePreviewFromForm() {
                         avatarWrapper.style.left = '0';
                         avatarWrapper.style.transform = 'none';
                         avatarWrapper.style.margin = '0';
-                        avatarWrapper.style.width = '100%';
-                        avatarWrapper.style.height = '100%';
+                        avatarWrapper.style.width = '84px';
+                        avatarWrapper.style.height = '84px';
+                        avatarWrapper.style.boxSizing = 'border-box';
+                        avatarWrapper.style.transformOrigin = 'center center';
+                        avatarWrapper.style.transformStyle = 'preserve-3d';
                     }
                 } else {
                     heroGrid.style.display = 'none';
@@ -2409,6 +2415,9 @@ function updatePreviewFromForm() {
                         avatarPos.style.left = '0';
                         avatarPos.style.transform = 'none';
                         avatarPos.style.margin = '0 auto 20px auto';
+                        avatarPos.style.width = '84px';
+                        avatarPos.style.height = '84px';
+                        avatarPos.style.boxSizing = 'border-box';
                     }
                     if (avatarWrapper) {
                         avatarWrapper.style.position = 'relative';
@@ -2416,6 +2425,11 @@ function updatePreviewFromForm() {
                         avatarWrapper.style.left = '0';
                         avatarWrapper.style.transform = 'none';
                         avatarWrapper.style.margin = '0';
+                        avatarWrapper.style.width = '84px';
+                        avatarWrapper.style.height = '84px';
+                        avatarWrapper.style.boxSizing = 'border-box';
+                        avatarWrapper.style.transformOrigin = 'center center';
+                        avatarWrapper.style.transformStyle = 'preserve-3d';
                     }
                 }
                 // Avatar Sobreposto com Borda/Anel Colorido Vibrante do Tema

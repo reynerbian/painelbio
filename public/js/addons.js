@@ -205,10 +205,13 @@ function applyAvatarSpinAnimation(duration, spins, activeModel, axis, easing, en
     const parentEl = wrapperEl.parentElement;
     if (parentEl) {
         parentEl.style.perspective = '600px';
+        parentEl.style.perspectiveOrigin = 'center center';
         parentEl.style.overflow = 'visible';
     }
 
     wrapperEl.style.borderRadius = '50%';
+    wrapperEl.style.transformOrigin = 'center center';
+    wrapperEl.style.transformStyle = 'preserve-3d';
     wrapperEl.style.animation = 'none';
     void wrapperEl.offsetHeight;
     wrapperEl.style.animation = animCss;
