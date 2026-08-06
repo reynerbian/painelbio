@@ -2647,13 +2647,13 @@ ${avatarSpinHtml}
             <!-- MODO SLIDESHOW ROTATIVO -->
             <div class="v-slideshow-container">
                 <div class="v-slideshow-main">
-                    <img id="v-slide-main-img" src="" alt="Destaque Principal">
-                    <div id="v-slide-main-title" class="v-slideshow-title"></div>
+                    <img id="v-slide-main-img" src="${h1 || h2 || h3}" alt="Destaque Principal">
+                    <div id="v-slide-main-title" class="v-slideshow-title" style="${(data.highlight1Title || (h1 ? '' : (data.highlight2Title || ''))) ? 'display:block' : 'display:none'}">${data.highlight1Title || (h1 ? '' : (data.highlight2Title || ''))}</div>
                 </div>
                 <div class="v-slideshow-thumbs">
-                    ${h1 ? `<div class="v-thumb-item" data-index="0"><img src="${h1}" alt="Minia 1"></div>` : ''}
-                    ${h2 ? `<div class="v-thumb-item" data-index="1"><img src="${h2}" alt="Minia 2"></div>` : ''}
-                    ${h3 ? `<div class="v-thumb-item" data-index="2"><img src="${h3}" alt="Minia 3"></div>` : ''}
+                    ${h1 ? `<div class="v-thumb-item" data-index="0" style="border-color: var(--v-accent)"><img src="${h1}" alt="Minia 1"></div>` : ''}
+                    ${h2 ? `<div class="v-thumb-item" data-index="1" style="border-color: ${h1 ? 'transparent' : 'var(--v-accent)'}"><img src="${h2}" alt="Minia 2"></div>` : ''}
+                    ${h3 ? `<div class="v-thumb-item" data-index="2" style="border-color: transparent"><img src="${h3}" alt="Minia 3"></div>` : ''}
                 </div>
             </div>`;
         } else {
@@ -2799,7 +2799,7 @@ ${avatarSpinHtml}
         .v-grid-hero {
             width: 100%;
             position: relative;
-            margin-bottom: 50px;
+            margin-bottom: ${data.vitrineLayout === 'slideshow' ? '120px' : '50px'};
         }
 
         .v-main-pic {
@@ -2874,7 +2874,7 @@ ${avatarSpinHtml}
         }
 
         .v-avatar-overlap {
-            position: absolute; bottom: -42px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: ${data.vitrineLayout === 'slideshow' ? '-110px' : '-42px'}; left: 50%; transform: translateX(-50%);
             width: 94px; height: 94px; border-radius: 50%;
             background: linear-gradient(135deg, var(--v-accent), var(--v-accent-2));
             padding: 3px; border: 4px solid var(--v-bg);

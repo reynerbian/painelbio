@@ -1407,7 +1407,7 @@ function updatePreviewFromForm() {
                 if (hasAnyPhoto) {
                     heroGrid.style.display = 'block';
                     // No slideshow o avatar fica em -68px, precisa de mais espaço embaixo
-                    heroGrid.style.marginBottom = vitrineLayout === 'slideshow' ? '75px' : '45px';
+                    heroGrid.style.marginBottom = vitrineLayout === 'slideshow' ? '110px' : '45px';
                     
                     const gridLayoutDiv = document.getElementById('v-view-grid-layout');
                     const slideshowLayoutDiv = document.getElementById('v-view-slideshow-layout');
@@ -1579,7 +1579,7 @@ function updatePreviewFromForm() {
                     if (avatarWrapper) {
                         avatarWrapper.style.position = 'absolute';
                         // No slideshow as miniaturas têm 80px, então o avatar precisa descer mais
-                        avatarWrapper.style.bottom = vitrineLayout === 'slideshow' ? '-68px' : '-38px';
+                        avatarWrapper.style.bottom = vitrineLayout === 'slideshow' ? '-100px' : '-38px';
                         avatarWrapper.style.left = '50%';
                         avatarWrapper.style.transform = 'translateX(-50%)';
                         avatarWrapper.style.margin = '0';

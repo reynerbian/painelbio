@@ -1391,7 +1391,7 @@ export function generateStaticSite(data) {
         .v-grid-hero {
             width: 100%;
             position: relative;
-            margin-bottom: 50px;
+            margin-bottom: ${data.vitrineLayout === 'slideshow' ? '120px' : '50px'};
         }
 
         .v-main-pic {
@@ -1466,7 +1466,7 @@ export function generateStaticSite(data) {
         }
 
         .v-avatar-overlap {
-            position: absolute; bottom: -42px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: ${data.vitrineLayout === 'slideshow' ? '-110px' : '-42px'}; left: 50%; transform: translateX(-50%);
             width: 94px; height: 94px; border-radius: 50%;
             background: linear-gradient(135deg, var(--v-accent), var(--v-accent-2));
             padding: 3px; border: 4px solid var(--v-bg);
