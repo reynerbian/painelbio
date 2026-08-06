@@ -246,8 +246,18 @@ const leftIcon = document.querySelector('.left-icon');
 
         // Função global para fazer upload do site com modal de progresso
         window.startUploadSite = async function(arroba) {
-            const site = (window.allSitesData || []).find(l => l.arroba.toLowerCase() === arroba.toLowerCase());
+            const cleanTarget = (arroba || '').trim().toLowerCase().replace(/^@/, '');
+            let site = (window.allSitesData || []).find(l => l.arroba && l.arroba.trim().toLowerCase().replace(/^@/, '') === cleanTarget);
             
+            // Se o site atualmente no editor for este, mescla os dados mais recentes do formulário antes de enviar
+            const currentArrobaEl = document.getElementById('input-arroba');
+            const currentArroba = currentArrobaEl ? currentArrobaEl.value.trim().toLowerCase().replace(/^@/, '') : '';
+            if (currentArroba && currentArroba === cleanTarget) {
+                const latestFormData = getFormData();
+                site = site ? { ...site, ...latestFormData } : latestFormData;
+                await window.db.saveLead(site);
+            }
+
             if (!site) {
                 showCustomAlert('Dados do site não encontrados!', 'error');
                 return;
@@ -466,8 +476,17 @@ const leftIcon = document.querySelector('.left-icon');
 
         // Função global para abrir a Prévia Real do Site (Modal em tela cheia com o HTML final, sem abrir o editor)
         window.previewSiteOffline = async function(arroba) {
-            const fallbackData = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+            const cleanTarget = (arroba || '').trim().toLowerCase().replace(/^@/, '');
+            let fallbackData = (window.allSitesData || []).find(l => l.arroba && l.arroba.trim().toLowerCase().replace(/^@/, '') === cleanTarget);
             
+            // Se o site atualmente no editor for este, mescla com o formulário em tempo real
+            const currentArrobaEl = document.getElementById('input-arroba');
+            const currentArroba = currentArrobaEl ? currentArrobaEl.value.trim().toLowerCase().replace(/^@/, '') : '';
+            if (currentArroba && currentArroba === cleanTarget) {
+                const latestFormData = getFormData();
+                fallbackData = fallbackData ? { ...fallbackData, ...latestFormData } : latestFormData;
+            }
+
             if (!fallbackData) {
                 showCustomAlert('Site não encontrado na memória.', 'error');
                 return;
@@ -476,12 +495,11 @@ const leftIcon = document.querySelector('.left-icon');
             // Tenta buscar dados completos do servidor (_dados.json)
             let siteData = fallbackData;
             try {
-                const cleanSlug = (arroba || '').toLowerCase().replace(/^@/, '');
-                const resp = await fetch(`/api/sites/@${cleanSlug}/_dados.json`);
+                const resp = await fetch(`/api/sites/@${cleanTarget}/_dados.json`);
                 if (resp.ok) {
                     const serverData = await resp.json();
-                    // Mescla dados do servidor (mais completos) com fallback
-                    siteData = { ...fallbackData, ...serverData };
+                    // Prioriza os dados locais/formulário se tiver alterações recentes
+                    siteData = { ...serverData, ...fallbackData };
                 }
             } catch (e) {
                 // Usa fallback silenciosamente

@@ -63,6 +63,16 @@
             const cleanArroba = siteData.arroba.trim().toLowerCase();
             siteData.arroba = cleanArroba;
 
+            // Mantém window.allSitesData sincronizado na memória em tempo real
+            if (Array.isArray(window.allSitesData)) {
+                const idx = window.allSitesData.findIndex(l => l.arroba && l.arroba.trim().toLowerCase() === cleanArroba);
+                if (idx !== -1) {
+                    window.allSitesData[idx] = { ...window.allSitesData[idx], ...siteData };
+                } else {
+                    window.allSitesData.unshift(siteData);
+                }
+            }
+
             if (window.firebaseConfigured && window.firestoreDb) {
                 console.log(`[DB] Gravando no Firestore: ${cleanArroba}`);
                 try {
@@ -85,6 +95,17 @@
             // Insere no início
             leads.unshift(siteData);
             saveLocalLeads(leads);
+
+            // Garante sincronização no array global
+            if (Array.isArray(window.allSitesData)) {
+                const cleanArroba = siteData.arroba.trim().toLowerCase();
+                const idx = window.allSitesData.findIndex(l => l.arroba && l.arroba.trim().toLowerCase() === cleanArroba);
+                if (idx !== -1) {
+                    window.allSitesData[idx] = { ...window.allSitesData[idx], ...siteData };
+                } else {
+                    window.allSitesData.unshift(siteData);
+                }
+            }
         },
 
         // Deleta um site
