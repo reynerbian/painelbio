@@ -2778,34 +2778,39 @@ ${avatarSpinHtml}
         :root {
             --v-accent: ${theme.c1};
             --v-accent-2: ${theme.c2 || theme.c1};
-            --v-bg: ${theme.bg};
+            --v-bg: ${theme.bg && theme.bg !== '#121214' ? theme.bg : '#0e110d'};
         }
         
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            min-height: 100%;
+            min-height: 100vh;
             background-color: var(--v-bg);
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
             display: flex;
             justify-content: center;
+            position: relative;
         }
 
         .v-container {
             width: 100%;
             max-width: 440px;
+            min-height: 100vh;
             padding: 16px 14px 40px 14px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            z-index: 1;
         }
 
         .v-grid-hero {
             width: 100%;
             position: relative;
+            z-index: 5;
             margin-bottom: ${data.vitrineLayout === 'slideshow' ? '120px' : '50px'};
         }
 
@@ -2897,7 +2902,7 @@ ${avatarSpinHtml}
         .v-avatar-overlap-inner { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #111; }
         .v-avatar-overlap-inner img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); }
 
-        .v-info { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .v-info { width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; z-index: 5; }
         .v-title { font-family: Georgia, "Times New Roman", serif; font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 0 0 6px 0; line-height: 1.25; text-align: center; }
         .v-arroba { font-size: 0.95rem; color: var(--v-accent); text-decoration: none; font-weight: 600; margin-bottom: 12px; display: inline-block; }
         .v-bio { font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); line-height: 1.5; margin: 0 0 28px 0; text-align: ${bioAlign}; white-space: pre-wrap; width: 90%; }
