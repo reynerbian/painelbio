@@ -1715,13 +1715,10 @@ function updatePreviewFromForm() {
                     }
                 }
 
-                // Ocultar balão de perfil se nome, @ e bio estiverem todos vazios
-                const hasProfileText = Boolean(name || arroba || bio);
-                if (profileCard) {
-                    profileCard.style.display = hasProfileText ? 'block' : 'none';
-                }
-
+                // Informações da Loja
+                infoSection.style.display = 'flex';
                 if (viewName) viewName.textContent = name || '';
+                
                 if (viewArroba) {
                     if (arroba) {
                         const displayArroba = arroba.startsWith('@') ? arroba : `@${arroba}`;
@@ -2470,10 +2467,10 @@ function updatePreviewFromForm() {
                 
                 if (viewArroba) {
                     if (arroba) {
-                        const displayArroba = arroba.startsWith('@') ? arroba : `@${arroba}`;
+                        const displayArroba = arroba.startsWith('@') ? arroba : '@' + arroba;
                         const cleanUser = arroba.startsWith('@') ? arroba.substring(1) : arroba;
                         viewArroba.textContent = displayArroba;
-                        viewArroba.href = `https://instagram.com/${cleanUser}`;
+                        viewArroba.href = 'https://instagram.com/' + cleanUser;
                         viewArroba.style.color = themeBorderColor;
                         viewArroba.style.display = 'inline-block';
                     } else {
@@ -2488,10 +2485,10 @@ function updatePreviewFromForm() {
                     viewBio.style.textAlign = activeAlignBtn ? activeAlignBtn.getAttribute('data-align') : 'center';
                 }
 
-                // Botões Estilo Modelo 1 (Fundo Transparente, Texto Branco, Borda Colorida do Tema)
+                // Botões Estilo Modelo Vitrine (Fundo Transparente, Texto Branco, Borda Colorida do Tema)
                 let btnsHtml = '';
                 const createVBtn = (title, url) => `
-                    <div style="width: 100%; background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 15px 18px; border-radius: 16px; font-weight: 700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.3); backdrop-filter: blur(8px); cursor: pointer;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
+                    <div class="v-btn" style="width: 100%; background: rgba(255, 255, 255, 0.05); color: #ffffff; border: 1.5px solid ${themeBorderColor}; padding: 15px 18px; border-radius: 16px; font-weight: 700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.3); backdrop-filter: blur(8px); cursor: pointer;" onclick="${url ? `window.open('${url}', '_blank')` : ''}">
                         ${title}
                     </div>
                 `;
