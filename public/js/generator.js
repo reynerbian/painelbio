@@ -2778,7 +2778,7 @@ ${avatarSpinHtml}
         :root {
             --v-accent: ${theme.c1};
             --v-accent-2: ${theme.c2 || theme.c1};
-            --v-bg: ${theme.bg && theme.bg !== '#121214' ? theme.bg : '#0e110d'};
+            --v-bg: #0e110d;
         }
         
         html, body {
@@ -2786,7 +2786,7 @@ ${avatarSpinHtml}
             padding: 0;
             width: 100%;
             min-height: 100vh;
-            background-color: var(--v-bg);
+            background-color: #0e110d;
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif;
             display: flex;
