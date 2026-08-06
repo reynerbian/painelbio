@@ -1519,23 +1519,24 @@ export function generateStaticSite(data) {
 
       const flashFilter82 = glitchFlash ? 'filter: drop-shadow(0 0 10px ' + gc1 + ');' : '';
       const flashFilterOff = glitchFlash ? 'filter: none;' : '';
-      const animDur = glitchSpeed === 'fast' ? (glitchDuration === 'long' ? '1s' : '0.4s') : (glitchDuration === 'long' ? '6s' : '4s');
+      const animDur = glitchSpeed === 'fast' ? (glitchDuration === 'long' ? '0.8s' : '0.4s') : (glitchDuration === 'long' ? '2.5s' : '1.5s');
 
       glitchHtml = `
       <style>
           @keyframes pb-glitch-anim {
-              0%, 80%, 100% { text-shadow: none; transform: none; ${flashFilterOff} }
-              82% { text-shadow: ${dist}px -${dist/2}px 0 ${gc1}, -${dist}px ${dist/2}px 0 ${gc2}; transform: translate(${scale}px, -${scale}px) skew(-2deg); ${flashFilter82} }
-              84% { text-shadow: -${dist}px ${dist}px 0 ${gc1}, ${dist}px -${dist}px 0 ${gc2}; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
-              86% { text-shadow: ${dist/2}px -${dist}px 0 ${gc1}, -${dist/2}px ${dist/2}px 0 ${gc2}; transform: translate(0px, 0px) skew(-1deg); }
-              88%, 98% { text-shadow: none; transform: none; ${flashFilterOff} }
+              0%, 12%, 35%, 52%, 75%, 100% { text-shadow: none; transform: none; ${flashFilterOff} }
+              14% { text-shadow: ${dist}px -${dist/2}px 0 ${gc1}, -${dist}px ${dist/2}px 0 ${gc2}; transform: translate(${scale}px, -${scale}px) skew(-2deg); ${flashFilter82} }
+              18% { text-shadow: -${dist}px ${dist}px 0 ${gc1}, ${dist}px -${dist}px 0 ${gc2}; transform: translate(-${scale}px, ${scale}px) skew(1deg); }
+              38% { text-shadow: ${dist}px ${dist/2}px 0 ${gc2}, -${dist}px -${dist/2}px 0 ${gc1}; transform: translate(${scale}px, 0px) skew(2deg); }
+              42% { text-shadow: -${dist/2}px -${dist}px 0 ${gc1}, ${dist/2}px ${dist/2}px 0 ${gc2}; transform: translate(0px, -${scale}px); }
+              78% { text-shadow: ${dist/2}px -${dist}px 0 ${gc1}, -${dist/2}px ${dist/2}px 0 ${gc2}; transform: translate(-${scale}px, 0px) skew(-1deg); }
+              82% { text-shadow: -${dist}px ${dist}px 0 ${gc2}, ${dist}px -${dist}px 0 ${gc1}; transform: translate(${scale}px, ${scale}px); ${flashFilter82} }
           }
 
           @keyframes pb-glitch-border-anim {
-              0%, 80%, 100% { border-color: rgba(255,255,255,0.2); box-shadow: none; }
-              82% { border-color: ${gc1}; box-shadow: 0 0 12px ${gc1}, -2px 0 0 ${gc2}; }
-              84% { border-color: ${gc2}; box-shadow: 0 0 12px ${gc2}, 2px 0 0 ${gc1}; }
-              88%, 98% { border-color: rgba(255,255,255,0.2); box-shadow: none; }
+              0%, 12%, 35%, 52%, 75%, 100% { border-color: rgba(255,255,255,0.2); box-shadow: none; }
+              14%, 42%, 82% { border-color: ${gc1}; box-shadow: 0 0 12px ${gc1}, -2px 0 0 ${gc2}; }
+              18%, 38%, 78% { border-color: ${gc2}; box-shadow: 0 0 12px ${gc2}, 2px 0 0 ${gc1}; }
           }
           
           .pb-glitch-name-target {
