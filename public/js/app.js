@@ -465,12 +465,26 @@ const leftIcon = document.querySelector('.left-icon');
         };
 
         // Função global para abrir a Prévia Real do Site (Modal em tela cheia com o HTML final, sem abrir o editor)
-        window.previewSiteOffline = function(arroba) {
-            const siteData = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
+        window.previewSiteOffline = async function(arroba) {
+            const fallbackData = (window.allSitesData || []).find(l => l.arroba && l.arroba.toLowerCase() === (arroba || '').toLowerCase());
             
-            if (!siteData) {
+            if (!fallbackData) {
                 showCustomAlert('Site não encontrado na memória.', 'error');
                 return;
+            }
+
+            // Tenta buscar dados completos do servidor (_dados.json)
+            let siteData = fallbackData;
+            try {
+                const cleanSlug = (arroba || '').toLowerCase().replace(/^@/, '');
+                const resp = await fetch(`/api/sites/@${cleanSlug}/_dados.json`);
+                if (resp.ok) {
+                    const serverData = await resp.json();
+                    // Mescla dados do servidor (mais completos) com fallback
+                    siteData = { ...fallbackData, ...serverData };
+                }
+            } catch (e) {
+                // Usa fallback silenciosamente
             }
 
             let fullHtml = '';
